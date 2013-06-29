@@ -7,8 +7,6 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
-import de.uniluebeck.itm.tr.common.EndpointManager;
-import de.uniluebeck.itm.tr.common.EndpointManagerImpl;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.SmServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
@@ -22,13 +20,13 @@ import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutor
 import static com.google.inject.util.Providers.of;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
-public class RSServerServiceModule extends RSServiceModule {
+public class RSServerModule extends RSServiceModule {
 
 	private final RSServerConfig rsServerConfig;
 
-	public RSServerServiceModule(final CommonConfig commonConfig,
-								 final RSServiceConfig rsServiceConfig,
-								 final RSServerConfig rsServerConfig) {
+	public RSServerModule(final CommonConfig commonConfig,
+						  final RSServiceConfig rsServiceConfig,
+						  final RSServerConfig rsServerConfig) {
 		super(commonConfig, rsServiceConfig);
 		this.rsServerConfig = rsServerConfig;
 	}
@@ -36,11 +34,14 @@ public class RSServerServiceModule extends RSServiceModule {
 	@Override
 	protected void configure() {
 
+		bind(CommonConfig.class).toProvider(of(commonConfig));
 		bind(RSServerConfig.class).toProvider(of(rsServerConfig));
+		bind(RSServiceConfig.class).toProvider(of(rsServiceConfig));
 
 		install(new ServicePublisherCxfModule());
 		bind(ServedNodeUrnsProvider.class).to(SmServedNodeUrnsProvider.class);
 		super.configure();
+		expose(ServicePublisher.class);
 	}
 
 	@Provides
@@ -52,16 +53,6 @@ public class RSServerServiceModule extends RSServiceModule {
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory,
 											 final CommonConfig config) {
 		return servicePublisherFactory.create(new ServicePublisherConfig(config.getPort()));
-	}
-
-	@Provides
-	EndpointManager provideEndpointManager(final RSServerConfig config) {
-		return new EndpointManagerImpl(
-				null,
-				config.getSnaaEndpointUri(),
-				config.getSmEndpointUri(),
-				null
-		);
 	}
 
 	@Provides

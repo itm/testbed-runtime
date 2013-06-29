@@ -2,7 +2,7 @@ package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.common.net.HostAndPort;
 import com.google.inject.Guice;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.util.TimeDiff;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
@@ -97,11 +97,11 @@ public class ShibbolethAuthenticatorMain {
 		final String finalUrl = url;
 		final HostAndPort finalProxy = proxy;
 		final Properties properties = new Properties();
-		properties.put(SNAAConfig.SHIBBOLETH_URL, finalUrl);
-		properties.put(SNAAConfig.SHIBBOLETH_PROXY, finalProxy == null ? "" : finalProxy.toString());
+		properties.put(SNAAServiceConfig.SHIBBOLETH_URL, finalUrl);
+		properties.put(SNAAServiceConfig.SHIBBOLETH_PROXY, finalProxy == null ? "" : finalProxy.toString());
 		final ShibbolethAuthenticator sa = Guice
 				.createInjector(
-						new PropConfModule(properties, SNAAConfig.class),
+						new PropConfModule(properties, SNAAServiceConfig.class),
 						new ShibbolethAuthenticatorModule()
 				).getInstance(ShibbolethAuthenticator.class);
 		sa.setUserAtIdpDomain(userAtIdpDomain);

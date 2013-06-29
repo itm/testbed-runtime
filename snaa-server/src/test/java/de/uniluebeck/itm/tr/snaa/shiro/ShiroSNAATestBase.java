@@ -7,8 +7,9 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static com.google.inject.util.Providers.of;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -74,13 +76,11 @@ public abstract class ShiroSNAATestBase {
 
 	protected static final NodeUrnPrefix NODE_URN_PREFIX_2 = new NodeUrnPrefix("urn:wisebed:uzl3:");
 
-	protected static final Set<NodeUrnPrefix> NODE_URN_PREFIXES = newHashSet(NODE_URN_PREFIX_1, NODE_URN_PREFIX_2);
-
 	@Mock
 	protected CommonConfig commonConfig;
 
 	@Mock
-	protected SNAAConfig snaaConfig;
+	protected SNAAServiceConfig snaaServiceConfig;
 
 	@Mock
 	protected ServicePublisher servicePublisher;
@@ -88,24 +88,31 @@ public abstract class ShiroSNAATestBase {
 	@Mock
 	protected ServicePublisherService servicePublisherService;
 
+	@Mock
+	protected ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
+
 	protected ShiroSNAA shiroSNAA;
 
 	public void setUp(final Module jpaModule) throws Exception {
 
 		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX_1);
-		when(snaaConfig.getShiroJpaProperties()).thenReturn(new Properties());
-		when(snaaConfig.getShiroHashAlgorithmName()).thenReturn(Sha512Hash.ALGORITHM_NAME);
-		when(snaaConfig.getShiroHashAlgorithmIterations()).thenReturn(1000);
+		when(servedNodeUrnPrefixesProvider.get()).thenReturn(newHashSet(NODE_URN_PREFIX_1));
+		when(snaaServiceConfig.getShiroJpaProperties()).thenReturn(new Properties());
+		when(snaaServiceConfig.getShiroHashAlgorithmName()).thenReturn(Sha512Hash.ALGORITHM_NAME);
+		when(snaaServiceConfig.getShiroHashAlgorithmIterations()).thenReturn(1000);
 
 		final AbstractModule mocksModule = new AbstractModule() {
 			@Override
 			protected void configure() {
+				bind(CommonConfig.class).toProvider(of(commonConfig));
+				bind(SNAAServiceConfig.class).toProvider(of(snaaServiceConfig));
 				bind(ServicePublisher.class).toInstance(servicePublisher);
+				bind(ServedNodeUrnPrefixesProvider.class).toInstance(servedNodeUrnPrefixesProvider);
 			}
 		};
 
-		ShiroSNAAModule shiroSNAAModule = new ShiroSNAAModule(commonConfig, snaaConfig);
+		ShiroSNAAModule shiroSNAAModule = new ShiroSNAAModule(snaaServiceConfig);
 		Injector injector = Guice.createInjector(jpaModule, mocksModule, shiroSNAAModule);
 
 		shiroSNAA = injector.getInstance(ShiroSNAA.class);

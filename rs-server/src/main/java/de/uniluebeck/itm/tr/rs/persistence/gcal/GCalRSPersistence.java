@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.gcal;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.gdata.client.Query;
 import com.google.gdata.client.calendar.CalendarQuery;
@@ -34,6 +35,8 @@ import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.extensions.When;
 import com.google.gdata.util.ServiceException;
+import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.rs.RSServiceConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.Tuple;
@@ -80,19 +83,24 @@ public class GCalRSPersistence implements RSPersistence {
 
 	private CalendarService myService;
 
-	public GCalRSPersistence(String userName, String password) {
+	@VisibleForTesting
+	GCalRSPersistence(final String username, final String password) {
 
 		myService = new CalendarService("GCal Persistence Service");
 
 		try {
-			eventFeedUrl = new URL(META_FEED_URL_BASE + userName + EVENT_FEED_URL_SUFFIX);
-			myService.setUserCredentials(userName, password);
+			eventFeedUrl = new URL(META_FEED_URL_BASE + username + EVENT_FEED_URL_SUFFIX);
+			myService.setUserCredentials(username, password);
 		} catch (Exception e) {
 			throw propagate(e);
 		}
 
 		log.debug("New GCal Persistence instance for calendar @ " + eventFeedUrl);
+	}
 
+	@Inject
+	public GCalRSPersistence(final RSServiceConfig rsServiceConfig) {
+		this(rsServiceConfig.getRsGcalUsername(), rsServiceConfig.getRsGcalPassword());
 	}
 
 	@Override

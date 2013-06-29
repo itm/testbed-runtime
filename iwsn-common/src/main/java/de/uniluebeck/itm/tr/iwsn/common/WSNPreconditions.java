@@ -25,8 +25,8 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
 import eu.wisebed.api.v3.wsn.Link;
@@ -47,10 +47,9 @@ public class WSNPreconditions {
 
 	private CommonPreconditions commonPreconditions;
 
-	public WSNPreconditions(Iterable<NodeUrnPrefix> servedUrnPrefixes, Iterable<NodeUrn> reservedNodeUrns) {
-		this.commonPreconditions = new CommonPreconditions();
-		this.commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
-		this.commonPreconditions.addKnownNodeUrns(reservedNodeUrns);
+	@Inject
+	public WSNPreconditions(final CommonPreconditions commonPreconditions) {
+		this.commonPreconditions = commonPreconditions;
 	}
 
 	public void checkAreNodesAliveArguments(Collection<NodeUrn> nodes) {

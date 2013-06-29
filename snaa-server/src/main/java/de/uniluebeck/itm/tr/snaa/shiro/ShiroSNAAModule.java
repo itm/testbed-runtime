@@ -7,9 +7,8 @@ import com.google.inject.name.Names;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import eu.wisebed.api.v3.snaa.SNAA;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
@@ -18,9 +17,6 @@ import org.apache.shiro.guice.ShiroModule;
 import org.apache.shiro.subject.Subject;
 
 import javax.persistence.EntityManager;
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Extension of the abstract {@link ShiroModule} to configure Apache Shiro and to bind dependencies
@@ -28,13 +24,10 @@ import static com.google.common.collect.Sets.newHashSet;
  */
 public class ShiroSNAAModule extends ShiroModule {
 
-	private final CommonConfig commonConfig;
+	private final SNAAServiceConfig snaaServiceConfig;
 
-	private final SNAAConfig snaaConfig;
-
-	public ShiroSNAAModule(final CommonConfig commonConfig, final SNAAConfig snaaConfig) {
-		this.commonConfig = commonConfig;
-		this.snaaConfig = snaaConfig;
+	public ShiroSNAAModule(final SNAAServiceConfig snaaServiceConfig) {
+		this.snaaServiceConfig = snaaServiceConfig;
 	}
 
 	@Override
@@ -42,24 +35,17 @@ public class ShiroSNAAModule extends ShiroModule {
 		try {
 
 			requireBinding(CommonConfig.class);
-			requireBinding(SNAAConfig.class);
+			requireBinding(SNAAServiceConfig.class);
 			requireBinding(EntityManager.class);
 			requireBinding(ServicePublisher.class);
-
-			bind(ServedNodeUrnPrefixesProvider.class).toInstance(new ServedNodeUrnPrefixesProvider() {
-				@Override
-				public Set<NodeUrnPrefix> get() {
-					return newHashSet(commonConfig.getUrnPrefix());
-				}
-			}
-			);
+			requireBinding(ServedNodeUrnPrefixesProvider.class);
 
 			bind(CredentialsMatcher.class).to(HashedCredentialsMatcher.class);
 			bind(HashedCredentialsMatcher.class); // needs to be bound explicitly to have the shiro TypeListener work
 			bindConstant().annotatedWith(Names.named("shiro.hashAlgorithmName"))
-					.to(snaaConfig.getShiroHashAlgorithmName());
+					.to(snaaServiceConfig.getShiroHashAlgorithmName());
 			bindConstant().annotatedWith(Names.named("shiro.hashIterations"))
-					.to(snaaConfig.getShiroHashAlgorithmIterations());
+					.to(snaaServiceConfig.getShiroHashAlgorithmIterations());
 
 			bindRealm().to(ShiroSNAAJPARealm.class).in(Singleton.class);
 

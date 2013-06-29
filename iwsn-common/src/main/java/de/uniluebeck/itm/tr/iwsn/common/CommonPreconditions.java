@@ -24,8 +24,10 @@
 package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
@@ -42,76 +44,17 @@ import static com.google.common.collect.Sets.newHashSet;
  */
 public class CommonPreconditions {
 
-	/**
-	 * The set of known nodes.
-	 */
-	private ImmutableSet<NodeUrn> knownNodeUrns = ImmutableSet.of();
+	private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
-	/**
-	 * The set of served URN prefixes.
-	 */
-	private ImmutableSet<NodeUrnPrefix> servedUrnPrefixes = ImmutableSet.of();
+	private final ServedNodeUrnsProvider servedNodeUrnsProvider;
 
-	private static final Joiner joiner = Joiner.on(", ");
+	private final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
 
-	/**
-	 * Adds {@code knownNodeUrns} to the set of known nodes. All checks regarding known nodes will be run against the
-	 * resulting set of known nodes.
-	 *
-	 * @param knownNodeUrns
-	 * 		the known node URNs to add
-	 */
-	public void addKnownNodeUrns(final Iterable<NodeUrn> knownNodeUrns) {
-		this.knownNodeUrns = ImmutableSet
-				.<NodeUrn>builder()
-				.addAll(this.knownNodeUrns)
-				.addAll(knownNodeUrns)
-				.build();
-	}
-
-	/**
-	 * Adds {@code knownNodeUrns} to the set of known nodes. All checks regarding known nodes will be run against the
-	 * resulting set of known nodes.
-	 *
-	 * @param knownNodeUrns
-	 * 		the known node URNs to add
-	 */
-	public void addKnownNodeUrns(final NodeUrn... knownNodeUrns) {
-		this.knownNodeUrns = ImmutableSet
-				.<NodeUrn>builder()
-				.addAll(this.knownNodeUrns)
-				.add(knownNodeUrns)
-				.build();
-	}
-
-	/**
-	 * Adds {@code servedUrnPrefixes} to the set of served URN prefixes. All checks that test for URN prefix matches will
-	 * be run against the resulting set of served URN prefixes.
-	 *
-	 * @param servedUrnPrefixes
-	 * 		the served URN prefixes to add
-	 */
-	public void addServedUrnPrefixes(final Iterable<NodeUrnPrefix> servedUrnPrefixes) {
-		this.servedUrnPrefixes = ImmutableSet
-				.<NodeUrnPrefix>builder()
-				.addAll(this.servedUrnPrefixes)
-				.addAll(servedUrnPrefixes)
-				.build();
-	}
-
-	/**
-	 * Adds {@code servedUrnPrefixes} to the set of served URN prefixes. All checks that test for URN prefix matches will
-	 * be run against the resulting set of served URN prefixes.
-	 *
-	 * @param servedUrnPrefixes
-	 * 		the served URN prefixes to add
-	 */
-	public void addServedUrnPrefixes(NodeUrnPrefix... servedUrnPrefixes) {
-		this.servedUrnPrefixes = ImmutableSet
-				.<NodeUrnPrefix>builder()
-				.addAll(this.servedUrnPrefixes)
-				.add(servedUrnPrefixes)
-				.build();
+	@Inject
+	public CommonPreconditions(final ServedNodeUrnsProvider servedNodeUrnsProvider,
+							   final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider) {
+		this.servedNodeUrnsProvider = servedNodeUrnsProvider;
+		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
 	}
 
 	/**
@@ -122,7 +65,6 @@ public class CommonPreconditions {
 	 *
 	 * @throws RuntimeException
 	 * 		if at least one of the node URNs prefix is not served
-	 * @see CommonPreconditions#addServedUrnPrefixes(eu.wisebed.api.v3.common.NodeUrnPrefix...)
 	 */
 	public void checkNodeUrnsPrefixesServed(NodeUrn... nodeUrns) {
 		checkNodeUrnsPrefixesServed(newHashSet(nodeUrns));
@@ -136,7 +78,6 @@ public class CommonPreconditions {
 	 *
 	 * @throws RuntimeException
 	 * 		if at least one of the node URNs prefix is not served
-	 * @see CommonPreconditions#addServedUrnPrefixes(eu.wisebed.api.v3.common.NodeUrnPrefix...)
 	 */
 	public void checkNodeUrnsPrefixesServed(Collection<NodeUrn> nodeUrns) {
 
@@ -146,7 +87,7 @@ public class CommonPreconditions {
 
 			boolean nodeUrnMatch = false;
 
-			for (NodeUrnPrefix servedUrnPrefix : servedUrnPrefixes) {
+			for (NodeUrnPrefix servedUrnPrefix : servedNodeUrnPrefixesProvider.get()) {
 				if (nodeUrn.belongsTo(servedUrnPrefix)) {
 					nodeUrnMatch = true;
 				}
@@ -160,7 +101,7 @@ public class CommonPreconditions {
 		if (nodeUrnsOfUnservedPrefixes.size() > 0) {
 			throw new IllegalArgumentException(
 					"Ignoring request as the following node URNs have prefixes not served: " +
-							joiner.join(nodeUrnsOfUnservedPrefixes)
+							COMMA_JOINER.join(nodeUrnsOfUnservedPrefixes)
 			);
 		}
 	}
@@ -173,15 +114,14 @@ public class CommonPreconditions {
 	 *
 	 * @throws IllegalArgumentException
 	 * 		if at least one the URN prefixes is unknown
-	 * @see CommonPreconditions#addServedUrnPrefixes(eu.wisebed.api.v3.common.NodeUrnPrefix...)
 	 */
 	public void checkUrnPrefixesServed(Set<NodeUrnPrefix> urnPrefixes) {
 
-		Set<NodeUrnPrefix> unservedUrnPrefixes = Sets.difference(urnPrefixes, servedUrnPrefixes);
+		Set<NodeUrnPrefix> unservedUrnPrefixes = Sets.difference(urnPrefixes, servedNodeUrnPrefixesProvider.get());
 
 		if (unservedUrnPrefixes.size() > 0) {
 			throw new IllegalArgumentException("Ignoring request as the following URN prefixes are not served: " +
-					joiner.join(unservedUrnPrefixes)
+					COMMA_JOINER.join(unservedUrnPrefixes)
 			);
 		}
 	}
@@ -194,7 +134,6 @@ public class CommonPreconditions {
 	 *
 	 * @throws IllegalArgumentException
 	 * 		if at least one node URN is not known
-	 * @see CommonPreconditions#addKnownNodeUrns(eu.wisebed.api.v3.common.NodeUrn...)
 	 */
 	public void checkNodesKnown(final NodeUrn... nodeUrns) {
 		checkNodesKnown(Sets.<NodeUrn>newHashSet(nodeUrns));
@@ -208,19 +147,18 @@ public class CommonPreconditions {
 	 *
 	 * @throws IllegalArgumentException
 	 * 		if at least one node URN is not known
-	 * @see CommonPreconditions#addKnownNodeUrns(eu.wisebed.api.v3.common.NodeUrn...)
 	 */
 	public void checkNodesKnown(final Collection<NodeUrn> nodeUrns) {
 
 		Set<NodeUrn> unknownNodeUrns =
 				Sets.difference(
 						(nodeUrns instanceof Set ? (Set<NodeUrn>) nodeUrns : Sets.<NodeUrn>newHashSet(nodeUrns)),
-						knownNodeUrns
+						servedNodeUrnsProvider.get()
 				);
 
 		if (unknownNodeUrns.size() > 0) {
 			throw new IllegalArgumentException("Ignoring request as the following nodes are not known or not part of "
-					+ "the current reservation: " + joiner.join(unknownNodeUrns)
+					+ "the current reservation: " + COMMA_JOINER.join(unknownNodeUrns)
 			);
 		}
 	}

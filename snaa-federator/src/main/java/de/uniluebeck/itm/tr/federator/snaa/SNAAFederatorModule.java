@@ -14,7 +14,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
@@ -43,11 +43,11 @@ public class SNAAFederatorModule extends AbstractModule {
 	protected void configure() {
 
 		final CommonConfig commonConfig = buildConfig(CommonConfig.class, properties);
-		final SNAAConfig snaaConfig = buildConfig(SNAAConfig.class, properties);
+		final SNAAServiceConfig snaaServiceConfig = buildConfig(SNAAServiceConfig.class, properties);
 		final SNAAFederatorConfig snaaFederatorConfig = buildConfig(SNAAFederatorConfig.class, properties);
 
 		bind(CommonConfig.class).toInstance(commonConfig);
-		bind(SNAAConfig.class).toInstance(snaaConfig);
+		bind(SNAAServiceConfig.class).toInstance(snaaServiceConfig);
 		bind(SNAAFederatorConfig.class).toInstance(snaaFederatorConfig);
 
 		install(new ServicePublisherCxfModule());
@@ -58,7 +58,7 @@ public class SNAAFederatorModule extends AbstractModule {
 				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
 				break;
 			case SHIBBOLETH:
-				install(new ShibbolethSNAAModule(commonConfig, snaaConfig));
+				install(new ShibbolethSNAAModule(commonConfig, snaaServiceConfig));
 				bind(SNAAFederatorService.class)
 						.to(DelegatingSNAAFederatorServiceImpl.class)
 						.in(Scopes.SINGLETON);

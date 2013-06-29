@@ -65,13 +65,13 @@ public class SNAAServer extends AbstractService {
 				"de.uniluebeck.itm"
 		);
 
-		final PropConfModule propConfModule = new PropConfModule(config.config, CommonConfig.class, SNAAConfig.class);
+		final PropConfModule propConfModule = new PropConfModule(config.config, CommonConfig.class, SNAAServiceConfig.class);
 		final Injector propConfInjector = Guice.createInjector(propConfModule);
 
 		final CommonConfig commonConfig = propConfInjector.getInstance(CommonConfig.class);
-		final SNAAConfig snaaConfig = propConfInjector.getInstance(SNAAConfig.class);
+		final SNAAServiceConfig snaaServiceConfig = propConfInjector.getInstance(SNAAServiceConfig.class);
 
-		final SNAAServerModule module = new SNAAServerModule(commonConfig, snaaConfig);
+		final SNAAServerModule module = new SNAAServerModule(commonConfig, snaaServiceConfig);
 		final SNAAServer snaa = Guice.createInjector(module).getInstance(SNAAServer.class);
 
 		try {
@@ -93,7 +93,7 @@ public class SNAAServer extends AbstractService {
 
 		log.info(
 				"SNAA started (SOAP API at {})",
-				"http://localhost:" + commonConfig.getPort() + snaaConfig.getSnaaContextPath()
+				"http://localhost:" + commonConfig.getPort() + snaaServiceConfig.getSnaaContextPath()
 		);
 	}
 }

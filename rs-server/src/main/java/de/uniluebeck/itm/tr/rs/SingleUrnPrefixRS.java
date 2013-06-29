@@ -5,7 +5,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
@@ -43,7 +42,7 @@ public class SingleUrnPrefixRS implements RS {
 
 	private final RSPersistence persistence;
 
-	private final Provider<Set<NodeUrn>> servedNodeUrnsProvider;
+	private final ServedNodeUrnsProvider servedNodeUrnsProvider;
 
 	@Inject
 	public SingleUrnPrefixRS(final CommonConfig commonConfig,

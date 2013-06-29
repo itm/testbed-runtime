@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Properties;
 
-public class SNAAConfig {
+public class SNAAServiceConfig {
 
 	@PropConf(
 			usage = "Context path on which to run the SNAA service",
@@ -29,13 +29,24 @@ public class SNAAConfig {
 
 	@PropConf(
 			usage = "The authentication backend of the SNAA service",
-			example = "DUMMY/JAAS/SHIBBOLETH/SHIRO"
+			example = "DUMMY/JAAS/SHIBBOLETH/SHIRO/REMOTE"
 	)
 	public static final String SNAA_TYPE = "snaa.type";
 
 	@Inject
 	@Named(SNAA_TYPE)
 	private SNAAType snaaType;
+
+	@PropConf(
+			usage = "The URI of the remote SNAA server (only if REMOTE is used)",
+			example = "http://localhost:8890/soap/v3/snaa",
+			typeConverter = URITypeConverter.class
+	)
+	public static final String SNAA_REMOTE_URI = "snaa.remote.uri";
+
+	@Inject(optional = true)
+	@Named(SNAA_REMOTE_URI)
+	private URI snaaRemoteUri;
 
 	@PropConf(
 			usage = "The login module for the JAAS backend (only if JAAS is used)",
@@ -233,5 +244,9 @@ public class SNAAConfig {
 
 	public SNAAType getSnaaType() {
 		return snaaType;
+	}
+
+	public URI getSnaaRemoteUri() {
+		return snaaRemoteUri;
 	}
 }

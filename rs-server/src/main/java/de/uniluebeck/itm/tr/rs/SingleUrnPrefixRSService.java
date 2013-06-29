@@ -27,7 +27,6 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
@@ -36,7 +35,6 @@ import eu.wisebed.api.v3.rs.*;
 import org.joda.time.DateTime;
 
 import javax.jws.WebService;
-import java.net.URI;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -65,13 +63,10 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 
 	private final ServicePublisher servicePublisher;
 
-	private final CommonConfig commonConfig;
-
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public SingleUrnPrefixRSService(final ServicePublisher servicePublisher, final CommonConfig commonConfig, final RS rs, final RSServiceConfig rsServiceConfig) {
-		this.commonConfig = commonConfig;
+	public SingleUrnPrefixRSService(final ServicePublisher servicePublisher, final RS rs, final RSServiceConfig rsServiceConfig) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.reservationSystem = checkNotNull(rs);
 		this.rsServiceConfig = checkNotNull(rsServiceConfig);

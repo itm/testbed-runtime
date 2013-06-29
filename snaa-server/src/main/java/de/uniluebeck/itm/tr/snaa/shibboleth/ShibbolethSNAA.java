@@ -29,7 +29,7 @@ import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -76,17 +76,17 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 	protected final TimedCache<SecretAuthenticationKey, List<Cookie>> cookieCache =
 			new TimedCache<SecretAuthenticationKey, List<Cookie>>();
 
-	private final SNAAConfig snaaConfig;
+	private final SNAAServiceConfig snaaServiceConfig;
 
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public ShibbolethSNAA(final SNAAConfig snaaConfig,
+	public ShibbolethSNAA(final SNAAServiceConfig snaaServiceConfig,
 						  final ServicePublisher servicePublisher,
 						  final ServedNodeUrnPrefixesProvider urnPrefixes,
 						  final ShibbolethAuthorization authorization,
 						  final Provider<ShibbolethAuthenticator> authenticatorProvider) {
-		this.snaaConfig = checkNotNull(snaaConfig);
+		this.snaaServiceConfig = checkNotNull(snaaServiceConfig);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.urnPrefixes = checkNotNull(urnPrefixes);
 		this.authorization = checkNotNull(authorization);
@@ -96,7 +96,7 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(snaaConfig.getSnaaContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

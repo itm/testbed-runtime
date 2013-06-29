@@ -5,16 +5,17 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBRestService;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
 import de.uniluebeck.itm.tr.rs.RSService;
 import de.uniluebeck.itm.tr.rs.RSServiceConfig;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAService;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
@@ -47,43 +48,60 @@ public class PortalServer extends AbstractService {
 
 	private final RSService rsService;
 
+	private final SNAAService snaaService;
+
+	private final DeviceDBService deviceDBService;
+
+	private final WiseGuiService wiseGuiService;
+
 	@Inject
-	public PortalServer(final DeviceDBRestService deviceDBRestService,
+	public PortalServer(final ServicePublisher servicePublisher,
+						final DeviceDBService deviceDBService,
+						final RSService rsService,
+						final SNAAService snaaService,
 						final PortalEventBus portalEventBus,
 						final ReservationManager reservationManager,
+						final DeviceDBRestService deviceDBRestService,
 						final SoapApiService soapApiService,
 						final RestApiService restApiService,
-						final ServicePublisher servicePublisher,
-						final RSService rsService) {
-		this.deviceDBRestService = checkNotNull(deviceDBRestService);
+						final WiseGuiService wiseGuiService) {
+
+		this.servicePublisher = checkNotNull(servicePublisher);
+
+		this.rsService = checkNotNull(rsService);
+		this.snaaService = checkNotNull(snaaService);
+		this.deviceDBService = checkNotNull(deviceDBService);
+
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.reservationManager = checkNotNull(reservationManager);
+
+		this.deviceDBRestService = checkNotNull(deviceDBRestService);
 		this.soapApiService = checkNotNull(soapApiService);
 		this.restApiService = checkNotNull(restApiService);
-		this.servicePublisher = checkNotNull(servicePublisher);
-		this.rsService = checkNotNull(rsService);
+		this.wiseGuiService = checkNotNull(wiseGuiService);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
 
+			// the web server
 			servicePublisher.startAndWait();
 
-			deviceDBRestService.startAndWait();
+			// services that the portal depends on (either embedded or remote, depends on binding)
 			rsService.startAndWait();
+			snaaService.startAndWait();
+			deviceDBService.startAndWait();
 
+			// internal components of the portal server
 			portalEventBus.startAndWait();
 			reservationManager.startAndWait();
+
+			// services that the portal exposes to clients
+			deviceDBRestService.startAndWait();
 			soapApiService.startAndWait();
 			restApiService.startAndWait();
-
-			{
-				final String resourceBaseDir = "/de/uniluebeck/itm/tr/iwsn/portal/wisegui";
-				final String resourceBase = this.getClass().getResource(resourceBaseDir).toString();
-				final ServicePublisherService webapp = servicePublisher.createServletService("/", resourceBase);
-				webapp.startAndWait();
-			}
+			wiseGuiService.startAndWait();
 
 			notifyStarted();
 
@@ -96,14 +114,22 @@ public class PortalServer extends AbstractService {
 	protected void doStop() {
 		try {
 
+			// services that the portal server exposes to clients
+			wiseGuiService.stopAndWait();
 			restApiService.stopAndWait();
 			soapApiService.stopAndWait();
+			deviceDBRestService.stopAndWait();
+
+			// internal components
 			reservationManager.stopAndWait();
 			portalEventBus.stopAndWait();
 
+			// services that the portal depends on (either embedded or remote, depends on binding)
+			deviceDBService.stopAndWait();
 			rsService.stopAndWait();
-			deviceDBRestService.stopAndWait();
+			snaaService.stopAndWait();
 
+			// the web server
 			servicePublisher.stopAndWait();
 
 			notifyStopped();
@@ -122,24 +148,31 @@ public class PortalServer extends AbstractService {
 				"de.uniluebeck.itm"
 		);
 
-		final Injector confInjector = Guice.createInjector(
-				new PropConfModule(config.config, CommonConfig.class, RSServiceConfig.class, DeviceDBConfig.class,
-						PortalConfig.class, SNAAConfig.class
-				)
+		final Injector confInjector = Guice.createInjector(new PropConfModule(
+				config.config,
+				CommonConfig.class,
+				RSServiceConfig.class,
+				DeviceDBConfig.class,
+				PortalServerConfig.class,
+				SNAAServiceConfig.class,
+				WiseGuiServiceConfig.class
+		)
 		);
 
 		final CommonConfig commonConfig = confInjector.getInstance(CommonConfig.class);
 		final RSServiceConfig rsServiceConfig = confInjector.getInstance(RSServiceConfig.class);
 		final DeviceDBConfig deviceDBConfig = confInjector.getInstance(DeviceDBConfig.class);
-		final PortalConfig portalConfig = confInjector.getInstance(PortalConfig.class);
-		final SNAAConfig snaaConfig = confInjector.getInstance(SNAAConfig.class);
+		final PortalServerConfig portalServerConfig = confInjector.getInstance(PortalServerConfig.class);
+		final SNAAServiceConfig snaaServiceConfig = confInjector.getInstance(SNAAServiceConfig.class);
+		final WiseGuiServiceConfig wiseGuiServiceConfig = confInjector.getInstance(WiseGuiServiceConfig.class);
 
 		final PortalModule portalModule = new PortalModule(
 				commonConfig,
 				deviceDBConfig,
-				portalConfig,
+				portalServerConfig,
 				rsServiceConfig,
-				snaaConfig
+				snaaServiceConfig,
+				wiseGuiServiceConfig
 		);
 		final PortalServer portalServer = Guice.createInjector(portalModule).getInstance(PortalServer.class);
 
@@ -150,8 +183,6 @@ public class PortalServer extends AbstractService {
 			System.exit(1);
 		}
 
-		log.info("iWSN Portal started!");
-
 		Runtime.getRuntime().addShutdownHook(new Thread("Portal-Shutdown") {
 			@Override
 			public void run() {
@@ -161,5 +192,7 @@ public class PortalServer extends AbstractService {
 			}
 		}
 		);
+
+		log.info("iWSN Portal started!");
 	}
 }

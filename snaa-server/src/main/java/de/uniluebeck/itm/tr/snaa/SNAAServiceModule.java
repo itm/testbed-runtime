@@ -4,6 +4,7 @@ import com.google.inject.PrivateModule;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAAModule;
 import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAAModule;
+import de.uniluebeck.itm.tr.snaa.remote.RemoteSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shiro.JpaModule;
 import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAModule;
@@ -13,35 +14,38 @@ public class SNAAServiceModule extends PrivateModule {
 
 	private final CommonConfig commonConfig;
 
-	private final SNAAConfig snaaConfig;
+	private final SNAAServiceConfig snaaServiceConfig;
 
-	public SNAAServiceModule(final CommonConfig commonConfig, final SNAAConfig snaaConfig) {
+	public SNAAServiceModule(final CommonConfig commonConfig, final SNAAServiceConfig snaaServiceConfig) {
 		this.commonConfig = commonConfig;
-		this.snaaConfig = snaaConfig;
+		this.snaaServiceConfig = snaaServiceConfig;
 	}
 
 	@Override
 	protected void configure() {
 
 		requireBinding(CommonConfig.class);
-		requireBinding(SNAAConfig.class);
+		requireBinding(SNAAServiceConfig.class);
 
-		switch (snaaConfig.getSnaaType()) {
+		switch (snaaServiceConfig.getSnaaType()) {
 			case DUMMY:
-				install(new DummySNAAModule(snaaConfig));
+				install(new DummySNAAModule(snaaServiceConfig));
 				break;
 			case JAAS:
-				install(new JAASSNAAModule(commonConfig, snaaConfig));
+				install(new JAASSNAAModule(commonConfig, snaaServiceConfig));
 				break;
 			case SHIBBOLETH:
-				install(new ShibbolethSNAAModule(commonConfig, snaaConfig));
+				install(new ShibbolethSNAAModule(commonConfig, snaaServiceConfig));
 				break;
 			case SHIRO:
-				install(new JpaModule("ShiroSNAA", snaaConfig.getShiroJpaProperties()));
-				install(new ShiroSNAAModule(commonConfig, snaaConfig));
+				install(new JpaModule("ShiroSNAA", snaaServiceConfig.getShiroJpaProperties()));
+				install(new ShiroSNAAModule(snaaServiceConfig));
+				break;
+			case REMOTE:
+				install(new RemoteSNAAModule());
 				break;
 			default:
-				throw new IllegalArgumentException("Unknown authentication type " + snaaConfig.getSnaaType());
+				throw new IllegalArgumentException("Unknown authentication type " + snaaServiceConfig.getSnaaType());
 		}
 
 		expose(SNAA.class);

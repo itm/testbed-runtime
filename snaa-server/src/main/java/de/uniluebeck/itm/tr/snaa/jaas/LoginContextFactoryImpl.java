@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.snaa.jaas;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
@@ -11,17 +11,17 @@ import static com.google.common.base.Throwables.propagate;
 
 public class LoginContextFactoryImpl implements LoginContextFactory {
 
-	private final SNAAConfig snaaConfig;
+	private final SNAAServiceConfig snaaServiceConfig;
 
 	@Inject
-	public LoginContextFactoryImpl(final SNAAConfig snaaConfig) {
-		this.snaaConfig = snaaConfig;
+	public LoginContextFactoryImpl(final SNAAServiceConfig snaaServiceConfig) {
+		this.snaaServiceConfig = snaaServiceConfig;
 	}
 
 	@Override
 	public LoginContext create(final CallbackHandler callbackHandler) {
 		try {
-			return new LoginContext(snaaConfig.getJaasLoginModule(), callbackHandler);
+			return new LoginContext(snaaServiceConfig.getJaasLoginModule(), callbackHandler);
 		} catch (LoginException e) {
 			throw propagate(e);
 		}

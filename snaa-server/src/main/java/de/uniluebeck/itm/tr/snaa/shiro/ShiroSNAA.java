@@ -31,7 +31,7 @@ import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -119,7 +119,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 
 	private final Provider<Subject> currentUserProvider;
 
-	private final SNAAConfig snaaConfig;
+	private final SNAAServiceConfig snaaServiceConfig;
 
 	private ServicePublisherService jaxWsService;
 
@@ -145,7 +145,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 					 final SecurityManager securityManager,
 					 final UrnResourceGroupDao urnResourceGroupsDAO,
 					 final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
-					 final SNAAConfig snaaConfig,
+					 final SNAAServiceConfig snaaServiceConfig,
 					 final Provider<Subject> currentUserProvider) {
 
 		Collection<Realm> realms = ((RealmSecurityManager) securityManager).getRealms();
@@ -156,7 +156,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 		this.securityManager = securityManager;
 		this.realm = realms.iterator().next();
 		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
-		this.snaaConfig = snaaConfig;
+		this.snaaServiceConfig = snaaServiceConfig;
 		this.urnResourceGroupsDAO = urnResourceGroupsDAO;
 	}
 
@@ -164,7 +164,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	protected void doStart() {
 		try {
 			SecurityUtils.setSecurityManager(securityManager);
-			jaxWsService = servicePublisher.createJaxWsService(snaaConfig.getSnaaContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

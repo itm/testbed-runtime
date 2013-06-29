@@ -98,7 +98,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 	@Before
 	public void setUp() throws RSFault_Exception {
 		super.setUp();
-		final RSPersistenceJPAModule module = new RSPersistenceJPAModule(mapToProperties(), TimeZone.getDefault());
+		final RSPersistenceJPAModule module = new RSPersistenceJPAModule(TimeZone.getDefault(), mapToProperties());
 		final RSPersistence rsPersistence = Guice.createInjector(module).getInstance(RSPersistence.class);
 		super.setPersistence(rsPersistence);
 	}

@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
@@ -120,9 +119,6 @@ public class SingleUrnPrefixRSTest {
 
 	@Mock
 	private ServedNodeUrnsProvider servedNodeUrnsProvider;
-
-	@Mock
-	private EndpointManager endpointManager;
 
 	@Mock
 	private TimeLimiter timeLimiter;

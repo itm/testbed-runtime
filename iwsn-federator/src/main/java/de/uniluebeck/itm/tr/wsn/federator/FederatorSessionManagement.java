@@ -28,8 +28,11 @@ import com.google.common.collect.*;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.federatorutils.WebservicePublisher;
+import de.uniluebeck.itm.tr.iwsn.common.CommonPreconditions;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
@@ -376,7 +379,7 @@ public class FederatorSessionManagement implements SessionManagement {
 		}
 
 
-		ImmutableSet<NodeUrn> reservedNodeUrns;
+		final ImmutableSet<NodeUrn> reservedNodeUrns;
 
 		try {
 
@@ -463,13 +466,26 @@ public class FederatorSessionManagement implements SessionManagement {
 		final ThreadFactory federatorWSNThreadFactory = new ThreadFactoryBuilder()
 				.setNameFormat("WSN Federator %d")
 				.build();
-		final ListeningExecutorService federatorWSNThreadPool = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool(federatorWSNThreadFactory));
+		final ListeningExecutorService federatorWSNThreadPool =
+				MoreExecutors.listeningDecorator(Executors.newCachedThreadPool(federatorWSNThreadFactory));
 
 		final WebservicePublisher<WSN> federatorWSNWebservicePublisher = new WebservicePublisher<WSN>(wsnEndpointUrl);
 		final FederatorController federatorWSNController = new FederatorController(controllerEndpointUrl);
-		final WSNPreconditions federatorWSNPreconditions = new WSNPreconditions(
-				federatorWSNFederationManager.getUrnPrefixes(),
-				reservedNodeUrns
+
+		final WSNPreconditions federatorWSNPreconditions = new WSNPreconditions(new CommonPreconditions(
+				new ServedNodeUrnsProvider() {
+					@Override
+					public Set<NodeUrn> get() {
+						return reservedNodeUrns;
+					}
+				},
+				new ServedNodeUrnPrefixesProvider() {
+					@Override
+					public Set<NodeUrnPrefix> get() {
+						return federatorWSNFederationManager.getUrnPrefixes();
+					}
+				}
+		)
 		);
 
 		final FederatorWSN federatorWSN = new FederatorWSN(

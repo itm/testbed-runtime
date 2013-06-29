@@ -6,10 +6,7 @@ import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
-import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
-import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
+import de.uniluebeck.itm.tr.iwsn.common.*;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
@@ -100,10 +97,13 @@ public class SessionManagementImplTest {
 	private RequestIdProvider requestIdProvider;
 
 	@Mock
-	private PortalConfig portalConfig;
+	private PortalServerConfig portalServerConfig;
 
 	@Mock
 	private CommonConfig commonConfig;
+
+	@Mock
+	private SessionManagementPreconditions sessionManagementPreconditions;
 
 	private SessionManagementImpl sessionManagement;
 
@@ -125,7 +125,7 @@ public class SessionManagementImplTest {
 
 		sessionManagement = new SessionManagementImpl(
 				commonConfig,
-				portalConfig,
+				portalServerConfig,
 				portalEventBus,
 				responseTrackerFactory,
 				Sets.<HandlerFactory>newHashSet(),
@@ -135,7 +135,8 @@ public class SessionManagementImplTest {
 				authorizingWSNFactory,
 				wsnFactory,
 				deliveryManagerFactory,
-				requestIdProvider
+				requestIdProvider,
+				sessionManagementPreconditions
 		);
 	}
 

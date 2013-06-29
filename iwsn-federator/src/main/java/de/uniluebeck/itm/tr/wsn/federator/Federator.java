@@ -26,10 +26,14 @@ package de.uniluebeck.itm.tr.wsn.federator;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.iwsn.common.CommonPreconditions;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import org.apache.commons.cli.*;
@@ -44,6 +48,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Properties;
 import java.util.Set;
+
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
+import static eu.wisebed.wiseml.WiseMLHelper.getNodeUrns;
 
 
 public class Federator {
@@ -124,10 +133,30 @@ public class Federator {
 				smEndpointUrlPrefixSet
 		);
 
-		final SessionManagementPreconditions preconditions = new SessionManagementPreconditions();
-		for (Set<NodeUrnPrefix> endpointPrefixSet : smEndpointUrlPrefixSet.values()) {
-			preconditions.addServedUrnPrefixes(endpointPrefixSet);
-		}
+		final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider = new ServedNodeUrnPrefixesProvider() {
+			@Override
+			public Set<NodeUrnPrefix> get() {
+				return federationManager.getUrnPrefixes();
+			}
+		};
+		final ServedNodeUrnsProvider servedNodeUrnsProvider = new ServedNodeUrnsProvider() {
+			@Override
+			public Set<NodeUrn> get() {
+				final Set<NodeUrn> nodeUrns = newHashSet();
+				for (SessionManagement sessionManagement : federationManager.getEndpoints()) {
+					for (NodeUrn nodeUrn : transform(getNodeUrns(sessionManagement.getNetwork()), STRING_TO_NODE_URN)) {
+						nodeUrns.add(nodeUrn);
+					}
+				}
+				return nodeUrns;
+			}
+		};
+		final CommonPreconditions commonPreconditions = new CommonPreconditions(
+				servedNodeUrnsProvider,
+				servedNodeUrnPrefixesProvider
+		);
+		final SessionManagementPreconditions preconditions = new SessionManagementPreconditions(commonPreconditions);
+
 
 		final FederatorSessionManagement federatorSessionManagement = new FederatorSessionManagement(
 				federationManager,

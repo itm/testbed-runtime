@@ -9,6 +9,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -44,17 +45,21 @@ public class Gateway extends AbstractService {
 
 	private final ServicePublisherFactory servicePublisherFactory;
 
+	private final DeviceDBService deviceDBService;
+
 	private ServicePublisher servicePublisher;
 
 	@Inject
 	public Gateway(final GatewayConfig gatewayConfig,
 				   final GatewayEventBus gatewayEventBus,
+				   final DeviceDBService deviceDBService,
 				   final DeviceManager deviceManager,
 				   final DeviceObserverWrapper deviceObserverWrapper,
 				   final RestApplication restApplication,
 				   final RequestHandler requestHandler,
 				   final ServicePublisherConfig servicePublisherConfig,
 				   final ServicePublisherFactory servicePublisherFactory) {
+		this.deviceDBService = checkNotNull(deviceDBService);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 		this.deviceManager = checkNotNull(deviceManager);
@@ -72,6 +77,7 @@ public class Gateway extends AbstractService {
 
 		try {
 
+			deviceDBService.startAndWait();
 			gatewayEventBus.startAndWait();
 			requestHandler.startAndWait();
 			deviceManager.startAndWait();
@@ -106,6 +112,7 @@ public class Gateway extends AbstractService {
 			deviceManager.stopAndWait();
 			requestHandler.stopAndWait();
 			gatewayEventBus.stopAndWait();
+			deviceDBService.stopAndWait();
 
 			notifyStopped();
 

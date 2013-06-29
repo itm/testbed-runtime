@@ -3,6 +3,8 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
 import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
@@ -14,6 +16,9 @@ public class SoapApiModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+
+		requireBinding(ServedNodeUrnsProvider.class);
+		requireBinding(ServedNodeUrnPrefixesProvider.class);
 
 		install(new FactoryModuleBuilder()
 				.implement(WSNService.class, WSNServiceImpl.class)

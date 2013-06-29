@@ -16,6 +16,7 @@ import eu.wisebed.wiseml.Coordinate;
 import eu.wisebed.wiseml.Dtypes;
 import eu.wisebed.wiseml.Units;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.Map;
@@ -137,6 +138,13 @@ public abstract class DeviceDBTestBase {
 				null,
 				null
 		);
+
+		db.startAndWait();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		db.stopAndWait();
 	}
 
 	@Test

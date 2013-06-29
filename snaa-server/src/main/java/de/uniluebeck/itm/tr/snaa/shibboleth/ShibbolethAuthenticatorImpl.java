@@ -6,7 +6,7 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -50,7 +50,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 
 	private static final String CLOSE_HTML_TAG = "&gt;";
 
-	private final SNAAConfig config;
+	private final SNAAServiceConfig config;
 
 	private String username;
 
@@ -83,7 +83,7 @@ public class ShibbolethAuthenticatorImpl implements ShibbolethAuthenticator {
 	private List<Cookie> cookies;
 
 	@Inject
-	public ShibbolethAuthenticatorImpl(final SNAAConfig config) {
+	public ShibbolethAuthenticatorImpl(final SNAAServiceConfig config) {
 		this.config = config;
 	}
 

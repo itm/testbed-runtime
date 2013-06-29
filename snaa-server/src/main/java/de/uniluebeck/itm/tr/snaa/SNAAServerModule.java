@@ -7,7 +7,9 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.common.config.CommonConfigServedNodeUrnPrefixesProvider;
 
 import static com.google.inject.util.Providers.of;
 
@@ -15,21 +17,22 @@ public class SNAAServerModule extends AbstractModule {
 
 	private final CommonConfig commonConfig;
 
-	private final SNAAConfig snaaConfig;
+	private final SNAAServiceConfig snaaServiceConfig;
 
-	public SNAAServerModule(final CommonConfig commonConfig, final SNAAConfig snaaConfig) {
+	public SNAAServerModule(final CommonConfig commonConfig, final SNAAServiceConfig snaaServiceConfig) {
 		this.commonConfig = commonConfig;
-		this.snaaConfig = snaaConfig;
+		this.snaaServiceConfig = snaaServiceConfig;
 	}
 
 	@Override
 	protected void configure() {
 
 		bind(CommonConfig.class).toProvider(of(commonConfig));
-		bind(SNAAConfig.class).toProvider(of(snaaConfig));
+		bind(SNAAServiceConfig.class).toProvider(of(snaaServiceConfig));
+		bind(ServedNodeUrnPrefixesProvider.class).to(CommonConfigServedNodeUrnPrefixesProvider.class);
 
 		install(new ServicePublisherCxfModule());
-		install(new SNAAServiceModule(commonConfig, snaaConfig));
+		install(new SNAAServiceModule(commonConfig, snaaServiceConfig));
 	}
 
 	@Provides

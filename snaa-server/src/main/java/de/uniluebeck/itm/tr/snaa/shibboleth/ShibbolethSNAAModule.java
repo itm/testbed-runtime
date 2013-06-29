@@ -6,7 +6,7 @@ import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -19,20 +19,20 @@ public class ShibbolethSNAAModule extends PrivateModule {
 
 	private final CommonConfig commonConfig;
 
-	private final SNAAConfig snaaConfig;
+	private final SNAAServiceConfig snaaServiceConfig;
 
-	public ShibbolethSNAAModule(final CommonConfig commonConfig, final SNAAConfig snaaConfig) {
+	public ShibbolethSNAAModule(final CommonConfig commonConfig, final SNAAServiceConfig snaaServiceConfig) {
 		this.commonConfig = commonConfig;
-		this.snaaConfig = snaaConfig;
+		this.snaaServiceConfig = snaaServiceConfig;
 	}
 
 	@Override
 	protected void configure() {
 
 		requireBinding(CommonConfig.class);
-		requireBinding(SNAAConfig.class);
+		requireBinding(SNAAServiceConfig.class);
 
-		switch (snaaConfig.getShibbolethAuthorizationType()) {
+		switch (snaaServiceConfig.getShibbolethAuthorizationType()) {
 			case ALWAYS_ALLOW:
 				bind(ShibbolethAuthorization.class).to(AlwaysAllowShibbolethAuthorization.class).in(Scopes.SINGLETON);
 				break;
@@ -41,12 +41,12 @@ public class ShibbolethSNAAModule extends PrivateModule {
 				break;
 			case ATTRIBUTE_BASED:
 				bind(AttributeBasedShibbolethAuthorizationAttributes.class)
-						.toInstance(parseAttributesFromProperties(snaaConfig));
+						.toInstance(parseAttributesFromProperties(snaaServiceConfig));
 				bind(ShibbolethAuthorization.class).to(AttributeBasedShibbolethAuthorization.class);
 				break;
 			default:
 				throw new IllegalArgumentException(
-						"Unknown authorization type " + snaaConfig.getShibbolethAuthorizationType()
+						"Unknown authorization type " + snaaServiceConfig.getShibbolethAuthorizationType()
 				);
 		}
 
@@ -71,14 +71,14 @@ public class ShibbolethSNAAModule extends PrivateModule {
 		};
 	}
 
-	private AttributeBasedShibbolethAuthorizationAttributes parseAttributesFromProperties(final SNAAConfig snaaConfig) {
+	private AttributeBasedShibbolethAuthorizationAttributes parseAttributesFromProperties(final SNAAServiceConfig snaaServiceConfig) {
 
 		final AttributeBasedShibbolethAuthorizationAttributes attributes =
 				new AttributeBasedShibbolethAuthorizationAttributes();
 
 		attributes.put(
-				snaaConfig.getShibbolethAuthorizationAttributeBasedKey(),
-				snaaConfig.getShibbolethAuthorizationAttributeBasedValue()
+				snaaServiceConfig.getShibbolethAuthorizationAttributeBasedKey(),
+				snaaServiceConfig.getShibbolethAuthorizationAttributeBasedValue()
 		);
 
 		return attributes;

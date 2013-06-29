@@ -27,7 +27,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
@@ -51,14 +51,14 @@ public class DummySNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 
 	private final Random r = new SecureRandom();
 
-	private final SNAAConfig config;
+	private final SNAAServiceConfig config;
 
 	private final ServicePublisher servicePublisher;
 
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public DummySNAA(final SNAAConfig config, final ServicePublisher servicePublisher) {
+	public DummySNAA(final SNAAServiceConfig config, final ServicePublisher servicePublisher) {
 		this.config = config;
 		this.servicePublisher = servicePublisher;
 	}

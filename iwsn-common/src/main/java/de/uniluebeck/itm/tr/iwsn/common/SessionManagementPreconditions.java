@@ -23,12 +23,10 @@
 
 package de.uniluebeck.itm.tr.iwsn.common;
 
-import de.uniluebeck.itm.util.NetworkUtils;
-import eu.wisebed.api.v3.common.NodeUrn;
+import com.google.inject.Inject;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -38,22 +36,11 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class SessionManagementPreconditions {
 
-	private CommonPreconditions commonPreconditions;
+	private final CommonPreconditions commonPreconditions;
 
-	public SessionManagementPreconditions() {
-		this.commonPreconditions = new CommonPreconditions();
-	}
-
-	public void addKnownNodeUrns(final Iterable<NodeUrn> knownNodeUrns) {
-		commonPreconditions.addKnownNodeUrns(knownNodeUrns);
-	}
-
-	public void addServedUrnPrefixes(final NodeUrnPrefix servedUrnPrefix) {
-		commonPreconditions.addServedUrnPrefixes(servedUrnPrefix);
-	}
-
-	public void addServedUrnPrefixes(final Iterable<NodeUrnPrefix> servedUrnPrefixes) {
-		commonPreconditions.addServedUrnPrefixes(servedUrnPrefixes);
+	@Inject
+	public SessionManagementPreconditions(final CommonPreconditions commonPreconditions) {
+		this.commonPreconditions = commonPreconditions;
 	}
 
 	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey) {
@@ -72,11 +59,6 @@ public class SessionManagementPreconditions {
 					"There must be exactly one secret reservation key as this is a single URN-prefix implementation."
 			);
 		}
-	}
-
-	public void checkAreNodesAliveArguments(final Collection<NodeUrn> nodes, final String controllerEndpointUrl) {
-		commonPreconditions.checkNodesKnown(nodes);
-		NetworkUtils.checkConnectivity(controllerEndpointUrl);
 	}
 
 	private void checkUrnPrefixesServed(List<SecretReservationKey> secretReservationKeys) {

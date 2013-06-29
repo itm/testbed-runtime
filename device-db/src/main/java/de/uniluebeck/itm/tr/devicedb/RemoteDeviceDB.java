@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Functions.toStringFunction;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
@@ -62,6 +63,8 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 	@Override
 	public Map<NodeUrn, DeviceConfig> getConfigsByNodeUrns(final Iterable<NodeUrn> nodeUrns) {
 
+		checkState(isRunning());
+
 		final List<DeviceConfigDto> configs = getDeviceConfigDtos(nodeUrns);
 		final Map<NodeUrn, DeviceConfig> map = newHashMap();
 
@@ -75,6 +78,9 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 	@Override
 	@Nullable
 	public DeviceConfig getConfigByUsbChipId(final String usbChipId) {
+
+		checkState(isRunning());
+
 		try {
 
 			final Response response = client().getByUsbChipId(usbChipId);
@@ -91,12 +97,18 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 	@Override
 	@Nullable
 	public DeviceConfig getConfigByNodeUrn(final NodeUrn nodeUrn) {
+
+		checkState(isRunning());
+
 		final List<DeviceConfigDto> configs = getDeviceConfigDtos(newArrayList(nodeUrn));
  		return configs.isEmpty() ? null : configs.get(0).toDeviceConfig();
 	}
 
 	@Override
 	public DeviceConfig getConfigByMacAddress(final long macAddress) {
+
+		checkState(isRunning());
+
 		try {
 
 			final Response response = client().getByMacAddress(macAddress);
@@ -116,6 +128,9 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 	@Override
 	public Iterable<DeviceConfig> getAll() {
+
+		checkState(isRunning());
+
 		final List<DeviceConfigDto> dtos = getDeviceConfigDtos(ImmutableList.<NodeUrn>of());
 		if (dtos != null) {
 			return transform(dtos, DTO_TO_CONFIG_FUNCTION);
@@ -126,6 +141,8 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 	@Override
 	public void add(final DeviceConfig deviceConfig) {
+
+		checkState(isRunning());
 
 		try {
 
@@ -140,6 +157,8 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 	@Override
 	public void update(DeviceConfig deviceConfig) {
 
+		checkState(isRunning());
+
 		try {
 
 			client().update(DeviceConfigDto.fromDeviceConfig(deviceConfig), deviceConfig.getNodeUrn().toString());
@@ -153,6 +172,8 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 	@Override
 	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
 
+		checkState(isRunning());
+
 		try {
 
 			client().delete(nodeUrn.toString());
@@ -165,6 +186,9 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 	@Override
 	public void removeAll() {
+
+		checkState(isRunning());
+
 		try {
 
 			client().delete(Lists.<String>newArrayList());

@@ -2,7 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.TestbedDescription;
 
 import javax.ws.rs.GET;
@@ -21,15 +21,15 @@ public class TestbedsResource {
 
 	private final CommonConfig commonConfig;
 
-	private final PortalConfig portalConfig;
+	private final PortalServerConfig portalServerConfig;
 
 	@Context
 	private UriInfo uriInfo;
 
 	@Inject
-	public TestbedsResource(final CommonConfig commonConfig, final PortalConfig portalConfig) {
+	public TestbedsResource(final CommonConfig commonConfig, final PortalServerConfig portalServerConfig) {
 		this.commonConfig = commonConfig;
-		this.portalConfig = portalConfig;
+		this.portalServerConfig = portalServerConfig;
 	}
 
 	@GET
@@ -39,7 +39,7 @@ public class TestbedsResource {
 		final URI baseUri = uriInfo.getBaseUri();
 
 		final TestbedDescription testbed = new TestbedDescription();
-		testbed.name = portalConfig.getWiseguiTestbedName();
+		testbed.name = portalServerConfig.getWiseguiTestbedName();
 		testbed.testbedBaseUri =
 				baseUri.getScheme() + "://" + baseUri.getHost() + ":" + baseUri.getPort() + "/rest/v1.0";
 		testbed.sessionManagementEndpointUrl =

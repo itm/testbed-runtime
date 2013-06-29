@@ -188,7 +188,7 @@
 							<transformers>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>de.uniluebeck.itm.tr.rs.RS</mainClass>
+									<mainClass>de.uniluebeck.itm.tr.rs.RSServer</mainClass>
 								</transformer>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">

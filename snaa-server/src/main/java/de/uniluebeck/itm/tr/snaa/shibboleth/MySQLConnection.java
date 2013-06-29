@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 
 import java.sql.*;
 
@@ -10,7 +10,7 @@ public class MySQLConnection {
 	private final Connection connection;
 
 	@Inject
-	public MySQLConnection(final SNAAConfig config)
+	public MySQLConnection(final SNAAServiceConfig config)
 			throws ClassNotFoundException, SQLException {
 		Class.forName("com.mysql.jdbc.Driver");
 		connection = DriverManager.getConnection(

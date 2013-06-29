@@ -26,7 +26,7 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	private final Logger log = LoggerFactory.getLogger(PortalEventBusImpl.class);
 
-	private final PortalConfig config;
+	private final PortalServerConfig config;
 
 	private final EventBus eventBus;
 
@@ -37,7 +37,7 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 	private NettyServer nettyServer;
 
 	@Inject
-	public PortalEventBusImpl(final PortalConfig config,
+	public PortalEventBusImpl(final PortalServerConfig config,
 							  final EventBusFactory eventBusFactory,
 							  final NettyServerFactory nettyServerFactory,
 							  final PortalChannelHandler portalChannelHandler) {

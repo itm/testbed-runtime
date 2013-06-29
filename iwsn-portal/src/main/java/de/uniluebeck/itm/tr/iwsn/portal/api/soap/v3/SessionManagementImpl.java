@@ -6,7 +6,6 @@ import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
@@ -41,7 +40,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -65,7 +63,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final ResponseTrackerFactory responseTrackerFactory;
 
-	private final PortalConfig portalConfig;
+	private final PortalServerConfig portalServerConfig;
 
 	private final Set<HandlerFactory> handlerFactories;
 
@@ -93,7 +91,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 	@Inject
 	public SessionManagementImpl(final CommonConfig commonConfig,
-								 final PortalConfig portalConfig,
+								 final PortalServerConfig portalServerConfig,
 								 final PortalEventBus portalEventBus,
 								 final ResponseTrackerFactory responseTrackerFactory,
 								 final Set<HandlerFactory> handlerFactories,
@@ -103,10 +101,10 @@ public class SessionManagementImpl implements SessionManagement {
 								 final AuthorizingWSNFactory authorizingWSNFactory,
 								 final WSNFactory wsnFactory,
 								 final DeliveryManagerFactory deliveryManagerFactory,
-								 final RequestIdProvider requestIdProvider) {
-
+								 final RequestIdProvider requestIdProvider,
+								 final SessionManagementPreconditions preconditions) {
 		this.commonConfig = checkNotNull(commonConfig);
-		this.portalConfig = checkNotNull(portalConfig);
+		this.portalServerConfig = checkNotNull(portalServerConfig);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.handlerFactories = checkNotNull(handlerFactories);
@@ -117,10 +115,7 @@ public class SessionManagementImpl implements SessionManagement {
 		this.wsnFactory = checkNotNull(wsnFactory);
 		this.deliveryManagerFactory = checkNotNull(deliveryManagerFactory);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
-
-		this.preconditions = new SessionManagementPreconditions();
-		this.preconditions.addServedUrnPrefixes(commonConfig.getUrnPrefix());
-		this.preconditions.addKnownNodeUrns(transform(deviceDBService.getAll(), DeviceConfig.TO_NODE_URN_FUNCTION));
+		this.preconditions = checkNotNull(preconditions);
 	}
 
 	@Override
@@ -184,13 +179,13 @@ public class SessionManagementImpl implements SessionManagement {
 			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT)
 			Holder<List<KeyValuePair>> options) {
 
-		rsEndpointUrl.value = portalConfig.getRsEndpointUri().toString();
-		snaaEndpointUrl.value = portalConfig.getSnaaEndpointUri().toString();
+		rsEndpointUrl.value = portalServerConfig.getConfigurationRsEndpointUri().toString();
+		snaaEndpointUrl.value = portalServerConfig.getConfigurationSnaaEndpointUri().toString();
 		servedUrnPrefixes.value = newArrayList(commonConfig.getUrnPrefix());
 
 		final List<KeyValuePair> optionsList = Lists.newArrayList();
-		for (String key : portalConfig.getSmConfiguration().keySet()) {
-			for (String value : portalConfig.getSmConfiguration().get(key)) {
+		for (String key : portalServerConfig.getConfigurationOptions().keySet()) {
+			for (String value : portalServerConfig.getConfigurationOptions().get(key)) {
 				final KeyValuePair keyValuePair = new KeyValuePair();
 				keyValuePair.setKey(key);
 				keyValuePair.setValue(value);

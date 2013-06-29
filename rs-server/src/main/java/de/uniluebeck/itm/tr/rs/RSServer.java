@@ -26,19 +26,19 @@ package de.uniluebeck.itm.tr.rs;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
-import eu.wisebed.api.v3.rs.RS;
+import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
-import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 
 @SuppressWarnings("restriction")
 public class RSServer extends AbstractService {
@@ -47,7 +47,7 @@ public class RSServer extends AbstractService {
 		Logging.setLoggingDefaults(LogLevel.WARN);
 	}
 
-	private static final Logger log = LoggerFactory.getLogger(RS.class);
+	private static final Logger log = LoggerFactory.getLogger(RSServer.class);
 
 	private final ServicePublisher servicePublisher;
 
@@ -91,11 +91,18 @@ public class RSServer extends AbstractService {
 				"de.uniluebeck.itm"
 		);
 
-		final CommonConfig commonConfig = buildConfig(CommonConfig.class, config.config);
-		final RSServiceConfig rsServiceConfig = buildConfig(RSServiceConfig.class, config.config);
-		final RSServerConfig rsServerConfig = buildConfig(RSServerConfig.class, config.config);
-		final RSServerServiceModule
-				rsServerModule = new RSServerServiceModule(commonConfig, rsServiceConfig, rsServerConfig);
+		final PropConfModule propConfModule = new PropConfModule(
+				config.config,
+				CommonConfig.class,
+				RSServiceConfig.class,
+				RSServerConfig.class
+		);
+		final Injector propConfInjector = Guice.createInjector(propConfModule);
+		final CommonConfig commonConfig = propConfInjector.getInstance(CommonConfig.class);
+		final RSServiceConfig rsServiceConfig = propConfInjector.getInstance(RSServiceConfig.class);
+		final RSServerConfig rsServerConfig = propConfInjector.getInstance(RSServerConfig.class);
+
+		final RSServerModule rsServerModule = new RSServerModule(commonConfig, rsServiceConfig, rsServerConfig);
 		final RSServer rsServer = Guice.createInjector(rsServerModule).getInstance(RSServer.class);
 
 		try {
@@ -115,6 +122,8 @@ public class RSServer extends AbstractService {
 		}
 		);
 
-		log.info("RS started!");
+		log.info(
+				"RS started (SOAP API at {})",
+				"http://localhost:" + commonConfig.getPort() + rsServiceConfig.getRsContextPath());
 	}
 }

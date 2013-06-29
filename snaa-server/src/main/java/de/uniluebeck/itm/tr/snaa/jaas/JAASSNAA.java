@@ -28,7 +28,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.snaa.SNAAConfig;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -63,7 +63,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
-	private final SNAAConfig snaaConfig;
+	private final SNAAServiceConfig snaaServiceConfig;
 
 	private final ServicePublisher servicePublisher;
 
@@ -74,11 +74,11 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public JAASSNAA(final SNAAConfig snaaConfig,
+	public JAASSNAA(final SNAAServiceConfig snaaServiceConfig,
 					final ServicePublisher servicePublisher,
 					final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
 					final LoginContextFactory loginContextFactory) {
-		this.snaaConfig = checkNotNull(snaaConfig);
+		this.snaaServiceConfig = checkNotNull(snaaServiceConfig);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.servedNodeUrnPrefixesProvider = checkNotNull(servedNodeUrnPrefixesProvider);
 		this.loginContextFactory = checkNotNull(loginContextFactory);
@@ -87,8 +87,8 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 	@Override
 	protected void doStart() {
 		try {
-			System.setProperty("java.security.auth.login.config", snaaConfig.getJaasConfigFile());
-			jaxWsService = servicePublisher.createJaxWsService(snaaConfig.getSnaaContextPath(), this);
+			System.setProperty("java.security.auth.login.config", snaaServiceConfig.getJaasConfigFile());
+			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
