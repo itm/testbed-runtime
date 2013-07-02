@@ -6,6 +6,8 @@ then
     exit 1
 fi
 
-TR_DIR=`dirname ../../../../`
+CONF_DIR=`dirname $0`
+CONF_FILE=$CONF_DIR/`basename $1`
+TR_DIR=`dirname $CONF_DIR/../../../`
 
-java -jar $TR_DIR/device-db/target/tr.device-db-0.9-SNAPSHOT.jar --logLevel TRACE --config $1
+cd $CONF_DIR && java -jar $TR_DIR/device-db/target/tr.device-db-0.9-SNAPSHOT.jar --logLevel TRACE --config $CONF_FILE

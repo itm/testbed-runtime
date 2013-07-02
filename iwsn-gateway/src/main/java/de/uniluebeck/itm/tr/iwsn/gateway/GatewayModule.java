@@ -9,7 +9,8 @@ import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.devicedb.RemoteDeviceDBModule;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiModule;
 import de.uniluebeck.itm.wsn.deviceutils.ScheduledExecutorServiceModule;
@@ -25,9 +26,13 @@ public class GatewayModule extends AbstractModule {
 
 	private final GatewayConfig gatewayConfig;
 
-	public GatewayModule(final CommonConfig commonConfig, final GatewayConfig gatewayConfig) {
+	private final DeviceDBConfig deviceDBConfig;
+
+	public GatewayModule(final CommonConfig commonConfig, final GatewayConfig gatewayConfig,
+						 final DeviceDBConfig deviceDBConfig) {
 		this.commonConfig = commonConfig;
 		this.gatewayConfig = gatewayConfig;
+		this.deviceDBConfig = deviceDBConfig;
 	}
 
 	@Override
@@ -35,6 +40,7 @@ public class GatewayModule extends AbstractModule {
 
 		bind(CommonConfig.class).toProvider(of(commonConfig));
 		bind(GatewayConfig.class).toProvider(of(gatewayConfig));
+		bind(DeviceDBConfig.class).toProvider(of(deviceDBConfig));
 
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class).in(Scopes.SINGLETON);
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
@@ -50,7 +56,7 @@ public class GatewayModule extends AbstractModule {
 		install(new NettyClientModule());
 		install(new DeviceFactoryModule());
 
-		install(new RemoteDeviceDBModule(gatewayConfig.getDeviceDBUri()));
+		install(new DeviceDBServiceModule(deviceDBConfig));
 		install(new NodeApiModule());
 		install(new ScheduledExecutorServiceModule("GatewayScheduler"));
 		install(new NettyProtocolsModule());

@@ -9,17 +9,18 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
-import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 
 public class Gateway extends AbstractService {
 
@@ -130,9 +131,18 @@ public class Gateway extends AbstractService {
 				"de.uniluebeck.itm"
 		);
 
-		final CommonConfig commonConfig = buildConfig(CommonConfig.class, config.config);
-		final GatewayConfig gatewayConfig = buildConfig(GatewayConfig.class, config.config);
-		final GatewayModule gatewayModule = new GatewayModule(commonConfig, gatewayConfig);
+		final PropConfModule propConfModule = new PropConfModule(
+				config.config,
+				CommonConfig.class,
+				GatewayConfig.class,
+				DeviceDBConfig.class
+		);
+		final Injector propConfInjector = Guice.createInjector(propConfModule);
+		final CommonConfig commonConfig = propConfInjector.getInstance(CommonConfig.class);
+		final GatewayConfig gatewayConfig = propConfInjector.getInstance(GatewayConfig.class);
+		final DeviceDBConfig deviceDBConfig = propConfInjector.getInstance(DeviceDBConfig.class);
+
+		final GatewayModule gatewayModule = new GatewayModule(commonConfig, gatewayConfig, deviceDBConfig);
 		final Injector injector = Guice.createInjector(gatewayModule);
 		final Gateway gateway = injector.getInstance(Gateway.class);
 

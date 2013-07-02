@@ -4,10 +4,7 @@ import com.google.common.net.HostAndPort;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.common.config.HostAndPortTypeConverter;
-import de.uniluebeck.itm.tr.common.config.URITypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
-
-import java.net.URI;
 
 public class GatewayConfig {
 
@@ -41,20 +38,6 @@ public class GatewayConfig {
 	@Inject
 	@Named(REST_API_PORT)
 	private int restAPIPort;
-
-	@PropConf(
-			usage = "The URI on which the DeviceDB runs",
-			typeConverter = URITypeConverter.class
-	)
-	public static final String DEVICE_DB_URI = "gateway.devicedb.uri";
-
-	@Inject
-	@Named(DEVICE_DB_URI)
-	private URI deviceDBUri;
-
-	public URI getDeviceDBUri() {
-		return deviceDBUri;
-	}
 
 	public HostAndPort getPortalAddress() {
 		return portalAddress;
