@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.federator.snaa;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.common.config.PropertiesTypeConverter;
+import de.uniluebeck.itm.tr.federatorutils.URIToNodeUrnPrefixSetMap;
 import de.uniluebeck.itm.tr.federatorutils.UriToNodeUrnPrefixSetMapTypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -23,7 +24,18 @@ public class SNAAFederatorConfig {
 
 	@Inject
 	@Named(FEDERATOR_FEDERATES)
-	private Map<URI, Set<NodeUrnPrefix>> federates;
+	private URIToNodeUrnPrefixSetMap federates;
+
+	@PropConf(
+			usage = "Port on which to run the SNAA federator",
+			example = "8883",
+			defaultValue = "8883"
+	)
+	public static final String FEDERATOR_PORT = "snaa.federator.port";
+
+	@Inject
+	@Named(FEDERATOR_PORT)
+	private int port;
 
 	@PropConf(
 			usage = "Context path on which to run the SNAA federator",
@@ -71,5 +83,9 @@ public class SNAAFederatorConfig {
 
 	public Map<URI, Set<NodeUrnPrefix>> getFederates() {
 		return federates;
+	}
+
+	public int getPort() {
+		return port;
 	}
 }

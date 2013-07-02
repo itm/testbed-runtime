@@ -11,7 +11,7 @@ public class CommonConfig {
 
 	@PropConf(
 			usage = "Port to run all services on",
-			defaultValue = "8888"
+			defaultValue = "9999"
 	)
 	public static final String PORT = "port";
 

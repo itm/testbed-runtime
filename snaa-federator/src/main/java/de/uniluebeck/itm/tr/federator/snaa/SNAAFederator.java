@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 
 public class SNAAFederator extends AbstractService {
 
@@ -30,38 +31,6 @@ public class SNAAFederator extends AbstractService {
 	public SNAAFederator(final ServicePublisher servicePublisher, final SNAAFederatorService snaaFederatorService) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.snaaFederatorService = checkNotNull(snaaFederatorService);
-	}
-
-	public static void main(String[] args) {
-
-		Thread.currentThread().setName("SNAAFederator-Main");
-
-		final ConfigWithLoggingAndProperties config = setLogLevel(
-				parseOrExit(new ConfigWithLoggingAndProperties(), SNAAFederator.class, args),
-				"de.uniluebeck.itm"
-		);
-
-		final SNAAFederatorModule snaaFederatorModule = new SNAAFederatorModule(config.config);
-		final SNAAFederator snaaFederator = Guice.createInjector(snaaFederatorModule).getInstance(SNAAFederator.class);
-
-		try {
-			snaaFederator.start().get();
-		} catch (Exception e) {
-			log.error("Could not start SNAA federator: {}", e.getMessage());
-			System.exit(1);
-		}
-
-		Runtime.getRuntime().addShutdownHook(new Thread("SNAAFederator-Shutdown") {
-			@Override
-			public void run() {
-				log.info("Received KILL signal. Shutting down SNAA federator...");
-				snaaFederator.stopAndWait();
-				log.info("Over and out.");
-			}
-		}
-		);
-
-		log.info("SNAA federator started!");
 	}
 
 	@Override
@@ -84,5 +53,38 @@ public class SNAAFederator extends AbstractService {
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
+	}
+
+	public static void main(String[] args) {
+
+		Thread.currentThread().setName("SNAAFederator-Main");
+
+		final ConfigWithLoggingAndProperties config = setLogLevel(
+				parseOrExit(new ConfigWithLoggingAndProperties(), SNAAFederator.class, args),
+				"de.uniluebeck.itm"
+		);
+
+		final SNAAFederatorConfig snaaFederatorConfig = buildConfig(SNAAFederatorConfig.class, config.config);
+		final SNAAFederatorModule snaaFederatorModule = new SNAAFederatorModule(snaaFederatorConfig);
+		final SNAAFederator snaaFederator = Guice.createInjector(snaaFederatorModule).getInstance(SNAAFederator.class);
+
+		try {
+			snaaFederator.start().get();
+		} catch (Exception e) {
+			log.error("Could not start SNAA federator: {}", e.getMessage());
+			System.exit(1);
+		}
+
+		Runtime.getRuntime().addShutdownHook(new Thread("SNAAFederator-Shutdown") {
+			@Override
+			public void run() {
+				log.info("Received KILL signal. Shutting down SNAA federator...");
+				snaaFederator.stopAndWait();
+				log.info("Over and out.");
+			}
+		}
+		);
+
+		log.info("SNAA federator started!");
 	}
 }

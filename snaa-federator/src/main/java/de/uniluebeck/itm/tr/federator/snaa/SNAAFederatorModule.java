@@ -12,10 +12,9 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
-import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
-import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
@@ -24,31 +23,26 @@ import eu.wisebed.api.v3.snaa.SNAA;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.inject.util.Providers.of;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class SNAAFederatorModule extends AbstractModule {
 
-	private final Properties properties;
+	private final SNAAFederatorConfig snaaFederatorConfig;
 
-	public SNAAFederatorModule(final Properties properties) {
-		this.properties = properties;
+	public SNAAFederatorModule(final SNAAFederatorConfig snaaFederatorConfig) {
+		this.snaaFederatorConfig = checkNotNull(snaaFederatorConfig);
 	}
 
 	@Override
 	protected void configure() {
 
-		final CommonConfig commonConfig = buildConfig(CommonConfig.class, properties);
-		final SNAAServiceConfig snaaServiceConfig = buildConfig(SNAAServiceConfig.class, properties);
-		final SNAAFederatorConfig snaaFederatorConfig = buildConfig(SNAAFederatorConfig.class, properties);
-
-		bind(CommonConfig.class).toInstance(commonConfig);
-		bind(SNAAServiceConfig.class).toInstance(snaaServiceConfig);
-		bind(SNAAFederatorConfig.class).toInstance(snaaFederatorConfig);
+		bind(SNAAFederatorConfig.class).toProvider(of(snaaFederatorConfig));
 
 		install(new ServicePublisherCxfModule());
 
@@ -58,7 +52,9 @@ public class SNAAFederatorModule extends AbstractModule {
 				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
 				break;
 			case SHIBBOLETH:
-				install(new ShibbolethSNAAModule(commonConfig, snaaServiceConfig));
+				final SNAAServiceConfig snaaServiceConfig =
+						buildConfig(SNAAServiceConfig.class, snaaFederatorConfig.getSnaaFederatorProperties());
+				install(new ShibbolethSNAAModule(snaaServiceConfig));
 				bind(SNAAFederatorService.class)
 						.to(DelegatingSNAAFederatorServiceImpl.class)
 						.in(Scopes.SINGLETON);
@@ -76,8 +72,8 @@ public class SNAAFederatorModule extends AbstractModule {
 
 	@Provides
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory,
-											 final CommonConfig commonConfig) {
-		return servicePublisherFactory.create(new ServicePublisherConfig(commonConfig.getPort()));
+											 final SNAAFederatorConfig snaaFederatorConfig) {
+		return servicePublisherFactory.create(new ServicePublisherConfig(snaaFederatorConfig.getPort()));
 	}
 
 	@Provides

@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.snaa;
 
 import com.google.inject.PrivateModule;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAAModule;
 import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAAModule;
@@ -26,6 +27,7 @@ public class SNAAServiceModule extends PrivateModule {
 
 		requireBinding(CommonConfig.class);
 		requireBinding(SNAAServiceConfig.class);
+		requireBinding(ServedNodeUrnPrefixesProvider.class);
 
 		switch (snaaServiceConfig.getSnaaType()) {
 			case DUMMY:
@@ -35,7 +37,7 @@ public class SNAAServiceModule extends PrivateModule {
 				install(new JAASSNAAModule(commonConfig, snaaServiceConfig));
 				break;
 			case SHIBBOLETH:
-				install(new ShibbolethSNAAModule(commonConfig, snaaServiceConfig));
+				install(new ShibbolethSNAAModule(snaaServiceConfig));
 				break;
 			case SHIRO:
 				install(new JpaModule("ShiroSNAA", snaaServiceConfig.getShiroJpaProperties()));

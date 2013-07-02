@@ -1,28 +1,18 @@
 package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import com.google.inject.PrivateModule;
-import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import com.google.inject.Singleton;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import eu.wisebed.api.v3.snaa.SNAA;
-
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 public class ShibbolethSNAAModule extends PrivateModule {
 
-	private final CommonConfig commonConfig;
-
 	private final SNAAServiceConfig snaaServiceConfig;
 
-	public ShibbolethSNAAModule(final CommonConfig commonConfig, final SNAAServiceConfig snaaServiceConfig) {
-		this.commonConfig = commonConfig;
+	public ShibbolethSNAAModule(final SNAAServiceConfig snaaServiceConfig) {
 		this.snaaServiceConfig = snaaServiceConfig;
 	}
 
@@ -31,6 +21,7 @@ public class ShibbolethSNAAModule extends PrivateModule {
 
 		requireBinding(CommonConfig.class);
 		requireBinding(SNAAServiceConfig.class);
+		requireBinding(ServedNodeUrnPrefixesProvider.class);
 
 		switch (snaaServiceConfig.getShibbolethAuthorizationType()) {
 			case ALWAYS_ALLOW:
@@ -58,17 +49,6 @@ public class ShibbolethSNAAModule extends PrivateModule {
 
 		expose(SNAA.class);
 		expose(SNAAService.class);
-	}
-
-	@Provides
-	@Singleton
-	ServedNodeUrnPrefixesProvider provideServedNodeUrnPrefixesProvider(final CommonConfig commonConfig) {
-		return new ServedNodeUrnPrefixesProvider() {
-			@Override
-			public Set<NodeUrnPrefix> get() {
-				return newHashSet(commonConfig.getUrnPrefix());
-			}
-		};
 	}
 
 	private AttributeBasedShibbolethAuthorizationAttributes parseAttributesFromProperties(final SNAAServiceConfig snaaServiceConfig) {
