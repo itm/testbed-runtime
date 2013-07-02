@@ -3,7 +3,7 @@ package de.uniluebeck.itm.tr.federator.snaa;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.common.config.PropertiesTypeConverter;
-import de.uniluebeck.itm.tr.common.config.UriToNodeUrnPrefixSetMapTypeConverter;
+import de.uniluebeck.itm.tr.federatorutils.UriToNodeUrnPrefixSetMapTypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 

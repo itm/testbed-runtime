@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.federator.rs;
 
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.util.concurrent.ExecutorUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -50,6 +51,8 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,17 +75,21 @@ public class RSFederatorServiceImplTest {
 	private ServicePublisher servicePublisher;
 
 	@Mock
+	private ServicePublisherService servicePublisherService;
+
+	@Mock
 	private RSFederatorConfig config;
 
 	/**
 	 * The RS under test
 	 */
-	private RS federatorRS;
+	private RSFederatorService federatorRS;
 
 	private ExecutorService federatorRSExecutorService;
 
 	@Before
 	public void setUp() throws Exception {
+		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
 		federatorRSExecutorService = Executors.newSingleThreadExecutor();
 		federatorRS = new RSFederatorServiceImpl(
 				servicePublisher,
@@ -90,10 +97,12 @@ public class RSFederatorServiceImplTest {
 				federatorRSExecutorService,
 				config
 		);
+		federatorRS.startAndWait();
 	}
 
 	@After
 	public void tearDown() {
+		federatorRS.stopAndWait();
 		ExecutorUtils.shutdown(federatorRSExecutorService, 0, TimeUnit.SECONDS);
 	}
 

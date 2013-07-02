@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.common.config;
+package de.uniluebeck.itm.tr.federatorutils;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -13,7 +13,7 @@ import java.util.Set;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
-public class UriToNodeUrnPrefixSetMapTypeConverter extends AbstractConverter<Map<URI, Set<NodeUrnPrefix>>> {
+public class UriToNodeUrnPrefixSetMapTypeConverter extends AbstractConverter<URIToNodeUrnPrefixSetMap> {
 
 	@Override
 	public Object convert(final String value, final TypeLiteral<?> toType) {
@@ -37,6 +37,6 @@ public class UriToNodeUrnPrefixSetMapTypeConverter extends AbstractConverter<Map
 			map.put(endpointUrl, nodeUrnPrefixes);
 		}
 
-		return map;
+		return new URIToNodeUrnPrefixSetMap(map);
 	}
 }

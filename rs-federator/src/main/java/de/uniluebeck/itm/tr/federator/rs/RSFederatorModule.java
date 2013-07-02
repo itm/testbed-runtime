@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Scopes;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
@@ -17,28 +18,26 @@ import eu.wisebed.api.v3.rs.RS;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
-import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
+import static com.google.inject.util.Providers.of;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class RSFederatorModule extends AbstractModule {
 
-	private final Properties properties;
 
-	public RSFederatorModule(final Properties properties) {
-		this.properties = properties;
+	private final RSFederatorConfig rsFederatorConfig;
+
+	public RSFederatorModule(final RSFederatorConfig rsFederatorConfig) {
+		this.rsFederatorConfig = rsFederatorConfig;
 	}
 
 	@Override
 	protected void configure() {
 
-		final RSFederatorConfig rsFederatorConfig = buildConfig(RSFederatorConfig.class, properties);
-
-		bind(RSFederatorConfig.class).toInstance(rsFederatorConfig);
-		bind(RSFederatorService.class).to(RSFederatorServiceImpl.class);
+		bind(RSFederatorConfig.class).toProvider(of(rsFederatorConfig));
+		bind(RSFederatorService.class).to(RSFederatorServiceImpl.class).in(Scopes.SINGLETON);
 
 		install(new ServicePublisherCxfModule());
 	}

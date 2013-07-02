@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 
 public class RSFederator extends AbstractService {
 
@@ -42,7 +43,8 @@ public class RSFederator extends AbstractService {
 				"de.uniluebeck.itm"
 		);
 
-		final RSFederatorModule rsFederatorModule = new RSFederatorModule(config.config);
+		final RSFederatorConfig rsFederatorConfig = buildConfig(RSFederatorConfig.class, config.config);
+		final RSFederatorModule rsFederatorModule = new RSFederatorModule(rsFederatorConfig);
 		final RSFederator rsFederator = Guice.createInjector(rsFederatorModule).getInstance(RSFederator.class);
 
 		try {

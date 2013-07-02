@@ -2,7 +2,8 @@ package de.uniluebeck.itm.tr.federator.rs;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.tr.common.config.UriToNodeUrnPrefixSetMapTypeConverter;
+import de.uniluebeck.itm.tr.federatorutils.UriToNodeUrnPrefixSetMapTypeConverter;
+import de.uniluebeck.itm.tr.federatorutils.URIToNodeUrnPrefixSetMap;
 import de.uniluebeck.itm.util.propconf.PropConf;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
@@ -14,14 +15,14 @@ public class RSFederatorConfig {
 
 	@PropConf(
 			usage = "(endpoint URL / URN prefix set)-pairs indicating which RS instances to federate",
-			example = "http://wisebed.itm.uni-luebeck.de/api/soap/v3.0/rs=urn:wisebed:uzl1:,urn:wisebed:uzl2:",
+			example = "http://portal.tb1and2.tld/api/soap/v3.0/rs=urn:wisebed:tb1:,urn:wisebed:tb2: http://portal.tb3.tld/api/soap/v3.0/rs=urn:wisebed:tb3:",
 			typeConverter = UriToNodeUrnPrefixSetMapTypeConverter.class
 	)
 	public static final String FEDERATOR_FEDERATES = "rs.federator.federates";
 
 	@Inject
 	@Named(FEDERATOR_FEDERATES)
-	private Map<URI, Set<NodeUrnPrefix>> federates;
+	private URIToNodeUrnPrefixSetMap federates;
 
 	@PropConf(
 			usage = "Port on which to run the RS federator",

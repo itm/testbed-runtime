@@ -48,6 +48,7 @@ import java.util.concurrent.Future;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -89,6 +90,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 								  final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
+		checkState(isRunning());
 		assertNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null");
 		assertNotNull(secretReservationKeys, "Parameter secretReservationKeys is null");
 
@@ -156,6 +158,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 		try {
 
+			checkState(isRunning());
 			checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null");
 			checkNotNull(nodeUrns, "Parameter nodeUrns is null");
 			checkNotNull(from, "Parameter from is null");
@@ -261,6 +264,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	public List<PublicReservationData> getReservations(final DateTime from,
 													   final DateTime to) throws RSFault_Exception {
 
+		checkState(isRunning());
 		assertNotNull(from, "from");
 		assertNotNull(to, "to");
 
@@ -290,6 +294,8 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
 			final DateTime from,
 			final DateTime to) throws RSFault_Exception {
+
+		checkState(isRunning());
 
 		//check for null
 		if (from == null || to == null) {
@@ -333,6 +339,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
+		checkState(isRunning());
 		assertNotNull(secretReservationKeys, "Parameter secretReservationKeys is null");
 
 		Map<RS, List<SecretReservationKey>> map = constructEndpointToReservationKeyMap(secretReservationKeys);
