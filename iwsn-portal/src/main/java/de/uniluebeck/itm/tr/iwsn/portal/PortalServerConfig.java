@@ -56,7 +56,7 @@ public class PortalServerConfig {
 	private String websocketContextPath;
 
 	@PropConf(
-			usage = "The endpoint URI of the reservation system (RS) service",
+			usage = "The DNS-resolvable endpoint URI of the reservation system (RS) service (to be returned by SessionManagement.getConfiguration())",
 			example = "http://portal.mydomain.tld/rs",
 			typeConverter = URITypeConverter.class
 	)
@@ -67,7 +67,7 @@ public class PortalServerConfig {
 	private URI configurationRsEndpointUri;
 
 	@PropConf(
-			usage = "The endpoint URL of the authentication and authorization (SNAA) service",
+			usage = "The DNS-resolvable endpoint URI of the authentication and authorization (SNAA) service  (to be returned by SessionManagement.getConfiguration())",
 			example = "http://portal.mydomain.tld/snaa",
 			typeConverter = URITypeConverter.class
 	)
@@ -78,7 +78,7 @@ public class PortalServerConfig {
 	private URI configurationSnaaEndpointUri;
 
 	@PropConf(
-			usage = "The endpoint URL of the Session Management (SM) service",
+			usage = "The DNS-resolvable endpoint URI of the Session Management (SM) service (to be returned by SessionManagement.getConfiguration())",
 			example = "http://portal.mydomain.tld/sm",
 			typeConverter = URITypeConverter.class
 	)
