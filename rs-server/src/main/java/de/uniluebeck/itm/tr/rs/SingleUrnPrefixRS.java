@@ -54,6 +54,60 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
+	public List<PublicReservationData> getReservations(
+			final DateTime from,
+			final DateTime to,
+			final Integer offset,
+			final Integer amount)
+			throws RSFault_Exception {
+
+		Preconditions.checkNotNull(from, "Parameter from date is null or empty");
+		Preconditions.checkNotNull(to, "Parameter to date is null or empty");
+
+		Interval request =
+				new Interval(new DateTime(from.toGregorianCalendar()), new DateTime(to.toGregorianCalendar()));
+		List<PublicReservationData> res = convertToPublic(persistence.getReservations(request));
+
+		log.debug("Found " + res.size() + " reservations from " + from + " until " + to);
+		return res;
+	}
+
+	@Override
+	public List<ConfidentialReservationData> getConfidentialReservations(
+			final List<SecretAuthenticationKey> secretAuthenticationKey,
+			final DateTime from,
+			final DateTime to,
+			final Integer offset,
+			final Integer amount)
+			throws AuthorizationFault, RSFault_Exception {
+
+		checkNotNull(from, "Parameter from is null!");
+		checkNotNull(to, "Parameter to is null!");
+		checkNotNull(secretAuthenticationKey, "Parameter secretAuthenticationKeys is null!");
+
+		checkArgumentValid(from, to);
+		checkArgumentValidAuthentication(secretAuthenticationKey);
+
+		SecretAuthenticationKey key = secretAuthenticationKey.get(0);
+
+		Interval interval = new Interval(new DateTime(from.toGregorianCalendar()),
+				new DateTime(to.toGregorianCalendar())
+		);
+
+		List<ConfidentialReservationData> reservationsOfAllUsersInInterval = persistence.getReservations(interval);
+		List<ConfidentialReservationData> reservationsOfAuthenticatedUserInInterval = newArrayList();
+
+		for (ConfidentialReservationData crd : reservationsOfAllUsersInInterval) {
+			boolean sameUser = crd.getUsername().equals(key.getUsername());
+			if (sameUser) {
+				reservationsOfAuthenticatedUserInInterval.add(crd);
+			}
+		}
+
+		return reservationsOfAuthenticatedUserInInterval;
+	}
+
+	@Override
 	public List<ConfidentialReservationData> getReservation(List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception,
 			UnknownSecretReservationKeyFault {
@@ -106,7 +160,7 @@ public class SingleUrnPrefixRS implements RS {
 		checkArgumentValid(nodeUrns, from, to);
 		checkArgumentValidAuthentication(secretAuthenticationKeys);
 		checkNodesServed(nodeUrns);
-		checkNodesAvailable(newHashSet(nodeUrns), from, to);
+		checkNodesAvailable(newHashSet(nodeUrns), from, to, null, null);
 
 		final ConfidentialReservationData confidentialReservationData = persistence.addReservation(
 				nodeUrns,
@@ -129,54 +183,6 @@ public class SingleUrnPrefixRS implements RS {
 			final String msg = "You are not allowed to delete reservations that have already started.";
 			throw createRSFault_Exception(msg);
 		}
-	}
-
-	@Override
-	public List<PublicReservationData> getReservations(DateTime from, DateTime to)
-			throws RSFault_Exception {
-
-		Preconditions.checkNotNull(from, "Parameter from date is null or empty");
-		Preconditions.checkNotNull(to, "Parameter to date is null or empty");
-
-		Interval request =
-				new Interval(new DateTime(from.toGregorianCalendar()), new DateTime(to.toGregorianCalendar()));
-		List<PublicReservationData> res = convertToPublic(persistence.getReservations(request));
-
-		log.debug("Found " + res.size() + " reservations from " + from + " until " + to);
-		return res;
-	}
-
-	@Override
-	public List<ConfidentialReservationData> getConfidentialReservations(
-			List<SecretAuthenticationKey> secretAuthenticationKey,
-			DateTime from,
-			DateTime to)
-			throws RSFault_Exception {
-
-		checkNotNull(from, "Parameter from is null!");
-		checkNotNull(to, "Parameter to is null!");
-		checkNotNull(secretAuthenticationKey, "Parameter secretAuthenticationKeys is null!");
-
-		checkArgumentValid(from, to);
-		checkArgumentValidAuthentication(secretAuthenticationKey);
-
-		SecretAuthenticationKey key = secretAuthenticationKey.get(0);
-
-		Interval interval = new Interval(new DateTime(from.toGregorianCalendar()),
-				new DateTime(to.toGregorianCalendar())
-		);
-
-		List<ConfidentialReservationData> reservationsOfAllUsersInInterval = persistence.getReservations(interval);
-		List<ConfidentialReservationData> reservationsOfAuthenticatedUserInInterval = newArrayList();
-
-		for (ConfidentialReservationData crd : reservationsOfAllUsersInInterval) {
-			boolean sameUser = crd.getUsername().equals(key.getUsername());
-			if (sameUser) {
-				reservationsOfAuthenticatedUserInInterval.add(crd);
-			}
-		}
-
-		return reservationsOfAuthenticatedUserInInterval;
 	}
 
 	public void checkArgumentValidAuthentication(List<SecretAuthenticationKey> authenticationData)
@@ -309,11 +315,13 @@ public class SingleUrnPrefixRS implements RS {
 
 	private void checkNodesAvailable(final Set<NodeUrn> nodeUrns,
 									 final DateTime from,
-									 final DateTime to)
+									 final DateTime to,
+									 final Integer offset,
+									 final Integer amount)
 			throws ReservationConflictFault_Exception, RSFault_Exception {
 
 		Set<NodeUrn> reservedNodeUrns = newHashSet();
-		for (PublicReservationData res : getReservations(from, to)) {
+		for (PublicReservationData res : getReservations(from, to, offset, amount)) {
 			reservedNodeUrns.addAll(res.getNodeUrns());
 		}
 

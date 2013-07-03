@@ -86,18 +86,27 @@ public class RemoteRSService extends AbstractService implements RSService {
 	}
 
 	@Override
-	@WebMethod
-	@WebResult(name = "reservationData", targetNamespace = "")
-	@RequestWrapper(localName = "getConfidentialReservations", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetConfidentialReservations")
-	@ResponseWrapper(localName = "getConfidentialReservationsResponse", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetConfidentialReservationsResponse")
+	public List<PublicReservationData> getReservations(
+			@WebParam(name = "from", targetNamespace = "") final DateTime from,
+			@WebParam(name = "to", targetNamespace = "") final DateTime to,
+			@WebParam(name = "offset", targetNamespace = "") final Integer offset,
+			@WebParam(name = "amount", targetNamespace = "") final Integer amount)
+			throws RSFault_Exception {
+		checkState(isRunning());
+		return rs.getReservations(from, to, offset, amount);
+	}
+
+	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			@WebParam(name = "secretAuthenticationKey", targetNamespace = "") final
 			List<SecretAuthenticationKey> secretAuthenticationKey,
 			@WebParam(name = "from", targetNamespace = "") final DateTime from,
-			@WebParam(name = "to", targetNamespace = "") final DateTime to)
+			@WebParam(name = "to", targetNamespace = "") final DateTime to,
+			@WebParam(name = "offset", targetNamespace = "") final Integer offset,
+			@WebParam(name = "amount", targetNamespace = "") final Integer amount)
 			throws AuthorizationFault, RSFault_Exception {
 		checkState(isRunning());
-		return rs.getConfidentialReservations(secretAuthenticationKey, from, to);
+		return rs.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount);
 	}
 
 	@Override
@@ -111,18 +120,6 @@ public class RemoteRSService extends AbstractService implements RSService {
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		checkState(isRunning());
 		return rs.getReservation(secretReservationKey);
-	}
-
-	@Override
-	@WebMethod
-	@WebResult(name = "reservations", targetNamespace = "")
-	@RequestWrapper(localName = "getReservations", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetReservations")
-	@ResponseWrapper(localName = "getReservationsResponse", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetReservationsResponse")
-	public List<PublicReservationData> getReservations(
-			@WebParam(name = "from", targetNamespace = "") final DateTime from,
-			@WebParam(name = "to", targetNamespace = "") final DateTime to) throws RSFault_Exception {
-		checkState(isRunning());
-		return rs.getReservations(from, to);
 	}
 
 	@Override

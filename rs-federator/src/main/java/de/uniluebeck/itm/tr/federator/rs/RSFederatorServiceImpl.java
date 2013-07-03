@@ -46,9 +46,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -261,8 +259,9 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	}
 
 	@Override
-	public List<PublicReservationData> getReservations(final DateTime from,
-													   final DateTime to) throws RSFault_Exception {
+	public List<PublicReservationData> getReservations(final DateTime from, final DateTime to,
+													   final Integer offset, final Integer amount)
+			throws RSFault_Exception {
 
 		checkState(isRunning());
 		assertNotNull(from, "from");
@@ -271,7 +270,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		// fork processes to collect reservations from federated services
 		List<Future<List<PublicReservationData>>> futures = newArrayList();
 		for (RS rs : federationManager.getEndpoints()) {
-			futures.add(executorService.submit(new GetReservationsCallable(rs, from, to)));
+			futures.add(executorService.submit(new GetReservationsCallable(rs, from, to, offset, amount)));
 		}
 
 		// join processes and collect results
@@ -293,7 +292,10 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
 			final DateTime from,
-			final DateTime to) throws RSFault_Exception {
+			final DateTime to,
+			final Integer offset,
+			final Integer amount)
+			throws AuthorizationFault, RSFault_Exception {
 
 		checkState(isRunning());
 
@@ -312,7 +314,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 		for (RS rs : federationManager.getEndpoints()) {
 			GetConfidentialReservationsCallable callable = new GetConfidentialReservationsCallable(
-					rs, endpointToAuthenticationMap.get(rs), from, to
+					rs, endpointToAuthenticationMap.get(rs), from, to, offset, amount
 			);
 			futures.add(executorService.submit(callable));
 		}

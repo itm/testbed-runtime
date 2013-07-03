@@ -49,15 +49,19 @@ public class RSAuthorizationDecorator implements RS {
 	@Override
 	@WebMethod
 	@WebResult(name = "reservationData", targetNamespace = "")
-	@RequestWrapper(localName = "getConfidentialReservations", targetNamespace = "http://wisebed.eu/api/v3/rs",
-			className = "eu.wisebed.api.v3.rs.GetConfidentialReservations")
-	@ResponseWrapper(localName = "getConfidentialReservationsResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
-			className = "eu.wisebed.api.v3.rs.GetConfidentialReservationsResponse")
+	@RequestWrapper(localName = "getConfidentialReservations", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetConfidentialReservations")
+	@ResponseWrapper(localName = "getConfidentialReservationsResponse", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetConfidentialReservationsResponse")
 	public List<ConfidentialReservationData> getConfidentialReservations(
-			@WebParam(name = "secretAuthenticationKey", targetNamespace = "") final
+			@WebParam(name = "secretAuthenticationKey", targetNamespace = "")
 			List<SecretAuthenticationKey> secretAuthenticationKey,
-			@WebParam(name = "from", targetNamespace = "") final DateTime from,
-			@WebParam(name = "to", targetNamespace = "") final DateTime to)
+			@WebParam(name = "from", targetNamespace = "")
+			DateTime from,
+			@WebParam(name = "to", targetNamespace = "")
+			DateTime to,
+			@WebParam(name = "offset", targetNamespace = "")
+			Integer offset,
+			@WebParam(name = "amount", targetNamespace = "")
+			Integer amount)
 			throws AuthorizationFault, RSFault_Exception {
 
 		try {
@@ -71,7 +75,7 @@ public class RSAuthorizationDecorator implements RS {
 			throw new RSFault_Exception(e.getMessage(), faultInfo);
 		}
 
-		return rs.getConfidentialReservations(secretAuthenticationKey, from, to);
+		return rs.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount);
 	}
 
 	@Override
@@ -91,14 +95,19 @@ public class RSAuthorizationDecorator implements RS {
 	@Override
 	@WebMethod
 	@WebResult(name = "reservations", targetNamespace = "")
-	@RequestWrapper(localName = "getReservations", targetNamespace = "http://wisebed.eu/api/v3/rs",
-			className = "eu.wisebed.api.v3.rs.GetReservations")
-	@ResponseWrapper(localName = "getReservationsResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
-			className = "eu.wisebed.api.v3.rs.GetReservationsResponse")
+	@RequestWrapper(localName = "getReservations", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetReservations")
+	@ResponseWrapper(localName = "getReservationsResponse", targetNamespace = "http://wisebed.eu/api/v3/rs", className = "eu.wisebed.api.v3.rs.GetReservationsResponse")
 	public List<PublicReservationData> getReservations(
-			@WebParam(name = "from", targetNamespace = "") final DateTime from,
-			@WebParam(name = "to", targetNamespace = "") final DateTime to) throws RSFault_Exception {
-		return rs.getReservations(from, to);
+			@WebParam(name = "from", targetNamespace = "")
+			DateTime from,
+			@WebParam(name = "to", targetNamespace = "")
+			DateTime to,
+			@WebParam(name = "offset", targetNamespace = "")
+			Integer offset,
+			@WebParam(name = "amount", targetNamespace = "")
+			Integer amount)
+			throws RSFault_Exception {
+		return rs.getReservations(from, to, offset, amount);
 	}
 
 	@Override

@@ -270,7 +270,7 @@ public class SingleUrnPrefixRSTest {
 	/**
 	 * Given there are reservations by more than one user, the RS should only return reservations of the authenticated
 	 * user when {@link eu.wisebed.api.v3.rs.RS#getConfidentialReservations(java.util.List, org.joda.time.DateTime,
-	 * org.joda.time.DateTime)} is called.
+	 * org.joda.time.DateTime, Integer, Integer)}  is called.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -312,14 +312,14 @@ public class SingleUrnPrefixRSTest {
 		);
 
 		final List<ConfidentialReservationData> user1Reservations =
-				rs.getConfidentialReservations(USER1_SAKS, from, to);
+				rs.getConfidentialReservations(USER1_SAKS, from, to, null, null);
 
 		assertEquals(1, user1Reservations.size());
 		assertEquals(1, user1Reservations.get(0).getNodeUrns().size());
 		assertEquals(user1Node, user1Reservations.get(0).getNodeUrns().get(0));
 
 		final List<ConfidentialReservationData> user2Reservations =
-				rs.getConfidentialReservations(USER2_SAKS, from, to);
+				rs.getConfidentialReservations(USER2_SAKS, from, to, null, null);
 
 		assertEquals(1, user2Reservations.size());
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());

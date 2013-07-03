@@ -66,7 +66,8 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public SingleUrnPrefixRSService(final ServicePublisher servicePublisher, final RS rs, final RSServiceConfig rsServiceConfig) {
+	public SingleUrnPrefixRSService(final ServicePublisher servicePublisher, final RS rs,
+									final RSServiceConfig rsServiceConfig) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.reservationSystem = checkNotNull(rs);
 		this.rsServiceConfig = checkNotNull(rsServiceConfig);
@@ -101,19 +102,20 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	}
 
 	@Override
-	public List<PublicReservationData> getReservations(final DateTime from, final DateTime to)
+	public List<PublicReservationData> getReservations(final DateTime from, final DateTime to,
+													   final Integer offset, final Integer amount)
 			throws RSFault_Exception {
 
-		return reservationSystem.getReservations(from, to);
+		return reservationSystem.getReservations(from, to, offset, amount);
 	}
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
-			final DateTime from,
-			final DateTime to) throws RSFault_Exception, AuthorizationFault {
+			final DateTime from, final DateTime to,
+			final Integer offset, final Integer amount) throws RSFault_Exception, AuthorizationFault {
 
-		return reservationSystem.getConfidentialReservations(secretAuthenticationKey, from, to);
+		return reservationSystem.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount);
 	}
 
 

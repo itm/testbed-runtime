@@ -109,7 +109,7 @@ public class RSFederatorServiceImplTest {
 	@Test
 	public void testGetReservationsWithNullParameters() {
 		try {
-			federatorRS.getReservations(null, null);
+			federatorRS.getReservations(null, null, null, null);
 			fail("Should have raised RSFault");
 		} catch (RSFault_Exception expected) {
 		}
