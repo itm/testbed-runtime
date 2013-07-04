@@ -21,34 +21,33 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.wsn.federator;
+package de.uniluebeck.itm.tr.federator.iwsn;
 
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
-import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.List;
 
-class DisableNodeCallable extends AbstractRequestCallable {
+class ResetNodesCallable extends AbstractRequestCallable {
 
-	private final NodeUrn nodeUrn;
+	private List<NodeUrn> nodes;
 
-	DisableNodeCallable(final FederatorController federatorController,
-						final WSN wsnEndpoint,
-						final long federatedRequestId,
-						final long federatorRequestId,
-						final NodeUrn nodeUrn) {
+	ResetNodesCallable(final FederatorController federatorController,
+					   final WSN wsnEndpoint,
+					   final long federatedRequestId,
+					   final long federatorRequestId,
+					   final List<NodeUrn> nodes) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.nodeUrn = nodeUrn;
+		this.nodes = nodes;
 	}
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
-		wsnEndpoint.disableNodes(federatedRequestId, newArrayList(nodeUrn));
+			throws ReservationNotRunningFault_Exception, AuthorizationFault {
+		wsnEndpoint.resetNodes(federatedRequestId, nodes);
 	}
 }

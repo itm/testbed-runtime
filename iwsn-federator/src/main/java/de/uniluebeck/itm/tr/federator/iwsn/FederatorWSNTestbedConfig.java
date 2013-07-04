@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.wsn.federator;
+package de.uniluebeck.itm.tr.federator.iwsn;
 
 import com.google.common.collect.ImmutableSet;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;

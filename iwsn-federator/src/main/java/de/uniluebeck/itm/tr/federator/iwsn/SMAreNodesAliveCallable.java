@@ -21,38 +21,31 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.wsn.federator;
+package de.uniluebeck.itm.tr.federator.iwsn;
 
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.*;
+import eu.wisebed.api.v3.sm.NodeConnectionStatus;
+import eu.wisebed.api.v3.sm.SessionManagement;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 
-class EnablePhysicalLinkCallable extends AbstractRequestCallable {
+class SMAreNodesAliveCallable implements Callable<List<NodeConnectionStatus>> {
 
-	private final NodeUrn sourceNodeUrn;
+	private final SessionManagement smEndpoint;
 
-	private final NodeUrn targetNodeUrn;
+	private final List<NodeUrn> nodes;
 
-	public EnablePhysicalLinkCallable(final FederatorController federatorController,
-									  final WSN wsnEndpoint,
-									  final long federatedRequestId,
-									  final long federatorRequestId,
-									  final NodeUrn sourceNodeUrn,
-									  final NodeUrn targetNodeUrn) {
-
-		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
-
-		this.sourceNodeUrn = sourceNodeUrn;
-		this.targetNodeUrn = targetNodeUrn;
+	SMAreNodesAliveCallable(final SessionManagement smEndpoint, final List<NodeUrn> nodes) {
+		this.smEndpoint = smEndpoint;
+		this.nodes = nodes;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
-		final Link link = new Link();
-		link.setSourceNodeUrn(sourceNodeUrn);
-		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.enablePhysicalLinks(federatedRequestId, newArrayList(link));
+	public List<NodeConnectionStatus> call() throws Exception {
+		// instance smEndpoint is potentially not thread-safe!!!
+		synchronized (smEndpoint) {
+			return smEndpoint.areNodesConnected(nodes);
+		}
 	}
 }

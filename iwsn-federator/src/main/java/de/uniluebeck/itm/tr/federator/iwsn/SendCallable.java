@@ -21,31 +21,37 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.wsn.federator;
+package de.uniluebeck.itm.tr.federator.iwsn;
 
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.sm.NodeConnectionStatus;
-import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.wsn.AuthorizationFault;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
+import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
-class SMAreNodesAliveCallable implements Callable<List<NodeConnectionStatus>> {
+class SendCallable extends AbstractRequestCallable {
 
-	private final SessionManagement smEndpoint;
+	private final List<NodeUrn> nodeUrns;
 
-	private final List<NodeUrn> nodes;
+	private final byte[] message;
 
-	SMAreNodesAliveCallable(final SessionManagement smEndpoint, final List<NodeUrn> nodes) {
-		this.smEndpoint = smEndpoint;
-		this.nodes = nodes;
+	SendCallable(final FederatorController federatorController,
+				 final WSN wsnEndpoint,
+				 final long federatedRequestId,
+				 final long federatorRequestId,
+				 final List<NodeUrn> nodeUrns,
+				 final byte[] message) {
+
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
+
+		this.nodeUrns = nodeUrns;
+		this.message = message;
 	}
 
 	@Override
-	public List<NodeConnectionStatus> call() throws Exception {
-		// instance smEndpoint is potentially not thread-safe!!!
-		synchronized (smEndpoint) {
-			return smEndpoint.areNodesConnected(nodes);
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception, AuthorizationFault {
+		wsnEndpoint.send(federatedRequestId, nodeUrns, message);
 	}
 }

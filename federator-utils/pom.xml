@@ -16,6 +16,10 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.common</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>de.uniluebeck.itm.util</groupId>
 			<artifactId>util</artifactId>
 		</dependency>

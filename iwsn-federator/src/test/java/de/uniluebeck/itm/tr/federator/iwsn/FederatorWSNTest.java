@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.wsn.federator;
+package de.uniluebeck.itm.tr.federator.iwsn;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;

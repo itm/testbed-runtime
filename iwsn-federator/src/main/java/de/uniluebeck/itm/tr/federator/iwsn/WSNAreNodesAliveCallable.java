@@ -21,49 +21,33 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.wsn.federator;
+package de.uniluebeck.itm.tr.federator.iwsn;
 
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
-import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
-import java.util.concurrent.Callable;
+import java.util.List;
 
-abstract class AbstractRequestCallable implements Callable<Void> {
+class WSNAreNodesAliveCallable extends AbstractRequestCallable {
 
-	protected final FederatorController federatorController;
+	private final List<NodeUrn> nodes;
 
-	protected final WSN wsnEndpoint;
+	WSNAreNodesAliveCallable(final FederatorController federatorController,
+							 final WSN wsnEndpoint,
+							 final long federatedRequestId,
+							 final long federatorRequestId,
+							 final List<NodeUrn> nodes) {
 
-	protected final long federatedRequestId;
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-	protected final long federatorRequestId;
-
-	protected AbstractRequestCallable(final FederatorController federatorController,
-									  final WSN wsnEndpoint,
-									  final long federatedRequestId,
-									  final long federatorRequestId) {
-
-		this.federatorController = federatorController;
-		this.wsnEndpoint = wsnEndpoint;
-		this.federatedRequestId = federatedRequestId;
-		this.federatorRequestId = federatorRequestId;
+		this.nodes = nodes;
 	}
 
 	@Override
-	public Void call() throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
-
-		federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
-
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			executeRequestOnFederatedTestbed(federatedRequestId);
-		}
-
-		return null;
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception, AuthorizationFault {
+		wsnEndpoint.areNodesAlive(federatedRequestId, nodes);
 	}
-
-	protected abstract void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault;
 }

@@ -21,38 +21,33 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.wsn.federator;
+package de.uniluebeck.itm.tr.federator.iwsn;
 
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.*;
+import eu.wisebed.api.v3.wsn.AuthorizationFault;
+import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
+import eu.wisebed.api.v3.wsn.WSN;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.List;
 
-class DisablePhysicalLinkCallable extends AbstractRequestCallable {
+class FlashProgramsCallable extends AbstractRequestCallable {
 
-	private final NodeUrn sourceNodeUrn;
+	private final List<FlashProgramsConfiguration> flashProgramsConfigurations;
 
-	private final NodeUrn targetNodeUrn;
-
-	DisablePhysicalLinkCallable(final FederatorController federatorController,
-								final WSN wsnEndpoint,
-								final long federatedRequestId,
-								final long federatorRequestId,
-								final NodeUrn sourceNodeUrn,
-								final NodeUrn targetNodeUrn) {
+	FlashProgramsCallable(final FederatorController federatorController,
+						  final WSN wsnEndpoint,
+						  final long federatedRequestId,
+						  final long federatorRequestId,
+						  final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.sourceNodeUrn = sourceNodeUrn;
-		this.targetNodeUrn = targetNodeUrn;
+		this.flashProgramsConfigurations = flashProgramsConfigurations;
 	}
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
-		final Link link = new Link();
-		link.setSourceNodeUrn(sourceNodeUrn);
-		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.disablePhysicalLinks(federatedRequestId, newArrayList(link));
+			throws ReservationNotRunningFault_Exception, AuthorizationFault {
+		wsnEndpoint.flashPrograms(federatedRequestId, flashProgramsConfigurations);
 	}
 }

@@ -21,34 +21,38 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.wsn.federator;
+package de.uniluebeck.itm.tr.federator.iwsn;
 
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.AuthorizationFault;
-import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
-import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
-import eu.wisebed.api.v3.wsn.WSN;
+import eu.wisebed.api.v3.wsn.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-class EnableNodeCallable extends AbstractRequestCallable {
+class EnablePhysicalLinkCallable extends AbstractRequestCallable {
 
-	private final NodeUrn nodeUrn;
+	private final NodeUrn sourceNodeUrn;
 
-	EnableNodeCallable(final FederatorController federatorController,
-					   final WSN wsnEndpoint,
-					   final long federatedRequestId,
-					   final long federatorRequestId,
-					   final NodeUrn nodeUrn) {
+	private final NodeUrn targetNodeUrn;
+
+	public EnablePhysicalLinkCallable(final FederatorController federatorController,
+									  final WSN wsnEndpoint,
+									  final long federatedRequestId,
+									  final long federatorRequestId,
+									  final NodeUrn sourceNodeUrn,
+									  final NodeUrn targetNodeUrn) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.nodeUrn = nodeUrn;
+		this.sourceNodeUrn = sourceNodeUrn;
+		this.targetNodeUrn = targetNodeUrn;
 	}
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
 			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
-		wsnEndpoint.enableNodes(federatedRequestId, newArrayList(nodeUrn));
+		final Link link = new Link();
+		link.setSourceNodeUrn(sourceNodeUrn);
+		link.setTargetNodeUrn(targetNodeUrn);
+		wsnEndpoint.enablePhysicalLinks(federatedRequestId, newArrayList(link));
 	}
 }

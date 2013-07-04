@@ -1,11 +1,14 @@
-package de.uniluebeck.itm.tr.wsn.federator;
+package de.uniluebeck.itm.tr.federator.iwsn;
 
 import com.google.common.collect.ImmutableSet;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.federatorutils.FederationManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import org.junit.Before;
@@ -16,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
@@ -23,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FederatorSessionManagementTest {
+public class SessionManagementFederatorServiceImplTest {
 
 	static {
 		Logging.setLoggingDefaults();
@@ -50,13 +54,33 @@ public class FederatorSessionManagementTest {
 	private SessionManagementPreconditions preconditions;
 
 	@Mock
-	private FederatorWSNConfig config;
+	private IWSNFederatorServerConfig config;
 
-	private FederatorSessionManagement federatorSM;
+	@Mock
+	private SecureIdGenerator secureIdGenerator;
+
+	@Mock
+	private ServicePublisher servicePublisher;
+
+	@Mock
+	private ExecutorService executorService;
+
+	@Mock
+	private RS rs;
+
+	private SessionManagementFederatorServiceImpl federatorSM;
 
 	@Before
 	public void setUp() throws Exception {
-		federatorSM = new FederatorSessionManagement(federationManager, preconditions, config);
+		federatorSM = new SessionManagementFederatorServiceImpl(
+				federationManager,
+				preconditions,
+				config,
+				secureIdGenerator,
+				servicePublisher,
+				executorService,
+				rs
+		);
 	}
 
 	/**
