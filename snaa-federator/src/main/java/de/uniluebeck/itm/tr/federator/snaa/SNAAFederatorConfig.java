@@ -6,12 +6,8 @@ import de.uniluebeck.itm.tr.common.config.PropertiesTypeConverter;
 import de.uniluebeck.itm.tr.federatorutils.URIToNodeUrnPrefixSetMap;
 import de.uniluebeck.itm.tr.federatorutils.UriToNodeUrnPrefixSetMapTypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
-import java.net.URI;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 public class SNAAFederatorConfig {
 
@@ -81,7 +77,7 @@ public class SNAAFederatorConfig {
 		return snaaFederatorType;
 	}
 
-	public Map<URI, Set<NodeUrnPrefix>> getFederates() {
+	public URIToNodeUrnPrefixSetMap getFederates() {
 		return federates;
 	}
 

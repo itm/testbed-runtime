@@ -2,14 +2,9 @@ package de.uniluebeck.itm.tr.federator.rs;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.tr.federatorutils.UriToNodeUrnPrefixSetMapTypeConverter;
 import de.uniluebeck.itm.tr.federatorutils.URIToNodeUrnPrefixSetMap;
+import de.uniluebeck.itm.tr.federatorutils.UriToNodeUrnPrefixSetMapTypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
-
-import java.net.URI;
-import java.util.Map;
-import java.util.Set;
 
 public class RSFederatorConfig {
 
@@ -50,7 +45,7 @@ public class RSFederatorConfig {
 		return contextPath;
 	}
 
-	public Map<URI, Set<NodeUrnPrefix>> getFederates() {
+	public URIToNodeUrnPrefixSetMap getFederates() {
 		return federates;
 	}
 
