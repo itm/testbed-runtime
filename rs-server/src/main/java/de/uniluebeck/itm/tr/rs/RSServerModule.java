@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.rs;
 
 import com.google.common.util.concurrent.SimpleTimeLimiter;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.inject.Provides;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
@@ -14,6 +15,7 @@ import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.SNAA;
 
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutorService;
@@ -46,7 +48,10 @@ public class RSServerModule extends RSServiceModule {
 
 	@Provides
 	TimeLimiter provideTimeLimiter() {
-		return new SimpleTimeLimiter(getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool()));
+		final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("TimeLimiter %d").build();
+		return new SimpleTimeLimiter(
+				getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool(threadFactory))
+		);
 	}
 
 	@Provides

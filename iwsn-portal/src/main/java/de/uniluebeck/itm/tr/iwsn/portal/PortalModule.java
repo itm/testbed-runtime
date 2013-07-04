@@ -33,6 +33,7 @@ import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceModule;
 
 import java.net.URI;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutorService;
@@ -124,7 +125,10 @@ public class PortalModule extends AbstractModule {
 
 	@Provides
 	TimeLimiter provideTimeLimiter() {
-		return new SimpleTimeLimiter(getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool()));
+		final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("TimeLimiter %d").build();
+		return new SimpleTimeLimiter(
+				getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool(threadFactory))
+		);
 	}
 
 	@Provides
