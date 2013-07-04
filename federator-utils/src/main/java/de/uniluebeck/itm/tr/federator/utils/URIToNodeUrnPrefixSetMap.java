@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.federatorutils;
+package de.uniluebeck.itm.tr.federator.utils;
 
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 

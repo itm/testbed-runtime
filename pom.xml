@@ -36,6 +36,8 @@
 	<modules>
 		<module>common</module>
 		<module>device-db</module>
+		<module>federator</module>
+		<module>federator-utils</module>
 		<module>iwsn-common</module>
 		<module>iwsn-federator</module>
 		<module>iwsn-portal</module>
@@ -46,7 +48,6 @@
 		<module>snaa-client</module>
 		<module>snaa-federator</module>
 		<module>snaa-server</module>
-		<module>federator-utils</module>
 	</modules>
 
 	<dependencyManagement>
@@ -80,11 +81,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.rs-federator</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs-server</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -107,6 +103,21 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.snaa-common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.iwsn-federator</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.rs-federator</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.snaa-federator</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

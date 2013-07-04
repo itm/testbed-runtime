@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.federatorutils;
+package de.uniluebeck.itm.tr.federator.utils;
 
 
 import com.google.common.base.Function;

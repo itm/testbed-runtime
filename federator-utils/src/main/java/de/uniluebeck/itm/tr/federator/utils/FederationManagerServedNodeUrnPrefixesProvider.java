@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.federatorutils;
+package de.uniluebeck.itm.tr.federator.utils;
 
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;

@@ -32,7 +32,6 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
-import de.uniluebeck.itm.util.propconf.PropConfBuilder;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
 @SuppressWarnings("restriction")
 public class RSServer extends AbstractService {
@@ -93,13 +93,12 @@ public class RSServer extends AbstractService {
 		);
 
 		if (config.helpConfig) {
-			PropConfBuilder.printDocumentation(
+			printDocumentationAndExit(
 					System.out,
 					CommonConfig.class,
 					RSServiceConfig.class,
 					RSServerConfig.class
 			);
-			System.exit(1);
 		}
 
 		final PropConfModule propConfModule = new PropConfModule(

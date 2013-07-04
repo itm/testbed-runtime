@@ -29,9 +29,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederationManager;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.*;
@@ -68,18 +69,18 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 	private final FederationManager<RS> federationManager;
 
+	private final RSFederatorServiceConfig config;
+
 	private ServicePublisherService jaxWsService;
 
-	private RSFederatorConfig config;
-
 	@Inject
-	public RSFederatorServiceImpl(final ServicePublisher servicePublisher,
+	public RSFederatorServiceImpl(@Named(RS_FEDERATOR_EXECUTOR_SERVICE) final ExecutorService executorService,
+								  final ServicePublisher servicePublisher,
 								  final FederationManager<RS> federationManager,
-								  final ExecutorService executorService,
-								  final RSFederatorConfig config) {
+								  final RSFederatorServiceConfig config) {
+		this.executorService = checkNotNull(executorService);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.federationManager = checkNotNull(federationManager);
-		this.executorService = checkNotNull(executorService);
 		this.config = checkNotNull(config);
 	}
 

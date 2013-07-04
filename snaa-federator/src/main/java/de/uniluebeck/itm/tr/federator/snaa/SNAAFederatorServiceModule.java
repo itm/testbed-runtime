@@ -7,12 +7,10 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
-import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederationManager;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
@@ -25,35 +23,36 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.inject.util.Providers.of;
+import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutorService;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
-public class SNAAFederatorModule extends AbstractModule {
+public class SNAAFederatorServiceModule extends AbstractModule {
 
-	private final SNAAFederatorConfig snaaFederatorConfig;
+	private final SNAAFederatorServiceConfig snaaFederatorServiceConfig;
 
-	public SNAAFederatorModule(final SNAAFederatorConfig snaaFederatorConfig) {
-		this.snaaFederatorConfig = checkNotNull(snaaFederatorConfig);
+	public SNAAFederatorServiceModule(final SNAAFederatorServiceConfig snaaFederatorServiceConfig) {
+		this.snaaFederatorServiceConfig = checkNotNull(snaaFederatorServiceConfig);
 	}
 
 	@Override
 	protected void configure() {
 
-		bind(SNAAFederatorConfig.class).toProvider(of(snaaFederatorConfig));
+		requireBinding(ServicePublisher.class);
+		requireBinding(SNAAFederatorServiceConfig.class);
 
-		install(new ServicePublisherCxfModule());
-
-		switch (snaaFederatorConfig.getSnaaFederatorType()) {
+		switch (snaaFederatorServiceConfig.getSnaaFederatorType()) {
 
 			case API:
 				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
 				break;
 			case SHIBBOLETH:
 				final SNAAServiceConfig snaaServiceConfig =
-						buildConfig(SNAAServiceConfig.class, snaaFederatorConfig.getSnaaFederatorProperties());
+						buildConfig(SNAAServiceConfig.class, snaaFederatorServiceConfig.getSnaaFederatorProperties());
 				install(new ShibbolethSNAAModule(snaaServiceConfig));
 				bind(SNAAFederatorService.class)
 						.to(DelegatingSNAAFederatorServiceImpl.class)
@@ -66,23 +65,21 @@ public class SNAAFederatorModule extends AbstractModule {
 						.to(ShibbolethSNAA.class);
 				break;
 			default:
-				throw new RuntimeException("Unknown SNAA federator type: " + snaaFederatorConfig.getSnaaFederatorType());
+				throw new RuntimeException(
+						"Unknown SNAA federator type: " + snaaFederatorServiceConfig.getSnaaFederatorType()
+				);
 		}
 	}
 
 	@Provides
-	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory,
-											 final SNAAFederatorConfig snaaFederatorConfig) {
-		return servicePublisherFactory.create(new ServicePublisherConfig(snaaFederatorConfig.getPort()));
-	}
-
-	@Provides
+	@Named(SNAAFederatorService.SNAA_FEDERATOR_EXECUTOR_SERVICE)
 	public ExecutorService provideExecutorService() {
-		return newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("SNAAFederatorService-Thread %d").build());
+		final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("SNAAFederatorService-Thread %d").build();
+		return getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool(threadFactory));
 	}
 
 	@Provides
-	public FederationManager<SNAA> provideSnaaFederationManager(final SNAAFederatorConfig config) {
+	public FederationManager<SNAA> provideSnaaFederationManager(final SNAAFederatorServiceConfig config) {
 
 		final Function<URI, SNAA> uriToRSEndpointFunction = new Function<URI, SNAA>() {
 			@Override

@@ -131,7 +131,7 @@
 							<transformers>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>de.uniluebeck.itm.tr.federator.snaa.SNAAFederator</mainClass>
+									<mainClass>de.uniluebeck.itm.tr.federator.snaa.SNAAFederatorServer</mainClass>
 								</transformer>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">

@@ -9,13 +9,13 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
-import de.uniluebeck.itm.util.propconf.PropConfBuilder;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
 public class SNAAServer extends AbstractService {
 
@@ -67,8 +67,7 @@ public class SNAAServer extends AbstractService {
 		);
 
 		if (config.helpConfig) {
-			PropConfBuilder.printDocumentation(System.out, CommonConfig.class, SNAAServiceConfig.class);
-			System.exit(1);
+			printDocumentationAndExit(System.out, CommonConfig.class, SNAAServiceConfig.class);
 		}
 
 		final PropConfModule propConfModule =

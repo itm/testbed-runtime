@@ -7,11 +7,9 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
+import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
-import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederationManager;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.RS;
@@ -20,40 +18,34 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 
-import static com.google.inject.util.Providers.of;
+import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutorService;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
-public class RSFederatorModule extends AbstractModule {
-
-
-	private final RSFederatorConfig rsFederatorConfig;
-
-	public RSFederatorModule(final RSFederatorConfig rsFederatorConfig) {
-		this.rsFederatorConfig = rsFederatorConfig;
-	}
+public class RSFederatorServiceModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
 
-		bind(RSFederatorConfig.class).toProvider(of(rsFederatorConfig));
+		requireBinding(RSFederatorServiceConfig.class);
+		requireBinding(ServicePublisher.class);
+
 		bind(RSFederatorService.class).to(RSFederatorServiceImpl.class).in(Scopes.SINGLETON);
-
-		install(new ServicePublisherCxfModule());
 	}
 
 	@Provides
-	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory, final RSFederatorConfig config) {
-		return servicePublisherFactory.create(new ServicePublisherConfig(config.getPort()));
-	}
-
-	@Provides
+	@Named(RSFederatorService.RS_FEDERATOR_EXECUTOR_SERVICE)
 	public ExecutorService provideExecutorService() {
-		return newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("RSFederatorService-Thread %d").build());
+		final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+				.setNameFormat("RSFederatorService-Thread %d")
+				.build();
+		return getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool(threadFactory));
 	}
 
 	@Provides
-	public FederationManager<RS> provideRsFederationManager(final RSFederatorConfig config) {
+	public FederationManager<RS> provideRsFederationManager(final RSFederatorServiceConfig config) {
 
 		final Function<URI, RS> uriToRSEndpointFunction = new Function<URI, RS>() {
 			@Override

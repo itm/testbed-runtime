@@ -26,7 +26,7 @@ package de.uniluebeck.itm.tr.federator.rs;
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederationManager;
 import de.uniluebeck.itm.util.concurrent.ExecutorUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -78,7 +78,7 @@ public class RSFederatorServiceImplTest {
 	private ServicePublisherService servicePublisherService;
 
 	@Mock
-	private RSFederatorConfig config;
+	private RSFederatorServiceConfig config;
 
 	/**
 	 * The RS under test
@@ -92,9 +92,9 @@ public class RSFederatorServiceImplTest {
 		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
 		federatorRSExecutorService = Executors.newSingleThreadExecutor();
 		federatorRS = new RSFederatorServiceImpl(
+				federatorRSExecutorService,
 				servicePublisher,
 				federatorRSFederationManager,
-				federatorRSExecutorService,
 				config
 		);
 		federatorRS.startAndWait();
@@ -147,7 +147,9 @@ public class RSFederatorServiceImplTest {
 
 		when(federatorRSFederationManager.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
 		when(testbed1RS.getReservation(secretReservationKeys)).thenThrow(
-				new UnknownSecretReservationKeyFault("", new eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault())
+				new UnknownSecretReservationKeyFault("",
+						new eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault()
+				)
 		);
 
 		try {
@@ -192,7 +194,9 @@ public class RSFederatorServiceImplTest {
 			final DateTime from = DateTime.now();
 			final DateTime to = DateTime.now().plusHours(1);
 
-			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:not:served:0x1234")), from, to, null, null);
+			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:not:served:0x1234")), from, to, null,
+					null
+			);
 			fail("Should have raised an RSFault_Exception");
 
 		} catch (RSFault_Exception expected) {
@@ -208,7 +212,9 @@ public class RSFederatorServiceImplTest {
 			final DateTime from = DateTime.now();
 			final DateTime to = DateTime.now().plusHours(1);
 
-			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:wisebed1:testbed1:0x1234")), from, to, null, null);
+			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:wisebed1:testbed1:0x1234")), from, to,
+					null, null
+			);
 			fail("Should have raised an RSFault_Exception");
 
 		} catch (RSFault_Exception expected) {
@@ -242,8 +248,8 @@ public class RSFederatorServiceImplTest {
 	}
 
 	/**
-	 * Tests if the call of {@link RS#getReservations(org.joda.time.DateTime, org.joda.time.DateTime)} is made on all
-	 * federated RS instances and the results are merged correctly.
+	 * Tests if the call of {@link RS#getReservations(org.joda.time.DateTime, org.joda.time.DateTime, Integer, Integer)}
+	 * is made on all federated RS instances and the results are merged correctly.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -255,7 +261,8 @@ public class RSFederatorServiceImplTest {
 
 	/**
 	 * Tests if the call of {@link RS#getConfidentialReservations(java.util.List, org.joda.time.DateTime,
-	 * org.joda.time.DateTime)} is made on all federated RS instances and the results are merged correctly.
+	 * org.joda.time.DateTime, Integer, Integer)} is made on all federated RS instances and the results are merged
+	 * correctly.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong

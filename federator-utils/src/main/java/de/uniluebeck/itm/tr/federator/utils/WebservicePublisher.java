@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.federatorutils;
+package de.uniluebeck.itm.tr.federator.utils;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.Service;

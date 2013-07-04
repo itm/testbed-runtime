@@ -8,7 +8,6 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.Logging;
-import de.uniluebeck.itm.util.propconf.PropConfBuilder;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
 public class DeviceDBServer extends AbstractService {
 
@@ -85,8 +85,7 @@ public class DeviceDBServer extends AbstractService {
 		);
 
 		if (config.helpConfig) {
-			PropConfBuilder.printDocumentation(System.out, CommonConfig.class, DeviceDBConfig.class);
-			System.exit(1);
+			printDocumentationAndExit(System.out, CommonConfig.class, DeviceDBConfig.class);
 		}
 
 		final Injector confInjector =

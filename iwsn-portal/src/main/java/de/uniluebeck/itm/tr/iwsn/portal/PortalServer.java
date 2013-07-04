@@ -18,7 +18,6 @@ import de.uniluebeck.itm.tr.snaa.SNAAService;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
-import de.uniluebeck.itm.util.propconf.PropConfBuilder;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
 public class PortalServer extends AbstractService {
 
@@ -150,7 +150,7 @@ public class PortalServer extends AbstractService {
 		);
 
 		if (config.helpConfig) {
-			PropConfBuilder.printDocumentation(
+			printDocumentationAndExit(
 					System.out,
 					CommonConfig.class,
 					RSServiceConfig.class,
@@ -159,7 +159,6 @@ public class PortalServer extends AbstractService {
 					SNAAServiceConfig.class,
 					WiseGuiServiceConfig.class
 			);
-			System.exit(1);
 		}
 
 		final Injector confInjector = Guice.createInjector(new PropConfModule(

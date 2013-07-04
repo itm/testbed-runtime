@@ -1,8 +1,10 @@
 package de.uniluebeck.itm.tr.federator.iwsn;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.util.concurrent.MoreExecutors;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.federator.utils.FederationManager;
 import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -11,6 +13,7 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.SessionManagement;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,10 +22,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,7 +58,7 @@ public class SessionManagementFederatorServiceImplTest {
 	private SessionManagementPreconditions preconditions;
 
 	@Mock
-	private IWSNFederatorServerConfig config;
+	private IWSNFederatorServiceConfig config;
 
 	@Mock
 	private SecureIdGenerator secureIdGenerator;
@@ -63,24 +67,31 @@ public class SessionManagementFederatorServiceImplTest {
 	private ServicePublisher servicePublisher;
 
 	@Mock
-	private ExecutorService executorService;
+	private RS rs;
 
 	@Mock
-	private RS rs;
+	private ServicePublisherService servicePublisherService;
 
 	private SessionManagementFederatorServiceImpl federatorSM;
 
 	@Before
 	public void setUp() throws Exception {
+		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
 		federatorSM = new SessionManagementFederatorServiceImpl(
 				federationManager,
 				preconditions,
 				config,
 				secureIdGenerator,
 				servicePublisher,
-				executorService,
+				MoreExecutors.sameThreadExecutor(),
 				rs
 		);
+		federatorSM.startAndWait();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		federatorSM.stopAndWait();
 	}
 
 	/**
