@@ -32,6 +32,7 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfBuilder;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +91,16 @@ public class RSServer extends AbstractService {
 				parseOrExit(new ConfigWithLoggingAndProperties(), RSServer.class, args),
 				"de.uniluebeck.itm"
 		);
+
+		if (config.helpConfig) {
+			PropConfBuilder.printDocumentation(
+					System.out,
+					CommonConfig.class,
+					RSServiceConfig.class,
+					RSServerConfig.class
+			);
+			System.exit(1);
+		}
 
 		final PropConfModule propConfModule = new PropConfModule(
 				config.config,

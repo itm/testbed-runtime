@@ -18,6 +18,7 @@ import de.uniluebeck.itm.tr.snaa.SNAAService;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfBuilder;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,6 +148,19 @@ public class PortalServer extends AbstractService {
 				parseOrExit(new ConfigWithLoggingAndProperties(), PortalServer.class, args),
 				"de.uniluebeck.itm"
 		);
+
+		if (config.helpConfig) {
+			PropConfBuilder.printDocumentation(
+					System.out,
+					CommonConfig.class,
+					RSServiceConfig.class,
+					DeviceDBConfig.class,
+					PortalServerConfig.class,
+					SNAAServiceConfig.class,
+					WiseGuiServiceConfig.class
+			);
+			System.exit(1);
+		}
 
 		final Injector confInjector = Guice.createInjector(new PropConfModule(
 				config.config,

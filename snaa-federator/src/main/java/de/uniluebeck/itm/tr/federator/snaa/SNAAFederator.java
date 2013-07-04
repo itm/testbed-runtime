@@ -7,6 +7,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +64,11 @@ public class SNAAFederator extends AbstractService {
 				parseOrExit(new ConfigWithLoggingAndProperties(), SNAAFederator.class, args),
 				"de.uniluebeck.itm"
 		);
+
+		if (config.helpConfig) {
+			PropConfBuilder.printDocumentation(System.out, SNAAFederatorConfig.class);
+			System.exit(1);
+		}
 
 		final SNAAFederatorConfig snaaFederatorConfig = buildConfig(SNAAFederatorConfig.class, config.config);
 		final SNAAFederatorModule snaaFederatorModule = new SNAAFederatorModule(snaaFederatorConfig);

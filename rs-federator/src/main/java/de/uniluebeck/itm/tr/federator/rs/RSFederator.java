@@ -7,6 +7,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,11 @@ public class RSFederator extends AbstractService {
 				parseOrExit(new ConfigWithLoggingAndProperties(), RSFederator.class, args),
 				"de.uniluebeck.itm"
 		);
+
+		if (config.helpConfig) {
+			PropConfBuilder.printDocumentation(System.out, RSFederatorConfig.class);
+			System.exit(1);
+		}
 
 		final RSFederatorConfig rsFederatorConfig = buildConfig(RSFederatorConfig.class, config.config);
 		final RSFederatorModule rsFederatorModule = new RSFederatorModule(rsFederatorConfig);

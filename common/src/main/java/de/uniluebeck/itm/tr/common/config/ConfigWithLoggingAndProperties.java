@@ -12,4 +12,8 @@ public class ConfigWithLoggingAndProperties extends ConfigWithLogging {
 			required = true
 	)
 	public Properties config = null;
+
+	@Option(name = "--helpConfig",
+			usage = "Prints available configuration properties including documentation")
+	public boolean helpConfig;
 }

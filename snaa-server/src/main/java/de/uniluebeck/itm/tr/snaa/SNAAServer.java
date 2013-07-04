@@ -9,6 +9,7 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfBuilder;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +66,13 @@ public class SNAAServer extends AbstractService {
 				"de.uniluebeck.itm"
 		);
 
-		final PropConfModule propConfModule = new PropConfModule(config.config, CommonConfig.class, SNAAServiceConfig.class);
+		if (config.helpConfig) {
+			PropConfBuilder.printDocumentation(System.out, CommonConfig.class, SNAAServiceConfig.class);
+			System.exit(1);
+		}
+
+		final PropConfModule propConfModule =
+				new PropConfModule(config.config, CommonConfig.class, SNAAServiceConfig.class);
 		final Injector propConfInjector = Guice.createInjector(propConfModule);
 
 		final CommonConfig commonConfig = propConfInjector.getInstance(CommonConfig.class);

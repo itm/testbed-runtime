@@ -14,6 +14,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfBuilder;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,6 +131,16 @@ public class Gateway extends AbstractService {
 				parseOrExit(new ConfigWithLoggingAndProperties(), Gateway.class, args),
 				"de.uniluebeck.itm"
 		);
+
+		if (config.helpConfig) {
+			PropConfBuilder.printDocumentation(
+					System.out,
+					CommonConfig.class,
+					GatewayConfig.class,
+					DeviceDBConfig.class
+			);
+			System.exit(1);
+		}
 
 		final PropConfModule propConfModule = new PropConfModule(
 				config.config,
