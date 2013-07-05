@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.federator.snaa;
 
 import com.google.common.util.concurrent.AbstractService;
-import com.google.inject.Guice;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
@@ -11,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.inject.Guice.createInjector;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
@@ -66,17 +66,16 @@ public class SNAAFederatorServer extends AbstractService {
 		);
 
 		if (config.helpConfig) {
-			printDocumentationAndExit(System.out, SNAAFederatorServiceConfig.class);
+			printDocumentationAndExit(System.out, SNAAFederatorServerConfig.class, SNAAFederatorServiceConfig.class);
 		}
 
 		final SNAAFederatorServerConfig serverConfig = buildConfig(SNAAFederatorServerConfig.class, config.config);
 		final SNAAFederatorServiceConfig serviceConfig = buildConfig(SNAAFederatorServiceConfig.class, config.config);
-		final SNAAFederatorServiceModule serverModule = new SNAAFederatorServiceModule(serviceConfig);
-		final SNAAFederatorServer
-				snaaFederatorServer = Guice.createInjector(serverModule).getInstance(SNAAFederatorServer.class);
+		final SNAAFederatorServerModule serverModule = new SNAAFederatorServerModule(serverConfig, serviceConfig);
+		final SNAAFederatorServer federatorServer = createInjector(serverModule).getInstance(SNAAFederatorServer.class);
 
 		try {
-			snaaFederatorServer.start().get();
+			federatorServer.start().get();
 		} catch (Exception e) {
 			log.error("Could not start SNAA federator: {}", e.getMessage());
 			System.exit(1);
@@ -86,7 +85,7 @@ public class SNAAFederatorServer extends AbstractService {
 			@Override
 			public void run() {
 				log.info("Received KILL signal. Shutting down SNAA federator...");
-				snaaFederatorServer.stopAndWait();
+				federatorServer.stopAndWait();
 				log.info("Over and out.");
 			}
 		}

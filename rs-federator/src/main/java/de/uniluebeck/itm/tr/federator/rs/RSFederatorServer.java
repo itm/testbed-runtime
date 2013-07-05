@@ -45,7 +45,7 @@ public class RSFederatorServer extends AbstractService {
 		);
 
 		if (config.helpConfig) {
-			printDocumentationAndExit(System.out, RSFederatorServerConfig.class, RSFederatorService.class);
+			printDocumentationAndExit(System.out, RSFederatorServerConfig.class, RSFederatorServiceConfig.class);
 		}
 
 		final RSFederatorServerConfig serverConfig = buildConfig(RSFederatorServerConfig.class, config.config);

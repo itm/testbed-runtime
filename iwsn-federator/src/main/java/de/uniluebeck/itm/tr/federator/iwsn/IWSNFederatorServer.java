@@ -64,7 +64,7 @@ public class IWSNFederatorServer extends AbstractService {
 		);
 
 		if (config.helpConfig) {
-			printDocumentationAndExit(System.out, IWSNFederatorServiceConfig.class);
+			printDocumentationAndExit(System.out, IWSNFederatorServerConfig.class, IWSNFederatorServiceConfig.class);
 		}
 
 		final IWSNFederatorServerConfig serverConfig = buildConfig(IWSNFederatorServerConfig.class, config.config);
