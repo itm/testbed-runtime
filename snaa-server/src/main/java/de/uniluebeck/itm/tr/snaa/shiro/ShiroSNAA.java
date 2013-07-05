@@ -123,23 +123,6 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 
 	private ServicePublisherService jaxWsService;
 
-	/**
-	 * Constructor
-	 *
-	 * @param servicePublisher
-	 * 		used to publish the Web service
-	 * @param currentUserProvider
-	 * 		provides Subject instances (typically by calling {@link SecurityUtils#getSubject()})
-	 * @param snaaContextPath
-	 * 		the context path under which this service shall be available (passed to ServicePublisher)
-	 * @param securityManager
-	 * 		The Instance of the class which executes all security operations for <em>all</em>
-	 * 		Subjects across a single application.
-	 * @param urnResourceGroupsDAO
-	 * 		DAO to access URN resource groups
-	 * @param servedNodeUrnPrefixesProvider
-	 * 		Access authorization for users is performed for nodes which uniform resource
-	 */
 	@Inject
 	public ShiroSNAA(final ServicePublisher servicePublisher,
 					 final SecurityManager securityManager,
