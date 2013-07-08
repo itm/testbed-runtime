@@ -34,7 +34,7 @@ class DisablePhysicalLinkCallable extends AbstractRequestCallable {
 
 	private final NodeUrn targetNodeUrn;
 
-	DisablePhysicalLinkCallable(final FederatorController federatorController,
+	DisablePhysicalLinkCallable(final WSNFederatorController federatorController,
 								final WSN wsnEndpoint,
 								final long federatedRequestId,
 								final long federatorRequestId,

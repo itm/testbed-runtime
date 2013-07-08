@@ -4,13 +4,14 @@ import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
@@ -71,7 +72,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final ReservationManager reservationManager;
 
-	private final SessionManagementPreconditions preconditions;
+	private final Provider<SessionManagementPreconditions> preconditions;
 
 	private final WSNServiceFactory wsnServiceFactory;
 
@@ -102,7 +103,7 @@ public class SessionManagementImpl implements SessionManagement {
 								 final WSNFactory wsnFactory,
 								 final DeliveryManagerFactory deliveryManagerFactory,
 								 final RequestIdProvider requestIdProvider,
-								 final SessionManagementPreconditions preconditions) {
+								 final Provider<SessionManagementPreconditions> preconditions) {
 		this.commonConfig = checkNotNull(commonConfig);
 		this.portalServerConfig = checkNotNull(portalServerConfig);
 		this.portalEventBus = checkNotNull(portalEventBus);
@@ -212,7 +213,7 @@ public class SessionManagementImpl implements SessionManagement {
 							  List<SecretReservationKey> secretReservationKeys)
 			throws UnknownSecretReservationKeyFault {
 
-		preconditions.checkGetInstanceArguments(secretReservationKeys, true);
+		preconditions.get().checkGetInstanceArguments(secretReservationKeys, true);
 
 		final String key = secretReservationKeys.get(0).getKey();
 		final Reservation reservation;

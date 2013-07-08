@@ -24,13 +24,18 @@
 package de.uniluebeck.itm.tr.federator.iwsn;
 
 import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.Service;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.CommonPreconditions;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
+import de.uniluebeck.itm.tr.common.PreconditionsFactory;
+import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.controller.Controller;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import org.joda.time.DateTime;
@@ -38,11 +43,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
-import javax.xml.ws.Endpoint;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import static com.google.common.base.Preconditions.checkState;
 
 @WebService(
 		name = "Controller",
@@ -51,13 +58,19 @@ import java.util.concurrent.TimeUnit;
 		serviceName = "ControllerService",
 		targetNamespace = "http://wisebed.eu/api/v3/controller"
 )
-public class FederatorController extends AbstractService implements Service, Controller {
+public class WSNFederatorControllerImpl extends AbstractService implements WSNFederatorController {
 
-	private static final Logger log = LoggerFactory.getLogger(FederatorController.class);
+	private static final Logger log = LoggerFactory.getLogger(WSNFederatorControllerImpl.class);
 
 	private static final int CACHE_TIMEOUT = 10;
 
 	private static final TimeUnit CACHE_TIMEOUT_UNIT = TimeUnit.MINUTES;
+
+	private final URI endpointUri;
+
+	private final String contextPath;
+
+	private final CommonPreconditions preconditions;
 
 	/**
 	 * Maps the federatedRequestId to the federatorRequestId (i.e. remote to local)
@@ -76,15 +89,74 @@ public class FederatorController extends AbstractService implements Service, Con
 	private final TimedCache<Long, LinkedList<RequestStatus>> pendingRequestStatus =
 			new TimedCache<Long, LinkedList<RequestStatus>>(CACHE_TIMEOUT, CACHE_TIMEOUT_UNIT);
 
-	private final URI controllerEndpointUrl;
+	private final ServicePublisher servicePublisher;
 
 	private final DeliveryManager deliveryManager;
 
-	private Endpoint controllerEndpoint;
+	private ServicePublisherService jaxWsService;
 
-	public FederatorController(URI controllerEndpointUrl) {
-		this.controllerEndpointUrl = controllerEndpointUrl;
-		this.deliveryManager = new DeliveryManagerImpl();
+	@Inject
+	public WSNFederatorControllerImpl(final ServicePublisher servicePublisher,
+									  final DeliveryManager deliveryManager,
+									  final IWSNFederatorServiceConfig config,
+									  final SecureIdGenerator secureIdGenerator,
+									  final PreconditionsFactory preconditionsFactory,
+									  @Assisted Set<NodeUrnPrefix> servedNodeUrnPrefixes,
+									  @Assisted Set<NodeUrn> servedNodeUrns) {
+		this.servicePublisher = servicePublisher;
+		this.contextPath = config.getControllerContextPathBase().endsWith("/") ?
+				"/" + secureIdGenerator.getNextId() :
+				secureIdGenerator.getNextId();
+		this.endpointUri = URI.create(config.getFederatorSmEndpointUri().getScheme() + "://" +
+				config.getFederatorSmEndpointUri().getHost() + ":" +
+				config.getFederatorSmEndpointUri().getPort() + contextPath
+		);
+		this.deliveryManager = deliveryManager;
+		this.preconditions = preconditionsFactory.createCommonPreconditions(servedNodeUrnPrefixes, servedNodeUrns);
+	}
+
+	@Override
+	protected void doStart() {
+
+		try {
+
+			log.debug("Starting federator controller using endpoint URI {}...", endpointUri);
+
+			jaxWsService = servicePublisher.createJaxWsService(contextPath, this);
+			jaxWsService.startAndWait();
+
+			deliveryManager.startAndWait();
+
+			log.debug("Started federator controller on {}!", endpointUri);
+
+			notifyStarted();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected void doStop() {
+
+		try {
+
+			log.debug("Calling reservationEnded() on connected controllers...");
+			deliveryManager.reservationEnded(DateTime.now());
+
+			deliveryManager.stopAndWait();
+
+			if (jaxWsService.isRunning()) {
+				log.info("Stopping federator controller at {}...", endpointUri);
+				jaxWsService.stopAndWait();
+			}
+
+			notifyStopped();
+
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+
 	}
 
 	public void addRequestIdMapping(long federatedRequestId, long federatorRequestId) {
@@ -111,48 +183,6 @@ public class FederatorController extends AbstractService implements Service, Con
 		}
 	}
 
-	@Override
-	protected void doStart() {
-
-		try {
-
-			log.debug("Starting federator controller using endpoint URL {}...", controllerEndpointUrl);
-
-			controllerEndpoint = Endpoint.publish(controllerEndpointUrl.toString(), this);
-			deliveryManager.startAndWait();
-
-			log.debug("Started federator controller on {}!", controllerEndpointUrl);
-
-			notifyStarted();
-
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
-
-	@Override
-	protected void doStop() {
-
-		try {
-
-			log.debug("Calling reservationEnded() on connected controllers...");
-			deliveryManager.reservationEnded(DateTime.now());
-
-			deliveryManager.stopAndWait();
-
-			if (controllerEndpoint != null) {
-				log.info("Stopping federator controller at {}...", controllerEndpointUrl);
-				controllerEndpoint.stop();
-			}
-
-			notifyStopped();
-
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-
-	}
-
 	public void addController(String controllerEndpointUrl) {
 		deliveryManager.addController(controllerEndpointUrl);
 	}
@@ -162,6 +192,7 @@ public class FederatorController extends AbstractService implements Service, Con
 	}
 
 	private void receive(final Message msg) {
+		preconditions.checkNodesKnown(msg.getSourceNodeUrn());
 		deliveryManager.receive(msg);
 	}
 
@@ -216,6 +247,7 @@ public class FederatorController extends AbstractService implements Service, Con
 
 	@Override
 	public void receive(final List<Message> messageList) {
+		checkState(isRunning());
 		for (Message message : messageList) {
 			receive(message);
 		}
@@ -223,11 +255,13 @@ public class FederatorController extends AbstractService implements Service, Con
 
 	@Override
 	public void receiveNotification(final List<Notification> notifications) {
+		checkState(isRunning());
 		deliveryManager.receiveNotification(notifications);
 	}
 
 	@Override
 	public void receiveStatus(final List<RequestStatus> requestStatusList) {
+		checkState(isRunning());
 		for (RequestStatus requestStatus : requestStatusList) {
 			receiveStatus(requestStatus);
 		}
@@ -235,25 +269,31 @@ public class FederatorController extends AbstractService implements Service, Con
 
 	@Override
 	public void nodesAttached(final DateTime timestamp, final List<NodeUrn> nodeUrns) {
+		checkState(isRunning());
+		preconditions.checkNodesKnown(nodeUrns);
 		deliveryManager.nodesAttached(timestamp, nodeUrns);
 	}
 
 	@Override
 	public void nodesDetached(final DateTime timestamp, final List<NodeUrn> nodeUrns) {
+		checkState(isRunning());
+		preconditions.checkNodesKnown(nodeUrns);
 		deliveryManager.nodesDetached(timestamp, nodeUrns);
 	}
 
 	@Override
 	public void reservationStarted(final DateTime timestamp) {
+		checkState(isRunning());
 		deliveryManager.reservationStarted(timestamp);
 	}
 
 	@Override
 	public void reservationEnded(final DateTime timestamp) {
+		checkState(isRunning());
 		deliveryManager.reservationEnded(timestamp);
 	}
 
-	URI getControllerEndpointUrl() {
-		return controllerEndpointUrl;
+	public URI getEndpointUrl() {
+		return endpointUri;
 	}
 }

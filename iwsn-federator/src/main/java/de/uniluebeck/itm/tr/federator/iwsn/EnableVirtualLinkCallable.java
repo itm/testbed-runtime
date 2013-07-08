@@ -42,7 +42,7 @@ class EnableVirtualLinkCallable extends AbstractRequestCallable {
 
 	private final List<String> filters;
 
-	EnableVirtualLinkCallable(final FederatorController federatorController,
+	EnableVirtualLinkCallable(final WSNFederatorController federatorController,
 							  final WSN wsnEndpoint,
 							  final long federatedRequestId,
 							  final long federatorRequestId,

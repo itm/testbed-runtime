@@ -34,7 +34,7 @@ class DisableVirtualLinkCallable extends AbstractRequestCallable {
 
 	private final NodeUrn targetNodeUrn;
 
-	DisableVirtualLinkCallable(final FederatorController federatorController,
+	DisableVirtualLinkCallable(final WSNFederatorController federatorController,
 							   final WSN wsnEndpoint,
 							   final long federatedRequestId,
 							   final long federatorRequestId,

@@ -21,9 +21,8 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.iwsn.common;
+package de.uniluebeck.itm.tr.common;
 
-import com.google.inject.Inject;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 
@@ -34,19 +33,20 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.newHashSet;
 
-public class SessionManagementPreconditions {
+class SessionManagementPreconditionsImpl implements SessionManagementPreconditions {
 
 	private final CommonPreconditions commonPreconditions;
 
-	@Inject
-	public SessionManagementPreconditions(final CommonPreconditions commonPreconditions) {
+	public SessionManagementPreconditionsImpl(final CommonPreconditions commonPreconditions) {
 		this.commonPreconditions = commonPreconditions;
 	}
 
+	@Override
 	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey) {
 		checkGetInstanceArguments(secretReservationKey, false);
 	}
 
+	@Override
 	public void checkGetInstanceArguments(List<SecretReservationKey> secretReservationKey,
 										  boolean singleUrnImplementation) {
 

@@ -1,19 +1,14 @@
 package de.uniluebeck.itm.tr.snaa.jaas;
 
 import com.google.inject.PrivateModule;
-import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
+import de.uniluebeck.itm.tr.common.config.CommonConfigServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import eu.wisebed.api.v3.snaa.SNAA;
-
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
 
 public class JAASSNAAModule extends PrivateModule {
 
@@ -33,6 +28,7 @@ public class JAASSNAAModule extends PrivateModule {
 		requireBinding(SNAAServiceConfig.class);
 		requireBinding(ServicePublisher.class);
 
+		bind(ServedNodeUrnPrefixesProvider.class).to(CommonConfigServedNodeUrnPrefixesProvider.class);
 		bind(LoginContextFactory.class).to(LoginContextFactoryImpl.class);
 		bind(JAASSNAA.class).in(Scopes.SINGLETON);
 		bind(SNAA.class).to(JAASSNAA.class);
@@ -40,15 +36,5 @@ public class JAASSNAAModule extends PrivateModule {
 
 		expose(SNAA.class);
 		expose(SNAAService.class);
-	}
-
-	@Provides
-	ServedNodeUrnPrefixesProvider provideServedNodeUrnPrefixesProvider(final CommonConfig config) {
-		return new ServedNodeUrnPrefixesProvider() {
-			@Override
-			public Set<NodeUrnPrefix> get() {
-				return newHashSet(config.getUrnPrefix());
-			}
-		};
 	}
 }

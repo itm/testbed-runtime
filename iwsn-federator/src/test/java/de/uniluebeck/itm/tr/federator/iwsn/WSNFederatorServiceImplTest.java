@@ -4,10 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.federator.utils.FederationManager;
-import de.uniluebeck.itm.tr.federator.utils.WebservicePublisher;
-import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
+import de.uniluebeck.itm.tr.common.PreconditionsFactory;
+import de.uniluebeck.itm.tr.common.WSNPreconditions;
+import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.concurrent.ExecutorUtils;
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -24,6 +25,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.net.URI;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -31,11 +34,12 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FederatorWSNTest {
+public class WSNFederatorServiceImplTest {
 
 	static {
 		Logging.setLoggingDefaults();
@@ -46,6 +50,9 @@ public class FederatorWSNTest {
 	private static final NodeUrnPrefix TESTBED_2_URN_PREFIX = new NodeUrnPrefix("urn:testbed2:");
 
 	private static final NodeUrnPrefix TESTBED_3_URN_PREFIX = new NodeUrnPrefix("urn:testbed3:");
+
+	private static final HashSet<NodeUrnPrefix> SERVED_NODE_URN_PREFIXES =
+			newHashSet(TESTBED_1_URN_PREFIX, TESTBED_2_URN_PREFIX, TESTBED_3_URN_PREFIX);
 
 	private static final NodeUrn TESTBED_1_NODE_1 = new NodeUrn(TESTBED_1_URN_PREFIX + "0x0001");
 
@@ -60,6 +67,11 @@ public class FederatorWSNTest {
 	private static final NodeUrn TESTBED_3_NODE_1 = new NodeUrn(TESTBED_3_URN_PREFIX + "0x0001");
 
 	private static final NodeUrn TESTBED_3_NODE_2 = new NodeUrn(TESTBED_3_URN_PREFIX + "0x0002");
+
+	private static final HashSet<NodeUrn> SERVED_NODE_URNS =
+			newHashSet(TESTBED_1_NODE_1, TESTBED_1_NODE_2, TESTBED_2_NODE_1, TESTBED_2_NODE_2, TESTBED_2_NODE_3,
+					TESTBED_3_NODE_1, TESTBED_3_NODE_2
+			);
 
 	private final Random requestIdGenerator = new Random();
 
@@ -76,33 +88,60 @@ public class FederatorWSNTest {
 	private FederationManager<WSN> federationManager;
 
 	@Mock
-	private FederatorController federatorController;
+	private WSNFederatorControllerFactory federatorControllerFactory;
 
 	@Mock
-	private WebservicePublisher<WSN> webservicePublisher;
+	private WSNFederatorController federatorController;
+
+	@Mock
+	private ServicePublisher servicePublisher;
 
 	@Mock
 	private WSNPreconditions wsnPreconditions;
 
-	private FederatorWSN federatorWSN;
+	@Mock
+	private IWSNFederatorServiceConfig config;
+
+	@Mock
+	private SecureIdGenerator secureIdGenerator;
+
+	@Mock
+	private PreconditionsFactory preconditionsFactory;
+
+	private WSNFederatorServiceImpl wsnFederatorServiceImpl;
 
 	private ListeningExecutorService executorService;
 
 	@Before
 	public void setUp() throws Exception {
 
+		when(preconditionsFactory.createWsnPreconditions(
+				Matchers.<Set<NodeUrnPrefix>>any(),
+				Matchers.<Set<NodeUrn>>any()
+		)
+		).thenReturn(wsnPreconditions);
+		when(federatorControllerFactory.create(
+				Matchers.<Set<NodeUrnPrefix>>any(),
+				Matchers.<Set<NodeUrn>>any()
+		)
+		).thenReturn(federatorController);
+		when(config.getWsnEndpointUriBase()).thenReturn(URI.create("http://localhost/"));
 		when(federationManager.getUrnPrefixes()).thenReturn(
 				ImmutableSet.of(TESTBED_1_URN_PREFIX, TESTBED_2_URN_PREFIX, TESTBED_3_URN_PREFIX)
 		);
 
-		executorService = MoreExecutors.sameThreadExecutor();
+		executorService = sameThreadExecutor();
 
-		federatorWSN = new FederatorWSN(
-				federatorController,
+		wsnFederatorServiceImpl = new WSNFederatorServiceImpl(
+				servicePublisher,
+				config,
+				secureIdGenerator,
+				preconditionsFactory,
+				executorService,
+				federatorControllerFactory,
 				federationManager,
-				webservicePublisher,
-				wsnPreconditions,
-				executorService
+				SERVED_NODE_URN_PREFIXES,
+				SERVED_NODE_URNS
 		);
 	}
 
@@ -136,7 +175,7 @@ public class FederatorWSNTest {
 				ImmutableMap.of(testbed2WSN, config2.getNodeUrns())
 		);
 
-		federatorWSN.flashPrograms(requestIdGenerator.nextLong(), flashProgramsConfigurations);
+		wsnFederatorServiceImpl.flashPrograms(requestIdGenerator.nextLong(), flashProgramsConfigurations);
 
 		verify(testbed1WSN).flashPrograms(anyLong(), eq(newArrayList(config1)));
 		verify(testbed2WSN).flashPrograms(anyLong(), eq(newArrayList(config2)));
@@ -177,7 +216,7 @@ public class FederatorWSNTest {
 				)
 		);
 
-		federatorWSN.flashPrograms(anyLong(), flashProgramsConfigurations);
+		wsnFederatorServiceImpl.flashPrograms(anyLong(), flashProgramsConfigurations);
 
 		final FlashProgramsConfiguration testbed1ExpectedConfiguration1 = new FlashProgramsConfiguration();
 		testbed1ExpectedConfiguration1.getNodeUrns().add(TESTBED_1_NODE_1);
@@ -232,7 +271,7 @@ public class FederatorWSNTest {
 		when(federationManager.getEndpointByNodeUrn(TESTBED_1_NODE_2)).thenReturn(testbed1WSN);
 		when(federationManager.getEndpointByNodeUrn(TESTBED_3_NODE_1)).thenReturn(testbed3WSN);
 
-		federatorWSN.setChannelPipeline(requestIdGenerator.nextLong(), nodes, channelHandlerConfigurations);
+		wsnFederatorServiceImpl.setChannelPipeline(requestIdGenerator.nextLong(), nodes, channelHandlerConfigurations);
 
 		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_2_NODE_1);
 		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_2_NODE_2);

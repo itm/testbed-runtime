@@ -21,11 +21,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.iwsn.common;
+package de.uniluebeck.itm.tr.common;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
-import com.google.inject.Inject;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
 import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
@@ -43,19 +42,20 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.newHashSet;
 
 
-public class WSNPreconditions {
+class WSNPreconditionsImpl implements WSNPreconditions {
 
 	private CommonPreconditions commonPreconditions;
 
-	@Inject
-	public WSNPreconditions(final CommonPreconditions commonPreconditions) {
+	public WSNPreconditionsImpl(final CommonPreconditions commonPreconditions) {
 		this.commonPreconditions = commonPreconditions;
 	}
 
+	@Override
 	public void checkAreNodesAliveArguments(Collection<NodeUrn> nodes) {
 		commonPreconditions.checkNodesKnown(nodes);
 	}
 
+	@Override
 	public void checkFlashProgramsArguments(final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
 
 		checkNotNull(flashProgramsConfigurations);
@@ -94,6 +94,7 @@ public class WSNPreconditions {
 
 	}
 
+	@Override
 	public void checkSendArguments(List<NodeUrn> nodeIds, byte[] message) {
 
 		checkNotNull(nodeIds);
@@ -102,11 +103,13 @@ public class WSNPreconditions {
 		commonPreconditions.checkNodesKnown(nodeIds);
 	}
 
+	@Override
 	public void checkResetNodesArguments(List<NodeUrn> nodes) {
 		checkNotNull(nodes);
 		commonPreconditions.checkNodesKnown(nodes);
 	}
 
+	@Override
 	@SuppressWarnings("unused")
 	public void checkSetVirtualLinkArguments(List<VirtualLink> links) {
 
@@ -132,6 +135,7 @@ public class WSNPreconditions {
 		}
 	}
 
+	@Override
 	public void checkDestroyVirtualLinkArguments(List<Link> links) {
 		checkLinkArguments(links, false);
 	}
@@ -150,6 +154,7 @@ public class WSNPreconditions {
 		}
 	}
 
+	@Override
 	public void checkDisableNodeArguments(List<NodeUrn> nodeUrns) {
 		checkNodeUrnsArgument(nodeUrns);
 	}
@@ -160,18 +165,22 @@ public class WSNPreconditions {
 		commonPreconditions.checkNodesKnown(nodeUrns);
 	}
 
+	@Override
 	public void checkDisablePhysicalLinkArguments(List<Link> links) {
 		checkLinkArguments(links, true);
 	}
 
+	@Override
 	public void checkEnableNodeArguments(List<NodeUrn> nodeUrns) {
 		checkNodeUrnsArgument(nodeUrns);
 	}
 
+	@Override
 	public void checkEnablePhysicalLinkArguments(List<Link> links) {
 		checkLinkArguments(links, true);
 	}
 
+	@Override
 	public void checkSetChannelPipelineArguments(final List<NodeUrn> nodes,
 												 final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
 

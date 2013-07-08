@@ -4,8 +4,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.federator.utils.FederationManager;
-import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.KeyValuePair;
@@ -22,6 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
@@ -55,7 +58,7 @@ public class SessionManagementFederatorServiceImplTest {
 	private FederationManager<SessionManagement> federationManager;
 
 	@Mock
-	private SessionManagementPreconditions preconditions;
+	private PreconditionsFactory preconditionsFactory;
 
 	@Mock
 	private IWSNFederatorServiceConfig config;
@@ -72,19 +75,32 @@ public class SessionManagementFederatorServiceImplTest {
 	@Mock
 	private ServicePublisherService servicePublisherService;
 
+	@Mock
+	private WSNFederatorManager wsnFederatorManager;
+
+	@Mock
+	private ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
+
+	@Mock
+	private ServedNodeUrnsProvider servedNodeUrnsProvider;
+
+	private ExecutorService executorService = MoreExecutors.sameThreadExecutor();
+
 	private SessionManagementFederatorServiceImpl federatorSM;
 
 	@Before
 	public void setUp() throws Exception {
+		when(config.getFederatorSmEndpointUri()).thenReturn(URI.create("http://localhost/"));
 		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
 		federatorSM = new SessionManagementFederatorServiceImpl(
 				federationManager,
-				preconditions,
+				preconditionsFactory,
 				config,
-				secureIdGenerator,
 				servicePublisher,
-				MoreExecutors.sameThreadExecutor(),
-				rs
+				executorService,
+				wsnFederatorManager,
+				servedNodeUrnPrefixesProvider,
+				servedNodeUrnsProvider
 		);
 		federatorSM.startAndWait();
 	}

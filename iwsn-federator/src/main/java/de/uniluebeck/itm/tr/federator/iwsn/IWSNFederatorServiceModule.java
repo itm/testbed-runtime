@@ -1,20 +1,22 @@
 package de.uniluebeck.itm.tr.federator.iwsn;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
-import de.uniluebeck.itm.tr.federator.utils.FederationManagerServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.federator.utils.FederationManagerServedNodeUrnsProvider;
+import de.uniluebeck.itm.tr.federator.utils.*;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
+import de.uniluebeck.itm.tr.common.PreconditionsModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.RS;
@@ -40,6 +42,9 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 		requireBinding(ServicePublisher.class);
 		requireBinding(IWSNFederatorServiceConfig.class);
 
+		install(new PreconditionsModule());
+		install(new FederationManagerModule());
+
 		bind(ServedNodeUrnPrefixesProvider.class).to(FederationManagerServedNodeUrnPrefixesProvider.class);
 		bind(ServedNodeUrnsProvider.class).to(FederationManagerServedNodeUrnsProvider.class);
 
@@ -50,6 +55,18 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 		bind(IWSNFederatorService.class)
 				.to(IWSNFederatorServiceImpl.class)
 				.in(Scopes.SINGLETON);
+
+		bind(WSNFederatorManager.class).to(WSNFederatorManagerImpl.class).in(Scopes.SINGLETON);
+
+		install(new FactoryModuleBuilder()
+				.implement(WSNFederatorController.class, WSNFederatorControllerImpl.class)
+				.build(WSNFederatorControllerFactory.class)
+		);
+
+		install(new FactoryModuleBuilder()
+				.implement(WSNFederatorService.class, WSNFederatorServiceImpl.class)
+				.build(WSNFederatorServiceFactory.class)
+		);
 	}
 
 	@Provides
@@ -78,17 +95,14 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 
 	@Provides
 	@Singleton
-	public FederationManager<SessionManagement> provideFederationManager(final IWSNFederatorServiceConfig config) {
+	public FederationManager<SessionManagement> provideFederationManager(final IWSNFederatorServiceConfig config,
+																		 final FederationManagerFactory factory) {
 
-		final ImmutableMap.Builder<URI, ImmutableSet<NodeUrnPrefix>> smEndpointUrlPrefixSetBuilder =
-				ImmutableMap.builder();
+		final Multimap<URI, NodeUrnPrefix> map = HashMultimap.create();
 
 		for (Map.Entry<URI, Set<NodeUrnPrefix>> entry : config.getFederates().entrySet()) {
-			smEndpointUrlPrefixSetBuilder.put(entry.getKey(), ImmutableSet.copyOf(entry.getValue()));
+			map.putAll(entry.getKey(), entry.getValue());
 		}
-
-		final ImmutableMap<URI, ImmutableSet<NodeUrnPrefix>> smEndpointUrlPrefixSet =
-				smEndpointUrlPrefixSetBuilder.build();
 
 		final Function<URI, SessionManagement> uriToSessionManagementFunction = new Function<URI, SessionManagement>() {
 			@Override
@@ -98,6 +112,11 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 			}
 		};
 
-		return new FederationManager<SessionManagement>(uriToSessionManagementFunction, smEndpointUrlPrefixSet);
+		return factory.create(uriToSessionManagementFunction, map);
+	}
+
+	@Provides
+	public DeliveryManager provideDeliveryManager() {
+		return new DeliveryManagerImpl();
 	}
 }

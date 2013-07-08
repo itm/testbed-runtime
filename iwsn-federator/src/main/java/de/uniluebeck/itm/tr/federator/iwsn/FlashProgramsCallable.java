@@ -34,7 +34,7 @@ class FlashProgramsCallable extends AbstractRequestCallable {
 
 	private final List<FlashProgramsConfiguration> flashProgramsConfigurations;
 
-	FlashProgramsCallable(final FederatorController federatorController,
+	FlashProgramsCallable(final WSNFederatorController federatorController,
 						  final WSN wsnEndpoint,
 						  final long federatedRequestId,
 						  final long federatorRequestId,

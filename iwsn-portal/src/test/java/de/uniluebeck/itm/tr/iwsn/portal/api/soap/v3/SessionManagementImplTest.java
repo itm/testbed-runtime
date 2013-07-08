@@ -2,7 +2,9 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.google.inject.Provider;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
@@ -103,7 +105,7 @@ public class SessionManagementImplTest {
 	private CommonConfig commonConfig;
 
 	@Mock
-	private SessionManagementPreconditions sessionManagementPreconditions;
+	private Provider<SessionManagementPreconditions> sessionManagementPreconditionsProvider;
 
 	private SessionManagementImpl sessionManagement;
 
@@ -136,7 +138,7 @@ public class SessionManagementImplTest {
 				wsnFactory,
 				deliveryManagerFactory,
 				requestIdProvider,
-				sessionManagementPreconditions
+				sessionManagementPreconditionsProvider
 		);
 	}
 

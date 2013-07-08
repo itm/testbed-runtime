@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.federator.snaa;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -10,7 +10,9 @@ import com.google.inject.Scopes;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederationManagerFactory;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
@@ -44,6 +46,7 @@ public class SNAAFederatorServiceModule extends AbstractModule {
 
 		requireBinding(ServicePublisher.class);
 		requireBinding(SNAAFederatorServiceConfig.class);
+		requireBinding(PreconditionsFactory.class);
 
 		switch (snaaFederatorServiceConfig.getSnaaFederatorType()) {
 
@@ -79,7 +82,8 @@ public class SNAAFederatorServiceModule extends AbstractModule {
 	}
 
 	@Provides
-	public FederationManager<SNAA> provideSnaaFederationManager(final SNAAFederatorServiceConfig config) {
+	public FederationManager<SNAA> provideSnaaFederationManager(final SNAAFederatorServiceConfig config,
+																final FederationManagerFactory factory) {
 
 		final Function<URI, SNAA> uriToRSEndpointFunction = new Function<URI, SNAA>() {
 			@Override
@@ -88,11 +92,11 @@ public class SNAAFederatorServiceModule extends AbstractModule {
 			}
 		};
 
-		final ImmutableMap.Builder<URI, ImmutableSet<NodeUrnPrefix>> mapBuilder = ImmutableMap.builder();
+		final Multimap<URI, NodeUrnPrefix> map = HashMultimap.create();
 		for (Map.Entry<URI, Set<NodeUrnPrefix>> entry : config.getFederates().entrySet()) {
-			mapBuilder.put(entry.getKey(), ImmutableSet.copyOf(entry.getValue()));
+			map.putAll(entry.getKey(), entry.getValue());
 		}
 
-		return new FederationManager<SNAA>(uriToRSEndpointFunction, mapBuilder.build());
+		return factory.create(uriToRSEndpointFunction, map);
 	}
 }

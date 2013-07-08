@@ -13,6 +13,7 @@ import de.uniluebeck.itm.tr.federator.rs.RSFederatorServiceConfig;
 import de.uniluebeck.itm.tr.federator.rs.RSFederatorServiceModule;
 import de.uniluebeck.itm.tr.federator.snaa.SNAAFederatorServiceModule;
 import de.uniluebeck.itm.tr.federator.snaa.SNAAFederatorServiceConfig;
+import de.uniluebeck.itm.tr.common.PreconditionsModule;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.inject.util.Providers.of;
@@ -44,6 +45,7 @@ public class FederatorServerModule extends AbstractModule {
 		bind(RSFederatorServiceConfig.class).toProvider(of(rsFederatorServiceConfig));
 		bind(SNAAFederatorServiceConfig.class).toProvider(of(snaaFederatorServiceConfig));
 
+		install(new PreconditionsModule());
 		install(new ServicePublisherCxfModule());
 
 		install(new IWSNFederatorServiceModule());

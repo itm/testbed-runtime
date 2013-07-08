@@ -35,7 +35,7 @@ class EnableNodeCallable extends AbstractRequestCallable {
 
 	private final NodeUrn nodeUrn;
 
-	EnableNodeCallable(final FederatorController federatorController,
+	EnableNodeCallable(final WSNFederatorController federatorController,
 					   final WSN wsnEndpoint,
 					   final long federatedRequestId,
 					   final long federatorRequestId,

@@ -34,7 +34,7 @@ class WSNAreNodesAliveCallable extends AbstractRequestCallable {
 
 	private final List<NodeUrn> nodes;
 
-	WSNAreNodesAliveCallable(final FederatorController federatorController,
+	WSNAreNodesAliveCallable(final WSNFederatorController federatorController,
 							 final WSN wsnEndpoint,
 							 final long federatedRequestId,
 							 final long federatorRequestId,

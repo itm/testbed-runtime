@@ -23,15 +23,25 @@ public class IWSNFederatorServiceConfig {
 	private URIToNodeUrnPrefixSetMap federates;
 
 	@PropConf(
-			usage = "Context path on which to run the iWSN SessionManagement federator",
-			example = "/federator/soap/v3.0/sm",
-			defaultValue = "/federator/soap/v3.0/sm"
+			usage = "Context path base under which to run the federated WSN instances",
+			example = "http://federator.mydomain.tld/federator/soap/v3.0/wsn"
 	)
-	public static final String FEDERATOR_CONTEXT_PATH = "federator.iwsn.sm_context_path";
+	public static final String FEDERATOR_WSN_ENDPOINT_URI_BASE = "federator.iwsn.wsn_endpoint_uri_base";
 
 	@Inject
-	@Named(FEDERATOR_CONTEXT_PATH)
-	private String contextPath;
+	@Named(FEDERATOR_WSN_ENDPOINT_URI_BASE)
+	private URI wsnEndpointUriBase;
+
+	@PropConf(
+			usage = "Context path base under which to run the Controller instances that receive data from federated testbeds",
+			example = "/federator/soap/v3.0/controller",
+			defaultValue = "/federator/soap/v3.0/controller"
+	)
+	public static final String FEDERATOR_CONTROLLER_CONTEXT_PATH_BASE = "federator.iwsn.controller_context_path_base";
+
+	@Inject
+	@Named(FEDERATOR_CONTROLLER_CONTEXT_PATH_BASE)
+	private String controllerContextPathBase;
 
 	@PropConf(
 			usage = "The Endpoint URI of the federator SessionManagement service (to be returned by SessionManagement.getConfiguration())",
@@ -66,8 +76,12 @@ public class IWSNFederatorServiceConfig {
 	@Named(FEDERATOR_SNAA_ENDPOINT_URI)
 	private URI federatorSnaaEndpointUri;
 
-	public String getContextPath() {
-		return contextPath;
+	public URI getWsnEndpointUriBase() {
+		return wsnEndpointUriBase;
+	}
+
+	public String getControllerContextPathBase() {
+		return controllerContextPathBase;
 	}
 
 	public URIToNodeUrnPrefixSetMap getFederates() {

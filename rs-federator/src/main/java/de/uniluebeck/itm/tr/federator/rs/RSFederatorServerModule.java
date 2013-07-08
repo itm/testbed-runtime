@@ -7,6 +7,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
+import de.uniluebeck.itm.tr.common.PreconditionsModule;
 
 import static com.google.inject.util.Providers.of;
 
@@ -28,6 +29,7 @@ public class RSFederatorServerModule extends AbstractModule {
 		bind(RSFederatorServerConfig.class).toProvider(of(rsFederatorServerConfig));
 		bind(RSFederatorServiceConfig.class).toProvider(of(rsFederatorServiceConfig));
 
+		install(new PreconditionsModule());
 		install(new ServicePublisherCxfModule());
 		install(new RSFederatorServiceModule());
 	}

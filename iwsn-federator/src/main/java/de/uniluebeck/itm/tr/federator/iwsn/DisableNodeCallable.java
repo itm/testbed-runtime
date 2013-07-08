@@ -35,7 +35,7 @@ class DisableNodeCallable extends AbstractRequestCallable {
 
 	private final NodeUrn nodeUrn;
 
-	DisableNodeCallable(final FederatorController federatorController,
+	DisableNodeCallable(final WSNFederatorController federatorController,
 						final WSN wsnEndpoint,
 						final long federatedRequestId,
 						final long federatorRequestId,

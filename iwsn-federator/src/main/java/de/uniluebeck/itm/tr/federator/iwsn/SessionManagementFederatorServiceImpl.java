@@ -23,56 +23,45 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn;
 
-import com.google.common.base.Function;
 import com.google.common.collect.*;
 import com.google.common.util.concurrent.AbstractService;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.federator.utils.FederationManager;
-import de.uniluebeck.itm.tr.federator.utils.WebservicePublisher;
-import de.uniluebeck.itm.tr.iwsn.common.CommonPreconditions;
-import de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper;
-import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
-import de.uniluebeck.itm.tr.iwsn.common.WSNPreconditions;
-import de.uniluebeck.itm.util.SecureIdGenerator;
-import de.uniluebeck.itm.util.TimedCache;
+import de.uniluebeck.itm.tr.common.PreconditionsFactory;
+import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.util.Tuple;
-import de.uniluebeck.itm.util.concurrent.ExecutorUtils;
-import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.NodeConnectionStatus;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault;
-import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import java.net.URI;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Lists.newArrayListWithCapacity;
-import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
-import static eu.wisebed.api.v3.WisebedServiceHelper.createSMUnknownSecretReservationKeyFault;
 
 @WebService(
 		name = "SessionManagement",
@@ -93,18 +82,6 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 	 */
 	private final ExecutorService executorService;
 
-	/**
-	 * wsnInstanceHash (see {@link de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper#calculateWSNInstanceHash(java.util.List)}
-	 * ) -> Federating WSN API instance
-	 */
-	private final TimedCache<String, Tuple<FederatorWSN, ExecutorService>> instanceCache =
-			new TimedCache<String, Tuple<FederatorWSN, ExecutorService>>();
-
-	/**
-	 * Used for generating random request IDs and URLs.
-	 */
-	private final SecureIdGenerator secureIdGenerator;
-
 	private final ServicePublisher servicePublisher;
 
 	/**
@@ -116,33 +93,36 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 
 	private final FederationManager<SessionManagement> federationManager;
 
-	private final RS rs;
+	private final WSNFederatorManager wsnFederatorManager;
 
 	private ServicePublisherService jaxWsService;
 
 	@Inject
 	public SessionManagementFederatorServiceImpl(
 			final FederationManager<SessionManagement> federationManager,
-			final SessionManagementPreconditions preconditions,
+			final PreconditionsFactory preconditionsFactory,
 			final IWSNFederatorServiceConfig config,
-			final SecureIdGenerator secureIdGenerator,
 			final ServicePublisher servicePublisher,
 			final ExecutorService executorService,
-			final RS rs) {
+			final WSNFederatorManager wsnFederatorManager,
+			final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
+			final ServedNodeUrnsProvider servedNodeUrnsProvider) {
 		this.federationManager = checkNotNull(federationManager);
-		this.preconditions = checkNotNull(preconditions);
+		this.preconditions = preconditionsFactory.createSessionManagementPreconditions(
+				servedNodeUrnPrefixesProvider.get(),
+				servedNodeUrnsProvider.get()
+		);
 		this.config = checkNotNull(config);
-		this.secureIdGenerator = checkNotNull(secureIdGenerator);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.executorService = checkNotNull(executorService);
-		this.rs = checkNotNull(rs);
+		this.wsnFederatorManager = checkNotNull(wsnFederatorManager);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
 
-			jaxWsService = servicePublisher.createJaxWsService(config.getContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(config.getFederatorSmEndpointUri().getPath(), this);
 			jaxWsService.startAndWait();
 
 			notifyStarted();
@@ -156,14 +136,6 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 	protected void doStop() {
 		try {
 
-			if (log.isInfoEnabled() && instanceCache.size() > 0) {
-				log.info("Stopping all WSN federator instances...");
-			}
-
-			for (String wsnInstanceHash : instanceCache.keySet()) {
-				stopFederatorWSN(wsnInstanceHash);
-			}
-
 			if (jaxWsService != null && jaxWsService.isRunning()) {
 				jaxWsService.stopAndWait();
 			}
@@ -173,24 +145,6 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
-	}
-
-	private void stopFederatorWSN(final String wsnInstanceHash) {
-
-		final FederatorWSN federatorWSN = instanceCache.get(wsnInstanceHash).getFirst();
-		final ExecutorService federatorWSNThreadPool = instanceCache.get(wsnInstanceHash).getSecond();
-
-		if (log.isInfoEnabled()) {
-			log.info("Stopping WSN federator at {}...", federatorWSN.getEndpointUrl());
-		}
-
-		try {
-			federatorWSN.stop();
-		} catch (Exception e) {
-			log.warn("Exception while stopping WSN federator: " + e, e);
-		}
-
-		ExecutorUtils.shutdown(federatorWSNThreadPool, 5, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -344,233 +298,11 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 	}
 
 	@Override
-	public String getInstance(final List<SecretReservationKey> secretReservationKeys)
+	public String getInstance(final List<SecretReservationKey> srks)
 			throws UnknownSecretReservationKeyFault {
-
 		checkState(isRunning());
-
-		preconditions.checkGetInstanceArguments(secretReservationKeys);
-
-		final String wsnInstanceHash = SessionManagementHelper.calculateWSNInstanceHash(secretReservationKeys);
-
-		// check if instance already exists and return it if that's the case
-		final Tuple<FederatorWSN, ExecutorService> instanceCacheEntry = instanceCache.get(wsnInstanceHash);
-		if (instanceCacheEntry != null && instanceCacheEntry.getFirst() != null) {
-
-			final FederatorWSN existingWSNFederatorInstance = instanceCacheEntry.getFirst();
-
-			log.debug("Found existing WSN federator instance at {} for secret reservation keys {}",
-					new Object[]{
-							existingWSNFederatorInstance.getEndpointUrl(),
-							secretReservationKeys
-					}
-			);
-
-			return existingWSNFederatorInstance.getEndpointUrl();
-		}
-
-
-		final ImmutableSet<NodeUrn> reservedNodeUrns;
-
-		try {
-
-			final ImmutableSet.Builder<NodeUrn> reservedNodeUrnsBuilder = ImmutableSet.builder();
-			final List<ConfidentialReservationData> reservations = rs.getReservation(copyWsnToRs(secretReservationKeys));
-
-			for (ConfidentialReservationData reservation : reservations) {
-				reservedNodeUrnsBuilder.addAll(reservation.getNodeUrns());
-			}
-
-			reservedNodeUrns = reservedNodeUrnsBuilder.build();
-
-		} catch (eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault e) {
-			throw createSMUnknownSecretReservationKeyFault(e.getMessage(), e.getFaultInfo().getSecretReservationKey(),
-					e
-			);
-		} catch (Exception e) {
-			log.warn("An exception was thrown by the reservation system: " + e, e);
-			throw new RuntimeException("An exception was thrown by the reservation system: " + e, e);
-		}
-
-		// create a WSN API instance under a generated secret URL and remember
-		// to which set of secret URLs of federated
-		// WSN API instances it maps
-		URI wsnEndpointUrl = createRandomWsnEndpointUrl();
-		URI controllerEndpointUrl = createRandomControllerEndpointUrl();
-
-		// delegate calls to the relevant federated Session Management API
-		// endpoints (fork)
-
-		final List<Future<GetInstanceCallable.Result>> futures = new ArrayList<Future<GetInstanceCallable.Result>>();
-		final Map<SessionManagement, List<SecretReservationKey>> serviceMapping =
-				getServiceMapping(secretReservationKeys);
-
-		for (Map.Entry<SessionManagement, List<SecretReservationKey>> entry : serviceMapping.entrySet()) {
-
-			final SessionManagement sm = entry.getKey();
-			final List<SecretReservationKey> srks = entry.getValue();
-			GetInstanceCallable getInstanceCallable = new GetInstanceCallable(
-					sm, srks, controllerEndpointUrl
-			);
-
-			log.debug("Calling getInstance on {}", entry.getKey());
-
-			futures.add(executorService.submit(getInstanceCallable));
-		}
-
-		ImmutableMap.Builder<URI, ImmutableSet<NodeUrnPrefix>> federatedEndpointUrlsToUrnPrefixesMapBuilder =
-				ImmutableMap.builder();
-
-		// collect call results (join)
-		for (Future<GetInstanceCallable.Result> future : futures) {
-			try {
-
-				GetInstanceCallable.Result result = future.get();
-
-				Set<NodeUrnPrefix> federatedUrnPrefixSet = convertToUrnPrefixSet(result.secretReservationKey);
-				federatedEndpointUrlsToUrnPrefixesMapBuilder.put(
-						result.federatedWSNInstanceEndpointUrl,
-						ImmutableSet.copyOf(federatedUrnPrefixSet)
-				);
-
-			} catch (Exception e) {
-
-				// if one delegate call fails also fail
-				log.error("" + e, e);
-				throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
-
-			}
-		}
-
-		final FederationManager<WSN> federatorWSNFederationManager =
-				new FederationManager<WSN>(new Function<URI, WSN>() {
-					@Override
-					public WSN apply(final URI input) {
-						assert input != null;
-						return WisebedServiceHelper.getWSNService(input.toString());
-					}
-				}, federatedEndpointUrlsToUrnPrefixesMapBuilder.build()
-				);
-
-		final ThreadFactory federatorWSNThreadFactory = new ThreadFactoryBuilder()
-				.setNameFormat("WSN Federator %d")
-				.build();
-		final ListeningExecutorService federatorWSNThreadPool =
-				MoreExecutors.listeningDecorator(Executors.newCachedThreadPool(federatorWSNThreadFactory));
-
-		final WebservicePublisher<WSN> federatorWSNWebservicePublisher = new WebservicePublisher<WSN>(wsnEndpointUrl);
-		final FederatorController federatorWSNController = new FederatorController(controllerEndpointUrl);
-
-		final WSNPreconditions federatorWSNPreconditions = new WSNPreconditions(new CommonPreconditions(
-				new ServedNodeUrnsProvider() {
-					@Override
-					public Set<NodeUrn> get() {
-						return reservedNodeUrns;
-					}
-				},
-				new ServedNodeUrnPrefixesProvider() {
-					@Override
-					public Set<NodeUrnPrefix> get() {
-						return federatorWSNFederationManager.getUrnPrefixes();
-					}
-				}
-		)
-		);
-
-		final FederatorWSN federatorWSN = new FederatorWSN(
-				federatorWSNController,
-				federatorWSNFederationManager,
-				federatorWSNWebservicePublisher,
-				federatorWSNPreconditions,
-				federatorWSNThreadPool
-		);
-
-		federatorWSNWebservicePublisher.setImplementer(federatorWSN);
-
-		try {
-
-			federatorWSN.start();
-
-		} catch (Exception e) {
-			throw new RuntimeException("The federating WSN service could not be started. Reason: " + e, e);
-		}
-
-		instanceCache.put(
-				wsnInstanceHash,
-				new Tuple<FederatorWSN, ExecutorService>(federatorWSN, federatorWSNThreadPool)
-		);
-
-		// return the instantiated WSN API instance sessionManagementEndpoint
-		// URL
-		return federatorWSN.getEndpointUrl();
-	}
-
-	private List<eu.wisebed.api.v3.common.SecretReservationKey> copyWsnToRs(
-			final List<eu.wisebed.api.v3.common.SecretReservationKey> ins) {
-		List<eu.wisebed.api.v3.common.SecretReservationKey> outs = newArrayListWithCapacity(ins.size());
-		for (SecretReservationKey in : ins) {
-			outs.add(convertWsnToRs(in));
-		}
-		return outs;
-	}
-
-	private eu.wisebed.api.v3.common.SecretReservationKey convertWsnToRs(
-			final eu.wisebed.api.v3.common.SecretReservationKey in) {
-		eu.wisebed.api.v3.common.SecretReservationKey out = new eu.wisebed.api.v3.common.SecretReservationKey();
-		out.setKey(in.getKey());
-		out.setUrnPrefix(in.getUrnPrefix());
-		return out;
-	}
-
-	/**
-	 * Calculates the set of URN prefixes that are "buried" inside {@code secretReservationKeys}.
-	 *
-	 * @param secretReservationKeys
-	 * 		the list of {@link SecretReservationKey} instances
-	 *
-	 * @return the set of URN prefixes that are "buried" inside {@code secretReservationKeys}
-	 */
-	private Set<NodeUrnPrefix> convertToUrnPrefixSet(List<SecretReservationKey> secretReservationKeys) {
-		Set<NodeUrnPrefix> retSet = new HashSet<NodeUrnPrefix>(secretReservationKeys.size());
-		for (SecretReservationKey secretReservationKey : secretReservationKeys) {
-			retSet.add(secretReservationKey.getUrnPrefix());
-		}
-		return retSet;
-	}
-
-	/**
-	 * Checks for a given list of {@link SecretReservationKey} instances which federated Session Management endpoints are
-	 * responsible for which set of URN prefixes.
-	 *
-	 * @param srks
-	 * 		the list of {@link SecretReservationKey} instances as passed in as parameter e.g. to
-	 * 		{@link SessionManagementFederatorServiceImpl#getInstance(java.util.List)}
-	 *
-	 * @return a mapping between the Session Management sessionManagementEndpoint URL and the subset of URN prefixes they
-	 *         serve
-	 */
-	private Map<SessionManagement, List<SecretReservationKey>> getServiceMapping(
-			final List<SecretReservationKey> srks) {
-
-		Map<SessionManagement, List<SecretReservationKey>> map = newHashMap();
-
-		final ImmutableSet<FederationManager.Entry<SessionManagement>> entries = federationManager.getEntries();
-		for (FederationManager.Entry<SessionManagement> entry : entries) {
-			for (NodeUrnPrefix urnPrefix : entry.urnPrefixes) {
-				for (SecretReservationKey srk : srks) {
-					if (urnPrefix.equals(srk.getUrnPrefix())) {
-						List<SecretReservationKey> secretReservationKeyList = map.get(entry.endpoint);
-						if (secretReservationKeyList == null) {
-							secretReservationKeyList = new ArrayList<SecretReservationKey>();
-							map.put(entry.endpoint, secretReservationKeyList);
-						}
-						secretReservationKeyList.add(srk);
-					}
-				}
-			}
-		}
-
-		return map;
+		preconditions.checkGetInstanceArguments(srks);
+		return wsnFederatorManager.getWsnFederatorService(srks).getEndpointUri().toString();
 	}
 
 	@Override
@@ -685,23 +417,5 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 		}
 		return FederatorWiseMLMerger.merge(endpointUrlToCallableMap, executorService);
 
-	}
-
-	private URI createRandomWsnEndpointUrl() {
-		final URI uri = config.getFederatorSmEndpointUri();
-		return URI.create(uri.getScheme() + "://" +
-				uri.getHost() + ":" +
-				uri.getPort() + "/" +
-				secureIdGenerator.getNextId() + "/wsn"
-		);
-	}
-
-	private URI createRandomControllerEndpointUrl() {
-		final URI uri = config.getFederatorSmEndpointUri();
-		return URI.create(uri.getScheme() + "://" +
-				uri.getHost() + ":" +
-				uri.getPort() + "/" +
-				secureIdGenerator.getNextId() + "/controller"
-		);
 	}
 }

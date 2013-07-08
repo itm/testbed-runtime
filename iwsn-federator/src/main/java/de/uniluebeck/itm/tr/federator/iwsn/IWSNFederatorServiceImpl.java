@@ -9,14 +9,19 @@ public class IWSNFederatorServiceImpl extends AbstractService implements IWSNFed
 
 	private final SessionManagementFederatorService sessionManagementFederatorService;
 
+	private final WSNFederatorManager wsnFederatorManager;
+
 	@Inject
-	public IWSNFederatorServiceImpl(final SessionManagementFederatorService sessionManagementFederatorService) {
+	public IWSNFederatorServiceImpl(final SessionManagementFederatorService sessionManagementFederatorService,
+									final WSNFederatorManager wsnFederatorManager) {
+		this.wsnFederatorManager = wsnFederatorManager;
 		this.sessionManagementFederatorService = checkNotNull(sessionManagementFederatorService);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
+			wsnFederatorManager.startAndWait();
 			sessionManagementFederatorService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
@@ -29,6 +34,9 @@ public class IWSNFederatorServiceImpl extends AbstractService implements IWSNFed
 		try {
 			if (sessionManagementFederatorService.isRunning()) {
 				sessionManagementFederatorService.stopAndWait();
+			}
+			if (wsnFederatorManager.isRunning()) {
+				wsnFederatorManager.stopAndWait();
 			}
 			notifyStopped();
 		} catch (Exception e) {

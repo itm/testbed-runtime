@@ -36,7 +36,7 @@ class SendCallable extends AbstractRequestCallable {
 
 	private final byte[] message;
 
-	SendCallable(final FederatorController federatorController,
+	SendCallable(final WSNFederatorController federatorController,
 				 final WSN wsnEndpoint,
 				 final long federatedRequestId,
 				 final long federatorRequestId,

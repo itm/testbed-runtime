@@ -21,13 +21,10 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.iwsn.common;
+package de.uniluebeck.itm.tr.common;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
-import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
@@ -42,7 +39,7 @@ import static com.google.common.collect.Sets.newHashSet;
  * and a set of known node URNs (e.g. the set of node URNs that are part of the current reservation) as its state and
  * runs every check against these two sets.
  */
-public class CommonPreconditions {
+class CommonPreconditionsImpl implements CommonPreconditions {
 
 	private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
@@ -50,9 +47,8 @@ public class CommonPreconditions {
 
 	private final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
 
-	@Inject
-	public CommonPreconditions(final ServedNodeUrnsProvider servedNodeUrnsProvider,
-							   final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider) {
+	public CommonPreconditionsImpl(final ServedNodeUrnsProvider servedNodeUrnsProvider,
+								   final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider) {
 		this.servedNodeUrnsProvider = servedNodeUrnsProvider;
 		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
 	}
@@ -66,6 +62,7 @@ public class CommonPreconditions {
 	 * @throws RuntimeException
 	 * 		if at least one of the node URNs prefix is not served
 	 */
+	@Override
 	public void checkNodeUrnsPrefixesServed(NodeUrn... nodeUrns) {
 		checkNodeUrnsPrefixesServed(newHashSet(nodeUrns));
 	}
@@ -79,6 +76,7 @@ public class CommonPreconditions {
 	 * @throws RuntimeException
 	 * 		if at least one of the node URNs prefix is not served
 	 */
+	@Override
 	public void checkNodeUrnsPrefixesServed(Collection<NodeUrn> nodeUrns) {
 
 		Set<NodeUrn> nodeUrnsOfUnservedPrefixes = Sets.newHashSet();
@@ -115,6 +113,7 @@ public class CommonPreconditions {
 	 * @throws IllegalArgumentException
 	 * 		if at least one the URN prefixes is unknown
 	 */
+	@Override
 	public void checkUrnPrefixesServed(Set<NodeUrnPrefix> urnPrefixes) {
 
 		Set<NodeUrnPrefix> unservedUrnPrefixes = Sets.difference(urnPrefixes, servedNodeUrnPrefixesProvider.get());
@@ -135,6 +134,7 @@ public class CommonPreconditions {
 	 * @throws IllegalArgumentException
 	 * 		if at least one node URN is not known
 	 */
+	@Override
 	public void checkNodesKnown(final NodeUrn... nodeUrns) {
 		checkNodesKnown(Sets.<NodeUrn>newHashSet(nodeUrns));
 	}
@@ -148,6 +148,7 @@ public class CommonPreconditions {
 	 * @throws IllegalArgumentException
 	 * 		if at least one node URN is not known
 	 */
+	@Override
 	public void checkNodesKnown(final Collection<NodeUrn> nodeUrns) {
 
 		Set<NodeUrn> unknownNodeUrns =

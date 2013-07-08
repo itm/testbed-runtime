@@ -7,6 +7,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
+import de.uniluebeck.itm.tr.federator.utils.FederationManagerModule;
 
 import static com.google.inject.util.Providers.of;
 
@@ -28,6 +29,7 @@ public class SNAAFederatorServerModule extends AbstractModule {
 		bind(SNAAFederatorServerConfig.class).toProvider(of(snaaFederatorServerConfig));
 		bind(SNAAFederatorServiceConfig.class).toProvider(of(snaaFederatorServiceConfig));
 
+		install(new FederationManagerModule());
 		install(new SNAAFederatorServiceModule(snaaFederatorServiceConfig));
 		install(new ServicePublisherCxfModule());
 	}

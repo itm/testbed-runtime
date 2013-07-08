@@ -32,7 +32,7 @@ import java.util.concurrent.Callable;
 
 abstract class AbstractRequestCallable implements Callable<Void> {
 
-	protected final FederatorController federatorController;
+	protected final WSNFederatorController federatorController;
 
 	protected final WSN wsnEndpoint;
 
@@ -40,7 +40,7 @@ abstract class AbstractRequestCallable implements Callable<Void> {
 
 	protected final long federatorRequestId;
 
-	protected AbstractRequestCallable(final FederatorController federatorController,
+	protected AbstractRequestCallable(final WSNFederatorController federatorController,
 									  final WSN wsnEndpoint,
 									  final long federatedRequestId,
 									  final long federatorRequestId) {

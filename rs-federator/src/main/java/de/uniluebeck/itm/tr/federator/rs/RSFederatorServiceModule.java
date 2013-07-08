@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.federator.rs;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -10,6 +10,7 @@ import com.google.inject.Scopes;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederationManagerFactory;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.RS;
@@ -31,6 +32,7 @@ public class RSFederatorServiceModule extends AbstractModule {
 
 		requireBinding(RSFederatorServiceConfig.class);
 		requireBinding(ServicePublisher.class);
+		requireBinding(FederationManagerFactory.class);
 
 		bind(RSFederatorService.class).to(RSFederatorServiceImpl.class).in(Scopes.SINGLETON);
 	}
@@ -45,7 +47,8 @@ public class RSFederatorServiceModule extends AbstractModule {
 	}
 
 	@Provides
-	public FederationManager<RS> provideRsFederationManager(final RSFederatorServiceConfig config) {
+	public FederationManager<RS> provideRsFederationManager(final RSFederatorServiceConfig config,
+															final FederationManagerFactory factory) {
 
 		final Function<URI, RS> uriToRSEndpointFunction = new Function<URI, RS>() {
 			@Override
@@ -54,14 +57,11 @@ public class RSFederatorServiceModule extends AbstractModule {
 			}
 		};
 
-		final ImmutableMap.Builder<URI, ImmutableSet<NodeUrnPrefix>> mapBuilder = ImmutableMap.builder();
+		final Multimap<URI, NodeUrnPrefix> map = HashMultimap.create();
 		for (Map.Entry<URI, Set<NodeUrnPrefix>> entry : config.getFederates().entrySet()) {
-			mapBuilder.put(entry.getKey(), ImmutableSet.copyOf(entry.getValue()));
+			map.putAll(entry.getKey(), entry.getValue());
 		}
 
-		return new FederationManager<RS>(
-				uriToRSEndpointFunction,
-				mapBuilder.build()
-		);
+		return factory.create(uriToRSEndpointFunction, map);
 	}
 }

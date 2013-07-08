@@ -14,7 +14,7 @@ public class SetChannelPipelineCallable extends AbstractRequestCallable {
 
 	private final List<ChannelHandlerConfiguration> channelHandlerConfigurations;
 
-	public SetChannelPipelineCallable(final FederatorController federatorController,
+	public SetChannelPipelineCallable(final WSNFederatorController federatorController,
 									  final WSN wsnEndpoint,
 									  final long federatedRequestId,
 									  final long federatorRequestId,

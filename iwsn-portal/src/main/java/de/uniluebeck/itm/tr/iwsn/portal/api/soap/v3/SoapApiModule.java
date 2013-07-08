@@ -1,12 +1,11 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
+import de.uniluebeck.itm.tr.common.*;
+import de.uniluebeck.itm.tr.iwsn.common.*;
 import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import eu.wisebed.api.v3.sm.SessionManagement;
@@ -19,6 +18,8 @@ public class SoapApiModule extends AbstractModule {
 
 		requireBinding(ServedNodeUrnsProvider.class);
 		requireBinding(ServedNodeUrnPrefixesProvider.class);
+
+		install(new PreconditionsModule());
 
 		install(new FactoryModuleBuilder()
 				.implement(WSNService.class, WSNServiceImpl.class)
@@ -44,5 +45,17 @@ public class SoapApiModule extends AbstractModule {
 		bind(SoapApiService.class).to(SoapApiServiceImpl.class).in(Singleton.class);
 		bind(SessionManagement.class).to(SessionManagementImpl.class).in(Singleton.class);
 		bind(RequestIdProvider.class).to(RandomRequestIdProvider.class).in(Singleton.class);
+	}
+
+	@Provides
+	@Singleton
+	SessionManagementPreconditions provideSessionManagementPreconditions(
+			final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
+			final ServedNodeUrnsProvider servedNodeUrnsProvider,
+			final PreconditionsFactory factory) {
+		return factory.createSessionManagementPreconditions(
+				servedNodeUrnPrefixesProvider.get(),
+				servedNodeUrnsProvider.get()
+		);
 	}
 }

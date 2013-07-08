@@ -34,7 +34,7 @@ class ResetNodesCallable extends AbstractRequestCallable {
 
 	private List<NodeUrn> nodes;
 
-	ResetNodesCallable(final FederatorController federatorController,
+	ResetNodesCallable(final WSNFederatorController federatorController,
 					   final WSN wsnEndpoint,
 					   final long federatedRequestId,
 					   final long federatorRequestId,
