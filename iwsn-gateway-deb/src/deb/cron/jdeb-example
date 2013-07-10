@@ -1,0 +1,7 @@
+#! /bin/sh
+
+# /etc/cron.monthly for jdeb-example logfiles
+
+LOG=/var/log/jdeb-example/main.log
+test -f $LOG || exit 0
+savelog -g adm -m 644 -u root -c 6 $LOG >/dev/null

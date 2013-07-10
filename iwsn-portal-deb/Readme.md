@@ -3,6 +3,8 @@ Uses [jDeb](https://github.com/tcurdt/jdeb) to build a Debian package.
 
 Use ``mvn clean install`` to build the package.
 
+Edit ``/etc/tr.iwsn-portal/tr.iwsn-portal.properties`` before starting the service.
+
 Creates the following directory structure:
 (``-|`` marks a file)
 ```
@@ -11,7 +13,8 @@ Creates the following directory structure:
 │   ├── init.d
 │   │   └──| tr.iwsn-portal
 │   └── tr.iwsn-portal
-│       └──| log4j.properties
+│       ├──| log4j.properties
+│       └──| tr.iwsn-portal.properties
 ├── usr
 │   ├── bin
 │   │   └──| tr.iwsn-portal
