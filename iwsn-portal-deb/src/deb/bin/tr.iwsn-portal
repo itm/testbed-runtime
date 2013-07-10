@@ -1,8 +1,9 @@
 #!/bin/sh
 
+NAME="tr.iwsn-portal"
 CP=""
-APP_DIR="/usr/share/testbed-runtime/iwsn-portal"
-CONF_DIR="/etc/tr.iwsn-portal-deb"
-JAR="iwsn-portal.jar"
+APP_DIR="/usr/share/testbed-runtime/$NAME"
+CONF_DIR="/etc/$NAME"
+JAR="$NAME.jar"
 
-exec java -jar $APP_DIR/$JAR -Dlog4j.configuration=file:$CONF_DIR/log4j.properties
+exec java -Dlog4j.configuration="$CONF_DIR/log4j.properties" -jar $APP_DIR/$JAR --config $CONF_DIR/$NAME.properties

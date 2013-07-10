@@ -1,8 +1,8 @@
-Package: [[artifactId]]
+Package: [[project.pathName]]
 Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
 Depends: java7-runtime
 Description: [[description]]
-Maintainer: tcurdt@vafer.org
+Maintainer: bimschas@itm.uni-luebeck.de

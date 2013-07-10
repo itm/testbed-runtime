@@ -1,1 +1,1 @@
-/etc/[[artifactId]]/log4j.properties
+/etc/[[project.pathName]]/log4j.properties

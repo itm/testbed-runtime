@@ -28,6 +28,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
+	<properties>
+		<project.pathName>tr.iwsn-portal</project.pathName>
+	</properties>
+
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr</artifactId>
@@ -36,7 +40,7 @@
 	</parent>
 
 	<artifactId>tr.iwsn-portal-deb</artifactId>
-	<name>TR :: iWSN Portal Debian Package</name>
+	<name>TR :: iWSN Portal Debian Package</name>	
 
 	<dependencies>
 
@@ -48,6 +52,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>${project.pathName}-${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -96,14 +101,14 @@
 									<type>file</type>
 									<mapper>
 										<type>perm</type>
-										<prefix>/usr/share/testbed-runtime/iwsn-portal</prefix>
+										<prefix>/usr/share/testbed-runtime/${project.pathName}</prefix>
 										<user>root</user>
 										<group>root</group>
 									</mapper>
 								</data>
 
 								<data>
-									<src>${basedir}/src/deb/bin/tr.iwsn-portal</src>
+									<src>${basedir}/src/deb/bin/${project.pathName}</src>
 									<type>file</type>
 									<mapper>
 										<type>perm</type>
@@ -117,8 +122,8 @@
 								<data>
 									<type>link</type>
 									<symlink>true</symlink>
-									<linkName>/usr/share/testbed-runtime/iwsn-portal/tr.iwsn-portal.jar</linkName>
-									<linkTarget>/usr/share/jdeb/lib/${project.build.finalName}.jar</linkTarget>
+									<linkName>/usr/share/testbed-runtime/${project.pathName}/${project.pathName}.jar</linkName>
+									<linkTarget>/usr/share/testbed-runtime/${project.pathName}/${project.build.finalName}.jar</linkTarget>
 								</data>
 
 								<data>
@@ -138,7 +143,7 @@
 									<type>directory</type>
 									<mapper>
 										<type>perm</type>
-										<prefix>/etc/${project.artifactId}</prefix>
+										<prefix>/etc/${project.pathName}</prefix>
 									</mapper>
 								</data>
 
@@ -146,9 +151,9 @@
 									<type>template</type>
 									<paths>
 										<path>etc/${project.artifactId}</path>
-										<path>var/lib/${project.artifactId}</path>
-										<path>var/log/${project.artifactId}</path>
-										<path>var/run/${project.artifactId}</path>
+										<path>var/lib/${project.pathName}</path>
+										<path>var/log/${project.pathName}</path>
+										<path>var/run/${project.pathName}</path>
 									</paths>
 									<mapper>
 										<type>perm</type>
