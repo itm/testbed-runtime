@@ -47,8 +47,11 @@ public abstract class ShiroSNAATestBase {
 
 	protected static final String EXPERIMENTER1_SALT = "Exp1Salt";
 
-	protected static final String EXPERIMENTER1_PASS_HASHED =
-			new Sha512Hash(EXPERIMENTER1_PASS, EXPERIMENTER1_SALT, 1000).toHex();
+	protected static final String EXPERIMENTER1_PASS_HASHED = new Sha512Hash(
+			EXPERIMENTER1_PASS,
+			EXPERIMENTER1_SALT,
+			1000
+	).toHex();
 
 	protected static final String EXPERIMENTER1 = "Experimenter1";
 
@@ -58,8 +61,11 @@ public abstract class ShiroSNAATestBase {
 
 	protected static final String SERVICE_PROVIDER1_SALT = "SP1PSalt";
 
-	protected static final String SERVICE_PROVIDER1_PASS_HASHED =
-			new Sha512Hash(SERVICE_PROVIDER1_PASS, SERVICE_PROVIDER1_SALT, 1000).toHex();
+	protected static final String SERVICE_PROVIDER1_PASS_HASHED = new Sha512Hash(
+			SERVICE_PROVIDER1_PASS,
+			SERVICE_PROVIDER1_SALT,
+			1000
+	).toHex();
 
 	protected static final String SERVICE_PROVIDER1 = "ServiceProvider1";
 
@@ -67,14 +73,15 @@ public abstract class ShiroSNAATestBase {
 
 	protected static final String ADMINISTRATOR1_SALT = "Adm1Salt";
 
-	protected static final String ADMINISTRATOR1_PASS_HASHED =
-			new Sha512Hash(ADMINISTRATOR1_PASS, ADMINISTRATOR1_SALT, 1000).toHex();
+	protected static final String ADMINISTRATOR1_PASS_HASHED = new Sha512Hash(
+			ADMINISTRATOR1_PASS,
+			ADMINISTRATOR1_SALT,
+			1000
+	).toHex();
 
 	protected static final String ADMINISTRATOR1 = "Administrator1";
 
 	protected static final NodeUrnPrefix NODE_URN_PREFIX_1 = new NodeUrnPrefix("urn:wisebed:uzl2:");
-
-	protected static final NodeUrnPrefix NODE_URN_PREFIX_2 = new NodeUrnPrefix("urn:wisebed:uzl3:");
 
 	@Mock
 	protected CommonConfig commonConfig;

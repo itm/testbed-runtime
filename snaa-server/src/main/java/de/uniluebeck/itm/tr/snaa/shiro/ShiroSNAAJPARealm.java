@@ -92,4 +92,7 @@ public class ShiroSNAAJPARealm extends AuthorizingRealm {
 		return result;
 	}
 
+	public boolean doesUserExist(final String userId) {
+		return usersDao.find(userId) != null;
+	}
 }

@@ -276,17 +276,25 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 
 		assertAllNodeUrnPrefixesServed(servedNodeUrnPrefixesProvider.get(), usernameNodeUrnsMapping.getNodeUrns());
 
+		if (!((ShiroSNAAJPARealm) realm).doesUserExist(userName)) {
+			AuthorizationResponse authorizationResponse = new AuthorizationResponse();
+			authorizationResponse.setAuthorized(false);
+			authorizationResponse.setMessage("User \"" + userName + "\" is unknown!");
+			return authorizationResponse;
+		}
+
 		PrincipalCollection principals = new SimplePrincipalCollection(userName, realm.getName());
 		Subject subject = new Subject.Builder().principals(principals).buildSubject();
 
 		Set<String> nodeGroups = getNodeGroupsForNodeURNs(usernameNodeUrnsMapping.getNodeUrns());
 
 		AuthorizationResponse authorizationResponse = new AuthorizationResponse();
-		authorizationResponse.setAuthorized(true);
 		StringBuilder reason = new StringBuilder();
+		boolean allAuthorized = true;
 		for (String nodeGroup : nodeGroups) {
 			if (!subject.isPermittedAll(action.name() + ":" + nodeGroup)) {
 				authorizationResponse.setAuthorized(false);
+				allAuthorized = false;
 				reason.append("The action '")
 						.append(action.name())
 						.append("' is not allowed for node group '")
@@ -296,6 +304,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 						.append("'. ");
 			}
 		}
+		authorizationResponse.setAuthorized(allAuthorized);
 		subject.logout();
 
 		if (!authorizationResponse.isAuthorized()) {
