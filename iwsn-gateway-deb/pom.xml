@@ -29,7 +29,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
-		<project.pathName>tr.iwsn-portal</project.pathName>
+		<project.pathName>tr.iwsn-gateway</project.pathName>
 	</properties>
 
 	<parent>
@@ -39,14 +39,14 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.iwsn-portal-deb</artifactId>
+	<artifactId>tr.iwsn-gateway-deb</artifactId>
 	<name>TR :: iWSN Portal Debian Package</name>	
 
 	<dependencies>
 
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.iwsn-portal</artifactId>
+			<artifactId>tr.iwsn-gateway</artifactId>
 		</dependency>
 
 	</dependencies>
@@ -69,7 +69,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>de.uniluebeck.itm</groupId>
-									<artifactId>tr.iwsn-portal</artifactId>
+									<artifactId>tr.iwsn-gateway</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>

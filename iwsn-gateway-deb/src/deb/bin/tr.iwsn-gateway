@@ -1,6 +1,6 @@
 #!/bin/sh
 
-NAME="tr.iwsn-portal"
+NAME="tr.iwsn-gateway"
 CP=""
 APP_DIR="/usr/share/testbed-runtime/$NAME"
 CONF_DIR="/etc/$NAME"
