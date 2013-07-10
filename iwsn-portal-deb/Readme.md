@@ -14,6 +14,7 @@ Creates the following directory structure:
 │   │   └──| tr.iwsn-portal
 │   └── tr.iwsn-portal
 │       ├──| log4j.properties
+│		├──| tr.iwsn-portal.properties.example
 │       └──| tr.iwsn-portal.properties
 ├── usr
 │   ├── bin
