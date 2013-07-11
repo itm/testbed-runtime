@@ -112,6 +112,15 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 		this.connection = connection;
 		reservation.getEventBus().register(this);
+
+		final DateTime start = reservation.getInterval().getStart();
+		final DateTime end = reservation.getInterval().getEnd();
+
+		if (end.isBeforeNow()) {
+			sendMessage(toJSON(new ReservationEndedMessage(end)));
+		} else if (start.isBeforeNow()) {
+			sendMessage(toJSON(new ReservationStartedMessage(start)));
+		}
 	}
 
 	@Override
