@@ -1,1 +1,4 @@
 #!/bin/sh
+
+# add daemon to runlevel specified in its header
+update-rc.d || true
