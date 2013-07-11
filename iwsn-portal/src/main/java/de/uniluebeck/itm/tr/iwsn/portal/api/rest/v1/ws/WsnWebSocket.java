@@ -3,15 +3,12 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
-import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.WebSocketDownstreamMessage;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.WebSocketNotificationMessage;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.WebSocketUpstreamMessage;
+import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.joda.time.DateTime;
@@ -84,6 +81,26 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 	@Subscribe
 	public void onNotificationsEvent(final NotificationEvent event) {
 		sendMessage(toJSON(new WebSocketNotificationMessage(event)));
+	}
+
+	@Subscribe
+	public void onDevicesAttachedEvent(final DevicesAttachedEvent event) {
+		sendMessage(toJSON(new DevicesAttachedMessage(event)));
+	}
+
+	@Subscribe
+	public void onDevicesDetachedEvent(final DevicesDetachedEvent event) {
+		sendMessage(toJSON(new DevicesDetachedMessage(event)));
+	}
+
+	@Subscribe
+	public void onReservationStarted(final ReservationStartedEvent event) {
+		sendMessage(toJSON(new ReservationStartedMessage(event)));
+	}
+
+	@Subscribe
+	public void onReservationEnded(final ReservationEndedEvent event) {
+		sendMessage(toJSON(new ReservationEndedMessage(event)));
 	}
 
 	@Override
