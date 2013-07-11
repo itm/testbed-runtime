@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # add daemon to runlevel specified in its header
-update-rc.d || true
+update-rc.d tr.iwsn-gateway defaults || true
