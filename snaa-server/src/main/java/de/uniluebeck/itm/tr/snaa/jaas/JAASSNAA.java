@@ -134,7 +134,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationFault_Exception, SNAAFault_Exception {
+			throws AuthenticationFault, SNAAFault_Exception {
 
 		assertAuthenticationCount(authenticationData, 1, 1);
 		assertUrnPrefixServed(servedNodeUrnPrefixesProvider.get(), authenticationData);
@@ -166,7 +166,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 
 		} catch (LoginException le) {
 			log.debug("LoginException: " + le, le);
-			throw createAuthenticationFault_Exception("Authentication failed!");
+			throw createAuthenticationFault("Authentication failed!");
 		} catch (SecurityException se) {
 			log.debug("SecurityException: " + se, se);
 			throw createSNAAFault("Internal Server Error");

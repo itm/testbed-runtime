@@ -13,6 +13,9 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.snaa.SNAA;
+import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+import eu.wisebed.api.v3.snaa.ValidationResult;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -25,6 +28,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -44,13 +48,17 @@ public class SingleUrnPrefixRS implements RS {
 
 	private final ServedNodeUrnsProvider servedNodeUrnsProvider;
 
+	private final SNAA snaa;
+
 	@Inject
 	public SingleUrnPrefixRS(final CommonConfig commonConfig,
 							 final RSPersistence persistence,
-							 final ServedNodeUrnsProvider servedNodeUrnsProvider) {
+							 final ServedNodeUrnsProvider servedNodeUrnsProvider,
+							 final SNAA snaa) {
 		this.commonConfig = checkNotNull(commonConfig);
 		this.persistence = checkNotNull(persistence);
 		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
+		this.snaa = checkNotNull(snaa);
 	}
 
 	@Override
@@ -74,21 +82,22 @@ public class SingleUrnPrefixRS implements RS {
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
-			final List<SecretAuthenticationKey> secretAuthenticationKey,
+			final List<SecretAuthenticationKey> secretAuthenticationKeys,
 			final DateTime from,
 			final DateTime to,
 			final Integer offset,
 			final Integer amount)
-			throws AuthorizationFault, RSFault_Exception {
+			throws AuthorizationFault, RSFault_Exception, AuthenticationFault {
 
 		checkNotNull(from, "Parameter from is null!");
 		checkNotNull(to, "Parameter to is null!");
-		checkNotNull(secretAuthenticationKey, "Parameter secretAuthenticationKeys is null!");
+		checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null!");
 
 		checkArgumentValid(from, to);
-		checkArgumentValidAuthentication(secretAuthenticationKey);
+		checkArgumentValidAuthentication(secretAuthenticationKeys);
+		checkValidityWithSNAA(secretAuthenticationKeys);
 
-		SecretAuthenticationKey key = secretAuthenticationKey.get(0);
+		SecretAuthenticationKey key = secretAuthenticationKeys.get(0);
 
 		Interval interval = new Interval(new DateTime(from.toGregorianCalendar()),
 				new DateTime(to.toGregorianCalendar())
@@ -130,13 +139,14 @@ public class SingleUrnPrefixRS implements RS {
 	@Override
 	public void deleteReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 								  final List<SecretReservationKey> secretReservationKeys)
-			throws RSFault_Exception, UnknownSecretReservationKeyFault {
+			throws AuthenticationFault, AuthorizationFault, RSFault_Exception, UnknownSecretReservationKeyFault {
 
 		checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null!");
 		checkNotNull(secretReservationKeys, "Parameter secretReservationKeys is null!");
 
 		checkArgumentValidAuthentication(secretAuthenticationKeys);
 		checkArgumentValidReservation(secretReservationKeys);
+		checkValidityWithSNAA(secretAuthenticationKeys);
 
 		SecretReservationKey secretReservationKeyToDelete = secretReservationKeys.get(0);
 		ConfidentialReservationData reservationToDelete = persistence.getReservation(secretReservationKeyToDelete);
@@ -227,7 +237,8 @@ public class SingleUrnPrefixRS implements RS {
 		for (NodeUrn nodeUrn : nodeUrns) {
 			if (!nodeUrn.belongsTo(commonConfig.getUrnPrefix())) {
 				throw createRSFault_Exception(
-						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + commonConfig.getUrnPrefix()
+						"Not responsible for node URN " + nodeUrn + ", only serving prefix: " + commonConfig
+								.getUrnPrefix()
 				);
 			}
 		}
@@ -357,5 +368,23 @@ public class SingleUrnPrefixRS implements RS {
 			publicReservationDataList.add(convertToPublic(confidentialReservationData));
 		}
 		return publicReservationDataList;
+	}
+
+	private void checkValidityWithSNAA(final List<SecretAuthenticationKey> secretAuthenticationKeys)
+			throws AuthenticationFault {
+		try {
+			for (ValidationResult validationResult : snaa.isValid(secretAuthenticationKeys)) {
+				if (!validationResult.isValid()) {
+					final String msg = "SecretAuthenticationKeys are invalid or timed out!";
+					final eu.wisebed.api.v3.common.AuthenticationFault faultInfo =
+							new eu.wisebed.api.v3.common.AuthenticationFault();
+					faultInfo.setMessage(msg);
+					throw new AuthenticationFault(msg, faultInfo);
+				}
+			}
+
+		} catch (SNAAFault_Exception e) {
+			throw propagate(e);
+		}
 	}
 }

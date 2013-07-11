@@ -65,7 +65,7 @@ public class DummySNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationFault_Exception, SNAAFault_Exception {
+			throws AuthenticationFault, SNAAFault_Exception {
 
 		final List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(authenticationData.size());
 

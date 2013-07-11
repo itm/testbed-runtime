@@ -84,7 +84,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	@Override
 	public void deleteReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 								  final List<SecretReservationKey> secretReservationKeys)
-			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault, AuthenticationFault {
 
 		reservationSystem.deleteReservation(secretAuthenticationKeys, secretReservationKeys);
 	}
@@ -96,7 +96,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 													  final DateTime to,
 													  final String description,
 													  final List<KeyValuePair> options)
-			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception {
+			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception, AuthenticationFault {
 
 		return reservationSystem.makeReservation(secretAuthenticationKeys, nodeUrns, from, to, description, options);
 	}
@@ -113,7 +113,8 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
 			final DateTime from, final DateTime to,
-			final Integer offset, final Integer amount) throws RSFault_Exception, AuthorizationFault {
+			final Integer offset, final Integer amount)
+			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
 		return reservationSystem.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount);
 	}

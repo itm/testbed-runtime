@@ -79,7 +79,7 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationFault_Exception, SNAAFault_Exception {
+			throws AuthenticationFault, SNAAFault_Exception {
 
 		checkState(isRunning());
 

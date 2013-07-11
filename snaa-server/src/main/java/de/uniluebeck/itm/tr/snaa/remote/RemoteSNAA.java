@@ -68,7 +68,7 @@ public class RemoteSNAA extends AbstractService implements SNAAService {
 	@Override
 	public List<SecretAuthenticationKey> authenticate(
 			@WebParam(name = "authenticationData", targetNamespace = "") final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationFault_Exception, SNAAFault_Exception {
+			throws AuthenticationFault, SNAAFault_Exception {
 		checkState(isRunning());
 		return snaa.authenticate(authenticationData);
 	}

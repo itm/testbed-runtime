@@ -18,7 +18,7 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.Action;
-import eu.wisebed.api.v3.snaa.AuthenticationFault_Exception;
+import eu.wisebed.api.v3.snaa.AuthenticationFault;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import org.apache.shiro.crypto.hash.Sha512Hash;
@@ -136,7 +136,7 @@ public abstract class ShiroSNAATestBase {
 			assertEquals(EXPERIMENTER1, sakList.get(0).getUsername());
 			assertEquals(NODE_URN_PREFIX_1, sakList.get(0).getUrnPrefix());
 			assertNotNull(sakList.get(0).getKey());
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
@@ -158,7 +158,7 @@ public abstract class ShiroSNAATestBase {
 		try {
 			shiroSNAA.authenticate(authenticationData);
 			fail();
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			// an exception has to be thrown
 		} catch (SNAAFault_Exception e) {
 			// an exception has to be thrown
@@ -175,7 +175,7 @@ public abstract class ShiroSNAATestBase {
 			assertEquals(SERVICE_PROVIDER1, sakList.get(0).getUsername());
 			assertEquals(NODE_URN_PREFIX_1, sakList.get(0).getUrnPrefix());
 			assertNotNull(sakList.get(0).getKey());
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
@@ -208,7 +208,7 @@ public abstract class ShiroSNAATestBase {
 		List<SecretAuthenticationKey> sakList = null;
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
@@ -231,7 +231,7 @@ public abstract class ShiroSNAATestBase {
 		List<SecretAuthenticationKey> sakList = null;
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
@@ -254,7 +254,7 @@ public abstract class ShiroSNAATestBase {
 		List<SecretAuthenticationKey> sakList = null;
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
@@ -277,7 +277,7 @@ public abstract class ShiroSNAATestBase {
 		List<SecretAuthenticationKey> sakList = null;
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
@@ -306,7 +306,7 @@ public abstract class ShiroSNAATestBase {
 		List<SecretAuthenticationKey> sakList = null;
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
@@ -337,7 +337,7 @@ public abstract class ShiroSNAATestBase {
 		List<SecretAuthenticationKey> sakList = null;
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
@@ -368,7 +368,7 @@ public abstract class ShiroSNAATestBase {
 		List<SecretAuthenticationKey> sakList = null;
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {
@@ -397,7 +397,7 @@ public abstract class ShiroSNAATestBase {
 		List<SecretAuthenticationKey> sakList = null;
 		try {
 			sakList = shiroSNAA.authenticate(authenticationData);
-		} catch (AuthenticationFault_Exception e) {
+		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
 		} catch (SNAAFault_Exception e) {

@@ -45,7 +45,7 @@ public class RsResource {
 								   @QueryParam("userOnly") @DefaultValue("false") final boolean userOnly,
 								   @Nullable @QueryParam("offset") final Integer offset,
 								   @Nullable @QueryParam("amount") final Integer amount)
-			throws RSFault_Exception, AuthorizationFault {
+			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
 		final Interval interval = new Interval(from, to);
 		return userOnly ?
@@ -58,7 +58,7 @@ public class RsResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("create")
 	public SecretReservationKeyListRs makeReservation(MakeReservationData request)
-			throws RSFault_Exception, AuthorizationFault, ReservationConflictFault_Exception {
+			throws RSFault_Exception, AuthorizationFault, ReservationConflictFault_Exception, AuthenticationFault {
 
 		final List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 
@@ -78,7 +78,7 @@ public class RsResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.TEXT_PLAIN})
 	public void deleteReservation(SecretReservationKeyListRs secretReservationKeys)
-			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault, AuthenticationFault {
 
 		List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 		log.debug("Cookie (secret authentication keys): {}", secretAuthenticationKeys);
@@ -97,7 +97,7 @@ public class RsResource {
 	private ConfidentialReservationDataList getConfidentialReservations(
 			final List<SecretAuthenticationKey> snaaSecretAuthenticationKeys,
 			final Interval interval, final Integer offset, final Integer amount)
-			throws RSFault_Exception, AuthorizationFault {
+			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
 		return new ConfidentialReservationDataList(
 				rs.getConfidentialReservations(

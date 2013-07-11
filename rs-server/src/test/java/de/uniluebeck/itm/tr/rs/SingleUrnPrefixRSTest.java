@@ -134,7 +134,7 @@ public class SingleUrnPrefixRSTest {
 		when(snaaProvider.get()).thenReturn(snaa);
 		when(config.getUrnPrefix()).thenReturn(URN_PREFIX);
 
-		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider);
+		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider, snaa);
 	}
 
 	@Test

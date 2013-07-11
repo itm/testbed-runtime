@@ -171,7 +171,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	public List<SecretAuthenticationKey> authenticate(
 			@WebParam(name = "authenticationData", targetNamespace = "")
 			List<AuthenticationTriple> authenticationTriples)
-			throws AuthenticationFault_Exception, SNAAFault_Exception {
+			throws AuthenticationFault, SNAAFault_Exception {
 
 		assertAuthenticationCount(authenticationTriples, 1, 1);
 		assertAllUrnPrefixesServed(servedNodeUrnPrefixesProvider.get(), authenticationTriples);
@@ -193,10 +193,8 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 			currentUser.logout();
 
 		} catch (AuthenticationException e) {
-			AuthenticationFault fault = new AuthenticationFault();
-			fault.setMessage("Wrong username and/or password");
-			throw new AuthenticationFault_Exception(
-					"The user could not be authenticated: Wrong username and/or password.", fault, e
+			throw createAuthenticationFault(
+					"The user could not be authenticated: Wrong username and/or password."
 			);
 		}
 

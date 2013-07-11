@@ -118,7 +118,7 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationFault_Exception, SNAAFault_Exception {
+			throws AuthenticationFault, SNAAFault_Exception {
 
 		HashSet<SecretAuthenticationKey> keys = new HashSet<SecretAuthenticationKey>();
 		log.debug("Starting for " + authenticationData.size() + " urns.");
@@ -178,7 +178,7 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 					cookieCache.put(secretAuthKey, cookies);
 
 				} else {
-					throw createAuthenticationFault_Exception("Authentication for urn[" + urn + "] and user["
+					throw createAuthenticationFault("Authentication for urn[" + urn + "] and user["
 							+ userAtIdpDomain + " failed."
 					);
 				}

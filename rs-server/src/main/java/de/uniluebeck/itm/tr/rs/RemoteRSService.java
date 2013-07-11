@@ -80,7 +80,7 @@ public class RemoteRSService extends AbstractService implements RSService {
 			List<SecretAuthenticationKey> secretAuthenticationKeys,
 			@WebParam(name = "secretReservationKey", targetNamespace = "") final
 			List<SecretReservationKey> secretReservationKey)
-			throws AuthorizationFault, RSFault_Exception, UnknownSecretReservationKeyFault {
+			throws AuthorizationFault, RSFault_Exception, UnknownSecretReservationKeyFault, AuthenticationFault {
 		checkState(isRunning());
 		rs.deleteReservation(secretAuthenticationKeys, secretReservationKey);
 	}
@@ -104,7 +104,7 @@ public class RemoteRSService extends AbstractService implements RSService {
 			@WebParam(name = "to", targetNamespace = "") final DateTime to,
 			@WebParam(name = "offset", targetNamespace = "") final Integer offset,
 			@WebParam(name = "amount", targetNamespace = "") final Integer amount)
-			throws AuthorizationFault, RSFault_Exception {
+			throws AuthorizationFault, RSFault_Exception, AuthenticationFault {
 		checkState(isRunning());
 		return rs.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount);
 	}
@@ -137,7 +137,7 @@ public class RemoteRSService extends AbstractService implements RSService {
 			@WebParam(name = "description", targetNamespace = "") final String description,
 			@WebParam(name = "options", targetNamespace = "") final
 			List<KeyValuePair> options)
-			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception {
+			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception, AuthenticationFault {
 		checkState(isRunning());
 		return rs.makeReservation(secretAuthenticationKeys, nodeUrns, from, to, description, options);
 	}

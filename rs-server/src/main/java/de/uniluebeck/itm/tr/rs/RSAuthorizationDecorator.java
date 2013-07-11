@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.rs;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.DecoratedImpl;
 import eu.wisebed.api.v3.common.*;
+import eu.wisebed.api.v3.rs.AuthenticationFault;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
@@ -41,7 +42,7 @@ public class RSAuthorizationDecorator implements RS {
 			List<SecretAuthenticationKey> secretAuthenticationKeys,
 			@WebParam(name = "secretReservationKey", targetNamespace = "") final
 			List<SecretReservationKey> secretReservationKey)
-			throws AuthorizationFault, RSFault_Exception, UnknownSecretReservationKeyFault {
+			throws AuthorizationFault, RSFault_Exception, UnknownSecretReservationKeyFault, AuthenticationFault {
 		assertAuthorized(Action.RS_DELETE_RESERVATION, secretReservationKey);
 		rs.deleteReservation(secretAuthenticationKeys, secretReservationKey);
 	}
@@ -62,7 +63,7 @@ public class RSAuthorizationDecorator implements RS {
 			Integer offset,
 			@WebParam(name = "amount", targetNamespace = "")
 			Integer amount)
-			throws AuthorizationFault, RSFault_Exception {
+			throws AuthorizationFault, RSFault_Exception, AuthenticationFault {
 
 		try {
 
@@ -127,7 +128,7 @@ public class RSAuthorizationDecorator implements RS {
 			@WebParam(name = "description", targetNamespace = "") final String description,
 			@WebParam(name = "options", targetNamespace = "") final
 			List<KeyValuePair> options)
-			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception {
+			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception, AuthenticationFault {
 		assertAuthorized(Action.RS_MAKE_RESERVATION, secretAuthenticationKeys, nodeUrns);
 		return rs.makeReservation(secretAuthenticationKeys, nodeUrns, from, to, description, options);
 	}

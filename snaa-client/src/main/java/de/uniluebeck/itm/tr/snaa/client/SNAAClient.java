@@ -143,7 +143,7 @@ public class SNAAClient {
 					);
 				}
 
-			} catch (AuthenticationFault_Exception e) {
+			} catch (AuthenticationFault e) {
 				System.out.println("Authentication failed [" + e + "]");
 				e.printStackTrace();
 			} catch (SNAAFault_Exception e) {
