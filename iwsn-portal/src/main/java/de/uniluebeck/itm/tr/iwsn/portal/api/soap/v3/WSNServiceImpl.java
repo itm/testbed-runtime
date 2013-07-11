@@ -26,6 +26,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceImpl.class);
 
+	private final URI endpointUri;
+
 	private WSN wsn;
 
 	private ServicePublisherService jaxWsService;
@@ -35,8 +37,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 						  final EndpointManager endpointManager,
 						  @Assisted final String reservationId,
 						  @Assisted final WSN wsn) {
-		final String contextPath = endpointManager.getWsnEndpointUriBase().getPath() + reservationId;
-		this.jaxWsService = servicePublisher.createJaxWsService(contextPath, this);
+		this.endpointUri = URI.create(endpointManager.getWsnEndpointUriBase().toString() + "/" + reservationId);
+		this.jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this);
 		this.wsn = wsn;
 	}
 
@@ -290,7 +292,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 			className = "eu.wisebed.api.v3.wsn.RemoveControllerResponse"
 	)
 	public void removeController(
-			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl) throws AuthorizationFault {
+			@WebParam(name = "controllerEndpointUrl", targetNamespace = "") String controllerEndpointUrl)
+			throws AuthorizationFault {
 		log.debug("WSNImpl.removeController({})", controllerEndpointUrl);
 		wsn.removeController(controllerEndpointUrl);
 	}
@@ -366,7 +369,8 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	)
 	public void setSerialPortParameters(@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns,
 										@WebParam(name = "parameters", targetNamespace = "")
-										SerialPortParameters parameters) throws ReservationNotRunningFault_Exception, AuthorizationFault {
+										SerialPortParameters parameters)
+			throws ReservationNotRunningFault_Exception, AuthorizationFault {
 		wsn.setSerialPortParameters(nodeUrns, parameters);
 	}
 
@@ -390,7 +394,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	@Override
 	public URI getURI() {
-		return jaxWsService.getURI();
+		return endpointUri;
 	}
 
 }

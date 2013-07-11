@@ -38,6 +38,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutorService;
 import static com.google.inject.util.Providers.of;
+import static de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig.*;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class PortalModule extends AbstractModule {
@@ -132,36 +133,49 @@ public class PortalModule extends AbstractModule {
 	}
 
 	@Provides
-	EndpointManager provideEndpointManager(final CommonConfig commonConfig,
-										   final PortalServerConfig portalServerConfig) {
+	EndpointManager provideEndpointManager(final PortalServerConfig portalServerConfig) {
+
 		return new EndpointManager() {
 
 			@Override
 			public URI getSnaaEndpointUri() {
-				return portalServerConfig.getConfigurationSnaaEndpointUri() != null ?
-						portalServerConfig.getConfigurationSnaaEndpointUri() :
-						URI.create("http://localhost:" + commonConfig.getPort() + "/soap/v3/snaa");
+				return assertNonEmpty(
+						portalServerConfig.getConfigurationSnaaEndpointUri(),
+						CONFIGURATION_SNAA_ENDPOINT_URI
+				);
 			}
 
 			@Override
 			public URI getRsEndpointUri() {
-				return portalServerConfig.getConfigurationRsEndpointUri() != null ?
-						portalServerConfig.getConfigurationRsEndpointUri() :
-						URI.create("http://localhost:" + commonConfig.getPort() + "/soap/v3/rs");
+				return assertNonEmpty(
+						portalServerConfig.getConfigurationRsEndpointUri(),
+						CONFIGURATION_RS_ENDPOINT_URI
+				);
 			}
 
 			@Override
 			public URI getSmEndpointUri() {
-				return portalServerConfig.getConfigurationSmEndpointUri() != null ?
-						portalServerConfig.getConfigurationSmEndpointUri() :
-						URI.create("http://localhost:" + commonConfig.getPort() + "/soap/v3/sm");
+				return assertNonEmpty(
+						portalServerConfig.getConfigurationSmEndpointUri(),
+						CONFIGURATION_SM_ENDPOINT_URI
+				);
 			}
 
 			@Override
 			public URI getWsnEndpointUriBase() {
-				return portalServerConfig.getConfigurationWsnEndpointUriBase() != null ?
-						portalServerConfig.getConfigurationWsnEndpointUriBase() :
-						URI.create("http://localhost:" + commonConfig.getPort() + "/soap/v3/wsn/");
+				return assertNonEmpty(
+						portalServerConfig.getConfigurationWsnEndpointUriBase(),
+						CONFIGURATION_WSN_ENDPOINT_URI_BASE
+				);
+			}
+
+			private URI assertNonEmpty(final URI uri, final String paramName) {
+				if (uri == null || uri.toString().isEmpty()) {
+					throw new IllegalArgumentException(
+							"Configuration parameter " + paramName + " must be set!"
+					);
+				}
+				return uri;
 			}
 		};
 	}
