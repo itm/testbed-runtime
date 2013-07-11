@@ -165,8 +165,9 @@ public class SingleUrnPrefixRS implements RS {
 													  final DateTime to,
 													  final String description,
 													  final List<KeyValuePair> options)
-			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception {
+			throws AuthorizationFault, RSFault_Exception, ReservationConflictFault_Exception, AuthenticationFault {
 
+		checkValidityWithSNAA(secretAuthenticationKeys);
 		checkArgumentValid(nodeUrns, from, to);
 		checkArgumentValidAuthentication(secretAuthenticationKeys);
 		checkNodesServed(nodeUrns);

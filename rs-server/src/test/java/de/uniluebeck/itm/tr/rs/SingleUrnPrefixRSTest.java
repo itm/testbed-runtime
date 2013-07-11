@@ -12,10 +12,8 @@ import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.sm.SessionManagement;
-import eu.wisebed.api.v3.snaa.Action;
-import eu.wisebed.api.v3.snaa.AuthorizationResponse;
-import eu.wisebed.api.v3.snaa.SNAA;
-import eu.wisebed.api.v3.snaa.ValidationResult;
+import eu.wisebed.api.v3.snaa.*;
+import eu.wisebed.api.v3.rs.AuthenticationFault;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Before;
@@ -101,6 +99,16 @@ public class SingleUrnPrefixRSTest {
 		USER2_SRK.setUrnPrefix(URN_PREFIX);
 		USER2_SRKS = Lists.newArrayList(USER2_SRK);
 	}
+
+	private static final ValidationResult VALIDATION_RESULT = new ValidationResult();
+
+	static {
+		VALIDATION_RESULT.setMessage("");
+		VALIDATION_RESULT.setUrnPrefix(URN_PREFIX);
+		VALIDATION_RESULT.setValid(false);
+	}
+
+	private static final List<ValidationResult> VALIDATION_RESULT_LIST = newArrayList(VALIDATION_RESULT);
 
 	@Mock
 	private RSPersistence persistence;
@@ -324,6 +332,31 @@ public class SingleUrnPrefixRSTest {
 		assertEquals(1, user2Reservations.size());
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
 		assertEquals(user2Node, user2Reservations.get(0).getNodeUrns().get(0));
+	}
+
+	@Test(expected = AuthenticationFault.class)
+	public void testIfAuthenticationFaultIsThrownForMakeReservation() throws Exception {
+		when(snaa.isValid(anyListOf(SecretAuthenticationKey.class))).thenReturn(VALIDATION_RESULT_LIST);
+		rs.makeReservation(
+				USER1_SAKS,
+				newArrayList(new NodeUrn(URN_PREFIX, "0x1234")),
+				DateTime.now(),
+				DateTime.now().plusHours(1),
+				"",
+				Lists.<KeyValuePair>newArrayList()
+		);
+	}
+
+	@Test(expected = AuthenticationFault.class)
+	public void testIfAuthenticationFaultIsThrownForDeleteReservation() throws Exception {
+		when(snaa.isValid(anyListOf(SecretAuthenticationKey.class))).thenReturn(VALIDATION_RESULT_LIST);
+		rs.deleteReservation(USER1_SAKS, USER1_SRKS);
+	}
+
+	@Test(expected = AuthenticationFault.class)
+	public void testIfAuthenticationFaultIsThrownForGetConfidentialReservations() throws Exception {
+		when(snaa.isValid(anyListOf(SecretAuthenticationKey.class))).thenReturn(VALIDATION_RESULT_LIST);
+		rs.getConfidentialReservations(USER1_SAKS, DateTime.now(), DateTime.now().plusHours(1), null, null);
 	}
 
 	private ConfidentialReservationData buildConfidentialReservationData(final DateTime from, final DateTime to,
