@@ -141,6 +141,13 @@ public abstract class SingleDeviceAdapterBase extends AbstractService implements
 		);
 	}
 
+	@Override
+	public ListenableFutureMap<NodeUrn, ChannelHandlerConfigList> getChannelPipelines(
+			final Iterable<NodeUrn> nodeUrns) {
+		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
+		return new SettableFutureMap<NodeUrn, ChannelHandlerConfigList>(ImmutableMap.of(nodeUrn, getChannelPipeline()));
+	}
+
 	protected abstract ListenableFuture<NodeApiCallResult> enableNode();
 
 	protected abstract ListenableFuture<NodeApiCallResult> enablePhysicalLink(MacAddress targetMacAddress);
@@ -164,4 +171,6 @@ public abstract class SingleDeviceAdapterBase extends AbstractService implements
 	protected abstract ListenableFuture<NodeApiCallResult> enableVirtualLink(MacAddress targetMacAddress);
 
 	protected abstract ListenableFuture<Void> setChannelPipeline(ChannelHandlerConfigList channelHandlerConfigs);
+
+	protected abstract ListenableFuture<ChannelHandlerConfigList> getChannelPipeline();
 }

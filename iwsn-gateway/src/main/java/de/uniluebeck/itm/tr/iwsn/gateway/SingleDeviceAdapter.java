@@ -151,6 +151,8 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	private ExecutorService deviceExecutor;
 
+	private ChannelHandlerConfigList currentPipeline;
+
 	@Inject
 	public SingleDeviceAdapter(final String port,
 							   final DeviceConfig deviceConfig,
@@ -173,8 +175,9 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		}
 		this.handlerFactories = handlerFactoriesBuilder.build();
 
-		abovePipelineLogger = new AbovePipelineLogger(this.deviceConfig.getNodeUrn().toString());
-		belowPipelineLogger = new BelowPipelineLogger(this.deviceConfig.getNodeUrn().toString());
+		this.abovePipelineLogger = new AbovePipelineLogger(this.deviceConfig.getNodeUrn().toString());
+		this.belowPipelineLogger = new BelowPipelineLogger(this.deviceConfig.getNodeUrn().toString());
+		this.currentPipeline = deviceConfig.getDefaultChannelPipeline();
 	}
 
 	@Override
@@ -212,9 +215,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 				@Override
 				public ChannelPipeline getPipeline() throws Exception {
+					currentPipeline = deviceConfig.getDefaultChannelPipeline();
 					return setPipeline(
 							pipeline(),
-							createPipelineHandlers(createHandlers(deviceConfig.getDefaultChannelPipeline()))
+							createPipelineHandlers(createHandlers(currentPipeline))
 					);
 				}
 			}
@@ -555,14 +559,9 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	public ListenableFuture<Void> setDefaultChannelPipeline() {
 		try {
-			setPipeline(
-					deviceChannel.getPipeline(),
-					createPipelineHandlers(createHandlers(deviceConfig.getDefaultChannelPipeline()))
-			);
-			log.debug("{} => Channel pipeline now set to: {}",
-					deviceConfig.getNodeUrn(),
-					deviceConfig.getDefaultChannelPipeline()
-			);
+			currentPipeline = deviceConfig.getDefaultChannelPipeline();
+			setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(createHandlers(currentPipeline)));
+			log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), currentPipeline);
 			return immediateFuture(null);
 		} catch (Exception e) {
 			log.warn("Exception while setting default channel pipeline: {}", e);
@@ -585,7 +584,8 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 						channelHandlerConfigs
 				);
 
-				innerPipelineHandlers = createHandlers(channelHandlerConfigs);
+				currentPipeline = channelHandlerConfigs;
+				innerPipelineHandlers = createHandlers(currentPipeline);
 				setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 
 				log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
@@ -609,6 +609,11 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		}
 
 		return future;
+	}
+
+	@Override
+	public ListenableFuture<ChannelHandlerConfigList> getChannelPipeline() {
+		return immediateFuture(currentPipeline);
 	}
 
 	private NamedChannelHandlerList createHandlers(@Nullable final ChannelHandlerConfigList configs) throws Exception {

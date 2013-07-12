@@ -136,6 +136,18 @@ public interface DeviceAdapter extends Service {
 														   ChannelHandlerConfigList channelHandlerConfigs);
 
 	/**
+	 * Returns the channel pipelines currently set on the given set of nodes.
+	 *
+	 * @param nodeUrns
+	 * 		the set of nodes for which to retrieve the current pipeline configuration
+	 *
+	 * @return a map from nodes to pipeline configurations
+	 *
+	 * @see DeviceAdapter#setChannelPipelines(Iterable, de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList)
+	 */
+	ListenableFutureMap<NodeUrn, ChannelHandlerConfigList> getChannelPipelines(Iterable<NodeUrn> nodeUrns);
+
+	/**
 	 * Enables a set of nodes by "switching on" the virtual radio of the nodes to receive and send messages over both
 	 * the physical and virtual links.
 	 * <p/>
@@ -216,5 +228,4 @@ public interface DeviceAdapter extends Service {
 	 * @return a map containing futures to the results of the calls to the individual nodes
 	 */
 	ListenableFutureMap<NodeUrn, NodeApiCallResult> disableVirtualLinks(Map<NodeUrn, NodeUrn> sourceTargetMap);
-
 }

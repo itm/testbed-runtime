@@ -1,6 +1,5 @@
-package de.uniluebeck.itm.tr.devicedb.dto;
+package de.uniluebeck.itm.tr.common.dto;
 
-import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Dtypes;
 import eu.wisebed.wiseml.Units;
 
@@ -56,23 +55,4 @@ public class CapabilityDto {
 	public void setUnit(Units unit) {
 		this.unit = unit;
 	}
-
-	public Capability toCapability() {
-		Capability cap = new Capability();
-		cap.setDatatype(getDatatype());
-		cap.setDefault(getDefaultValue());
-		cap.setName(getName());
-		cap.setUnit(getUnit());
-		return cap;
-	}
-
-	public static CapabilityDto fromCapability(Capability capability) {
-		return new CapabilityDto(
-				capability.getName(),
-				capability.getDefault(),
-				capability.getDatatype(),
-				capability.getUnit()
-		);
-	}
-
 }

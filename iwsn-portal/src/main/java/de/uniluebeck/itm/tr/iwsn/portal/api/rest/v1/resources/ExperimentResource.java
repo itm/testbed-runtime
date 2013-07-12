@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
@@ -12,11 +11,13 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeyException;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.wsn.ChannelPipelinesMap;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Setup.Node;
 import eu.wisebed.wiseml.Wiseml;
@@ -36,23 +37,14 @@ import java.util.concurrent.TimeoutException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
 import static de.uniluebeck.itm.tr.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.*;
 
-/**
- * TODO: The following WISEBED functions are not implemented yet:
- * <p/>
- * List<String> getFilters();<br/>
- * List<ChannelHandlerDescription> getSupportedChannelHandlers();<br/>
- * String getVersion();<br/>
- * String setChannelPipeline(List<String> nodes, List<ChannelHandlerConfiguration> channelHandlerConfigurations);<br/>
- * String setVirtualLink(String sourceNode, String targetNode, String remoteServiceInstance, List<String>
- * parameters,<br/>
- * List<String> filters);
- */
 @Path("/experiments/")
 public class ExperimentResource {
 
@@ -211,6 +203,21 @@ public class ExperimentResource {
 		}
 	}
 
+	@GET
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Path("{secretReservationKeyBase64}/nodeUrns")
+	public NodeUrnList getNodeUrns(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64)
+			throws Base64Exception {
+		return new NodeUrnList(
+				newArrayList(
+						transform(
+								getReservationOrThrow(secretReservationKeyBase64).getNodeUrns(),
+								NODE_URN_TO_STRING
+						)
+				)
+		);
+	}
+
 	/**
 	 * <code>
 	 * {
@@ -250,7 +257,7 @@ public class ExperimentResource {
 			final Request request = newFlashImagesRequest(
 					reservation.getKey(),
 					requestId,
-					Iterables.transform(flashTask.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN),
+					transform(flashTask.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN),
 					extractByteArrayFromDataURL(flashTask.image)
 			);
 
@@ -319,7 +326,7 @@ public class ExperimentResource {
 							   NodeUrnList nodeUrnList) throws Base64Exception {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
-		final Iterable<NodeUrn> nodeUrns = Iterables.transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newResetNodesRequest(reservation.getKey(), requestIdProvider.get(), nodeUrns);
 
 		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
@@ -328,10 +335,27 @@ public class ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
+	@Path("{secretReservationKeyBase64}/getChannelPipelines")
+	public List<ChannelPipelinesMap> getChannelPipelines(
+			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
+			NodeUrnList nodeUrnList) throws Base64Exception {
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final ReservationEventBus reservationEventBus = reservation.getEventBus();
+		final String reservationId = reservation.getKey();
+		final long requestId = requestIdProvider.get();
+
+		return RequestHelper.getChannelPipelines(nodeUrns, reservationId, requestId, reservationEventBus);
+	}
+
+	@POST
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
 	@Path("areNodesConnected")
 	public Response areNodesConnected(NodeUrnList nodeUrnList) {
 
-		final Iterable<NodeUrn> nodeUrns = Iterables.transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newAreNodesConnectedRequest(null, requestIdProvider.get(), nodeUrns);
 
 		return sendRequestAndGetOperationStatusMap(request, 10, TimeUnit.SECONDS);
@@ -345,7 +369,7 @@ public class ExperimentResource {
 								  NodeUrnList nodeUrnList) throws Base64Exception {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
-		final Iterable<NodeUrn> nodeUrns = Iterables.transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newAreNodesAliveRequest(reservation.getKey(), requestIdProvider.get(), nodeUrns);
 
 		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
@@ -359,7 +383,7 @@ public class ExperimentResource {
 						 SendMessageData data) throws Base64Exception {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
-		final Iterable<NodeUrn> nodeUrns = Iterables.transform(data.targetNodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(data.targetNodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newSendDownstreamMessageRequest(
 				reservation.getKey(),
 				requestIdProvider.get(),
@@ -545,7 +569,8 @@ public class ExperimentResource {
 		return operationStatusMap;
 	}
 
-	private Response sendRequestAndGetOperationStatusMap(final Request request, final int timeout, final TimeUnit timeUnit) {
+	private Response sendRequestAndGetOperationStatusMap(final Request request, final int timeout,
+														 final TimeUnit timeUnit) {
 
 		final ResponseTracker responseTracker = responseTrackerFactory.create(request, portalEventBus);
 		portalEventBus.post(request);

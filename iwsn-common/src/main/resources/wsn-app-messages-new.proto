@@ -152,8 +152,8 @@ message SingleNodeResponse {
 
 message GetChannelPipelinesResponse {
 	message GetChannelPipelineResponse {
-		required string                      nodeUrn  = 1;
-		required ChannelHandlerConfiguration pipeline = 2;
+		required string                      nodeUrn               = 1;
+		repeated ChannelHandlerConfiguration handlerConfigurations = 2;
 	}
 	optional string                     reservationId = 1;
     required int64                      requestId     = 2;

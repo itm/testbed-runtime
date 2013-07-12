@@ -209,6 +209,21 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
+			case GET_CHANNEL_PIPELINES:
+				nodeUrns = getNodeUrns(request);
+				mapping = getMulticastMapping(nodeUrns);
+
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+					requestsToBeSent.put(
+							ctx,
+							newGetChannelPipelinesRequest(reservationId, requestId, mapping.get(ctx))
+					);
+				}
+
+				sendRequests(requestsToBeSent);
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
+				break;
+
 			case RESET_NODES:
 				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
@@ -345,6 +360,12 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				final SingleNodeResponse response = message.getResponse();
 				log.trace("PortalChannelHandler.messageReceived({})", response);
 				portalEventBus.post(response);
+				break;
+
+			case GET_CHANNELPIPELINES_RESPONSE:
+				final GetChannelPipelinesResponse getChannelPipelinesResponse = message.getGetChannelPipelinesResponse();
+				log.trace("PortalChannelHandler.messageReceived({})", getChannelPipelinesResponse);
+				portalEventBus.post(getChannelPipelinesResponse);
 				break;
 
 			default:

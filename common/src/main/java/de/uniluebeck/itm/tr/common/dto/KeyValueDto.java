@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.devicedb.dto;
+package de.uniluebeck.itm.tr.common.dto;
 
 public class KeyValueDto {
 
@@ -6,6 +6,7 @@ public class KeyValueDto {
 
 	private String value;
 
+	@SuppressWarnings("unused")
 	public KeyValueDto() {
 	}
 

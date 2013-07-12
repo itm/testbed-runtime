@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.devicedb.dto;
+package de.uniluebeck.itm.tr.common.dto;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -8,6 +8,7 @@ public class DeviceConfigListDto {
 
 	private List<DeviceConfigDto> configs;
 
+	@SuppressWarnings("unused")
 	public DeviceConfigListDto() {
 	}
 

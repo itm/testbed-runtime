@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.devicedb.dto;
+package de.uniluebeck.itm.tr.common.dto;
 
 import eu.wisebed.api.v3.common.NodeUrn;
 
@@ -12,6 +12,7 @@ public class NodeUrnAndUriDto {
 
 	private URI uri;
 
+	@SuppressWarnings("unused")
 	public NodeUrnAndUriDto() {
 	}
 

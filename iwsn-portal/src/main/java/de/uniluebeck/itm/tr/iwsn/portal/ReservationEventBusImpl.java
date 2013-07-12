@@ -150,6 +150,14 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		}
 	}
 
+	@Subscribe
+	public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
+		log.trace("ReservationEventBusImpl.onGetChannelPipelinesResponse({})", reservation.getKey(), response);
+		if (reservation.getKey().equals(response.getReservationId())) {
+			eventBus.post(response);
+		}
+	}
+
 	@Override
 	protected void doStart() {
 

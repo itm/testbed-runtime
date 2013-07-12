@@ -10,9 +10,17 @@ public class NodeUrnList {
 	@XmlElement(name = "nodeUrns")
 	public List<String> nodeUrns;
 
+	@SuppressWarnings("unused")
+	public NodeUrnList() {
+	}
+
+	public NodeUrnList(final List<String> nodeUrns) {
+		this.nodeUrns = nodeUrns;
+	}
+
 	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+			 * @see java.lang.Object#toString()
+			 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
