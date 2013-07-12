@@ -259,12 +259,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		try{
 			authorizingWsn.disableVirtualization();
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
-					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (VirtualizationNotSupportedFault_Exception expected) {
 		}
 		verify(wsnDelegate,times(1)).disableVirtualization();
 	}
@@ -285,12 +280,7 @@ public class WSNServiceImplAuthorizationTest {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), any(Action.class))).thenReturn(authorizationGrantedResponse);
 		try{
 			authorizingWsn.enableVirtualization();
-		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
-					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
-				e.printStackTrace();
-				fail("An unexpected exception was thrown");
-			}
+		} catch (VirtualizationNotSupportedFault_Exception e) {
 		}
 		verify(wsnDelegate,times(1)).enableVirtualization();
 	}
