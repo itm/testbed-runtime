@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.serializers;
+package de.uniluebeck.itm.tr.iwsn.common.rest;
 
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.codehaus.jackson.JsonGenerationException;

@@ -13,6 +13,7 @@
     <script src="lib/js/underscore-1.4.4.js"></script>
     <script src="lib/js/backbone-0.9.10.js"></script>
     <script src="lib/js/form2js.js"></script>
+    <script src="js/routes.js"></script>
     <script src="js/models.js"></script>
     <script src="js/views.js"></script>
     <script src="js/templates.js"></script>   
@@ -23,17 +24,25 @@
 
 		$(document).ready(function() {
 			'use strict';
+            app.routes = new app.Router();
 
-			new app.TableView({ el: $("#table_configs") });
+            app.Nodes.fetch({
+                success: function() {
+                    Backbone.history.start();
+                },
+                error: function() {
+                    console.error('Error fetching data');
+                }
+            });
 
-			$('#btnAdd').click(function() {
-				new app.DetailView({
-					el:     jQuery("#edit-view"),
-					model: new app.NodeModel()
-				});
-			});
-		});
-
+            $('#btnAdd').click(function() {
+                app.detail = new app.DetailView({
+                    el:     jQuery("#edit-view"),
+                    model: new app.NodeModel()
+                });
+            });
+        });
+        
     </script>
 </head>
 <body>

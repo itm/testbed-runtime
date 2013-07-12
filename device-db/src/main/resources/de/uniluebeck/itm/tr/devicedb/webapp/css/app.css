@@ -21,3 +21,7 @@
 	position: relative;
 	top: -25px;
 }
+
+.pipeline-params .control-group {
+	margin-bottom: 0;
+}

@@ -10,12 +10,14 @@
             <label class="control-label" for="nodeUrn">Node-URN</label>
             <div class="controls">
                 <input type="text" id="nodeUrn" placeholder="e.g. urn:wisebed:[namespace]:[0xID]" value="{{nodeUrn}}">
+                <span class="help-inline" title="mandatory field">*</span>
             </div>
         </div>
         <div class="control-group">
             <label class="control-label" for="nodeType">Node-Type</label>
             <div class="controls">
                 <input type="text" id="nodeType" placeholder="e.g. isense48" value="{{nodeType}}">
+                <span class="help-inline" title="mandatory field">*</span>
             </div>
         </div>
         <div class="control-group">
@@ -116,6 +118,17 @@
         <a class="btn btn-mini" href="#" id="add-cap" title="add capability">
             <i class="icon-plus"></i> Add Capability
         </a>
+
+        <legend>Default Channel Pipeline</legend>
+        <div id="pipeline">
+            {{#each defaultChannelPipeline}}
+                {{>pipeline-text-inputs}}
+            {{/each}}
+        </div>
+        <a class="btn btn-mini" href="#" id="add-pipe" title="add channel handler">
+            <i class="icon-plus"></i> Add ChannelHandler
+        </a>
+
         </form>
     </div>
     <div class="modal-footer">

@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.common.dto;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class ChannelHandlerConfigDto {
@@ -29,11 +30,12 @@ public class ChannelHandlerConfigDto {
 		this.handlerName = handlerName;
 	}
 
+	@Nullable
 	public String getInstanceName() {
 		return instanceName;
 	}
 
-	public void setInstanceName(final String instanceName) {
+	public void setInstanceName(@Nullable final String instanceName) {
 		this.instanceName = instanceName;
 	}
 

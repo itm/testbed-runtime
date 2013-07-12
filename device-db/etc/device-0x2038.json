@@ -3,7 +3,7 @@
 			"nodeType" : "isense39",
 			"gatewayNode" : false,
 			"description" : "this is the device description",
-			"nodeUsbChipId" : "0123456789",
+			"nodeUSBChipID" : "0123456789",
 			"position" : {
 				"x" : 123,
 				"y" : 234,
@@ -25,18 +25,23 @@
 				{
 					"handlerName" : "dlestxetx",
 					"instanceName" : "dlestxetx",
+					"configuration" : []
+				},
+				{
+					"handlerName" : "length-field-based-frame-decoder",
+					"instanceName" : "length-field-based-frame-decoder",
 					"configuration" : [
 						{
-							"key" : "param1",
-							"value" : "val1"
+							"key" : "lengthFieldLength",
+							"value" : "4"
 						},
 						{
-							"key" : "param1",
-							"value" : "val2"
+							"key" : "lengthFieldOffset",
+							"value" : "0"
 						},
 						{
-							"key" : "param2",
-							"value" : "val3"
+							"key" : "maxFrameLength",
+							"value" : "15"
 						}
 					]
 				}
@@ -44,14 +49,14 @@
 			"capabilities" : [
 				{
 					"name" 			: "urn:wisebed:node:capability:light",
-					"datatype" 		: "integer",
-					"unit"			: "lux",
+					"datatype" 		: "INTEGER",
+					"unit"			: "LUX",
 					"defaultValue" 	: "0"
 				},
 				{
 					"name" 			: "urn:wisebed:node:capability:humidity",
-					"datatype" 		: "integer",
-					"unit"			: "raw",
+					"datatype" 		: "INTEGER",
+					"unit"			: "RAW",
 					"defaultValue" 	: "0"
 				}
 			],
