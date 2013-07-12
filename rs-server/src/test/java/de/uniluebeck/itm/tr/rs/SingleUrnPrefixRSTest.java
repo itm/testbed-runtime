@@ -247,7 +247,8 @@ public class SingleUrnPrefixRSTest {
 		)
 		).thenReturn(confidentialReservationData);
 
-		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(reservedNodes);
+		when(persistence.getReservations(Matchers.<Interval>any(), Matchers.<Integer>any(), Matchers.<Integer>any()))
+				.thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
 		try {
@@ -315,9 +316,8 @@ public class SingleUrnPrefixRSTest {
 				buildConfidentialReservationData(from, to, USER1_USERNAME, USER1_SECRET_RESERVATION_KEY, user1Node);
 		final ConfidentialReservationData reservation2 =
 				buildConfidentialReservationData(from, to, USER2_USERNAME, USER2_SECRET_RESERVATION_KEY, user2Node);
-		when(persistence.getReservations(Matchers.<Interval>any())).thenReturn(
-				newArrayList(reservation1, reservation2)
-		);
+		when(persistence.getReservations(Matchers.<Interval>any(), Matchers.<Integer>any(), Matchers.<Integer>any()))
+				.thenReturn(newArrayList(reservation1, reservation2));
 
 		final List<ConfidentialReservationData> user1Reservations =
 				rs.getConfidentialReservations(USER1_SAKS, from, to, null, null);

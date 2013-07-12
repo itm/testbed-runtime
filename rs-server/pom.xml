@@ -160,6 +160,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<excludes>
+						<exclude>**/GCalRSPersistenceOffsetAmountTest.java</exclude>
 						<exclude>**/GCalRSPersistenceTest.java</exclude>
 					</excludes>
 				</configuration>

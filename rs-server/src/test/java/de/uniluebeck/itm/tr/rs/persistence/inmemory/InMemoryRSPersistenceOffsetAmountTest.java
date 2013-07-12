@@ -21,40 +21,15 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.rs.persistence;
+package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 
-import eu.wisebed.api.v3.common.KeyValuePair;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
-import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.RSFault_Exception;
-import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceOffsetAmountTest;
+import org.junit.Before;
 
-import javax.annotation.Nullable;
-import java.util.List;
+public class InMemoryRSPersistenceOffsetAmountTest extends RSPersistenceOffsetAmountTest {
 
-public interface RSPersistence {
-
-	ConfidentialReservationData addReservation(List<NodeUrn> nodeUrns,
-											   DateTime from,
-											   DateTime to,
-											   String username,
-											   NodeUrnPrefix urnPrefix,
-											   String description,
-											   List<KeyValuePair> options) throws RSFault_Exception;
-
-	List<ConfidentialReservationData> getReservations(
-			Interval interval,
-			@Nullable final Integer offset,
-			@Nullable final Integer amount)
-			throws RSFault_Exception;
-
-	ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
-			throws UnknownSecretReservationKeyFault, RSFault_Exception;
-
-	ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
-			throws UnknownSecretReservationKeyFault, RSFault_Exception;
+	@Before
+	public void setUp() throws Exception {
+		setUp(new InMemoryRSPersistence());
+	}
 }

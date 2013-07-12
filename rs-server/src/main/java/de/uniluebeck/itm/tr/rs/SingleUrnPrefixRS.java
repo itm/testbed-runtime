@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.rs;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -69,12 +68,11 @@ public class SingleUrnPrefixRS implements RS {
 			final Integer amount)
 			throws RSFault_Exception {
 
-		Preconditions.checkNotNull(from, "Parameter from date is null or empty");
-		Preconditions.checkNotNull(to, "Parameter to date is null or empty");
+		checkNotNull(from, "Parameter from date is null or empty");
+		checkNotNull(to, "Parameter to date is null or empty");
 
-		Interval request =
-				new Interval(new DateTime(from.toGregorianCalendar()), new DateTime(to.toGregorianCalendar()));
-		List<PublicReservationData> res = convertToPublic(persistence.getReservations(request));
+		Interval interval = new Interval(from, to);
+		List<PublicReservationData> res = convertToPublic(persistence.getReservations(interval, offset, amount));
 
 		log.debug("Found " + res.size() + " reservations from " + from + " until " + to);
 		return res;
@@ -99,11 +97,10 @@ public class SingleUrnPrefixRS implements RS {
 
 		SecretAuthenticationKey key = secretAuthenticationKeys.get(0);
 
-		Interval interval = new Interval(new DateTime(from.toGregorianCalendar()),
-				new DateTime(to.toGregorianCalendar())
+		Interval interval = new Interval(from, to);
+		List<ConfidentialReservationData> reservationsOfAllUsersInInterval = persistence.getReservations(interval,
+				offset, amount
 		);
-
-		List<ConfidentialReservationData> reservationsOfAllUsersInInterval = persistence.getReservations(interval);
 		List<ConfidentialReservationData> reservationsOfAuthenticatedUserInInterval = newArrayList();
 
 		for (ConfidentialReservationData crd : reservationsOfAllUsersInInterval) {
@@ -187,10 +184,7 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSFault_Exception {
-
-		DateTime reservationFrom = new DateTime(reservation.getFrom().toGregorianCalendar());
-
-		if (reservationFrom.isBeforeNow()) {
+		if (reservation.getFrom().isBeforeNow()) {
 			final String msg = "You are not allowed to delete reservations that have already started.";
 			throw createRSFault_Exception(msg);
 		}
@@ -277,16 +271,13 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	private void checkArgumentValid(final List<NodeUrn> nodeUrns,
-									final DateTime fromArg,
-									final DateTime toArg) throws RSFault_Exception {
+									final DateTime from,
+									final DateTime to) throws RSFault_Exception {
 
 		try {
 
-			checkNotNull(fromArg, "Reservation start time parameter \"from\" is missing.");
-			checkNotNull(toArg, "Reservation end time parameter \"to\" is missing.");
-
-			final DateTime from = new DateTime(fromArg.toGregorianCalendar());
-			final DateTime to = new DateTime(toArg.toGregorianCalendar());
+			checkNotNull(from, "Reservation start time parameter \"from\" is missing.");
+			checkNotNull(to, "Reservation end time parameter \"to\" is missing.");
 
 			checkArgument(!to.isBeforeNow(), "Reservation end time parameter \"to\" lies in the past.");
 			checkArgument(!to.isBefore(from), "Reservation end time is before reservation start time.");

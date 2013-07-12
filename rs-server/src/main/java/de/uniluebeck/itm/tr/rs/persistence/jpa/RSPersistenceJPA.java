@@ -41,17 +41,19 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.RollbackException;
 import javax.xml.datatype.DatatypeConfigurationException;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static de.uniluebeck.itm.tr.rs.persistence.jpa.TypeConverter.convertConfidentialReservationData;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
+import static org.joda.time.DateTimeZone.forTimeZone;
 
 public class RSPersistenceJPA implements RSPersistence {
 
@@ -193,22 +195,32 @@ public class RSPersistenceJPA implements RSPersistence {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<ConfidentialReservationData> getReservations(Interval interval) throws RSFault_Exception {
+	public List<ConfidentialReservationData> getReservations(final Interval interval,
+															 @Nullable final Integer offset,
+															 @Nullable final Integer amount) throws RSFault_Exception {
 
-		// transforming to default timezone
-		GregorianCalendar from = interval.getStart().toGregorianCalendar();
-		from.setTimeZone(this.localTimeZone);
-		GregorianCalendar to = interval.getEnd().toGregorianCalendar();
-		from.setTimeZone(this.localTimeZone);
+		DateTime localFrom = interval.getStart().toDateTime(forTimeZone(localTimeZone));
+		DateTime localTo = interval.getEnd().toDateTime(forTimeZone(localTimeZone));
 
 		Query query = em.createNamedQuery(ReservationDataInternal.QGetByInterval.QUERY_NAME);
-		query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, from.getTimeInMillis());
-		query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, to.getTimeInMillis());
+		query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, localFrom.getMillis());
+		query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, localTo.getMillis());
+
+		if (offset != null) {
+			query.setFirstResult(offset);
+		}
+
+		if (amount != null) {
+			query.setMaxResults(amount);
+		}
 
 		try {
-			return TypeConverter.convertConfidentialReservationData((List<ReservationDataInternal>) query
-					.getResultList(), this.localTimeZone
+
+			return convertConfidentialReservationData(
+					(List<ReservationDataInternal>) query.getResultList(),
+					this.localTimeZone
 			);
+
 		} catch (DatatypeConfigurationException e) {
 			throw new RSFault_Exception(e.getMessage(), new RSFault());
 		}

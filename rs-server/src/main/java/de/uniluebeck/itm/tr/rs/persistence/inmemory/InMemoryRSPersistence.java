@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import de.uniluebeck.itm.tr.rs.persistence.ConfidentialReservationDataComparator;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import eu.wisebed.api.v3.common.KeyValuePair;
@@ -35,61 +35,35 @@ import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newLinkedList;
+import static de.uniluebeck.itm.tr.rs.persistence.OffsetAmountHelper.limitResults;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
 
 public class InMemoryRSPersistence implements RSPersistence {
 
-	private static final Logger log = LoggerFactory.getLogger(InMemoryRSPersistence.class);
+	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
-	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
-
-	private ScheduledExecutorService timer = Executors.newScheduledThreadPool(1,
-			new ThreadFactoryBuilder().setNameFormat("InMemoryRSPersistence-Thread %d").build()
+	private final SortedSet<ConfidentialReservationData> reservations = new TreeSet<ConfidentialReservationData>(
+			new ConfidentialReservationDataComparator()
 	);
 
-	private HashMap<SecretReservationKey, ConfidentialReservationData> reservations =
-			new HashMap<SecretReservationKey, ConfidentialReservationData>();
-
-	private Runnable housekeeper = new Runnable() {
-
-		@Override
-		public void run() {
-			//log.debug("Doing housekeeping. Checking for invalidated sessions (current " + reservations.size() + ")");
-
-			for (Iterator<Map.Entry<SecretReservationKey, ConfidentialReservationData>> iterator =
-						 reservations.entrySet().iterator(); iterator.hasNext(); ) {
-				Map.Entry<SecretReservationKey, ConfidentialReservationData> entry = iterator.next();
-
-				if (entry.getValue().getTo().toGregorianCalendar().getTimeInMillis() < System.currentTimeMillis()) {
-					log.debug("Removing reservation during housekeeping: " + entry.getValue());
-					iterator.remove();
-				}
-			}
-
-			//log.debug("Housekeeping done, (current " + reservations.size() + ") sessions");
-		}
-	};
-
-	public InMemoryRSPersistence() {
-		timer.scheduleWithFixedDelay(housekeeper, 1, 1, TimeUnit.MINUTES);
-	}
-
 	@Override
-	public ConfidentialReservationData addReservation(final List<NodeUrn> nodeUrns,
+	public synchronized ConfidentialReservationData addReservation(final List<NodeUrn> nodeUrns,
 													  final DateTime from,
 													  final DateTime to,
 													  final String username,
 													  final NodeUrnPrefix urnPrefix,
 													  final String description,
 													  final List<KeyValuePair> options) throws RSFault_Exception {
+
+		final SecretReservationKey secretReservationKey = new SecretReservationKey();
+		secretReservationKey.setUrnPrefix(urnPrefix);
+		secretReservationKey.setKey(secureIdGenerator.getNextId());
 
 		final ConfidentialReservationData crd = new ConfidentialReservationData();
 		crd.setFrom(from);
@@ -98,63 +72,63 @@ public class InMemoryRSPersistence implements RSPersistence {
 		crd.setDescription(description);
 		crd.getOptions().addAll(options);
 		crd.setUsername(username);
-
-		final SecretReservationKey secretReservationKey = new SecretReservationKey();
-		secretReservationKey.setUrnPrefix(urnPrefix);
-		secretReservationKey.setKey(secureIdGenerator.getNextId());
-
 		crd.setSecretReservationKey(secretReservationKey);
 
-		// remember in the HashMap (aka In-Memory-Storage)
-		reservations.put(secretReservationKey, crd);
+		reservations.add(crd);
 
 		return crd;
 	}
 
 	@Override
-	public List<ConfidentialReservationData> getReservations(Interval interval) {
+	public synchronized List<ConfidentialReservationData> getReservations(final Interval interval,
+															 @Nullable Integer offset,
+															 @Nullable Integer amount) {
 
-		List<ConfidentialReservationData> res = new LinkedList<ConfidentialReservationData>();
+		checkArgument(offset == null || offset >= 0, "Parameter offset must be a non-negative integer or null");
+		checkArgument(amount == null || amount >= 0, "Parameter amount must be a non-negative integer or null");
 
-		for (ConfidentialReservationData r : reservations.values()) {
-			Interval reserved = new Interval(
-					new DateTime(r.getFrom().toGregorianCalendar()),
-					new DateTime(r.getTo().toGregorianCalendar())
-			);
-			if (reserved.overlaps(interval)) {
-				res.add(r);
+		final List<ConfidentialReservationData> matchingReservations = newLinkedList();
+
+		for (ConfidentialReservationData reservation : reservations) {
+			if (new Interval(reservation.getFrom(), reservation.getTo()).overlaps(interval)) {
+				matchingReservations.add(reservation);
 			}
-
 		}
 
-		return res;
+		return limitResults(matchingReservations, offset, amount);
 	}
 
 	@Override
-	public ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws
+	public synchronized ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey) throws
 			UnknownSecretReservationKeyFault {
-		ConfidentialReservationData confidentialReservationData = reservations.get(secretReservationKey);
-		if (confidentialReservationData != null) {
-			return confidentialReservationData;
-		} else {
-			throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
+
+		for (ConfidentialReservationData reservation : reservations) {
+			if (reservation.getSecretReservationKey().equals(secretReservationKey)) {
+				return reservation;
+			}
 		}
+
+		throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
 	}
 
 	@Override
-	public ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws
+	public synchronized ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws
 			UnknownSecretReservationKeyFault {
-		ConfidentialReservationData confidentialReservationData = reservations.remove(secretReservationKey);
-		if (confidentialReservationData != null) {
-			return confidentialReservationData;
-		} else {
-			throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
+
+		for (Iterator<ConfidentialReservationData> iterator = reservations.iterator(); iterator.hasNext(); ) {
+			ConfidentialReservationData crd = iterator.next();
+			if (crd.getSecretReservationKey().equals(secretReservationKey)) {
+				iterator.remove();
+				return crd;
+			}
 		}
+
+		throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
 	}
 
 	@Override
 	public String toString() {
-		return "InMemoryRSPersistence{}";
+		return "InMemoryRSPersistence";
 	}
 
 }

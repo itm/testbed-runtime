@@ -254,7 +254,7 @@ public abstract class RSPersistenceTest {
 
 		for (IntervalData id : intervals) {
 			Interval period = new Interval(id.from.getMillis(), id.until.getMillis());
-			int persistenceReservationCount = persistence.getReservations(period).size();
+			int persistenceReservationCount = persistence.getReservations(period, null, null).size();
 			assertSame(persistenceReservationCount, id.expectedReservationCount);
 		}
 	}
