@@ -140,7 +140,11 @@ public abstract class DeviceDBDtoHelper {
 				properties.put(keyValueDto.getKey(), keyValueDto.getValue());
 			}
 		}
-		return new ChannelHandlerConfig(dto.getHandlerName(), dto.getInstanceName(), properties);
+		return new ChannelHandlerConfig(
+				dto.getHandlerName(),
+				dto.getInstanceName() == null ? dto.getHandlerName() : dto.getInstanceName(),
+				properties
+		);
 	}
 
 	public static ChannelHandlerConfigDto fromChannelHandlerConfig(final ChannelHandlerConfig config) {
