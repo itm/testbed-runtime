@@ -13,7 +13,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 @RunWith(MockitoJUnitRunner.class)
-public class JPARSPersistenceOffsetAmountTest extends RSPersistenceOffsetAmountTest {
+public class JPAPersistenceOffsetAmountTest extends RSPersistenceOffsetAmountTest {
 
 	private static final Map<String, String> properties = new HashMap<String, String>() {{
 
