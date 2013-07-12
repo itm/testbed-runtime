@@ -2,8 +2,8 @@ package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.base.Function;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
-import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
+import de.uniluebeck.itm.tr.common.dto.DeviceConfigDto;
+import de.uniluebeck.itm.tr.common.dto.DeviceConfigListDto;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import javax.ws.rs.core.Context;
@@ -15,34 +15,36 @@ import java.util.List;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.STRING_TO_NODE_URN;
+import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
+import static de.uniluebeck.itm.tr.devicedb.DeviceDBDtoHelper.fromDeviceConfig;
+import static de.uniluebeck.itm.tr.devicedb.DeviceDBDtoHelper.toDeviceConfig;
 
 public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
-	private final DeviceDB deviceDB;
+	private final DeviceDBService deviceDBService;
 
 	@Context
 	private UriInfo uriInfo;
 
 	@Inject
-	public DeviceDBRestResourceImpl(final DeviceDB deviceDB) {
-		this.deviceDB = deviceDB;
+	public DeviceDBRestResourceImpl(final DeviceDBService deviceDBService) {
+		this.deviceDBService = deviceDBService;
 	}
 
 	@Override
 	public Response getByNodeUrn(final String nodeUrnString) {
-		final DeviceConfig config = deviceDB.getConfigByNodeUrn(new NodeUrn(nodeUrnString));
+		final DeviceConfig config = deviceDBService.getConfigByNodeUrn(new NodeUrn(nodeUrnString));
 		return config == null ?
 				Response.status(Response.Status.NOT_FOUND).build() :
-				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
+				Response.ok(fromDeviceConfig(config)).build();
 	}
 
 	@Override
 	public DeviceConfigListDto list() {
 
 		final List<DeviceConfigDto> list = newArrayList();
-		for (DeviceConfig deviceConfig : deviceDB.getAll()) {
-			list.add(DeviceConfigDto.fromDeviceConfig(deviceConfig));
+		for (DeviceConfig deviceConfig : deviceDBService.getAll()) {
+			list.add(fromDeviceConfig(deviceConfig));
 		}
 
 		return new DeviceConfigListDto(list);
@@ -54,8 +56,8 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		if (nodeUrnStrings.isEmpty()) {
 
 			final List<DeviceConfigDto> list = newArrayList();
-			for (DeviceConfig deviceConfig : deviceDB.getAll()) {
-				list.add(DeviceConfigDto.fromDeviceConfig(deviceConfig));
+			for (DeviceConfig deviceConfig : deviceDBService.getAll()) {
+				list.add(fromDeviceConfig(deviceConfig));
 			}
 
 			return new DeviceConfigListDto(list);
@@ -63,11 +65,11 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		} else {
 
 			final Iterable<NodeUrn> nodeUrns = transform(nodeUrnStrings, STRING_TO_NODE_URN);
-			final Iterable<DeviceConfig> configs = deviceDB.getConfigsByNodeUrns(nodeUrns).values();
+			final Iterable<DeviceConfig> configs = deviceDBService.getConfigsByNodeUrns(nodeUrns).values();
 			final Iterable<DeviceConfigDto> retList = transform(configs, new Function<DeviceConfig, DeviceConfigDto>() {
 				@Override
 				public DeviceConfigDto apply(final DeviceConfig config) {
-					return DeviceConfigDto.fromDeviceConfig(config);
+					return fromDeviceConfig(config);
 				}
 			}
 			);
@@ -79,18 +81,18 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
 	@Override
 	public Response getByUsbChipId(final String usbChipIds) {
-		final DeviceConfig config = deviceDB.getConfigByUsbChipId(usbChipIds);
+		final DeviceConfig config = deviceDBService.getConfigByUsbChipId(usbChipIds);
 		return config == null ?
 				Response.status(Response.Status.NOT_FOUND).build() :
-				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
+				Response.ok(fromDeviceConfig(config)).build();
 	}
 
 	@Override
 	public Response getByMacAddress(final long macAddress) {
-		final DeviceConfig config = deviceDB.getConfigByMacAddress(macAddress);
+		final DeviceConfig config = deviceDBService.getConfigByMacAddress(macAddress);
 		return config == null ?
 				Response.status(Response.Status.NOT_FOUND).build() :
-				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
+				Response.ok(fromDeviceConfig(config)).build();
 	}
 
 	@Override
@@ -106,7 +108,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		}
 
 		try {
-			deviceDB.add(deviceConfig.toDeviceConfig());
+			deviceDBService.add(toDeviceConfig(deviceConfig));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.serverError().entity(e.getMessage()).build();
@@ -123,8 +125,8 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		}
 
 		// check if Entity to update already exists
-		if (deviceDB.getConfigByNodeUrn(new NodeUrn(deviceConfig.getNodeUrn())) != null) {
-			deviceDB.update(deviceConfig.toDeviceConfig());
+		if (deviceDBService.getConfigByNodeUrn(new NodeUrn(deviceConfig.getNodeUrn())) != null) {
+			deviceDBService.update(toDeviceConfig(deviceConfig));
 		} else {
 			return Response.notModified().build();
 		}
@@ -135,7 +137,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 	@Override
 	public Response delete(final String nodeUrnString) {
 
-		boolean ok = deviceDB.removeByNodeUrn(new NodeUrn(nodeUrnString));
+		boolean ok = deviceDBService.removeByNodeUrn(new NodeUrn(nodeUrnString));
 
 		return ok ? Response.ok("true").build() : Response.notModified().build();
 	}
@@ -145,12 +147,12 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
 		if (nodeUrnStrings.isEmpty()) {
 
-			deviceDB.removeAll();
+			deviceDBService.removeAll();
 
 		} else {
 
 			for (String nodeUrnString : nodeUrnStrings) {
-				deviceDB.removeByNodeUrn(new NodeUrn(nodeUrnString));
+				deviceDBService.removeByNodeUrn(new NodeUrn(nodeUrnString));
 			}
 
 		}

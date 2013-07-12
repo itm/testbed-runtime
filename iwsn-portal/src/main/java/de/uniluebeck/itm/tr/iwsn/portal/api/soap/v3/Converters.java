@@ -20,22 +20,29 @@ public abstract class Converters {
 
 	public static List<ChannelPipelinesMap> convert(
 			final Map<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse> resultMap) {
+
 		final List<ChannelPipelinesMap> resultList = newArrayList();
-		for (Map.Entry<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse> entry : resultMap .entrySet()) {
+
+		for (Map.Entry<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse> entry : resultMap.entrySet()) {
 
 			ChannelPipelinesMap map = new ChannelPipelinesMap();
 			map.getNodeUrns().add(entry.getKey());
 
-			de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration pipeline = entry.getValue().getPipeline();
+			final GetChannelPipelinesResponse.GetChannelPipelineResponse perNodeResponse = entry.getValue();
 
-			ChannelHandlerConfiguration chc = new ChannelHandlerConfiguration();
-			chc.setName(pipeline.getName());
-			for (de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.KeyValuePair keyValuePair : pipeline
-					.getConfigurationList()) {
-				chc.getConfiguration().add(convert(keyValuePair));
+			List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> handlerConfigs =
+					perNodeResponse.getHandlerConfigurationsList();
+
+			for (de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration handlerConfig : handlerConfigs) {
+				final ChannelHandlerConfiguration chc = new ChannelHandlerConfiguration();
+				chc.setName(handlerConfig.getName());
+				for (de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.KeyValuePair keyValuePair : handlerConfig
+						.getConfigurationList()) {
+					chc.getConfiguration().add(convert(keyValuePair));
+				}
+				map.getChannelHandlers().add(chc);
 			}
 
-			map.getChannelHandlers().add(chc);
 			resultList.add(map);
 		}
 		return resultList;

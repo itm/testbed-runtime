@@ -7,20 +7,26 @@ import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
-import de.uniluebeck.itm.tr.util.Logging;
-import org.apache.log4j.Level;
+import de.uniluebeck.itm.util.logging.LogLevel;
+import de.uniluebeck.itm.util.logging.Logging;
+import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.parseOrExit;
-import static de.uniluebeck.itm.tr.iwsn.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
 public class Gateway extends AbstractService {
 
 	static {
-		Logging.setLoggingDefaults(Level.WARN);
+		Logging.setLoggingDefaults(LogLevel.WARN);
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(Gateway.class);
@@ -41,17 +47,21 @@ public class Gateway extends AbstractService {
 
 	private final ServicePublisherFactory servicePublisherFactory;
 
+	private final DeviceDBService deviceDBService;
+
 	private ServicePublisher servicePublisher;
 
 	@Inject
 	public Gateway(final GatewayConfig gatewayConfig,
 				   final GatewayEventBus gatewayEventBus,
+				   final DeviceDBService deviceDBService,
 				   final DeviceManager deviceManager,
 				   final DeviceObserverWrapper deviceObserverWrapper,
 				   final RestApplication restApplication,
 				   final RequestHandler requestHandler,
 				   final ServicePublisherConfig servicePublisherConfig,
 				   final ServicePublisherFactory servicePublisherFactory) {
+		this.deviceDBService = checkNotNull(deviceDBService);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 		this.deviceManager = checkNotNull(deviceManager);
@@ -69,12 +79,13 @@ public class Gateway extends AbstractService {
 
 		try {
 
+			deviceDBService.startAndWait();
 			gatewayEventBus.startAndWait();
 			requestHandler.startAndWait();
 			deviceManager.startAndWait();
 			deviceObserverWrapper.startAndWait();
 
-			if (gatewayConfig.restAPI) {
+			if (gatewayConfig.isRestAPI()) {
 
 				servicePublisher = servicePublisherFactory.create(servicePublisherConfig);
 				servicePublisher.createJaxRsService("/devices", restApplication);
@@ -95,7 +106,7 @@ public class Gateway extends AbstractService {
 
 		try {
 
-			if (gatewayConfig.restAPI && servicePublisher != null) {
+			if (gatewayConfig.isRestAPI() && servicePublisher != null) {
 				servicePublisher.stopAndWait();
 			}
 
@@ -103,6 +114,7 @@ public class Gateway extends AbstractService {
 			deviceManager.stopAndWait();
 			requestHandler.stopAndWait();
 			gatewayEventBus.stopAndWait();
+			deviceDBService.stopAndWait();
 
 			notifyStopped();
 
@@ -115,11 +127,32 @@ public class Gateway extends AbstractService {
 
 		Thread.currentThread().setName("Gateway-Main");
 
-		final GatewayConfig config = setLogLevel(
-				parseOrExit(new GatewayConfig(), Gateway.class, args),
+		final ConfigWithLoggingAndProperties config = setLogLevel(
+				parseOrExit(new ConfigWithLoggingAndProperties(), Gateway.class, args),
 				"de.uniluebeck.itm"
 		);
-		final GatewayModule gatewayModule = new GatewayModule(config);
+
+		if (config.helpConfig) {
+			printDocumentationAndExit(
+					System.out,
+					CommonConfig.class,
+					GatewayConfig.class,
+					DeviceDBConfig.class
+			);
+		}
+
+		final PropConfModule propConfModule = new PropConfModule(
+				config.config,
+				CommonConfig.class,
+				GatewayConfig.class,
+				DeviceDBConfig.class
+		);
+		final Injector propConfInjector = Guice.createInjector(propConfModule);
+		final CommonConfig commonConfig = propConfInjector.getInstance(CommonConfig.class);
+		final GatewayConfig gatewayConfig = propConfInjector.getInstance(GatewayConfig.class);
+		final DeviceDBConfig deviceDBConfig = propConfInjector.getInstance(DeviceDBConfig.class);
+
+		final GatewayModule gatewayModule = new GatewayModule(commonConfig, gatewayConfig, deviceDBConfig);
 		final Injector injector = Guice.createInjector(gatewayModule);
 		final Gateway gateway = injector.getInstance(Gateway.class);
 

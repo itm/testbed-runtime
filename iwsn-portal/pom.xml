@@ -51,6 +51,10 @@
 
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.iwsn-common</artifactId>
 		</dependency>
 		<dependency>
@@ -58,13 +62,26 @@
 			<artifactId>tr.device-db</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-			<artifactId>netty-protocols</artifactId>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.rs-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.snaa-server</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm.itmutils</groupId>
-			<artifactId>itmutils</artifactId>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>propconf</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
+			<artifactId>netty-protocols</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
@@ -138,7 +155,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>1.6</version>
+				<version>2.0</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -159,7 +176,7 @@
 							<transformers>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>de.uniluebeck.itm.tr.iwsn.portal.Portal</mainClass>
+									<mainClass>de.uniluebeck.itm.tr.iwsn.portal.PortalServer</mainClass>
 								</transformer>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">

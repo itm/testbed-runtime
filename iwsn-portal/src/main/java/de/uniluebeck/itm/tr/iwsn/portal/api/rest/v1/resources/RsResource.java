@@ -13,6 +13,7 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -41,13 +42,15 @@ public class RsResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	public Object listReservations(@QueryParam("from") final DateTime from,
 								   @QueryParam("to") final DateTime to,
-								   @QueryParam("userOnly") @DefaultValue("false") final boolean userOnly)
-			throws RSFault_Exception {
+								   @QueryParam("userOnly") @DefaultValue("false") final boolean userOnly,
+								   @Nullable @QueryParam("offset") final Integer offset,
+								   @Nullable @QueryParam("amount") final Integer amount)
+			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
 		final Interval interval = new Interval(from, to);
 		return userOnly ?
-				getConfidentialReservations(getSAKsFromCookie(httpHeaders), interval) :
-				getPublicReservations(interval);
+				getConfidentialReservations(getSAKsFromCookie(httpHeaders), interval, offset, amount) :
+				getPublicReservations(interval, offset, amount);
 	}
 
 	@POST
@@ -55,7 +58,7 @@ public class RsResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("create")
 	public SecretReservationKeyListRs makeReservation(MakeReservationData request)
-			throws RSFault_Exception, AuthorizationFault_Exception, ReservationConflictFault_Exception {
+			throws RSFault_Exception, AuthorizationFault, ReservationConflictFault_Exception, AuthenticationFault {
 
 		final List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 
@@ -75,11 +78,11 @@ public class RsResource {
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.TEXT_PLAIN})
 	public void deleteReservation(SecretReservationKeyListRs secretReservationKeys)
-			throws RSFault_Exception, UnknownSecretReservationKeyFault {
+			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault, AuthenticationFault {
 
 		List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 		log.debug("Cookie (secret authentication keys): {}", secretAuthenticationKeys);
-		rs.deleteReservation(secretReservationKeys.reservations);
+		rs.deleteReservation(secretAuthenticationKeys, secretReservationKeys.reservations);
 	}
 
 	@POST
@@ -93,27 +96,37 @@ public class RsResource {
 
 	private ConfidentialReservationDataList getConfidentialReservations(
 			final List<SecretAuthenticationKey> snaaSecretAuthenticationKeys,
-			final Interval interval)
-			throws RSFault_Exception {
+			final Interval interval, final Integer offset, final Integer amount)
+			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
 		return new ConfidentialReservationDataList(
 				rs.getConfidentialReservations(
 						snaaSecretAuthenticationKeys,
 						interval.getStart(),
-						interval.getEnd()
+						interval.getEnd(),
+						offset,
+						amount
 				)
 		);
 	}
 
-	private PublicReservationDataList getPublicReservations(final Interval interval)
+	private PublicReservationDataList getPublicReservations(final Interval interval, final Integer offset,
+															final Integer amount)
 			throws RSFault_Exception {
 
-		final List<PublicReservationData> reservations = rs.getReservations(interval.getStart(), interval.getEnd());
+		final List<PublicReservationData> reservations = rs.getReservations(
+				interval.getStart(),
+				interval.getEnd(),
+				offset,
+				amount
+		);
 
-		log.debug("Got {} public reservations from {} until {}",
+		log.debug("Got {} public reservations from {} until {} (offset: {}, amount: {})",
 				reservations.size(),
 				interval.getStart(),
-				interval.getEnd()
+				interval.getEnd(),
+				offset,
+				amount
 		);
 
 		return new PublicReservationDataList(reservations);

@@ -44,14 +44,14 @@ public class CredentialsCallbackHandler implements CallbackHandler {
 
 	public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 
-		for (int i = 0; i < callbacks.length; i++) {
+		for (final Callback callback : callbacks) {
 
-			if (callbacks[i] instanceof TextOutputCallback) {
+			if (callback instanceof TextOutputCallback) {
 
 				log.debug("CredentialsCallbackHandler.handle -- TextOutputCallback");
 
 				// display the message according to the specified type
-				TextOutputCallback toc = (TextOutputCallback) callbacks[i];
+				TextOutputCallback toc = (TextOutputCallback) callback;
 				switch (toc.getMessageType()) {
 					case TextOutputCallback.INFORMATION:
 						log.info(toc.getMessage());
@@ -66,22 +66,22 @@ public class CredentialsCallbackHandler implements CallbackHandler {
 						throw new IOException("Unsupported message type: " + toc.getMessageType());
 				}
 
-			} else if (callbacks[i] instanceof NameCallback) {
+			} else if (callback instanceof NameCallback) {
 
 				log.debug("CredentialsCallbackHandler.handle -- NameCallback");
 
-				NameCallback nc = (NameCallback) callbacks[i];
+				NameCallback nc = (NameCallback) callback;
 				nc.setName(username);
 
-			} else if (callbacks[i] instanceof PasswordCallback) {
+			} else if (callback instanceof PasswordCallback) {
 
 				log.debug("CredentialsCallbackHandler.handle -- PasswordCallback");
 
-				PasswordCallback pc = (PasswordCallback) callbacks[i];
-				pc.setPassword(new String(password).toCharArray());
+				PasswordCallback pc = (PasswordCallback) callback;
+				pc.setPassword(password.toCharArray());
 
 			} else {
-				throw new UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
+				throw new UnsupportedCallbackException(callback, "Unrecognized Callback");
 			}
 		}
 	}

@@ -1,28 +1,21 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
-import com.google.common.eventbus.Subscribe;
-import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.util.NetworkUtils;
-import de.uniluebeck.itm.tr.util.SettableFutureMap;
+import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
+import de.uniluebeck.itm.util.NetworkUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Maps.newHashMap;
 import static de.uniluebeck.itm.tr.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters.*;
@@ -37,7 +30,7 @@ public class WSNImpl implements WSN {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNImpl.class);
 
-	private final DeviceDB deviceDB;
+	private final DeviceDBService deviceDBService;
 
 	private final Reservation reservation;
 
@@ -48,7 +41,7 @@ public class WSNImpl implements WSN {
 	private final RequestIdProvider requestIdProvider;
 
 	@Inject
-	public WSNImpl(final DeviceDB deviceDB,
+	public WSNImpl(final DeviceDBService deviceDBService,
 				   final RequestIdProvider requestIdProvider,
 				   @Assisted final String reservationId,
 				   @Assisted final Reservation reservation,
@@ -56,7 +49,7 @@ public class WSNImpl implements WSN {
 
 		this.reservationId = checkNotNull(reservationId);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
-		this.deviceDB = checkNotNull(deviceDB);
+		this.deviceDBService = checkNotNull(deviceDBService);
 		this.reservation = checkNotNull(reservation);
 		this.deliveryManager = checkNotNull(deliveryManager);
 	}
@@ -163,54 +156,17 @@ public class WSNImpl implements WSN {
 
 		assertReservationIntervalMet();
 
-		final long requestId = requestIdProvider.get();
-		final Request request = newGetChannelPipelinesRequest(
+		return RequestHelper.getChannelPipelines(
+				nodeUrns,
 				reservationId,
-				requestId,
-				nodeUrns
+				requestIdProvider.get(),
+				reservation.getEventBus()
 		);
-
-		final Map<NodeUrn, SettableFuture<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>>
-				map = newHashMap();
-		for (NodeUrn nodeUrn : nodeUrns) {
-			map.put(nodeUrn, SettableFuture.<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>create());
-		}
-		final SettableFutureMap<NodeUrn, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>
-				future =
-				new SettableFutureMap<NodeUrn, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>(map);
-
-		final Object eventBusListener = new Object() {
-			@Subscribe
-			public void onResponse(de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse response) {
-				if (response.getRequestId() == requestId) {
-					for (de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse p : response.getPipelinesList()) {
-
-						final SettableFuture<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> nodeFuture =
-								map.get(new NodeUrn(p.getNodeUrn()));
-						nodeFuture.set(p);
-					}
-				}
-			}
-		};
-
-		reservation.getEventBus().register(eventBusListener);
-		reservation.getEventBus().post(request);
-
-		try {
-
-			final Map<NodeUrn, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> resultMap =
-					future.get(30, TimeUnit.SECONDS);
-			reservation.getEventBus().unregister(eventBusListener);
-			return convert(resultMap);
-
-		} catch (Exception e) {
-			throw propagate(e);
-		}
 	}
 
 	@Override
 	public String getNetwork() {
-		return serialize(convertToWiseML(deviceDB.getConfigsByNodeUrns(reservation.getNodeUrns()).values()));
+		return serialize(convertToWiseML(deviceDBService.getConfigsByNodeUrns(reservation.getNodeUrns()).values()));
 	}
 
 	@Override

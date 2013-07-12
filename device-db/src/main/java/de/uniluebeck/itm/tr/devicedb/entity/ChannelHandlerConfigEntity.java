@@ -1,26 +1,14 @@
 package de.uniluebeck.itm.tr.devicedb.entity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-
 import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Multimap;
-
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
+
+import javax.persistence.*;
+import java.util.*;
 
 
 @Entity(name="ChannelHandlerConfig")
@@ -106,6 +94,7 @@ public class ChannelHandlerConfigEntity {
 	}
 	
 	public ChannelHandlerConfig toChannelHandlerConfig() {
+
 		Multimap<String, String> multiMap = ArrayListMultimap.create();
 		
 		for ( KeyValueEntity entry : properties) {

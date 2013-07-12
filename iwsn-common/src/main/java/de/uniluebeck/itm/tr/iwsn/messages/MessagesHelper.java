@@ -9,6 +9,7 @@ import org.joda.time.DateTime;
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Functions.toStringFunction;
@@ -18,7 +19,7 @@ import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.NODE_URN_TO_STRING;
+import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
 
 public abstract class MessagesHelper {
 
@@ -322,6 +323,27 @@ public abstract class MessagesHelper {
 		return builder.build();
 	}
 
+	public static GetChannelPipelinesResponse newGetChannelPipelinesResponse(@Nullable final String reservationId,
+																			 final long requestId,
+																			 final Map<NodeUrn, List<ChannelHandlerConfiguration>> channelHandlerConfigurationMap) {
+		final GetChannelPipelinesResponse.Builder builder = GetChannelPipelinesResponse.newBuilder()
+				.setReservationId(reservationId)
+				.setRequestId(requestId);
+
+		for (Map.Entry<NodeUrn, List<ChannelHandlerConfiguration>> entry : channelHandlerConfigurationMap.entrySet()) {
+
+			final GetChannelPipelinesResponse.GetChannelPipelineResponse.Builder perNodeBuilder =
+					GetChannelPipelinesResponse.GetChannelPipelineResponse
+							.newBuilder()
+							.setNodeUrn(entry.getKey().toString())
+							.addAllHandlerConfigurations(entry.getValue());
+
+			builder.addPipelines(perNodeBuilder);
+		}
+
+		return builder.build();
+	}
+
 	public static Request newSetChannelPipelinesRequest(@Nullable final String reservationId,
 														final long requestId,
 														final Iterable<NodeUrn> nodeUrns,
@@ -368,6 +390,13 @@ public abstract class MessagesHelper {
 		return Message.newBuilder()
 				.setType(Message.Type.RESPONSE)
 				.setResponse(response)
+				.build();
+	}
+
+	public static Message newMessage(final GetChannelPipelinesResponse response) {
+		return Message.newBuilder()
+				.setType(Message.Type.GET_CHANNELPIPELINES_RESPONSE)
+				.setGetChannelPipelinesResponse(response)
 				.build();
 	}
 
@@ -592,6 +621,9 @@ public abstract class MessagesHelper {
 
 			case FLASH_IMAGES:
 				return toNodeUrnSet(request.getFlashImagesRequest().getNodeUrnsList());
+
+			case GET_CHANNEL_PIPELINES:
+				return toNodeUrnSet(request.getGetChannelPipelinesRequest().getNodeUrnsList());
 
 			case RESET_NODES:
 				return toNodeUrnSet(request.getResetNodesRequest().getNodeUrnsList());

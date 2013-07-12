@@ -23,14 +23,18 @@
 
 package de.uniluebeck.itm.tr.snaa.jaas;
 
-import de.uniluebeck.itm.tr.util.SecureIdGenerator;
-import de.uniluebeck.itm.tr.util.TimedCache;
+import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Inject;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
+import de.uniluebeck.itm.util.SecureIdGenerator;
+import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
-import eu.wisebed.testbed.api.snaa.authorization.IUserAuthorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +46,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
+import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
 
 @WebService(
 		name = "SNAA",
@@ -52,17 +57,57 @@ import static de.uniluebeck.itm.tr.snaa.SNAAHelper.*;
 		serviceName = "SNAAService",
 		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
-public class JAASSNAA implements SNAA {
+public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.snaa.SNAAService {
 
 	private static final Logger log = LoggerFactory.getLogger(JAASSNAA.class);
 
-	private NodeUrnPrefix urnPrefix;
+	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
-	private String jaasLoginModuleName;
+	private final SNAAServiceConfig snaaServiceConfig;
 
-	private IUserAuthorization authorization;
+	private final ServicePublisher servicePublisher;
 
-	private SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+	private final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
+
+	private final LoginContextFactory loginContextFactory;
+
+	private ServicePublisherService jaxWsService;
+
+	@Inject
+	public JAASSNAA(final SNAAServiceConfig snaaServiceConfig,
+					final ServicePublisher servicePublisher,
+					final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
+					final LoginContextFactory loginContextFactory) {
+		this.snaaServiceConfig = checkNotNull(snaaServiceConfig);
+		this.servicePublisher = checkNotNull(servicePublisher);
+		this.servedNodeUrnPrefixesProvider = checkNotNull(servedNodeUrnPrefixesProvider);
+		this.loginContextFactory = checkNotNull(loginContextFactory);
+	}
+
+	@Override
+	protected void doStart() {
+		try {
+			System.setProperty("java.security.auth.login.config", snaaServiceConfig.getJaasConfigFile());
+			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this);
+			jaxWsService.startAndWait();
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected void doStop() {
+		try {
+			if (jaxWsService != null) {
+				jaxWsService.stopAndWait();
+			}
+			System.setProperty("java.security.auth.login.config", "");
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 
 	static class AuthData {
 
@@ -87,28 +132,21 @@ public class JAASSNAA implements SNAA {
 	 */
 	private TimedCache<String, AuthData> authenticatedSessions = new TimedCache<String, AuthData>(30, TimeUnit.MINUTES);
 
-	public JAASSNAA(NodeUrnPrefix urnPrefix, String jaasLoginModuleName, IUserAuthorization authorization) {
-		this.urnPrefix = urnPrefix;
-		this.jaasLoginModuleName = jaasLoginModuleName;
-		this.authorization = authorization;
-	}
-
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationFault_Exception, SNAAFault_Exception {
+			throws AuthenticationFault, SNAAFault_Exception {
 
 		assertAuthenticationCount(authenticationData, 1, 1);
-		assertUrnPrefixServed(urnPrefix, authenticationData);
+		assertUrnPrefixServed(servedNodeUrnPrefixesProvider.get(), authenticationData);
 		AuthenticationTriple authenticationTriple = authenticationData.get(0);
 
 		try {
 			String username = authenticationTriple.getUsername();
 			String password = authenticationTriple.getPassword();
 
-			log.debug("Login for user[{}] with module [{}]", username, jaasLoginModuleName);
+			LoginContext lc = loginContextFactory.create(new CredentialsCallbackHandler(username, password));
 
-
-			LoginContext lc = new LoginContext(jaasLoginModuleName, new CredentialsCallbackHandler(username, password));
+			log.debug("Login for user[{}] with LoginContext [{}]", username, lc);
 
 			lc.login();
 
@@ -128,7 +166,7 @@ public class JAASSNAA implements SNAA {
 
 		} catch (LoginException le) {
 			log.debug("LoginException: " + le, le);
-			throw createAuthenticationFault_Exception("Authentication failed!");
+			throw createAuthenticationFault("Authentication failed!");
 		} catch (SecurityException se) {
 			log.debug("SecurityException: " + se, se);
 			throw createSNAAFault("Internal Server Error");
@@ -140,11 +178,12 @@ public class JAASSNAA implements SNAA {
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 											  final Action action) throws SNAAFault_Exception {
 
-
 		AuthorizationResponse authorized = new AuthorizationResponse();
 
 		authorized.setAuthorized(true);
-		authorized.setMessage("JAASSNAA is used for authentication only and always return 'true'");
+		authorized.setMessage(
+				"JAASSNAA is currently used for authentication only and always returns 'true' for authorization"
+		);
 
 		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
 			for (NodeUrn nodeUrn : usernameNodeUrnsMap.getNodeUrns()) {
@@ -163,7 +202,7 @@ public class JAASSNAA implements SNAA {
 			throws SNAAFault_Exception {
 
 		// Check the supplied authentication keys
-		assertSAKUrnPrefixServed(urnPrefix, secretAuthenticationKeys);
+		assertSAKUrnPrefixServed(servedNodeUrnPrefixesProvider.get(), secretAuthenticationKeys);
 
 		final SecretAuthenticationKey secretAuthenticationKey = secretAuthenticationKeys.get(0);
 
@@ -174,7 +213,7 @@ public class JAASSNAA implements SNAA {
 
 		if (auth == null) {
 			result.setValid(false);
-			result.setMessage("The provides secret authentication key is not found. It is either invalid or expired.");
+			result.setMessage("The provided secret authentication key is not found. It is either invalid or expired.");
 		} else if (secretAuthenticationKey.getUsername() == null) {
 			result.setValid(false);
 			result.setMessage("The user name comprised in the secret authentication key must not be 'null'.");

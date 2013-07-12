@@ -2,7 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.util.TimedCache;
+import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;

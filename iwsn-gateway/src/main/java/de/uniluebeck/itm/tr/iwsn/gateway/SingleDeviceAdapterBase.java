@@ -25,16 +25,14 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
-import de.uniluebeck.itm.tr.util.*;
+import de.uniluebeck.itm.util.concurrent.*;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import eu.wisebed.api.v3.common.NodeUrn;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -143,6 +141,13 @@ public abstract class SingleDeviceAdapterBase extends AbstractService implements
 		);
 	}
 
+	@Override
+	public ListenableFutureMap<NodeUrn, ChannelHandlerConfigList> getChannelPipelines(
+			final Iterable<NodeUrn> nodeUrns) {
+		checkArgument(size(checkNotNull(nodeUrns)) == 1 && contains(nodeUrns, nodeUrn));
+		return new SettableFutureMap<NodeUrn, ChannelHandlerConfigList>(ImmutableMap.of(nodeUrn, getChannelPipeline()));
+	}
+
 	protected abstract ListenableFuture<NodeApiCallResult> enableNode();
 
 	protected abstract ListenableFuture<NodeApiCallResult> enablePhysicalLink(MacAddress targetMacAddress);
@@ -166,4 +171,6 @@ public abstract class SingleDeviceAdapterBase extends AbstractService implements
 	protected abstract ListenableFuture<NodeApiCallResult> enableVirtualLink(MacAddress targetMacAddress);
 
 	protected abstract ListenableFuture<Void> setChannelPipeline(ChannelHandlerConfigList channelHandlerConfigs);
+
+	protected abstract ListenableFuture<ChannelHandlerConfigList> getChannelPipeline();
 }

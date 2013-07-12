@@ -9,13 +9,14 @@ import com.google.common.collect.Multimap;
 
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
-import de.uniluebeck.itm.tr.util.StringUtils;
+import de.uniluebeck.itm.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
 import eu.wisebed.wiseml.Dtypes;
 import eu.wisebed.wiseml.Units;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.Map;
@@ -66,9 +67,9 @@ public abstract class DeviceDBTestBase {
 
 	private DeviceConfig config3;
 
-	private DeviceDB db;
+	private DeviceDBService db;
 
-	public void setUp(DeviceDB db) throws Exception {
+	public void setUp(DeviceDBService db) throws Exception {
 
 		this.db = db;
 		
@@ -137,6 +138,13 @@ public abstract class DeviceDBTestBase {
 				null,
 				null
 		);
+
+		db.startAndWait();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		db.stopAndWait();
 	}
 
 	@Test

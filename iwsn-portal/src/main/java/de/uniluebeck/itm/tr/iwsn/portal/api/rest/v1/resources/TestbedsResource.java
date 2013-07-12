@@ -1,7 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalConfig;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.TestbedDescription;
 
 import javax.ws.rs.GET;
@@ -18,14 +19,17 @@ import static com.google.common.collect.Lists.newArrayList;
 @Path("/testbeds/")
 public class TestbedsResource {
 
-	private final PortalConfig portalConfig;
+	private final CommonConfig commonConfig;
+
+	private final PortalServerConfig portalServerConfig;
 
 	@Context
 	private UriInfo uriInfo;
 
 	@Inject
-	public TestbedsResource(final PortalConfig portalConfig) {
-		this.portalConfig = portalConfig;
+	public TestbedsResource(final CommonConfig commonConfig, final PortalServerConfig portalServerConfig) {
+		this.commonConfig = commonConfig;
+		this.portalServerConfig = portalServerConfig;
 	}
 
 	@GET
@@ -35,12 +39,12 @@ public class TestbedsResource {
 		final URI baseUri = uriInfo.getBaseUri();
 
 		final TestbedDescription testbed = new TestbedDescription();
-		testbed.name = portalConfig.testbedName;
+		testbed.name = portalServerConfig.getWiseguiTestbedName();
 		testbed.testbedBaseUri =
 				baseUri.getScheme() + "://" + baseUri.getHost() + ":" + baseUri.getPort() + "/rest/v1.0";
 		testbed.sessionManagementEndpointUrl =
 				baseUri.getScheme() + "://" + baseUri.getHost() + ":" + baseUri.getPort() + "/soap/v3.0/sm";
-		testbed.urnPrefixes = newArrayList(portalConfig.urnPrefix.toString());
+		testbed.urnPrefixes = newArrayList(commonConfig.getUrnPrefix().toString());
 
 		return newArrayList(testbed);
 	}

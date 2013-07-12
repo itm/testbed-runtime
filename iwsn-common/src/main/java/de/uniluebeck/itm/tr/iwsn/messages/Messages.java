@@ -235,52 +235,52 @@ public final class Messages {
       "NodeResponse\022\025\n\rreservationId\030\001 \001(\t\022\021\n\tr" +
       "equestId\030\002 \002(\003\022\017\n\007nodeUrn\030\003 \002(\t\022\020\n\010respo" +
       "nse\030\004 \001(\014\022\022\n\nstatusCode\030\005 \001(\005\022\024\n\014errorMe" +
-      "ssage\030\006 \001(\t\"\271\002\n\033GetChannelPipelinesRespo" +
+      "ssage\030\006 \001(\t\"\306\002\n\033GetChannelPipelinesRespo" +
       "nse\022\025\n\rreservationId\030\001 \001(\t\022\021\n\trequestId\030",
       "\002 \002(\003\022m\n\tpipelines\030\003 \003(\0132Z.de.uniluebeck" +
       ".itm.tr.iwsn.messages.GetChannelPipeline" +
-      "sResponse.GetChannelPipelineResponse\032\200\001\n" +
+      "sResponse.GetChannelPipelineResponse\032\215\001\n" +
       "\032GetChannelPipelineResponse\022\017\n\007nodeUrn\030\001" +
-      " \002(\t\022Q\n\010pipeline\030\002 \002(\0132?.de.uniluebeck.i" +
-      "tm.tr.iwsn.messages.ChannelHandlerConfig" +
-      "uration\"V\n\024UpstreamMessageEvent\022\025\n\rsourc" +
-      "eNodeUrn\030\001 \002(\t\022\021\n\ttimestamp\030\002 \002(\004\022\024\n\014mes" +
-      "sageBytes\030\003 \002(\014\";\n\024DevicesAttachedEvent\022" +
-      "\020\n\010nodeUrns\030\001 \003(\t\022\021\n\ttimestamp\030\002 \002(\004\";\n\024",
-      "DevicesDetachedEvent\022\020\n\010nodeUrns\030\001 \003(\t\022\021" +
-      "\n\ttimestamp\030\002 \002(\004\"H\n\021NotificationEvent\022\017" +
-      "\n\007nodeUrn\030\001 \001(\t\022\021\n\ttimestamp\030\002 \002(\004\022\017\n\007me" +
-      "ssage\030\003 \002(\t\"\214\004\n\005Event\022\017\n\007eventId\030\001 \002(\003\022<" +
-      "\n\004type\030\002 \002(\0162..de.uniluebeck.itm.tr.iwsn" +
-      ".messages.Event.Type\022V\n\024upstreamMessageE" +
-      "vent\030e \001(\01328.de.uniluebeck.itm.tr.iwsn.m" +
-      "essages.UpstreamMessageEvent\022V\n\024devicesA" +
-      "ttachedEvent\030f \001(\01328.de.uniluebeck.itm.t" +
-      "r.iwsn.messages.DevicesAttachedEvent\022V\n\024",
-      "devicesDetachedEvent\030g \001(\01328.de.uniluebe" +
-      "ck.itm.tr.iwsn.messages.DevicesDetachedE" +
-      "vent\022P\n\021notificationEvent\030h \001(\01325.de.uni" +
-      "luebeck.itm.tr.iwsn.messages.Notificatio" +
-      "nEvent\"Z\n\004Type\022\024\n\020UPSTREAM_MESSAGE\020\001\022\024\n\020" +
-      "DEVICES_ATTACHED\020\002\022\024\n\020DEVICES_DETACHED\020\003" +
-      "\022\020\n\014NOTIFICATION\020\004\"\033\n\010EventAck\022\017\n\007eventI" +
-      "d\030\001 \002(\003\"\351\004\n\007Message\022>\n\004type\030\001 \002(\01620.de.u" +
-      "niluebeck.itm.tr.iwsn.messages.Message.T" +
-      "ype\022<\n\007request\030e \001(\0132+.de.uniluebeck.itm",
-      ".tr.iwsn.messages.Request\022H\n\010progress\030f " +
-      "\001(\01326.de.uniluebeck.itm.tr.iwsn.messages" +
-      ".SingleNodeProgress\022H\n\010response\030g \001(\01326." +
-      "de.uniluebeck.itm.tr.iwsn.messages.Singl" +
-      "eNodeResponse\022d\n\033getChannelPipelinesResp" +
-      "onse\030h \001(\0132?.de.uniluebeck.itm.tr.iwsn.m" +
-      "essages.GetChannelPipelinesResponse\0228\n\005e" +
-      "vent\030i \001(\0132).de.uniluebeck.itm.tr.iwsn.m" +
-      "essages.Event\022>\n\010eventAck\030j \001(\0132,.de.uni" +
-      "luebeck.itm.tr.iwsn.messages.EventAck\"l\n",
-      "\004Type\022\013\n\007REQUEST\020\001\022\014\n\010PROGRESS\020\002\022\014\n\010RESP" +
-      "ONSE\020\003\022!\n\035GET_CHANNELPIPELINES_RESPONSE\020" +
-      "\004\022\t\n\005EVENT\020\005\022\r\n\tEVENT_ACK\020\006B\014B\010MessagesP" +
-      "\001"
+      " \002(\t\022^\n\025handlerConfigurations\030\002 \003(\0132?.de" +
+      ".uniluebeck.itm.tr.iwsn.messages.Channel" +
+      "HandlerConfiguration\"V\n\024UpstreamMessageE" +
+      "vent\022\025\n\rsourceNodeUrn\030\001 \002(\t\022\021\n\ttimestamp" +
+      "\030\002 \002(\004\022\024\n\014messageBytes\030\003 \002(\014\";\n\024DevicesA" +
+      "ttachedEvent\022\020\n\010nodeUrns\030\001 \003(\t\022\021\n\ttimest",
+      "amp\030\002 \002(\004\";\n\024DevicesDetachedEvent\022\020\n\010nod" +
+      "eUrns\030\001 \003(\t\022\021\n\ttimestamp\030\002 \002(\004\"H\n\021Notifi" +
+      "cationEvent\022\017\n\007nodeUrn\030\001 \001(\t\022\021\n\ttimestam" +
+      "p\030\002 \002(\004\022\017\n\007message\030\003 \002(\t\"\214\004\n\005Event\022\017\n\007ev" +
+      "entId\030\001 \002(\003\022<\n\004type\030\002 \002(\0162..de.uniluebec" +
+      "k.itm.tr.iwsn.messages.Event.Type\022V\n\024ups" +
+      "treamMessageEvent\030e \001(\01328.de.uniluebeck." +
+      "itm.tr.iwsn.messages.UpstreamMessageEven" +
+      "t\022V\n\024devicesAttachedEvent\030f \001(\01328.de.uni" +
+      "luebeck.itm.tr.iwsn.messages.DevicesAtta",
+      "chedEvent\022V\n\024devicesDetachedEvent\030g \001(\0132" +
+      "8.de.uniluebeck.itm.tr.iwsn.messages.Dev" +
+      "icesDetachedEvent\022P\n\021notificationEvent\030h" +
+      " \001(\01325.de.uniluebeck.itm.tr.iwsn.message" +
+      "s.NotificationEvent\"Z\n\004Type\022\024\n\020UPSTREAM_" +
+      "MESSAGE\020\001\022\024\n\020DEVICES_ATTACHED\020\002\022\024\n\020DEVIC" +
+      "ES_DETACHED\020\003\022\020\n\014NOTIFICATION\020\004\"\033\n\010Event" +
+      "Ack\022\017\n\007eventId\030\001 \002(\003\"\351\004\n\007Message\022>\n\004type" +
+      "\030\001 \002(\01620.de.uniluebeck.itm.tr.iwsn.messa" +
+      "ges.Message.Type\022<\n\007request\030e \001(\0132+.de.u",
+      "niluebeck.itm.tr.iwsn.messages.Request\022H" +
+      "\n\010progress\030f \001(\01326.de.uniluebeck.itm.tr." +
+      "iwsn.messages.SingleNodeProgress\022H\n\010resp" +
+      "onse\030g \001(\01326.de.uniluebeck.itm.tr.iwsn.m" +
+      "essages.SingleNodeResponse\022d\n\033getChannel" +
+      "PipelinesResponse\030h \001(\0132?.de.uniluebeck." +
+      "itm.tr.iwsn.messages.GetChannelPipelines" +
+      "Response\0228\n\005event\030i \001(\0132).de.uniluebeck." +
+      "itm.tr.iwsn.messages.Event\022>\n\010eventAck\030j" +
+      " \001(\0132,.de.uniluebeck.itm.tr.iwsn.message",
+      "s.EventAck\"l\n\004Type\022\013\n\007REQUEST\020\001\022\014\n\010PROGR" +
+      "ESS\020\002\022\014\n\010RESPONSE\020\003\022!\n\035GET_CHANNELPIPELI" +
+      "NES_RESPONSE\020\004\022\t\n\005EVENT\020\005\022\r\n\tEVENT_ACK\020\006" +
+      "B\014B\010MessagesP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -452,7 +452,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_GetChannelPipelinesResponse_GetChannelPipelineResponse_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_GetChannelPipelinesResponse_GetChannelPipelineResponse_descriptor,
-              new java.lang.String[] { "NodeUrn", "Pipeline", },
+              new java.lang.String[] { "NodeUrn", "HandlerConfigurations", },
               de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse.class,
               de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_UpstreamMessageEvent_descriptor =

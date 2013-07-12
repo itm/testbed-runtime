@@ -3,10 +3,11 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerService;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceFactory;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
@@ -37,11 +38,9 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private static final TimeUnit MS = TimeUnit.MILLISECONDS;
 
-	private final PortalConfig portalConfig;
-
 	private final Provider<RS> rs;
 
-	private final DeviceDB deviceDB;
+	private final DeviceDBService deviceDBService;
 
 	private final ReservationFactory reservationFactory;
 
@@ -49,15 +48,17 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private final SchedulerService schedulerService;
 
+	private final CommonConfig commonConfig;
+
 	@Inject
-	public ReservationManagerImpl(final PortalConfig portalConfig,
+	public ReservationManagerImpl(final CommonConfig commonConfig,
 								  final Provider<RS> rs,
-								  final DeviceDB deviceDB,
+								  final DeviceDBService deviceDBService,
 								  final ReservationFactory reservationFactory,
 								  final SchedulerServiceFactory schedulerServiceFactory) {
-		this.portalConfig = checkNotNull(portalConfig);
+		this.commonConfig = checkNotNull(commonConfig);
 		this.rs = checkNotNull(rs);
-		this.deviceDB = checkNotNull(deviceDB);
+		this.deviceDBService = checkNotNull(deviceDBService);
 		this.reservationFactory = checkNotNull(reservationFactory);
 		this.schedulerService = schedulerServiceFactory.create(-1, "ReservationManager");
 	}
@@ -123,8 +124,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 			assertNodesInTestbed(reservedNodes);
 
 			final Reservation reservation = reservationFactory.create(
-					data.getKeys().get(0).getKey(),
-					data.getKeys().get(0).getUsername(),
+					data.getSecretReservationKey().getKey(),
+					data.getUsername(),
 					reservedNodes,
 					new Interval(data.getFrom(), data.getTo())
 			);
@@ -152,7 +153,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	private void assertNodesInTestbed(final Set<NodeUrn> reservedNodes) {
-		for (Map.Entry<NodeUrn, DeviceConfig> entry : deviceDB.getConfigsByNodeUrns(reservedNodes).entrySet()) {
+		for (Map.Entry<NodeUrn, DeviceConfig> entry : deviceDBService.getConfigsByNodeUrns(reservedNodes).entrySet()) {
 			if (entry.getValue() == null) {
 				throw new RuntimeException("Node URN \"" + entry.getKey() + "\" unknown.");
 			}
@@ -161,7 +162,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private List<SecretReservationKey> toSecretReservationKeyList(String secretReservationKey) {
 		SecretReservationKey key = new SecretReservationKey();
-		key.setUrnPrefix(portalConfig.urnPrefix);
+		key.setUrnPrefix(commonConfig.getUrnPrefix());
 		key.setKey(secretReservationKey);
 		return newArrayList(key);
 	}

@@ -235,11 +235,14 @@ public class DeviceConfigEntity {
 	}
 
 	private ChannelHandlerConfigList convertDefaultPipeline() {
+		if (defaultChannelPipeline == null || defaultChannelPipeline.size() == 0) {
+			return null;
+		}
 		return new ChannelHandlerConfigList(transform(defaultChannelPipeline, ENTITY_TO_CHC_FUNCTION));
 	}
 	
 	private Set<Capability> convertCapabilities() {
-		if (capabilities == null) {
+		if (capabilities == null || capabilities.size() == 0) {
 			return null;
 		}
 		Set<Capability> caps = new HashSet<Capability>();

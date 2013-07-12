@@ -26,8 +26,8 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
-import de.uniluebeck.itm.tr.util.ListenableFutureMap;
-import de.uniluebeck.itm.tr.util.ProgressListenableFutureMap;
+import de.uniluebeck.itm.util.concurrent.ListenableFutureMap;
+import de.uniluebeck.itm.util.concurrent.ProgressListenableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import java.util.Map;
@@ -136,6 +136,18 @@ public interface DeviceAdapter extends Service {
 														   ChannelHandlerConfigList channelHandlerConfigs);
 
 	/**
+	 * Returns the channel pipelines currently set on the given set of nodes.
+	 *
+	 * @param nodeUrns
+	 * 		the set of nodes for which to retrieve the current pipeline configuration
+	 *
+	 * @return a map from nodes to pipeline configurations
+	 *
+	 * @see DeviceAdapter#setChannelPipelines(Iterable, de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList)
+	 */
+	ListenableFutureMap<NodeUrn, ChannelHandlerConfigList> getChannelPipelines(Iterable<NodeUrn> nodeUrns);
+
+	/**
 	 * Enables a set of nodes by "switching on" the virtual radio of the nodes to receive and send messages over both
 	 * the physical and virtual links.
 	 * <p/>
@@ -216,5 +228,4 @@ public interface DeviceAdapter extends Service {
 	 * @return a map containing futures to the results of the calls to the individual nodes
 	 */
 	ListenableFutureMap<NodeUrn, NodeApiCallResult> disableVirtualLinks(Map<NodeUrn, NodeUrn> sourceTargetMap);
-
 }

@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
-import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
+import de.uniluebeck.itm.tr.common.dto.DeviceConfigDto;
+import de.uniluebeck.itm.tr.common.dto.DeviceConfigListDto;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

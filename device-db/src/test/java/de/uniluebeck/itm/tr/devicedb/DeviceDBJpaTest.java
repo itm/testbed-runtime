@@ -21,19 +21,21 @@ public class DeviceDBJpaTest extends DeviceDBTestBase {
 
 		DriverManager.getConnection("jdbc:derby:memory:device-db-unit-test;create=true").close();
 
+		final DeviceDBConfig deviceDBConfig = new DeviceDBConfig();
 		final Injector injector = Guice.createInjector(new DeviceDBJpaModule(JPA_PROPERTIES));
-		final DeviceDB deviceDB = injector.getInstance(DeviceDB.class);
-		entityManagerFactory = injector.getInstance(EntityManagerFactory.class);
-		entityManager = injector.getInstance(EntityManager.class);
+		final DeviceDBService deviceDBService = injector.getInstance(DeviceDBService.class);
 
-		super.setUp(deviceDB);
+		/*entityManagerFactory = injector.getInstance(EntityManagerFactory.class);
+		entityManager = injector.getInstance(EntityManager.class);*/
+
+		super.setUp(deviceDBService);
 	}
 
 	@After
 	public void tearDown() throws Exception {
 
-		entityManager.close();
-		entityManagerFactory.close();
+		/*entityManager.close();
+		entityManagerFactory.close();*/
 
 		try {
 			DriverManager.getConnection("jdbc:derby:memory:device-db-unit-test;shutdown=true").close();

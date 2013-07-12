@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
@@ -12,11 +13,12 @@ import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
+import de.uniluebeck.itm.tr.common.NodeUrnHelper;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
-import de.uniluebeck.itm.tr.util.ListenableFutureMap;
-import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
-import de.uniluebeck.itm.tr.util.ProgressListenableFutureMap;
+import de.uniluebeck.itm.util.concurrent.ListenableFutureMap;
+import de.uniluebeck.itm.util.concurrent.ProgressListenableFuture;
+import de.uniluebeck.itm.util.concurrent.ProgressListenableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +28,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newGetChannelPipelinesResponse;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSingleNodeResponse;
 
 public class RequestHandlerImpl extends AbstractService implements RequestHandler {
@@ -112,6 +118,9 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 			case FLASH_IMAGES:
 				onFlashImagesRequest(request);
 				break;
+			case GET_CHANNEL_PIPELINES:
+				onGetChannelPipelinesRequest(request);
+				break;
 			case RESET_NODES:
 				onResetNodesRequest(request);
 				break;
@@ -124,6 +133,76 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 			default:
 				throw new RuntimeException("Unknown request type received!");
 		}
+	}
+
+	private void onGetChannelPipelinesRequest(final Request request) {
+
+		log.trace("RequestHandlerImpl.onGetChannelPipelinesRequest({})", request);
+
+		final Set<NodeUrn> nodeUrns = newHashSet(transform(
+				request.getGetChannelPipelinesRequest().getNodeUrnsList(),
+				NodeUrnHelper.STRING_TO_NODE_URN
+		)
+		);
+
+		final Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
+		final Multimap<DeviceAdapter, NodeUrn> connectedSubset = deviceManager.getConnectedSubset(nodeUrns);
+
+		postNodeNotConnectedResponse(request.getReservationId(), request.getRequestId(), unconnectedSubset);
+
+		for (DeviceAdapter deviceAdapter : connectedSubset.keys()) {
+
+			try {
+
+				final ListenableFutureMap<NodeUrn, ChannelHandlerConfigList> mapFuture = deviceAdapter
+						.getChannelPipelines(connectedSubset.get(deviceAdapter));
+				final Map<NodeUrn, ChannelHandlerConfigList> map = mapFuture.get(30, TimeUnit.SECONDS);
+				final Map<NodeUrn, List<ChannelHandlerConfiguration>> responseMap = Maps.transformEntries(map,
+						new Maps.EntryTransformer<NodeUrn, ChannelHandlerConfigList, List<ChannelHandlerConfiguration>>() {
+							@Override
+							public List<ChannelHandlerConfiguration> transformEntry(final NodeUrn key,
+																					@Nullable final ChannelHandlerConfigList pipeline) {
+								final List<ChannelHandlerConfiguration> res = newArrayList();
+								if (pipeline != null) {
+									for (ChannelHandlerConfig chc : pipeline) {
+										res.add(convert(chc));
+									}
+								}
+								return res;
+							}
+						}
+				);
+				final GetChannelPipelinesResponse response = newGetChannelPipelinesResponse(
+						request.getReservationId(),
+						request.getRequestId(),
+						responseMap
+				);
+
+				gatewayEventBus.post(response);
+
+			} catch (Exception e) {
+				throw propagate(e);
+			}
+		}
+	}
+
+	private ChannelHandlerConfiguration convert(final ChannelHandlerConfig chc) {
+
+		final ChannelHandlerConfiguration.Builder builder =
+				ChannelHandlerConfiguration.newBuilder().setName(chc.getHandlerName());
+
+		for (String key : chc.getProperties().keys()) {
+			for (String value : chc.getProperties().get(key)) {
+				final ChannelHandlerConfiguration.KeyValuePair.Builder keyValuePairBuilder =
+						ChannelHandlerConfiguration.KeyValuePair
+								.newBuilder()
+								.setKey(key)
+								.setValue(value);
+				builder.addConfiguration(keyValuePairBuilder);
+			}
+		}
+
+		return builder.build();
 	}
 
 	private void onEnableVirtualLinksRequest(final Request request) {

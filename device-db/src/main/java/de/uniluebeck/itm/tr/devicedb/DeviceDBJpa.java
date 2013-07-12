@@ -1,20 +1,5 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.uniqueIndex;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
@@ -22,12 +7,25 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
-
+import de.uniluebeck.itm.tr.common.NodeUrnHelper;
 import de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity;
-import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class DeviceDBJpa extends AbstractService implements DeviceDB {
+import javax.annotation.Nullable;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.uniqueIndex;
+
+public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(DeviceDBJpa.class);
@@ -39,7 +37,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 					return config.getNodeUrn();
 				}
 			};
-			
+
 	private static final Function<DeviceConfigEntity,DeviceConfig> ENTITY_TO_CONFIG_FUNCTION =
 			new Function<DeviceConfigEntity,DeviceConfig>() {
 				@Override
@@ -69,6 +67,8 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Transactional
 	public Map<NodeUrn, DeviceConfig> getConfigsByNodeUrns(Iterable<NodeUrn> nodeUrns) {
 
+		checkState(isRunning());
+
 		final List<String> nodeUrnStrings = newArrayList(transform(nodeUrns, NodeUrnHelper.NODE_URN_TO_STRING));
 		final List<DeviceConfigEntity> entities = entityManager.get()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn IN (:urns)", DeviceConfigEntity.class)
@@ -82,6 +82,9 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Nullable
 	@Transactional
 	public DeviceConfig getConfigByUsbChipId(String usbChipId) {
+
+		checkState(isRunning());
+
 		try {
 			return entityManager.get()
 					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUSBChipID = :usbChipId", DeviceConfigEntity.class)
@@ -95,6 +98,9 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Nullable
 	@Transactional
 	public DeviceConfig getConfigByNodeUrn(NodeUrn nodeUrn) {
+
+		checkState(isRunning());
+
 		try {
 			return entityManager.get()
 					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfigEntity.class)
@@ -108,6 +114,9 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Nullable
 	@Transactional
 	public DeviceConfig getConfigByMacAddress(long macAddress) {
+
+		checkState(isRunning());
+
 		try {
 
 			String macHex = "0x" + Strings.padStart(Long.toHexString(macAddress), 4, '0');
@@ -127,6 +136,8 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Transactional
 	public Iterable<DeviceConfig> getAll() {
 
+		checkState(isRunning());
+
 		final List<DeviceConfigEntity> list = entityManager.get()
 				.createQuery("SELECT d FROM DeviceConfig d", DeviceConfigEntity.class)
 				.getResultList();
@@ -137,19 +148,23 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public void add(final DeviceConfig deviceConfig) {
+		checkState(isRunning());
 		entityManager.get().persist(new DeviceConfigEntity(deviceConfig));
 	}
-	
+
 	@Override
 	@Transactional
 	public void update(DeviceConfig deviceConfig) {
+		checkState(isRunning());
 		entityManager.get().merge(new DeviceConfigEntity(deviceConfig));
 	}
 
 	@Override
 	@Transactional
 	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
-		
+
+		checkState(isRunning());
+
 		try {
 			DeviceConfigEntity config = entityManager.get()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfigEntity.class)
@@ -166,20 +181,16 @@ public class DeviceDBJpa extends AbstractService implements DeviceDB {
 	@Override
 	@Transactional
 	public void removeAll() {
-		// delete nodeConfiguration ElementCollection via native Query, 
-		// because JPA doesn't support bulk delete with ElementCollections
-		// TODO find a better approach to cascade deletion with ElementCollection
+
+		checkState(isRunning());
+
+		// delete nodeConfiguration via native Query, because JPA doesn't support bulk delete with ElementCollections
 		entityManager.get()
 		    .createNativeQuery("DELETE FROM DeviceConfigEntity_NODECONFIGURATION")
 		    .executeUpdate();
-		
+
 		entityManager.get()
 				.createQuery("DELETE FROM DeviceConfig")
 				.executeUpdate();
-		
-	}
-	
-	protected EntityManager getEntityManager() {
-		return entityManager.get();
 	}
 }

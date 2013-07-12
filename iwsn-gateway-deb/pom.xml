@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+	~ Copyright (c) 2010, Institute of Telematics, University of Luebeck ~ ~ 
+	All rights reserved. ~ ~ ~ ~ Redistribution and use in source and binary 
+	forms, with or without modification, are permitted provided that the ~ ~ 
+	following conditions are met: ~ ~ ~ ~ - Redistributions of source code must 
+	retain the above copyright notice, this list of conditions and the following~ 
+	~ disclaimer. ~ ~ - Redistributions in binary form must reproduce the above 
+	copyright notice, this list of conditions and the ~ ~ following disclaimer 
+	in the documentation and/or other materials provided with the distribution. 
+	~ ~ - Neither the name of the University of Luebeck nor the names of its 
+	contributors may be used to endorse or promote ~ products derived from this 
+	software without specific prior written permission. ~ ~ ~ ~ THIS SOFTWARE 
+	IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS 
+	OR IMPLIED WARRANTIES,~ ~ INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ~ ~ ARE DISCLAIMED. 
+	IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY 
+	DIRECT, INDIRECT, ~ ~ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+	(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE~ ~ GOODS OR SERVICES; 
+	LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND 
+	ON ANY THEORY OF ~ ~ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR 
+	TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY ~ ~ OUT OF THE 
+	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+	~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<properties>
+		<project.pathName>tr.iwsn-gateway</project.pathName>
+	</properties>
+
+	<parent>
+		<groupId>de.uniluebeck.itm</groupId>
+		<artifactId>tr</artifactId>
+		<version>0.9-SNAPSHOT</version>
+		<relativePath>../</relativePath>
+	</parent>
+
+	<artifactId>tr.iwsn-gateway-deb</artifactId>
+	<name>TR :: iWSN Portal Debian Package</name>	
+
+	<dependencies>
+
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.iwsn-gateway</artifactId>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<finalName>${project.pathName}-${project.version}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.8</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>de.uniluebeck.itm</groupId>
+									<artifactId>tr.iwsn-gateway</artifactId>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<useBaseVersion>true</useBaseVersion>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>jdeb</artifactId>
+				<groupId>org.vafer</groupId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jdeb</goal>
+						</goals>
+						<configuration>
+							<verbose>true</verbose>
+							<controlDir>${basedir}/src/deb/control</controlDir>
+							<dataSet>
+
+								<data>
+									<src>${project.build.directory}/dependency/${project.dependencies[0].artifactId}-${project.dependencies[0].version}.jar</src>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/share/testbed-runtime/${project.pathName}</prefix>
+										<user>root</user>
+										<group>root</group>
+									</mapper>
+								</data>
+
+								<data>
+									<src>${basedir}/src/deb/bin/${project.pathName}</src>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/bin</prefix>
+										<user>root</user>
+										<group>root</group>
+										<filemode>755</filemode>
+									</mapper>
+								</data>
+
+								<data>
+									<type>link</type>
+									<symlink>true</symlink>
+									<linkName>/usr/share/testbed-runtime/${project.pathName}/${project.pathName}.jar</linkName>
+									<linkTarget>/usr/share/testbed-runtime/${project.pathName}/${project.build.finalName}.jar</linkTarget>
+								</data>
+
+								<data>
+									<src>${basedir}/src/deb/init.d</src>
+									<type>directory</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/etc/init.d</prefix>
+										<user>root</user>
+										<group>root</group>
+										<filemode>755</filemode>
+									</mapper>
+								</data>
+
+								<data>
+									<src>${basedir}/src/deb/conf</src>
+									<type>directory</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/etc/${project.pathName}</prefix>
+									</mapper>
+								</data>
+
+								<data>
+									<type>template</type>
+									<paths>
+										<path>etc/${project.artifactId}</path>
+										<path>var/lib/${project.pathName}</path>
+										<path>var/log/${project.pathName}</path>
+										<path>var/run/${project.pathName}</path>
+									</paths>
+									<mapper>
+										<type>perm</type>
+										<user>root</user>
+										<group>root</group>
+									</mapper>
+								</data>
+
+							</dataSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.devicedb;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -25,6 +26,14 @@ public class DeviceConfig implements Serializable {
 	private static final int DEFAULT_TIMEOUT_RESET_MILLIS = 3000;
 
 	private static final int DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS = 3000;
+
+	public static final Function<DeviceConfig, NodeUrn> TO_NODE_URN_FUNCTION =
+			new Function<DeviceConfig, NodeUrn>() {
+				@Override
+				public NodeUrn apply(final DeviceConfig input) {
+					return input.getNodeUrn();
+				}
+			};
 
 	private String nodeUrn;
 
@@ -185,7 +194,7 @@ public class DeviceConfig implements Serializable {
 	}
 
 	public void setCapabilities(@Nullable Set<Capability> capabilities) {
-		this.capabilities = capabilities;
+		this.capabilities = capabilities == null || capabilities.size() == 0 ? null : capabilities;
 	}
 
 	@Override

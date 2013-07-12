@@ -1,17 +1,17 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.common.SessionManagementPreconditions;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
+import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
@@ -19,7 +19,10 @@ import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
-import eu.wisebed.api.v3.sm.*;
+import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
+import eu.wisebed.api.v3.sm.NodeConnectionStatus;
+import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault;
 import eu.wisebed.api.v3.wsn.WSN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +41,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -58,27 +60,19 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private static final Logger log = LoggerFactory.getLogger(SessionManagementImpl.class);
 
-	private static final Function<DeviceConfig, NodeUrn> DEVICE_CONFIG_TO_NODE_URN_FUNCTION =
-			new Function<DeviceConfig, NodeUrn>() {
-				@Override
-				public NodeUrn apply(final DeviceConfig input) {
-					return input.getNodeUrn();
-				}
-			};
-
 	private final PortalEventBus portalEventBus;
 
 	private final ResponseTrackerFactory responseTrackerFactory;
 
-	private final PortalConfig portalConfig;
+	private final PortalServerConfig portalServerConfig;
 
 	private final Set<HandlerFactory> handlerFactories;
 
-	private final DeviceDB deviceDB;
+	private final DeviceDBService deviceDBService;
 
 	private final ReservationManager reservationManager;
 
-	private final SessionManagementPreconditions preconditions;
+	private final Provider<SessionManagementPreconditions> preconditions;
 
 	private final WSNServiceFactory wsnServiceFactory;
 
@@ -89,37 +83,40 @@ public class SessionManagementImpl implements SessionManagement {
 	private final Map<Reservation, DeliveryManager> deliveryManagers = newHashMap();
 
 	private final RequestIdProvider requestIdProvider;
-	private WSNFactory wsnFactory;
-	private AuthorizingWSNFactory authorizingWSNFactory;
+
+	private final WSNFactory wsnFactory;
+
+	private final AuthorizingWSNFactory authorizingWSNFactory;
+
+	private final CommonConfig commonConfig;
 
 	@Inject
-	public SessionManagementImpl(final PortalEventBus portalEventBus,
+	public SessionManagementImpl(final CommonConfig commonConfig,
+								 final PortalServerConfig portalServerConfig,
+								 final PortalEventBus portalEventBus,
 								 final ResponseTrackerFactory responseTrackerFactory,
-								 final PortalConfig portalConfig,
 								 final Set<HandlerFactory> handlerFactories,
-								 final DeviceDB deviceDB,
+								 final DeviceDBService deviceDBService,
 								 final ReservationManager reservationManager,
 								 final WSNServiceFactory wsnServiceFactory,
 								 final AuthorizingWSNFactory authorizingWSNFactory,
 								 final WSNFactory wsnFactory,
 								 final DeliveryManagerFactory deliveryManagerFactory,
-								 final RequestIdProvider requestIdProvider) {
-		this.authorizingWSNFactory = authorizingWSNFactory;
-
+								 final RequestIdProvider requestIdProvider,
+								 final Provider<SessionManagementPreconditions> preconditions) {
+		this.commonConfig = checkNotNull(commonConfig);
+		this.portalServerConfig = checkNotNull(portalServerConfig);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
-		this.portalConfig = checkNotNull(portalConfig);
 		this.handlerFactories = checkNotNull(handlerFactories);
-		this.deviceDB = checkNotNull(deviceDB);
+		this.deviceDBService = checkNotNull(deviceDBService);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.wsnServiceFactory = checkNotNull(wsnServiceFactory);
-		this.wsnFactory = wsnFactory;
+		this.authorizingWSNFactory = checkNotNull(authorizingWSNFactory);
+		this.wsnFactory = checkNotNull(wsnFactory);
 		this.deliveryManagerFactory = checkNotNull(deliveryManagerFactory);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
-
-		this.preconditions = new SessionManagementPreconditions();
-		this.preconditions.addServedUrnPrefixes(portalConfig.urnPrefix);
-		this.preconditions.addKnownNodeUrns(transform(deviceDB.getAll(), DEVICE_CONFIG_TO_NODE_URN_FUNCTION));
+		this.preconditions = checkNotNull(preconditions);
 	}
 
 	@Override
@@ -183,13 +180,13 @@ public class SessionManagementImpl implements SessionManagement {
 			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT)
 			Holder<List<KeyValuePair>> options) {
 
-		rsEndpointUrl.value = portalConfig.rsEndpointUrl.toString();
-		snaaEndpointUrl.value = portalConfig.snaaEndpointUrl.toString();
-		servedUrnPrefixes.value = newArrayList(portalConfig.urnPrefix);
+		rsEndpointUrl.value = portalServerConfig.getConfigurationRsEndpointUri().toString();
+		snaaEndpointUrl.value = portalServerConfig.getConfigurationSnaaEndpointUri().toString();
+		servedUrnPrefixes.value = newArrayList(commonConfig.getUrnPrefix());
 
 		final List<KeyValuePair> optionsList = Lists.newArrayList();
-		for (String key : portalConfig.options.keySet()) {
-			for (String value : portalConfig.options.get(key)) {
+		for (String key : portalServerConfig.getConfigurationOptions().keySet()) {
+			for (String value : portalServerConfig.getConfigurationOptions().get(key)) {
 				final KeyValuePair keyValuePair = new KeyValuePair();
 				keyValuePair.setKey(key);
 				keyValuePair.setValue(value);
@@ -216,7 +213,7 @@ public class SessionManagementImpl implements SessionManagement {
 							  List<SecretReservationKey> secretReservationKeys)
 			throws UnknownSecretReservationKeyFault {
 
-		preconditions.checkGetInstanceArguments(secretReservationKeys, true);
+		preconditions.get().checkGetInstanceArguments(secretReservationKeys, true);
 
 		final String key = secretReservationKeys.get(0).getKey();
 		final Reservation reservation;
@@ -251,8 +248,8 @@ public class SessionManagementImpl implements SessionManagement {
 				deliveryManager = deliveryManagerFactory.create(reservation);
 				deliveryManagers.put(reservation, deliveryManager);
 
-				final WSN wsn = wsnFactory.create(reservationKey,reservation,deliveryManager);
-				AuthorizingWSN authorizingWSN = authorizingWSNFactory.create(reservation,wsn);
+				final WSN wsn = wsnFactory.create(reservationKey, reservation, deliveryManager);
+				AuthorizingWSN authorizingWSN = authorizingWSNFactory.create(reservation, wsn);
 				wsnService = wsnServiceFactory.create(reservationKey, authorizingWSN);
 				wsnInstances.put(reservation, wsnService);
 			}
@@ -321,7 +318,7 @@ public class SessionManagementImpl implements SessionManagement {
 			className = "eu.wisebed.api.v3.common.GetNetworkResponse"
 	)
 	public String getNetwork() {
-		return serialize(convertToWiseML(deviceDB.getAll()));
+		return serialize(convertToWiseML(deviceDBService.getAll()));
 	}
 
 	@Override

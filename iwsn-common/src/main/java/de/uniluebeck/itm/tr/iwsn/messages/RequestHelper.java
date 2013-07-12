@@ -7,7 +7,7 @@ import java.util.Set;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.STRING_TO_NODE_URN;
+import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 
 public abstract class RequestHelper {
 
@@ -57,6 +57,11 @@ public abstract class RequestHelper {
 
 			case FLASH_IMAGES:
 				return newHashSet(transform(request.getFlashImagesRequest().getNodeUrnsList(), STRING_TO_NODE_URN));
+
+			case GET_CHANNEL_PIPELINES:
+				return newHashSet(
+						transform(request.getGetChannelPipelinesRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
+				);
 
 			case RESET_NODES:
 				return newHashSet(transform(request.getResetNodesRequest().getNodeUrnsList(), STRING_TO_NODE_URN));

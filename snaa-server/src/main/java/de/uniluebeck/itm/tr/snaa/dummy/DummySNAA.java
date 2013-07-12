@@ -23,6 +23,11 @@
 
 package de.uniluebeck.itm.tr.snaa.dummy;
 
+import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Inject;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
@@ -42,15 +47,27 @@ import static com.google.common.collect.Lists.newArrayList;
 		serviceName = "SNAAService",
 		targetNamespace = "http://wisebed.eu/api/v3/snaa"
 )
-public class DummySNAA implements SNAA {
+public class DummySNAA extends AbstractService implements de.uniluebeck.itm.tr.snaa.SNAAService {
 
-	private Random r = new SecureRandom();
+	private final Random r = new SecureRandom();
+
+	private final SNAAServiceConfig config;
+
+	private final ServicePublisher servicePublisher;
+
+	private ServicePublisherService jaxWsService;
+
+	@Inject
+	public DummySNAA(final SNAAServiceConfig config, final ServicePublisher servicePublisher) {
+		this.config = config;
+		this.servicePublisher = servicePublisher;
+	}
 
 	@Override
 	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationFault_Exception, SNAAFault_Exception {
+			throws AuthenticationFault, SNAAFault_Exception {
 
-		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(authenticationData.size());
+		final List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(authenticationData.size());
 
 		for (AuthenticationTriple triple : authenticationData) {
 			SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
@@ -81,5 +98,33 @@ public class DummySNAA implements SNAA {
 		ValidationResult result = new ValidationResult();
 		result.setValid(true);
 		return newArrayList(result);
+	}
+
+	@Override
+	protected void doStart() {
+		try {
+			jaxWsService = servicePublisher.createJaxWsService(config.getSnaaContextPath(), this);
+			jaxWsService.startAndWait();
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected void doStop() {
+		try {
+			jaxWsService.stopAndWait();
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "DummySNAA{" +
+				"config=" + config +
+				"}@" + Integer.toHexString(hashCode());
 	}
 }

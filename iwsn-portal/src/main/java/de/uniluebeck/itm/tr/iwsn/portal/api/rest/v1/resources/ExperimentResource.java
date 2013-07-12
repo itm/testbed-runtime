@@ -1,24 +1,23 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
-import de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper;
+import de.uniluebeck.itm.tr.common.NodeUrnHelper;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
-import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
-import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
+import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeyException;
-import de.uniluebeck.itm.tr.util.TimedCache;
+import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.wsn.ChannelPipelinesMap;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Setup.Node;
 import eu.wisebed.wiseml.Wiseml;
@@ -32,31 +31,20 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
 import static de.uniluebeck.itm.tr.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.*;
 
-/**
- * TODO: The following WISEBED functions are not implemented yet:
- * <p/>
- * List<String> getFilters();<br/>
- * List<ChannelHandlerDescription> getSupportedChannelHandlers();<br/>
- * String getVersion();<br/>
- * String setChannelPipeline(List<String> nodes, List<ChannelHandlerConfiguration> channelHandlerConfigurations);<br/>
- * String setVirtualLink(String sourceNode, String targetNode, String remoteServiceInstance, List<String>
- * parameters,<br/>
- * List<String> filters);
- */
 @Path("/experiments/")
 public class ExperimentResource {
 
@@ -66,21 +54,29 @@ public class ExperimentResource {
 
 	private final TimedCache<Long, List<Long>> flashResponseTrackers;
 
-	private final DeviceDB deviceDB;
+	private final DeviceDBService deviceDBService;
 
 	private final ReservationManager reservationManager;
 
 	private final RequestIdProvider requestIdProvider;
 
+	private final PortalEventBus portalEventBus;
+
+	private final ResponseTrackerFactory responseTrackerFactory;
+
 	@Context
 	private UriInfo uriInfo;
 
 	@Inject
-	public ExperimentResource(final DeviceDB deviceDB,
+	public ExperimentResource(final DeviceDBService deviceDBService,
+							  final PortalEventBus portalEventBus,
+							  final ResponseTrackerFactory responseTrackerFactory,
 							  final ReservationManager reservationManager,
 							  final RequestIdProvider requestIdProvider,
 							  final TimedCache<Long, List<Long>> flashResponseTrackers) {
-		this.deviceDB = checkNotNull(deviceDB);
+		this.deviceDBService = checkNotNull(deviceDBService);
+		this.portalEventBus = checkNotNull(portalEventBus);
+		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
 		this.flashResponseTrackers = checkNotNull(flashResponseTrackers);
@@ -91,7 +87,7 @@ public class ExperimentResource {
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getNetwork() {
 		log.trace("ExperimentResource.getNetwork()");
-		return Response.ok(convertToWiseML(deviceDB.getAll())).build();
+		return Response.ok(convertToWiseML(deviceDBService.getAll())).build();
 	}
 
 	@GET
@@ -108,7 +104,7 @@ public class ExperimentResource {
 	public NodeUrnList getNodes(@QueryParam("filter") final String filter,
 								@QueryParam("capability") final String capability) {
 
-		final Wiseml wiseml = convertToWiseML(deviceDB.getAll());
+		final Wiseml wiseml = convertToWiseML(deviceDBService.getAll());
 
 		NodeUrnList nodeList = new NodeUrnList();
 		nodeList.nodeUrns = new LinkedList<String>();
@@ -176,14 +172,17 @@ public class ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.TEXT_PLAIN})
-	public Response getInstance(SecretReservationKeyListRs reservationKey) {
+	public Response getInstance(SecretReservationKeyListRs secretReservationKeyList) {
 
-		if (reservationKey == null || reservationKey.reservations == null || reservationKey.reservations.size() == 0) {
+		final boolean emptyList = secretReservationKeyList == null ||
+				secretReservationKeyList.reservations == null ||
+				secretReservationKeyList.reservations.size() == 0;
+
+		if (emptyList) {
 			return Response.status(Status.BAD_REQUEST).entity("No secret reservation keys were given.").build();
 		}
 
-		final List<SecretReservationKey> secretReservationKeys = reservationKey.reservations;
-		final SecretReservationKey secretReservationKey = secretReservationKeys.get(0);
+		final SecretReservationKey secretReservationKey = secretReservationKeyList.reservations.get(0);
 
 		try {
 
@@ -202,6 +201,21 @@ public class ExperimentResource {
 					.entity("No reservation with the given secret reservation keys could be found!")
 					.build();
 		}
+	}
+
+	@GET
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Path("{secretReservationKeyBase64}/nodeUrns")
+	public NodeUrnList getNodeUrns(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64)
+			throws Base64Exception {
+		return new NodeUrnList(
+				newArrayList(
+						transform(
+								getReservationOrThrow(secretReservationKeyBase64).getNodeUrns(),
+								NODE_URN_TO_STRING
+						)
+				)
+		);
 	}
 
 	/**
@@ -243,7 +257,7 @@ public class ExperimentResource {
 			final Request request = newFlashImagesRequest(
 					reservation.getKey(),
 					requestId,
-					Iterables.transform(flashTask.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN),
+					transform(flashTask.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN),
 					extractByteArrayFromDataURL(flashTask.image)
 			);
 
@@ -312,10 +326,39 @@ public class ExperimentResource {
 							   NodeUrnList nodeUrnList) throws Base64Exception {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
-		final Iterable<NodeUrn> nodeUrns = Iterables.transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newResetNodesRequest(reservation.getKey(), requestIdProvider.get(), nodeUrns);
 
 		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
+	}
+
+	@POST
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	@Path("{secretReservationKeyBase64}/getChannelPipelines")
+	public List<ChannelPipelinesMap> getChannelPipelines(
+			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
+			NodeUrnList nodeUrnList) throws Base64Exception {
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final ReservationEventBus reservationEventBus = reservation.getEventBus();
+		final String reservationId = reservation.getKey();
+		final long requestId = requestIdProvider.get();
+
+		return RequestHelper.getChannelPipelines(nodeUrns, reservationId, requestId, reservationEventBus);
+	}
+
+	@POST
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	@Path("areNodesConnected")
+	public Response areNodesConnected(NodeUrnList nodeUrnList) {
+
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Request request = newAreNodesConnectedRequest(null, requestIdProvider.get(), nodeUrns);
+
+		return sendRequestAndGetOperationStatusMap(request, 10, TimeUnit.SECONDS);
 	}
 
 	@POST
@@ -326,7 +369,7 @@ public class ExperimentResource {
 								  NodeUrnList nodeUrnList) throws Base64Exception {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
-		final Iterable<NodeUrn> nodeUrns = Iterables.transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newAreNodesAliveRequest(reservation.getKey(), requestIdProvider.get(), nodeUrns);
 
 		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
@@ -340,7 +383,7 @@ public class ExperimentResource {
 						 SendMessageData data) throws Base64Exception {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
-		final Iterable<NodeUrn> nodeUrns = Iterables.transform(data.targetNodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(data.targetNodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newSendDownstreamMessageRequest(
 				reservation.getKey(),
 				requestIdProvider.get(),
@@ -444,7 +487,7 @@ public class ExperimentResource {
 
 	private Wiseml getWiseml(final String secretReservationKeyBase64) throws Base64Exception {
 		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
-		return convertToWiseML(deviceDB.getConfigsByNodeUrns(reservation.getNodeUrns()).values());
+		return convertToWiseML(deviceDBService.getConfigsByNodeUrns(reservation.getNodeUrns()).values());
 	}
 
 	private Reservation getReservationOrThrow(final String secretReservationKeyBase64) throws Base64Exception {
@@ -480,14 +523,22 @@ public class ExperimentResource {
 	}
 
 	private OperationStatusMap buildOperationStatusMap(final Reservation reservation, final List<Long> requestIds) {
+		final Map<Long, ResponseTracker> map = newHashMap();
+		for (Long requestId : requestIds) {
+			map.put(requestId, reservation.getResponseTracker(requestId));
+		}
+		return buildOperationStatusMap(map);
+	}
+
+	private OperationStatusMap buildOperationStatusMap(final Map<Long, ResponseTracker> requestIdToResponseTrackerMap) {
 
 		final OperationStatusMap operationStatusMap = new OperationStatusMap();
 		operationStatusMap.operationStatus = new HashMap<String, JobNodeStatus>();
 
-		for (long requestId : requestIds) {
+		for (long requestId : requestIdToResponseTrackerMap.keySet()) {
 
 			JobNodeStatus status;
-			final ResponseTracker responseTracker = reservation.getResponseTracker(requestId);
+			final ResponseTracker responseTracker = requestIdToResponseTrackerMap.get(requestId);
 
 			for (NodeUrn nodeUrn : responseTracker.keySet()) {
 
@@ -516,6 +567,26 @@ public class ExperimentResource {
 		}
 
 		return operationStatusMap;
+	}
+
+	private Response sendRequestAndGetOperationStatusMap(final Request request, final int timeout,
+														 final TimeUnit timeUnit) {
+
+		final ResponseTracker responseTracker = responseTrackerFactory.create(request, portalEventBus);
+		portalEventBus.post(request);
+
+		final Map<Long, ResponseTracker> map = newHashMap();
+		map.put(request.getRequestId(), responseTracker);
+
+		try {
+			responseTracker.get(timeout, timeUnit);
+		} catch (TimeoutException e) {
+			return Response.ok(buildOperationStatusMap(map)).build();
+		} catch (Exception e) {
+			throw propagate(e);
+		}
+
+		return Response.ok(buildOperationStatusMap(map)).build();
 	}
 
 	private Response sendRequestAndGetOperationStatusMap(final Reservation reservation,
