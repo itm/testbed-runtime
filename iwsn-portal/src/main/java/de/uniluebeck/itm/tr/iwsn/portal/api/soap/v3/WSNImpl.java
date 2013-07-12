@@ -83,8 +83,9 @@ public class WSNImpl implements WSN {
 
 	@Override
 	public void disableVirtualLinks(long requestId, List<Link> links)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus().post(
 				newDisableVirtualLinksRequest(reservationId, requestId, convertLinksToMap(links))
 		);
@@ -92,15 +93,17 @@ public class WSNImpl implements WSN {
 
 	@Override
 	public void disableNodes(long requestId, List<NodeUrn> nodeUrns)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus().post(newDisableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void disablePhysicalLinks(long requestId, List<Link> links)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus()
 				.post(newDisablePhysicalLinksRequest(reservationId, requestId, convertLinksToMap(links)));
 	}
@@ -108,28 +111,28 @@ public class WSNImpl implements WSN {
 	@Override
 	public void disableVirtualization()
 			throws VirtualizationNotSupportedFault_Exception, ReservationNotRunningFault_Exception {
-		assertReservationIntervalMet();
-		throw new RuntimeException("TODO implement");
+		throwVirtualizationNotSupportedFault();
 	}
 
 	@Override
 	public void enableVirtualization() throws VirtualizationNotSupportedFault_Exception,
 			ReservationNotRunningFault_Exception {
-		assertReservationIntervalMet();
-		throw new RuntimeException("TODO implement");
+		throwVirtualizationNotSupportedFault();
 	}
 
 	@Override
 	public void enableNodes(long requestId, List<NodeUrn> nodeUrns)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus().post(newEnableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void enablePhysicalLinks(long requestId, List<Link> links)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus().post(
 				newEnablePhysicalLinksRequest(reservationId, requestId, convertLinksToMap(links))
 		);
@@ -153,9 +156,7 @@ public class WSNImpl implements WSN {
 	@Override
 	public List<ChannelPipelinesMap> getChannelPipelines(List<NodeUrn> nodeUrns)
 			throws ReservationNotRunningFault_Exception {
-
 		assertReservationIntervalMet();
-
 		return RequestHelper.getChannelPipelines(
 				nodeUrns,
 				reservationId,
@@ -215,8 +216,9 @@ public class WSNImpl implements WSN {
 
 	@Override
 	public void enableVirtualLinks(long requestId, List<VirtualLink> links)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus().post(
 				newEnableVirtualLinksRequest(reservationId, requestId, convertVirtualLinks(links))
 		);
@@ -233,5 +235,21 @@ public class WSNImpl implements WSN {
 			fault.setMessage(message);
 			throw new RuntimeException(new ReservationNotRunningFault_Exception(message, fault));
 		}
+	}
+
+	private void assertVirtualizationEnabled() throws VirtualizationNotEnabledFault_Exception {
+		if (!reservation.isVirtualizationEnabled()) {
+			final String message = "Virtualization features are not enabled! Please enable them by calling WSN.enableVirtualization()";
+			final VirtualizationNotEnabledFault faultInfo = new VirtualizationNotEnabledFault();
+			faultInfo.setMessage(message);
+			throw new VirtualizationNotEnabledFault_Exception(message, faultInfo);
+		}
+	}
+
+	private void throwVirtualizationNotSupportedFault() throws VirtualizationNotSupportedFault_Exception {
+		final String message = "Virtualization features are currently not supported!";
+		final VirtualizationNotSupportedFault faultInfo = new VirtualizationNotSupportedFault();
+		faultInfo.setMessage(message);
+		throw new VirtualizationNotSupportedFault_Exception(message, faultInfo);
 	}
 }

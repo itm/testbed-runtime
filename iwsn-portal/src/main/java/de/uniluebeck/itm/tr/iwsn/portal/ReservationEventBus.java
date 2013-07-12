@@ -7,4 +7,6 @@ public interface ReservationEventBus extends EventBusService {
 	void enableVirtualization();
 
 	void disableVirtualization();
+
+	boolean isVirtualizationEnabled();
 }

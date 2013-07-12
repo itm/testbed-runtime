@@ -186,12 +186,17 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Override
 	public void enableVirtualization() {
-		throw new RuntimeException("TODO not yet implemented!");
+		throw new RuntimeException("Virtualization features are not yet implemented!");
 	}
 
 	@Override
 	public void disableVirtualization() {
-		throw new RuntimeException("TODO not yet implemented!");
+		throw new RuntimeException("Virtualization features are not yet implemented!");
+	}
+
+	@Override
+	public boolean isVirtualizationEnabled() {
+		return false;
 	}
 
 	private void assertNodesArePartOfReservation(final Set<NodeUrn> nodeUrns) {
