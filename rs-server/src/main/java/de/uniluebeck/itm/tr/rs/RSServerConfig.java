@@ -2,7 +2,7 @@ package de.uniluebeck.itm.tr.rs;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.tr.common.config.URITypeConverter;
+import de.uniluebeck.itm.util.propconf.converters.URITypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
 
 import java.net.URI;

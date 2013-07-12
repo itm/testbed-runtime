@@ -3,7 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.net.HostAndPort;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.tr.common.config.HostAndPortTypeConverter;
+import de.uniluebeck.itm.util.propconf.converters.HostAndPortTypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
 
 public class GatewayConfig {

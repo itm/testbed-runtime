@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.common.config;
 
+import de.uniluebeck.itm.util.args4j.PropertiesOptionHandler;
 import org.kohsuke.args4j.Option;
 
 import java.util.Properties;

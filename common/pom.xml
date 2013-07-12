@@ -50,6 +50,10 @@
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>args4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
 			<artifactId>files</artifactId>
 		</dependency>
 		<dependency>

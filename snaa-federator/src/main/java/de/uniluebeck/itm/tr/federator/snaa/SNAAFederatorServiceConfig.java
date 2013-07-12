@@ -2,7 +2,7 @@ package de.uniluebeck.itm.tr.federator.snaa;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.tr.common.config.PropertiesTypeConverter;
+import de.uniluebeck.itm.util.propconf.converters.PropertiesTypeConverter;
 import de.uniluebeck.itm.tr.federator.utils.URIToNodeUrnPrefixSetMap;
 import de.uniluebeck.itm.tr.federator.utils.UriToNodeUrnPrefixSetMapTypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
