@@ -1,21 +1,20 @@
 package de.uniluebeck.itm.tr.devicedb;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import javax.annotation.Nullable;
-import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Entity
 public class DeviceConfig implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -28,11 +27,19 @@ public class DeviceConfig implements Serializable {
 
 	private static final int DEFAULT_TIMEOUT_CHECK_ALIVE_MILLIS = 3000;
 
-	@Id
+	public static final Function<DeviceConfig, NodeUrn> TO_NODE_URN_FUNCTION =
+			new Function<DeviceConfig, NodeUrn>() {
+				@Override
+				public NodeUrn apply(final DeviceConfig input) {
+					return input.getNodeUrn();
+				}
+			};
+
 	private String nodeUrn;
 
-	@Column(nullable = false)
 	private String nodeType;
+
+	private String nodePort;
 
 	private boolean gatewayNode;
 
@@ -43,19 +50,15 @@ public class DeviceConfig implements Serializable {
 	private String nodeUSBChipID;
 
 	@Nullable
-	@Transient
-	// TODO Coordinate can not be persisted. Why?
 	private Coordinate position;
 
-	@ElementCollection(fetch = FetchType.EAGER)
-	/*@Fetch(value = FetchMode.SELECT)
-	@MapKeyColumn(name = "key", length = 1024)
-	@Column(name = "value", length = 4096)*/
 	private Map<String, String> nodeConfiguration;
 
 	@Nullable
-	@Transient // TODO persist this
 	private ChannelHandlerConfigList defaultChannelPipeline;
+	
+	@Nullable
+	private Set<Capability> capabilities;
 
 	@Nullable
 	private Long timeoutNodeApiMillis;
@@ -77,6 +80,7 @@ public class DeviceConfig implements Serializable {
 			final NodeUrn nodeUrn,
 			final String nodeType,
 			final boolean gatewayNode,
+			@Nullable final String nodePort,
 			@Nullable final String description,
 			@Nullable final String nodeUSBChipID,
 			@Nullable final Map<String, String> nodeConfiguration,
@@ -84,15 +88,20 @@ public class DeviceConfig implements Serializable {
 			@Nullable final Long timeoutCheckAliveMillis,
 			@Nullable final Long timeoutFlashMillis,
 			@Nullable final Long timeoutNodeApiMillis,
-			@Nullable final Long timeoutResetMillis) {
+			@Nullable final Long timeoutResetMillis,
+			@Nullable final Coordinate position,
+			@Nullable final Set<Capability> capabilities) {
 
 		this.nodeUrn = checkNotNull(nodeUrn).toString();
 		this.nodeType = checkNotNull(nodeType);
 		this.gatewayNode = gatewayNode;
+		this.nodePort = nodePort;
 		this.description = description;
 		this.nodeUSBChipID = nodeUSBChipID;
 		this.nodeConfiguration = nodeConfiguration == null ? Maps.<String, String>newHashMap() : nodeConfiguration;
 		this.defaultChannelPipeline = defaultChannelPipeline;
+		this.position = position;
+		this.capabilities = capabilities;
 
 		checkArgument((timeoutCheckAliveMillis == null || timeoutCheckAliveMillis > 0),
 				"The timeout value for the checkAlive operation must either be omitted (null) to use the default value "
@@ -129,6 +138,10 @@ public class DeviceConfig implements Serializable {
 
 	public NodeUrn getNodeUrn() {
 		return new NodeUrn(nodeUrn);
+	}
+
+	public String getNodePort() {
+		return nodePort;
 	}
 
 	@Nullable
@@ -175,6 +188,15 @@ public class DeviceConfig implements Serializable {
 		return gatewayNode;
 	}
 
+	@Nullable
+	public Set<Capability> getCapabilities() {
+		return capabilities;
+	}
+
+	public void setCapabilities(@Nullable Set<Capability> capabilities) {
+		this.capabilities = capabilities == null || capabilities.size() == 0 ? null : capabilities;
+	}
+
 	@Override
 	public boolean equals(final Object o) {
 		if (this == o) {
@@ -200,16 +222,22 @@ public class DeviceConfig implements Serializable {
 				that.nodeConfiguration != null) {
 			return false;
 		}
-		if (nodeType != null ? !nodeType.equals(that.nodeType) : that.nodeType != null) {
+		if (nodePort != null ? !nodePort.equals(that.nodePort) : that.nodePort != null) {
+			return false;
+		}
+		if (!nodeType.equals(that.nodeType)) {
 			return false;
 		}
 		if (nodeUSBChipID != null ? !nodeUSBChipID.equals(that.nodeUSBChipID) : that.nodeUSBChipID != null) {
 			return false;
 		}
-		if (nodeUrn != null ? !nodeUrn.equals(that.nodeUrn) : that.nodeUrn != null) {
+		if (!nodeUrn.equals(that.nodeUrn)) {
 			return false;
 		}
 		if (position != null ? !position.equals(that.position) : that.position != null) {
+			return false;
+		}
+		if (capabilities != null ? !capabilities.equals(that.capabilities) : that.capabilities != null) {
 			return false;
 		}
 		if (timeoutCheckAliveMillis != null ? !timeoutCheckAliveMillis.equals(that.timeoutCheckAliveMillis) :
@@ -234,12 +262,14 @@ public class DeviceConfig implements Serializable {
 
 	@Override
 	public int hashCode() {
-		int result = nodeUrn != null ? nodeUrn.hashCode() : 0;
-		result = 31 * result + (nodeType != null ? nodeType.hashCode() : 0);
+		int result = nodeUrn.hashCode();
+		result = 31 * result + nodeType.hashCode();
+		result = 31 * result + (nodePort != null ? nodePort.hashCode() : 0);
 		result = 31 * result + (gatewayNode ? 1 : 0);
 		result = 31 * result + (description != null ? description.hashCode() : 0);
 		result = 31 * result + (nodeUSBChipID != null ? nodeUSBChipID.hashCode() : 0);
 		result = 31 * result + (position != null ? position.hashCode() : 0);
+		result = 31 * result + (capabilities != null ? capabilities.hashCode() : 0);
 		result = 31 * result + (nodeConfiguration != null ? nodeConfiguration.hashCode() : 0);
 		result = 31 * result + (defaultChannelPipeline != null ? defaultChannelPipeline.hashCode() : 0);
 		result = 31 * result + (timeoutNodeApiMillis != null ? timeoutNodeApiMillis.hashCode() : 0);
@@ -247,5 +277,25 @@ public class DeviceConfig implements Serializable {
 		result = 31 * result + (timeoutFlashMillis != null ? timeoutFlashMillis.hashCode() : 0);
 		result = 31 * result + (timeoutCheckAliveMillis != null ? timeoutCheckAliveMillis.hashCode() : 0);
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		return "DeviceConfig{" +
+				"nodeUrn='" + nodeUrn + '\'' +
+				", nodeType='" + nodeType + '\'' +
+				", gatewayNode=" + gatewayNode +
+				", nodePort='" + nodePort + '\'' +
+				", description='" + description + '\'' +
+				", nodeConfiguration=" + nodeConfiguration +
+				", nodeUSBChipID='" + nodeUSBChipID + '\'' +
+				", defaultChannelPipeline=" + defaultChannelPipeline +
+				", position=" + position +
+				", capabilities=" + capabilities +
+				", timeoutFlashMillis=" + timeoutFlashMillis +
+				", timeoutCheckAliveMillis=" + timeoutCheckAliveMillis +
+				", timeoutNodeApiMillis=" + timeoutNodeApiMillis +
+				", timeoutResetMillis=" + timeoutResetMillis +
+				'}';
 	}
 }

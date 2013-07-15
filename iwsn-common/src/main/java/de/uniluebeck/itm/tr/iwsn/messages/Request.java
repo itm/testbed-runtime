@@ -41,9 +41,10 @@ public  final class Request extends
     ENABLE_PHYSICAL_LINKS(6, 7),
     ENABLE_VIRTUAL_LINKS(7, 8),
     FLASH_IMAGES(8, 9),
-    RESET_NODES(9, 10),
-    SEND_DOWNSTREAM_MESSAGES(10, 11),
-    SET_CHANNEL_PIPELINES(11, 12),
+    GET_CHANNEL_PIPELINES(9, 10),
+    RESET_NODES(10, 11),
+    SEND_DOWNSTREAM_MESSAGES(11, 12),
+    SET_CHANNEL_PIPELINES(12, 13),
     ;
     
     public static final int ARE_NODES_ALIVE_VALUE = 1;
@@ -55,9 +56,10 @@ public  final class Request extends
     public static final int ENABLE_PHYSICAL_LINKS_VALUE = 7;
     public static final int ENABLE_VIRTUAL_LINKS_VALUE = 8;
     public static final int FLASH_IMAGES_VALUE = 9;
-    public static final int RESET_NODES_VALUE = 10;
-    public static final int SEND_DOWNSTREAM_MESSAGES_VALUE = 11;
-    public static final int SET_CHANNEL_PIPELINES_VALUE = 12;
+    public static final int GET_CHANNEL_PIPELINES_VALUE = 10;
+    public static final int RESET_NODES_VALUE = 11;
+    public static final int SEND_DOWNSTREAM_MESSAGES_VALUE = 12;
+    public static final int SET_CHANNEL_PIPELINES_VALUE = 13;
     
     
     public final int getNumber() { return value; }
@@ -73,9 +75,10 @@ public  final class Request extends
         case 7: return ENABLE_PHYSICAL_LINKS;
         case 8: return ENABLE_VIRTUAL_LINKS;
         case 9: return FLASH_IMAGES;
-        case 10: return RESET_NODES;
-        case 11: return SEND_DOWNSTREAM_MESSAGES;
-        case 12: return SET_CHANNEL_PIPELINES;
+        case 10: return GET_CHANNEL_PIPELINES;
+        case 11: return RESET_NODES;
+        case 12: return SEND_DOWNSTREAM_MESSAGES;
+        case 13: return SET_CHANNEL_PIPELINES;
         default: return null;
       }
     }
@@ -106,7 +109,7 @@ public  final class Request extends
     }
     
     private static final Type[] VALUES = {
-      ARE_NODES_ALIVE, ARE_NODES_CONNECTED, DISABLE_NODES, DISABLE_VIRTUAL_LINKS, DISABLE_PHYSICAL_LINKS, ENABLE_NODES, ENABLE_PHYSICAL_LINKS, ENABLE_VIRTUAL_LINKS, FLASH_IMAGES, RESET_NODES, SEND_DOWNSTREAM_MESSAGES, SET_CHANNEL_PIPELINES, 
+      ARE_NODES_ALIVE, ARE_NODES_CONNECTED, DISABLE_NODES, DISABLE_VIRTUAL_LINKS, DISABLE_PHYSICAL_LINKS, ENABLE_NODES, ENABLE_PHYSICAL_LINKS, ENABLE_VIRTUAL_LINKS, FLASH_IMAGES, GET_CHANNEL_PIPELINES, RESET_NODES, SEND_DOWNSTREAM_MESSAGES, SET_CHANNEL_PIPELINES, 
     };
     
     public static Type valueOf(
@@ -299,11 +302,24 @@ public  final class Request extends
     return flashImagesRequest_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 110;
-  public static final int RESETNODESREQUEST_FIELD_NUMBER = 110;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getChannelPipelinesRequest = 110;
+  public static final int GETCHANNELPIPELINESREQUEST_FIELD_NUMBER = 110;
+  private de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getChannelPipelinesRequest_;
+  public boolean hasGetChannelPipelinesRequest() {
+    return ((bitField0_ & 0x00001000) == 0x00001000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getGetChannelPipelinesRequest() {
+    return getChannelPipelinesRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder getGetChannelPipelinesRequestOrBuilder() {
+    return getChannelPipelinesRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 111;
+  public static final int RESETNODESREQUEST_FIELD_NUMBER = 111;
   private de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest_;
   public boolean hasResetNodesRequest() {
-    return ((bitField0_ & 0x00001000) == 0x00001000);
+    return ((bitField0_ & 0x00002000) == 0x00002000);
   }
   public de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest getResetNodesRequest() {
     return resetNodesRequest_;
@@ -312,11 +328,11 @@ public  final class Request extends
     return resetNodesRequest_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 111;
-  public static final int SENDDOWNSTREAMMESSAGESREQUEST_FIELD_NUMBER = 111;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 112;
+  public static final int SENDDOWNSTREAMMESSAGESREQUEST_FIELD_NUMBER = 112;
   private de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest_;
   public boolean hasSendDownstreamMessagesRequest() {
-    return ((bitField0_ & 0x00002000) == 0x00002000);
+    return ((bitField0_ & 0x00004000) == 0x00004000);
   }
   public de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest getSendDownstreamMessagesRequest() {
     return sendDownstreamMessagesRequest_;
@@ -325,11 +341,11 @@ public  final class Request extends
     return sendDownstreamMessagesRequest_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 112;
-  public static final int SETCHANNELPIPELINESREQUEST_FIELD_NUMBER = 112;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 113;
+  public static final int SETCHANNELPIPELINESREQUEST_FIELD_NUMBER = 113;
   private de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest_;
   public boolean hasSetChannelPipelinesRequest() {
-    return ((bitField0_ & 0x00004000) == 0x00004000);
+    return ((bitField0_ & 0x00008000) == 0x00008000);
   }
   public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest getSetChannelPipelinesRequest() {
     return setChannelPipelinesRequest_;
@@ -351,6 +367,7 @@ public  final class Request extends
     enablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.getDefaultInstance();
     enableVirtualLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.getDefaultInstance();
     flashImagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.getDefaultInstance();
+    getChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.getDefaultInstance();
     resetNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.getDefaultInstance();
     sendDownstreamMessagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance();
     setChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.getDefaultInstance();
@@ -454,13 +471,16 @@ public  final class Request extends
       output.writeMessage(109, flashImagesRequest_);
     }
     if (((bitField0_ & 0x00001000) == 0x00001000)) {
-      output.writeMessage(110, resetNodesRequest_);
+      output.writeMessage(110, getChannelPipelinesRequest_);
     }
     if (((bitField0_ & 0x00002000) == 0x00002000)) {
-      output.writeMessage(111, sendDownstreamMessagesRequest_);
+      output.writeMessage(111, resetNodesRequest_);
     }
     if (((bitField0_ & 0x00004000) == 0x00004000)) {
-      output.writeMessage(112, setChannelPipelinesRequest_);
+      output.writeMessage(112, sendDownstreamMessagesRequest_);
+    }
+    if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      output.writeMessage(113, setChannelPipelinesRequest_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -521,15 +541,19 @@ public  final class Request extends
     }
     if (((bitField0_ & 0x00001000) == 0x00001000)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(110, resetNodesRequest_);
+        .computeMessageSize(110, getChannelPipelinesRequest_);
     }
     if (((bitField0_ & 0x00002000) == 0x00002000)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(111, sendDownstreamMessagesRequest_);
+        .computeMessageSize(111, resetNodesRequest_);
     }
     if (((bitField0_ & 0x00004000) == 0x00004000)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(112, setChannelPipelinesRequest_);
+        .computeMessageSize(112, sendDownstreamMessagesRequest_);
+    }
+    if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(113, setChannelPipelinesRequest_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -656,6 +680,7 @@ public  final class Request extends
         getEnablePhysicalLinksRequestFieldBuilder();
         getEnableVirtualLinksRequestFieldBuilder();
         getFlashImagesRequestFieldBuilder();
+        getGetChannelPipelinesRequestFieldBuilder();
         getResetNodesRequestFieldBuilder();
         getSendDownstreamMessagesRequestFieldBuilder();
         getSetChannelPipelinesRequestFieldBuilder();
@@ -727,24 +752,30 @@ public  final class Request extends
         flashImagesRequestBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000800);
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        getChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.getDefaultInstance();
+      } else {
+        getChannelPipelinesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00001000);
       if (resetNodesRequestBuilder_ == null) {
         resetNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.getDefaultInstance();
       } else {
         resetNodesRequestBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00001000);
+      bitField0_ = (bitField0_ & ~0x00002000);
       if (sendDownstreamMessagesRequestBuilder_ == null) {
         sendDownstreamMessagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance();
       } else {
         sendDownstreamMessagesRequestBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00002000);
+      bitField0_ = (bitField0_ & ~0x00004000);
       if (setChannelPipelinesRequestBuilder_ == null) {
         setChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.getDefaultInstance();
       } else {
         setChannelPipelinesRequestBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00004000);
+      bitField0_ = (bitField0_ & ~0x00008000);
       return this;
     }
     
@@ -870,21 +901,29 @@ public  final class Request extends
       if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
         to_bitField0_ |= 0x00001000;
       }
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        result.getChannelPipelinesRequest_ = getChannelPipelinesRequest_;
+      } else {
+        result.getChannelPipelinesRequest_ = getChannelPipelinesRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+        to_bitField0_ |= 0x00002000;
+      }
       if (resetNodesRequestBuilder_ == null) {
         result.resetNodesRequest_ = resetNodesRequest_;
       } else {
         result.resetNodesRequest_ = resetNodesRequestBuilder_.build();
       }
-      if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
-        to_bitField0_ |= 0x00002000;
+      if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
+        to_bitField0_ |= 0x00004000;
       }
       if (sendDownstreamMessagesRequestBuilder_ == null) {
         result.sendDownstreamMessagesRequest_ = sendDownstreamMessagesRequest_;
       } else {
         result.sendDownstreamMessagesRequest_ = sendDownstreamMessagesRequestBuilder_.build();
       }
-      if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
-        to_bitField0_ |= 0x00004000;
+      if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
+        to_bitField0_ |= 0x00008000;
       }
       if (setChannelPipelinesRequestBuilder_ == null) {
         result.setChannelPipelinesRequest_ = setChannelPipelinesRequest_;
@@ -942,6 +981,9 @@ public  final class Request extends
       }
       if (other.hasFlashImagesRequest()) {
         mergeFlashImagesRequest(other.getFlashImagesRequest());
+      }
+      if (other.hasGetChannelPipelinesRequest()) {
+        mergeGetChannelPipelinesRequest(other.getGetChannelPipelinesRequest());
       }
       if (other.hasResetNodesRequest()) {
         mergeResetNodesRequest(other.getResetNodesRequest());
@@ -1136,6 +1178,15 @@ public  final class Request extends
             break;
           }
           case 882: {
+            de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.newBuilder();
+            if (hasGetChannelPipelinesRequest()) {
+              subBuilder.mergeFrom(getGetChannelPipelinesRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setGetChannelPipelinesRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 890: {
             de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.newBuilder();
             if (hasResetNodesRequest()) {
               subBuilder.mergeFrom(getResetNodesRequest());
@@ -1144,7 +1195,7 @@ public  final class Request extends
             setResetNodesRequest(subBuilder.buildPartial());
             break;
           }
-          case 890: {
+          case 898: {
             de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.newBuilder();
             if (hasSendDownstreamMessagesRequest()) {
               subBuilder.mergeFrom(getSendDownstreamMessagesRequest());
@@ -1153,7 +1204,7 @@ public  final class Request extends
             setSendDownstreamMessagesRequest(subBuilder.buildPartial());
             break;
           }
-          case 898: {
+          case 906: {
             de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.newBuilder();
             if (hasSetChannelPipelinesRequest()) {
               subBuilder.mergeFrom(getSetChannelPipelinesRequest());
@@ -2059,12 +2110,102 @@ public  final class Request extends
       return flashImagesRequestBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 110;
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getChannelPipelinesRequest = 110;
+    private de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder> getChannelPipelinesRequestBuilder_;
+    public boolean hasGetChannelPipelinesRequest() {
+      return ((bitField0_ & 0x00001000) == 0x00001000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getGetChannelPipelinesRequest() {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        return getChannelPipelinesRequest_;
+      } else {
+        return getChannelPipelinesRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setGetChannelPipelinesRequest(de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest value) {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        getChannelPipelinesRequest_ = value;
+        onChanged();
+      } else {
+        getChannelPipelinesRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00001000;
+      return this;
+    }
+    public Builder setGetChannelPipelinesRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder builderForValue) {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        getChannelPipelinesRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        getChannelPipelinesRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00001000;
+      return this;
+    }
+    public Builder mergeGetChannelPipelinesRequest(de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest value) {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00001000) == 0x00001000) &&
+            getChannelPipelinesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.getDefaultInstance()) {
+          getChannelPipelinesRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.newBuilder(getChannelPipelinesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          getChannelPipelinesRequest_ = value;
+        }
+        onChanged();
+      } else {
+        getChannelPipelinesRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00001000;
+      return this;
+    }
+    public Builder clearGetChannelPipelinesRequest() {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        getChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        getChannelPipelinesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00001000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder getGetChannelPipelinesRequestBuilder() {
+      bitField0_ |= 0x00001000;
+      onChanged();
+      return getGetChannelPipelinesRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder getGetChannelPipelinesRequestOrBuilder() {
+      if (getChannelPipelinesRequestBuilder_ != null) {
+        return getChannelPipelinesRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return getChannelPipelinesRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder> 
+        getGetChannelPipelinesRequestFieldBuilder() {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        getChannelPipelinesRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder>(
+                getChannelPipelinesRequest_,
+                getParentForChildren(),
+                isClean());
+        getChannelPipelinesRequest_ = null;
+      }
+      return getChannelPipelinesRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 111;
     private de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
         de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest, de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequestOrBuilder> resetNodesRequestBuilder_;
     public boolean hasResetNodesRequest() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
+      return ((bitField0_ & 0x00002000) == 0x00002000);
     }
     public de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest getResetNodesRequest() {
       if (resetNodesRequestBuilder_ == null) {
@@ -2083,7 +2224,7 @@ public  final class Request extends
       } else {
         resetNodesRequestBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00001000;
+      bitField0_ |= 0x00002000;
       return this;
     }
     public Builder setResetNodesRequest(
@@ -2094,12 +2235,12 @@ public  final class Request extends
       } else {
         resetNodesRequestBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00001000;
+      bitField0_ |= 0x00002000;
       return this;
     }
     public Builder mergeResetNodesRequest(de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest value) {
       if (resetNodesRequestBuilder_ == null) {
-        if (((bitField0_ & 0x00001000) == 0x00001000) &&
+        if (((bitField0_ & 0x00002000) == 0x00002000) &&
             resetNodesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.getDefaultInstance()) {
           resetNodesRequest_ =
             de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.newBuilder(resetNodesRequest_).mergeFrom(value).buildPartial();
@@ -2110,7 +2251,7 @@ public  final class Request extends
       } else {
         resetNodesRequestBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00001000;
+      bitField0_ |= 0x00002000;
       return this;
     }
     public Builder clearResetNodesRequest() {
@@ -2120,11 +2261,11 @@ public  final class Request extends
       } else {
         resetNodesRequestBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00001000);
+      bitField0_ = (bitField0_ & ~0x00002000);
       return this;
     }
     public de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.Builder getResetNodesRequestBuilder() {
-      bitField0_ |= 0x00001000;
+      bitField0_ |= 0x00002000;
       onChanged();
       return getResetNodesRequestFieldBuilder().getBuilder();
     }
@@ -2149,12 +2290,12 @@ public  final class Request extends
       return resetNodesRequestBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 111;
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 112;
     private de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
         de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest, de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequestOrBuilder> sendDownstreamMessagesRequestBuilder_;
     public boolean hasSendDownstreamMessagesRequest() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
+      return ((bitField0_ & 0x00004000) == 0x00004000);
     }
     public de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest getSendDownstreamMessagesRequest() {
       if (sendDownstreamMessagesRequestBuilder_ == null) {
@@ -2173,7 +2314,7 @@ public  final class Request extends
       } else {
         sendDownstreamMessagesRequestBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00002000;
+      bitField0_ |= 0x00004000;
       return this;
     }
     public Builder setSendDownstreamMessagesRequest(
@@ -2184,12 +2325,12 @@ public  final class Request extends
       } else {
         sendDownstreamMessagesRequestBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00002000;
+      bitField0_ |= 0x00004000;
       return this;
     }
     public Builder mergeSendDownstreamMessagesRequest(de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest value) {
       if (sendDownstreamMessagesRequestBuilder_ == null) {
-        if (((bitField0_ & 0x00002000) == 0x00002000) &&
+        if (((bitField0_ & 0x00004000) == 0x00004000) &&
             sendDownstreamMessagesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance()) {
           sendDownstreamMessagesRequest_ =
             de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.newBuilder(sendDownstreamMessagesRequest_).mergeFrom(value).buildPartial();
@@ -2200,7 +2341,7 @@ public  final class Request extends
       } else {
         sendDownstreamMessagesRequestBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00002000;
+      bitField0_ |= 0x00004000;
       return this;
     }
     public Builder clearSendDownstreamMessagesRequest() {
@@ -2210,11 +2351,11 @@ public  final class Request extends
       } else {
         sendDownstreamMessagesRequestBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00002000);
+      bitField0_ = (bitField0_ & ~0x00004000);
       return this;
     }
     public de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.Builder getSendDownstreamMessagesRequestBuilder() {
-      bitField0_ |= 0x00002000;
+      bitField0_ |= 0x00004000;
       onChanged();
       return getSendDownstreamMessagesRequestFieldBuilder().getBuilder();
     }
@@ -2239,12 +2380,12 @@ public  final class Request extends
       return sendDownstreamMessagesRequestBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 112;
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 113;
     private de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
         de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequestOrBuilder> setChannelPipelinesRequestBuilder_;
     public boolean hasSetChannelPipelinesRequest() {
-      return ((bitField0_ & 0x00004000) == 0x00004000);
+      return ((bitField0_ & 0x00008000) == 0x00008000);
     }
     public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest getSetChannelPipelinesRequest() {
       if (setChannelPipelinesRequestBuilder_ == null) {
@@ -2263,7 +2404,7 @@ public  final class Request extends
       } else {
         setChannelPipelinesRequestBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00004000;
+      bitField0_ |= 0x00008000;
       return this;
     }
     public Builder setSetChannelPipelinesRequest(
@@ -2274,12 +2415,12 @@ public  final class Request extends
       } else {
         setChannelPipelinesRequestBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00004000;
+      bitField0_ |= 0x00008000;
       return this;
     }
     public Builder mergeSetChannelPipelinesRequest(de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest value) {
       if (setChannelPipelinesRequestBuilder_ == null) {
-        if (((bitField0_ & 0x00004000) == 0x00004000) &&
+        if (((bitField0_ & 0x00008000) == 0x00008000) &&
             setChannelPipelinesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.getDefaultInstance()) {
           setChannelPipelinesRequest_ =
             de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.newBuilder(setChannelPipelinesRequest_).mergeFrom(value).buildPartial();
@@ -2290,7 +2431,7 @@ public  final class Request extends
       } else {
         setChannelPipelinesRequestBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00004000;
+      bitField0_ |= 0x00008000;
       return this;
     }
     public Builder clearSetChannelPipelinesRequest() {
@@ -2300,11 +2441,11 @@ public  final class Request extends
       } else {
         setChannelPipelinesRequestBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00004000);
+      bitField0_ = (bitField0_ & ~0x00008000);
       return this;
     }
     public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.Builder getSetChannelPipelinesRequestBuilder() {
-      bitField0_ |= 0x00004000;
+      bitField0_ |= 0x00008000;
       onChanged();
       return getSetChannelPipelinesRequestFieldBuilder().getBuilder();
     }

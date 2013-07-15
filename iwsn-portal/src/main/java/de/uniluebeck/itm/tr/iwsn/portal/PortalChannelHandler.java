@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
@@ -16,16 +15,13 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
@@ -41,14 +37,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	private final ChannelGroup allChannels = new DefaultChannelGroup();
 
-	private static final Function<String, NodeUrn> STRING_TO_NODE_URN = new Function<String, NodeUrn>() {
-		@Nullable
-		@Override
-		public NodeUrn apply(@Nullable final String input) {
-			return new NodeUrn(input);
-		}
-	};
-
 	@Inject
 	public PortalChannelHandler(final PortalEventBus portalEventBus) {
 		this.portalEventBus = portalEventBus;
@@ -59,7 +47,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
-		final List<String> nodeUrnsList;
 		final Set<NodeUrn> nodeUrns;
 		final Multimap<ChannelHandlerContext, NodeUrn> mapping;
 		final Map<ChannelHandlerContext, Request> requestsToBeSent = newHashMap();
@@ -68,9 +55,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		switch (request.getType()) {
 
 			case ARE_NODES_ALIVE:
-
-				nodeUrnsList = request.getAreNodesAliveRequest().getNodeUrnsList();
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -82,9 +67,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case ARE_NODES_CONNECTED:
-
-				nodeUrnsList = request.getAreNodesConnectedRequest().getNodeUrnsList();
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -96,9 +79,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case DISABLE_NODES:
-
-				nodeUrnsList = request.getDisableNodesRequest().getNodeUrnsList();
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -110,14 +91,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case DISABLE_PHYSICAL_LINKS:
-
 				links = request.getDisablePhysicalLinksRequest().getLinksList();
-
-				nodeUrnsList = newArrayList();
-				for (Link link : links) {
-					nodeUrnsList.add(link.getSourceNodeUrn());
-				}
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -141,14 +116,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case DISABLE_VIRTUAL_LINKS:
-
 				links = request.getDisableVirtualLinksRequest().getLinksList();
-
-				nodeUrnsList = newArrayList();
-				for (Link link : links) {
-					nodeUrnsList.add(link.getSourceNodeUrn());
-				}
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -169,9 +138,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case ENABLE_NODES:
-
-				nodeUrnsList = request.getEnableNodesRequest().getNodeUrnsList();
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -183,14 +150,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case ENABLE_PHYSICAL_LINKS:
-
 				links = request.getEnablePhysicalLinksRequest().getLinksList();
-
-				nodeUrnsList = newArrayList();
-				for (Link link : links) {
-					nodeUrnsList.add(link.getSourceNodeUrn());
-				}
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -211,14 +172,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case ENABLE_VIRTUAL_LINKS:
-
 				links = request.getEnableVirtualLinksRequest().getLinksList();
-
-				nodeUrnsList = newArrayList();
-				for (Link link : links) {
-					nodeUrnsList.add(link.getSourceNodeUrn());
-				}
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -239,9 +194,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case FLASH_IMAGES:
-
-				nodeUrnsList = request.getFlashImagesRequest().getNodeUrnsList();
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -256,10 +209,23 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
 				break;
 
-			case RESET_NODES:
+			case GET_CHANNEL_PIPELINES:
+				nodeUrns = getNodeUrns(request);
+				mapping = getMulticastMapping(nodeUrns);
 
-				nodeUrnsList = request.getResetNodesRequest().getNodeUrnsList();
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				for (ChannelHandlerContext ctx : mapping.keySet()) {
+					requestsToBeSent.put(
+							ctx,
+							newGetChannelPipelinesRequest(reservationId, requestId, mapping.get(ctx))
+					);
+				}
+
+				sendRequests(requestsToBeSent);
+				sendUnconnectedResponses(reservationId, requestId, -1, getUnconnectedNodeUrns(nodeUrns));
+				break;
+
+			case RESET_NODES:
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -271,9 +237,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case SEND_DOWNSTREAM_MESSAGES:
-
-				nodeUrnsList = request.getSendDownstreamMessagesRequest().getTargetNodeUrnsList();
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
@@ -289,13 +253,11 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case SET_CHANNEL_PIPELINES:
-
-				nodeUrnsList = request.getSetChannelPipelinesRequest().getNodeUrnsList();
-				nodeUrns = toNodeUrnSet(nodeUrnsList);
+				nodeUrns = getNodeUrns(request);
 				mapping = getMulticastMapping(nodeUrns);
 
 				for (ChannelHandlerContext ctx : mapping.keySet()) {
-					final List<SetChannelPipelinesRequest.ChannelHandlerConfiguration> configs =
+					final List<ChannelHandlerConfiguration> configs =
 							request.getSetChannelPipelinesRequest().getChannelHandlerConfigurationsList();
 					requestsToBeSent.put(
 							ctx,
@@ -357,15 +319,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		return mapping;
 	}
 
-	private HashSet<NodeUrn> toNodeUrnSet(final List<String> nodeUrnsList) {
-		return newHashSet(
-				transform(
-						nodeUrnsList,
-						STRING_TO_NODE_URN
-				)
-		);
-	}
-
 	@Override
 	public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
 
@@ -407,6 +360,12 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				final SingleNodeResponse response = message.getResponse();
 				log.trace("PortalChannelHandler.messageReceived({})", response);
 				portalEventBus.post(response);
+				break;
+
+			case GET_CHANNELPIPELINES_RESPONSE:
+				final GetChannelPipelinesResponse getChannelPipelinesResponse = message.getGetChannelPipelinesResponse();
+				log.trace("PortalChannelHandler.messageReceived({})", getChannelPipelinesResponse);
+				portalEventBus.post(getChannelPipelinesResponse);
 				break;
 
 			default:
@@ -453,7 +412,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 			portalEventBus.unregister(this);
 		}
 		synchronized (contextToNodeUrnsMap) {
-			portalEventBus.post(newDevicesDetachedEvent(contextToNodeUrnsMap.get(ctx)));
+			final Collection<NodeUrn> nodeUrns = contextToNodeUrnsMap.get(ctx);
+			if (!nodeUrns.isEmpty()) {
+				portalEventBus.post(newDevicesDetachedEvent(nodeUrns));
+			}
 			contextToNodeUrnsMap.removeAll(ctx);
 		}
 		super.channelDisconnected(ctx, e);

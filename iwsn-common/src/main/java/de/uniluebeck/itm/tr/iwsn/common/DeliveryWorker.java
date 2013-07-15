@@ -2,8 +2,8 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 
 import com.google.common.collect.Lists;
-import de.uniluebeck.itm.tr.util.TimeDiff;
-import de.uniluebeck.itm.tr.util.Tuple;
+import de.uniluebeck.itm.util.TimeDiff;
+import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
@@ -71,7 +71,7 @@ class DeliveryWorker implements Runnable {
 	private final Deque<Tuple<DateTime, List<NodeUrn>>> nodesDetachedQueue;
 
 	/**
-	 * A {@link de.uniluebeck.itm.tr.util.TimeDiff} instance that is used to determine if a notification should be sent to
+	 * A {@link de.uniluebeck.itm.util.TimeDiff} instance that is used to determine if a notification should be sent to
 	 * the controller that informs him of messages being dropped due to messageQueue congestion.
 	 */
 	private final TimeDiff lastMessageDropNotificationTimeDiff = new TimeDiff(1000);

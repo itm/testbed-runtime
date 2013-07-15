@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -v -X DELETE http://localhost:7654/rest/deviceConfigs/urn%3Awisebed%3Auzl1%3A0x2038 && echo

@@ -1,12 +1,16 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Multimap;
 import com.google.protobuf.ByteString;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -15,9 +19,17 @@ import static com.google.common.collect.Iterables.isEmpty;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.NODE_URN_TO_STRING;
+import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
 
 public abstract class MessagesHelper {
+
+	private static final Function<String, NodeUrn> STRING_TO_NODE_URN = new Function<String, NodeUrn>() {
+		@Nullable
+		@Override
+		public NodeUrn apply(@Nullable final String input) {
+			return new NodeUrn(input);
+		}
+	};
 
 	public static Message newAreNodesAliveRequestMessage(@Nullable final String reservationId,
 														 final long requestId,
@@ -294,10 +306,48 @@ public abstract class MessagesHelper {
 		return newMessage(newEnablePhysicalLinksRequest(reservationId, requestId, links));
 	}
 
+	public static Request newGetChannelPipelinesRequest(@Nullable final String reservationId,
+														final long requestId,
+														final Iterable<NodeUrn> nodeUrns) {
+		final Request.Builder builder = Request.newBuilder()
+				.setRequestId(requestId)
+				.setType(Request.Type.GET_CHANNEL_PIPELINES)
+				.setGetChannelPipelinesRequest(
+						GetChannelPipelinesRequest.newBuilder().addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
+				);
+
+		if (reservationId != null) {
+			builder.setReservationId(reservationId);
+		}
+
+		return builder.build();
+	}
+
+	public static GetChannelPipelinesResponse newGetChannelPipelinesResponse(@Nullable final String reservationId,
+																			 final long requestId,
+																			 final Map<NodeUrn, List<ChannelHandlerConfiguration>> channelHandlerConfigurationMap) {
+		final GetChannelPipelinesResponse.Builder builder = GetChannelPipelinesResponse.newBuilder()
+				.setReservationId(reservationId)
+				.setRequestId(requestId);
+
+		for (Map.Entry<NodeUrn, List<ChannelHandlerConfiguration>> entry : channelHandlerConfigurationMap.entrySet()) {
+
+			final GetChannelPipelinesResponse.GetChannelPipelineResponse.Builder perNodeBuilder =
+					GetChannelPipelinesResponse.GetChannelPipelineResponse
+							.newBuilder()
+							.setNodeUrn(entry.getKey().toString())
+							.addAllHandlerConfigurations(entry.getValue());
+
+			builder.addPipelines(perNodeBuilder);
+		}
+
+		return builder.build();
+	}
+
 	public static Request newSetChannelPipelinesRequest(@Nullable final String reservationId,
 														final long requestId,
 														final Iterable<NodeUrn> nodeUrns,
-														final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations) {
+														final Iterable<? extends ChannelHandlerConfiguration> channelHandlerConfigurations) {
 		final Request.Builder builder = Request.newBuilder()
 				.setRequestId(requestId)
 				.setType(Request.Type.SET_CHANNEL_PIPELINES)
@@ -316,7 +366,7 @@ public abstract class MessagesHelper {
 	public static Message newSetChannelPipelinesRequestMessage(@Nullable final String reservationId,
 															   final long requestId,
 															   final Iterable<NodeUrn> nodeUrns,
-															   final Iterable<? extends SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations) {
+															   final Iterable<? extends ChannelHandlerConfiguration> channelHandlerConfigurations) {
 		return newMessage(
 				newSetChannelPipelinesRequest(reservationId, requestId, nodeUrns, channelHandlerConfigurations)
 		);
@@ -340,6 +390,13 @@ public abstract class MessagesHelper {
 		return Message.newBuilder()
 				.setType(Message.Type.RESPONSE)
 				.setResponse(response)
+				.build();
+	}
+
+	public static Message newMessage(final GetChannelPipelinesResponse response) {
+		return Message.newBuilder()
+				.setType(Message.Type.GET_CHANNELPIPELINES_RESPONSE)
+				.setGetChannelPipelinesResponse(response)
 				.build();
 	}
 
@@ -525,5 +582,80 @@ public abstract class MessagesHelper {
 		}
 
 		return builder.build();
+	}
+
+	public static Set<NodeUrn> getSourceNodeUrnsFromLinks(final Iterable<Link> links) {
+		final Set<NodeUrn> nodeUrns = newHashSet();
+		for (Link link : links) {
+			nodeUrns.add(new NodeUrn(link.getSourceNodeUrn()));
+		}
+		return nodeUrns;
+	}
+
+	public static Set<NodeUrn> getNodeUrns(final Request request) {
+		switch (request.getType()) {
+
+			case ARE_NODES_ALIVE:
+				return toNodeUrnSet(request.getAreNodesAliveRequest().getNodeUrnsList());
+
+			case ARE_NODES_CONNECTED:
+				return toNodeUrnSet(request.getAreNodesConnectedRequest().getNodeUrnsList());
+
+			case DISABLE_NODES:
+				return toNodeUrnSet(request.getDisableNodesRequest().getNodeUrnsList());
+
+			case DISABLE_PHYSICAL_LINKS:
+				return getSourceNodeUrnsFromLinks(request.getDisablePhysicalLinksRequest().getLinksList());
+
+			case DISABLE_VIRTUAL_LINKS:
+				return getSourceNodeUrnsFromLinks(request.getDisableVirtualLinksRequest().getLinksList());
+
+			case ENABLE_NODES:
+				return toNodeUrnSet(request.getEnableNodesRequest().getNodeUrnsList());
+
+			case ENABLE_PHYSICAL_LINKS:
+				return getSourceNodeUrnsFromLinks(request.getEnablePhysicalLinksRequest().getLinksList());
+
+			case ENABLE_VIRTUAL_LINKS:
+				return getSourceNodeUrnsFromLinks(request.getEnableVirtualLinksRequest().getLinksList());
+
+			case FLASH_IMAGES:
+				return toNodeUrnSet(request.getFlashImagesRequest().getNodeUrnsList());
+
+			case GET_CHANNEL_PIPELINES:
+				return toNodeUrnSet(request.getGetChannelPipelinesRequest().getNodeUrnsList());
+
+			case RESET_NODES:
+				return toNodeUrnSet(request.getResetNodesRequest().getNodeUrnsList());
+
+			case SEND_DOWNSTREAM_MESSAGES:
+				return toNodeUrnSet(request.getSendDownstreamMessagesRequest().getTargetNodeUrnsList());
+
+			case SET_CHANNEL_PIPELINES:
+				return toNodeUrnSet(request.getSetChannelPipelinesRequest().getNodeUrnsList());
+
+			default:
+				throw new RuntimeException("Unknown request type received!");
+		}
+	}
+
+	public static int getUnconnectedStatusCode(final Request request) {
+		switch (request.getType()) {
+			case ARE_NODES_ALIVE:
+				return 0;
+			case ARE_NODES_CONNECTED:
+				return 0;
+			default:
+				return -1;
+		}
+	}
+
+	private static HashSet<NodeUrn> toNodeUrnSet(final List<String> nodeUrnsList) {
+		return newHashSet(
+				transform(
+						nodeUrnsList,
+						STRING_TO_NODE_URN
+				)
+		);
 	}
 }

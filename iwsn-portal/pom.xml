@@ -22,7 +22,8 @@
   ~ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                               ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -50,6 +51,10 @@
 
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.iwsn-common</artifactId>
 		</dependency>
 		<dependency>
@@ -57,13 +62,26 @@
 			<artifactId>tr.device-db</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-			<artifactId>netty-protocols</artifactId>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.rs-server</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.snaa-server</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm.itmutils</groupId>
-			<artifactId>itmutils</artifactId>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>propconf</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
+			<artifactId>netty-protocols</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
@@ -71,7 +89,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
-			<artifactId>service-publisher-jetty-metro-jersey</artifactId>
+			<artifactId>service-publisher-cxf</artifactId>
 		</dependency>
 
 		<dependency>
@@ -136,110 +154,40 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-					<compilerArguments>
-						<endorseddirs>${project.build.directory}/endorsed</endorseddirs>
-					</compilerArguments>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.11</version>
-				<configuration>
-					<systemProperties>
-						<property>
-							<name>java.endorsed.dirs</name>
-							<value>${project.build.directory}/endorsed</value>
-						</property>
-					</systemProperties>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.2</version>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.0</version>
 				<executions>
 					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>javax.xml.ws</groupId>
-									<artifactId>jaxws-api</artifactId>
-									<overWrite>true</overWrite>
-									<outputDirectory>${project.build.directory}/endorsed</outputDirectory>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.glassfish.metro</groupId>
-									<artifactId>webservices-rt</artifactId>
-									<overWrite>true</overWrite>
-									<outputDirectory>${project.build.directory}/endorsed</outputDirectory>
-								</artifactItem>
-								<artifactItem>
-									<groupId>org.glassfish.metro</groupId>
-									<artifactId>webservices-api</artifactId>
-									<overWrite>true</overWrite>
-									<outputDirectory>${project.build.directory}/endorsed</outputDirectory>
-								</artifactItem>
-								<artifactItem>
-									<groupId>javax.xml.bind</groupId>
-									<artifactId>jaxb-api</artifactId>
-									<overWrite>true</overWrite>
-									<outputDirectory>${project.build.directory}/endorsed</outputDirectory>
-								</artifactItem>
-								<artifactItem>
-									<groupId>com.sun.xml.bind</groupId>
-									<artifactId>jaxb-impl</artifactId>
-									<overWrite>true</overWrite>
-									<outputDirectory>${project.build.directory}/endorsed</outputDirectory>
-								</artifactItem>
-								<artifactItem>
-									<groupId>javax.servlet</groupId>
-									<artifactId>javax.servlet-api</artifactId>
-									<overWrite>true</overWrite>
-									<outputDirectory>${project.build.directory}/endorsed</outputDirectory>
-								</artifactItem>
-							</artifactItems>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2.1</version>
-				<configuration>
-					<descriptors>
-						<descriptor>assembly.xml</descriptor>
-					</descriptors>
-					<archive>
-						<manifest>
-							<mainClass>de.uniluebeck.itm.tr.iwsn.portal.Portal</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
 						<phase>package</phase>
 						<goals>
-							<goal>single</goal>
+							<goal>shade</goal>
 						</goals>
+						<configuration>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+							<transformers>
+								<transformer
+										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>de.uniluebeck.itm.tr.iwsn.portal.PortalServer</mainClass>
+								</transformer>
+								<transformer
+										implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/cxf/bus-extensions.txt</resource>
+								</transformer>
+							</transformers>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
-
-	<properties>
-		<endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-	</properties>
 
 </project>

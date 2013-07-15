@@ -1,125 +1,61 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.base.Function;
-import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
-import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigListDto;
-import de.uniluebeck.itm.tr.util.Logging;
-import eu.wisebed.api.v3.common.NodeUrn;
-import org.apache.log4j.Level;
+import de.uniluebeck.itm.tr.common.dto.DeviceConfigDto;
+import de.uniluebeck.itm.tr.common.dto.DeviceConfigListDto;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.net.URI;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.iwsn.common.NodeUrnHelper.STRING_TO_NODE_URN;
-
 @Path("/")
-public class DeviceDBRestResource {
-
-	static {
-		Logging.setLoggingDefaults(Level.TRACE);
-	}
-
-	private final DeviceDB deviceDB;
-
-	@Inject
-	public DeviceDBRestResource(final DeviceDB deviceDB) {
-		this.deviceDB = deviceDB;
-	}
+public interface DeviceDBRestResource {
 
 	@GET
-	@Path("{nodeUrn}")
+	@Path("{a: deviceConfigs/|}{nodeUrn}") // accept "/deviceConfigs/{nodUrn}" or just "/{nodeUrn}"
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getByNodeUrn(@PathParam("nodeUrn") final String nodeUrnString) {
-		final DeviceConfig config = deviceDB.getConfigByNodeUrn(new NodeUrn(nodeUrnString));
-		return config == null ?
-				Response.status(Response.Status.NOT_FOUND).build() :
-				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
-	}
+	Response getByNodeUrn(@PathParam("nodeUrn") String nodeUrnString);
+
+	@GET
+	@Path("deviceConfigs")
+	@Produces(MediaType.APPLICATION_JSON)
+	DeviceConfigListDto list();
 
 	@GET
 	@Path("byNodeUrn")
 	@Produces(MediaType.APPLICATION_JSON)
-	public DeviceConfigListDto getByNodeUrn(@QueryParam("nodeUrn") List<String> nodeUrnStrings) {
-
-		if (nodeUrnStrings.isEmpty()) {
-
-			final List<DeviceConfigDto> list = newArrayList();
-			for (DeviceConfig deviceConfig : deviceDB.getAll()) {
-				list.add(DeviceConfigDto.fromDeviceConfig(deviceConfig));
-			}
-
-			return new DeviceConfigListDto(list);
-
-		} else {
-
-			final Iterable<NodeUrn> nodeUrns = transform(nodeUrnStrings, STRING_TO_NODE_URN);
-			final Iterable<DeviceConfig> configs = deviceDB.getConfigsByNodeUrns(nodeUrns).values();
-			final Iterable<DeviceConfigDto> retList = transform(configs, new Function<DeviceConfig, DeviceConfigDto>() {
-				@Override
-				public DeviceConfigDto apply(final DeviceConfig config) {
-					return DeviceConfigDto.fromDeviceConfig(config);
-				}
-			}
-			);
-
-			return new DeviceConfigListDto(newArrayList(retList));
-		}
-
-	}
+	DeviceConfigListDto getByNodeUrn(@QueryParam("nodeUrn") List<String> nodeUrnStrings);
 
 	@GET
 	@Path("byUsbChipId")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getByUsbChipId(@QueryParam("usbChipId") String usbChipIds) {
-		final DeviceConfig config = deviceDB.getConfigByUsbChipId(usbChipIds);
-		return config == null ?
-				Response.status(Response.Status.NOT_FOUND).build() :
-				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
-	}
+	Response getByUsbChipId(@QueryParam("usbChipId") String usbChipIds);
 
 	@GET
 	@Path("byMacAddress")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getByMacAddress(@QueryParam("macAddress") long macAddress) {
-		final DeviceConfig config = deviceDB.getConfigByMacAddress(macAddress);
-		return config == null ?
-				Response.status(Response.Status.NOT_FOUND).build() :
-				Response.ok(DeviceConfigDto.fromDeviceConfig(config)).build();
-	}
+	Response getByMacAddress(@QueryParam("macAddress") long macAddress);
 
 	@POST
+	@Path("deviceConfigs/{nodeUrn}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response add(final DeviceConfigDto deviceConfig, @Context UriInfo uriInfo) {
+	Response add(DeviceConfigDto deviceConfig, @PathParam("nodeUrn") String nodeUrnString);
 
-		deviceDB.add(deviceConfig.toDeviceConfig());
+	@PUT
+	@Path("deviceConfigs/{nodeUrn}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	Response update(DeviceConfigDto deviceConfig, @PathParam("nodeUrn") String nodeUrnString);
 
-		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(deviceConfig.getNodeUrn()).build();
-		return Response.created(location).build();
-	}
+	@DELETE
+	@Path("deviceConfigs/{nodeUrn}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	Response delete(@PathParam("nodeUrn") String nodeUrnString);
 
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response delete(@QueryParam("nodeUrn") List<String> nodeUrnStrings) {
-
-		if (nodeUrnStrings.isEmpty()) {
-
-			deviceDB.removeAll();
-
-		} else {
-
-			for (String nodeUrnString : nodeUrnStrings) {
-				deviceDB.removeByNodeUrn(new NodeUrn(nodeUrnString));
-			}
-
-		}
-
-		return Response.ok().build();
-	}
+	Response delete(@QueryParam("nodeUrn") List<String> nodeUrnStrings);
 }

@@ -144,6 +144,11 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 		sendToPortal(newMessage(singleNodeProgress));
 	}
 
+	@Subscribe
+	public void onGetChannelPipelinesResponse(GetChannelPipelinesResponse response) {
+		sendToPortal(newMessage(response));
+	}
+
 	@Override
 	public String toString() {
 		return "GatewayChannelHandler";

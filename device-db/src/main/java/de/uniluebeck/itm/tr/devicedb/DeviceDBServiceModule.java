@@ -1,47 +1,36 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
+import com.google.inject.PrivateModule;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Properties;
+public class DeviceDBServiceModule extends PrivateModule {
 
-import static com.google.common.base.Throwables.propagate;
+	private final DeviceDBConfig deviceDBConfig;
 
-public class DeviceDBServiceModule extends AbstractModule {
-
-	private final DeviceDBServiceConfig config;
-
-	public DeviceDBServiceModule(final DeviceDBServiceConfig config) {
-		this.config = config;
+	public DeviceDBServiceModule(final DeviceDBConfig deviceDBConfig) {
+		this.deviceDBConfig = deviceDBConfig;
 	}
 
 	@Override
 	protected void configure() {
-		bind(DeviceDBServiceConfig.class).toInstance(config);
-		install(new ServicePublisherJettyMetroJerseyModule());
-		install(new DeviceDBJpaModule(readProperties(config.dbPropertiesFile)));
-	}
 
-	@Provides
-	ServicePublisherConfig provideServicePublisherConfig() {
-		return new ServicePublisherConfig(
-				config.port,
-				this.getClass().getResource("/").toString()
-		);
-	}
+		requireBinding(DeviceDBConfig.class);
 
-	private Properties readProperties(final File dbPropertiesFile) {
-		try {
-			final Properties properties = new Properties();
-			properties.load(new FileReader(dbPropertiesFile));
-			return properties;
-		} catch (IOException e) {
-			throw propagate(e);
+		switch (deviceDBConfig.getDeviceDBType()) {
+			case IN_MEMORY:
+				install(new DeviceDBInMemoryModule());
+				break;
+			case JPA:
+				install(new DeviceDBJpaModule(deviceDBConfig.getDeviceDBJPAProperties()));
+				break;
+			case REMOTE:
+				install(new RemoteDeviceDBModule(deviceDBConfig));
+				break;
+			default:
+				throw new IllegalArgumentException(
+						"Unknown DeviceDB type \"" + deviceDBConfig.getDeviceDBType().toString() + "\""
+				);
 		}
+
+		expose(DeviceDBService.class);
 	}
 }

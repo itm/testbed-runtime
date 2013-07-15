@@ -1,0 +1,3 @@
+[submodule "iwsn-portal/src/main/resources/de/uniluebeck/itm/tr/iwsn/portal/wisegui"]
+	path = iwsn-portal/src/main/resources/de/uniluebeck/itm/tr/iwsn/portal/wisegui
+	url = git@github.com:wisebed/wisegui.git

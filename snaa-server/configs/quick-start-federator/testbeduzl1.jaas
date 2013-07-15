@@ -1,4 +1,0 @@
-HtpasswdFile {
-	edu.internet2.middleware.shibboleth.jaas.htpasswd.HtpasswdLoginModule REQUIRED
-	htpasswdFile = "configs/quick-start-federator/testbeduzl1.htpasswd";
-};

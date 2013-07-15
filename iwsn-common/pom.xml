@@ -48,8 +48,16 @@
 	        <artifactId>wiseml</artifactId>
         </dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.itmutils</groupId>
-			<artifactId>itmutils</artifactId>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>concurrent</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>logging</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject</groupId>
@@ -86,6 +94,14 @@
 		<dependency>
 			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
 			<artifactId>netty-protocols</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+			<artifactId>service-publisher-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+			<artifactId>service-publisher-cxf</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

@@ -1,0 +1,67 @@
+{
+			"nodeUrn" : "urn:wisebed:uzl1:0x2038",
+			"nodeType" : "isense39",
+			"gatewayNode" : false,
+			"description" : "this is the device description",
+			"nodeUSBChipID" : "0123456789",
+			"position" : {
+				"x" : 123,
+				"y" : 234,
+				"z" : 345,
+				"phi" : 12,
+				"theta" : 23
+			},
+			"nodeConfiguration" : [
+				{
+					"key" : "bla",
+					"value" : "blub"
+				},
+				{
+					"key" : "bli",
+					"value" : "blib"
+				}
+			],
+			"defaultChannelPipeline" : [
+				{
+					"handlerName" : "dlestxetx",
+					"instanceName" : "dlestxetx",
+					"configuration" : []
+				},
+				{
+					"handlerName" : "length-field-based-frame-decoder",
+					"instanceName" : "length-field-based-frame-decoder",
+					"configuration" : [
+						{
+							"key" : "lengthFieldLength",
+							"value" : "4"
+						},
+						{
+							"key" : "lengthFieldOffset",
+							"value" : "0"
+						},
+						{
+							"key" : "maxFrameLength",
+							"value" : "15"
+						}
+					]
+				}
+			],
+			"capabilities" : [
+				{
+					"name" 			: "urn:wisebed:node:capability:light",
+					"datatype" 		: "INTEGER",
+					"unit"			: "LUX",
+					"defaultValue" 	: "0"
+				},
+				{
+					"name" 			: "urn:wisebed:node:capability:humidity",
+					"datatype" 		: "INTEGER",
+					"unit"			: "RAW",
+					"defaultValue" 	: "0"
+				}
+			],
+			"timeoutNodeApiMillis" : 100,
+			"timeoutResetMillis" : 1000,
+			"timeoutFlashMillis" : 120000,
+			"timeoutCheckAliveMillis" : 1000
+}

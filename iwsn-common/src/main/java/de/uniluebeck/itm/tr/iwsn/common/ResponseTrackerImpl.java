@@ -1,13 +1,14 @@
 package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.eventbus.Subscribe;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
-import de.uniluebeck.itm.tr.util.SettableFutureMap;
+import de.uniluebeck.itm.util.concurrent.ProgressListenableFuture;
+import de.uniluebeck.itm.util.concurrent.ProgressSettableFuture;
+import de.uniluebeck.itm.util.concurrent.ProgressSettableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 	private final EventBusService eventBusService;
 
-	private final SettableFutureMap<NodeUrn, SingleNodeResponse> futureMap;
+	private final ProgressSettableFutureMap<NodeUrn, SingleNodeResponse> futureMap;
 
 	@Inject
 	public ResponseTrackerImpl(@Assisted final Request request, @Assisted final EventBusService eventBusService) {
@@ -46,14 +47,19 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 		checkArgument(!requestNodeUrns.isEmpty());
 
-		final Map<NodeUrn, ListenableFuture<SingleNodeResponse>> futureMapContent = newHashMap();
+		final Map<NodeUrn, ProgressListenableFuture<SingleNodeResponse>> futureMapContent = newHashMap();
 
 		for (NodeUrn nodeUrn : requestNodeUrns) {
-			futureMapContent.put(nodeUrn, SettableFuture.<SingleNodeResponse>create());
+			futureMapContent.put(nodeUrn, ProgressSettableFuture.<SingleNodeResponse>create());
 		}
 
-		this.futureMap = new SettableFutureMap<NodeUrn, SingleNodeResponse>(futureMapContent);
+		this.futureMap = new ProgressSettableFutureMap<NodeUrn, SingleNodeResponse>(futureMapContent);
 		this.eventBusService.register(this);
+	}
+
+	@Override
+	public Request getRequest() {
+		return request;
 	}
 
 	@Subscribe
@@ -61,18 +67,41 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 		log.trace("ResponseTrackerImpl.onSingleNodeResponse({})", response);
 
-		final boolean reservationIdEquals =
-				((request.hasReservationId() && response.hasReservationId()) ||
+		final boolean reservationIdEquals = ((request.hasReservationId() && response.hasReservationId()) ||
 				(!request.hasReservationId() && !response.hasReservationId())) &&
 				request.getReservationId().equals(response.getReservationId());
-		final boolean requestIdEquals = request.getRequestId() == response.getRequestId();
 
-		if (reservationIdEquals && requestIdEquals) {
+		final boolean requestIdEquals = request.getRequestId() == response.getRequestId();
+		final boolean forMe = reservationIdEquals && requestIdEquals;
+
+		if (forMe) {
+
 			final NodeUrn responseNodeUrn = new NodeUrn(response.getNodeUrn());
-			((SettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn)).set(response);
+			((ProgressSettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn)).set(response);
 			if (futureMap.isDone()) {
 				eventBusService.unregister(this);
 			}
+		}
+	}
+
+	@Subscribe
+	public void onSingleNodeProgress(final SingleNodeProgress progress) {
+
+		log.trace("ResponseTrackerImpl.onSingleNodeProgress({})", progress);
+
+		final boolean reservationIdEquals =
+				((request.hasReservationId() && progress.hasReservationId()) ||
+						(!request.hasReservationId() && !progress.hasReservationId())) &&
+						request.getReservationId().equals(progress.getReservationId());
+		final boolean requestIdEquals = request.getRequestId() == progress.getRequestId();
+		final boolean forMe = reservationIdEquals && requestIdEquals;
+
+		if (forMe) {
+
+			final NodeUrn responseNodeUrn = new NodeUrn(progress.getNodeUrn());
+			((ProgressSettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn)).setProgress(
+					(float) progress.getProgressInPercent() / 100.0f
+			);
 		}
 	}
 
@@ -103,7 +132,7 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Override
-	public Set<Entry<NodeUrn, ListenableFuture<SingleNodeResponse>>> entrySet() {
+	public Set<Entry<NodeUrn, ProgressListenableFuture<SingleNodeResponse>>> entrySet() {
 		return futureMap.entrySet();
 	}
 
@@ -113,7 +142,7 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Override
-	public ListenableFuture<SingleNodeResponse> get(final Object key) {
+	public ProgressListenableFuture<SingleNodeResponse> get(final Object key) {
 		return futureMap.get(key);
 	}
 
@@ -144,19 +173,19 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Override
-	public ListenableFuture<SingleNodeResponse> put(final NodeUrn key,
-													final ListenableFuture<SingleNodeResponse> value) {
+	public ProgressListenableFuture<SingleNodeResponse> put(final NodeUrn key,
+															final ProgressListenableFuture<SingleNodeResponse> value) {
 		return futureMap.put(key, value);
 	}
 
 	@Override
 	public void putAll(
-			final Map<? extends NodeUrn, ? extends ListenableFuture<SingleNodeResponse>> m) {
+			final Map<? extends NodeUrn, ? extends ProgressListenableFuture<SingleNodeResponse>> m) {
 		futureMap.putAll(m);
 	}
 
 	@Override
-	public ListenableFuture<SingleNodeResponse> remove(final Object key) {
+	public ProgressListenableFuture<SingleNodeResponse> remove(final Object key) {
 		return futureMap.remove(key);
 	}
 
@@ -166,7 +195,23 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Override
-	public Collection<ListenableFuture<SingleNodeResponse>> values() {
+	public Collection<ProgressListenableFuture<SingleNodeResponse>> values() {
 		return futureMap.values();
+	}
+
+	@Override
+	public float getProgress() {
+		return futureMap.getProgress();
+	}
+
+	@Override
+	public void addProgressListener(final Runnable runnable, final Executor executor) {
+		futureMap.addProgressListener(runnable, executor);
+	}
+
+	@Override
+	public String toString() {
+		return "ResponseTrackerImpl[requestId=" + request.getRequestId() + ",reservationId=" + request
+				.getReservationId() + "]@" + Integer.toHexString(hashCode());
 	}
 }

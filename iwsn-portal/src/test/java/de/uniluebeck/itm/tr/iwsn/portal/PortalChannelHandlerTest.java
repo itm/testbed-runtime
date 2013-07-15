@@ -4,7 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
-import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.UpstreamMessageEvent;
@@ -83,23 +83,23 @@ public class PortalChannelHandlerTest {
 		LINKS.putAll(LINKS_GW2);
 	}
 
-	private static final Iterable<SetChannelPipelinesRequest.ChannelHandlerConfiguration> CHANNEL_HANDLER_CONFIGS =
+	private static final Iterable<ChannelHandlerConfiguration> CHANNEL_HANDLER_CONFIGS =
 			newArrayList(
-					SetChannelPipelinesRequest.ChannelHandlerConfiguration.newBuilder()
+					ChannelHandlerConfiguration.newBuilder()
 							.setName("n1")
-							.addConfiguration(SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair
+							.addConfiguration(ChannelHandlerConfiguration.KeyValuePair
 									.newBuilder()
 									.setKey("k1")
 									.setValue("v1")
 							).build(),
-					SetChannelPipelinesRequest.ChannelHandlerConfiguration.newBuilder()
+					ChannelHandlerConfiguration.newBuilder()
 							.setName("n2")
-							.addConfiguration(SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair
+							.addConfiguration(ChannelHandlerConfiguration.KeyValuePair
 									.newBuilder()
 									.setKey("n2k1")
 									.setValue("n2v1")
 							)
-							.addConfiguration(SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair
+							.addConfiguration(ChannelHandlerConfiguration.KeyValuePair
 									.newBuilder()
 									.setKey("n2k2")
 									.setValue("n2v2")
@@ -520,7 +520,7 @@ public class PortalChannelHandlerTest {
 	public void testSetChannelPipelinesRequestToUnconnectedNode() throws Exception {
 		final long requestId = RANDOM.nextLong();
 		reset(portalEventBus);
-		final List<SetChannelPipelinesRequest.ChannelHandlerConfiguration> configs = Lists.newArrayList();
+		final List<ChannelHandlerConfiguration> configs = Lists.newArrayList();
 		portalChannelHandler.onRequest(
 				newSetChannelPipelinesRequest(RESERVATION_ID, requestId, GATEWAY3_NODE_URNS, configs)
 		);

@@ -23,7 +23,9 @@
 
 package de.uniluebeck.itm.tr.rs.persistence;
 
-import de.uniluebeck.itm.tr.util.Logging;
+import de.uniluebeck.itm.util.logging.Logging;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
@@ -35,22 +37,24 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static org.junit.Assert.*;
 
 public abstract class RSPersistenceTest {
 
+	static {
+		Logging.setLoggingDefaults();
+	}
+
 	protected RSPersistence persistence;
 
-	private Map<Integer, ConfidentialReservationData> reservationDataMap =
-			new HashMap<Integer, ConfidentialReservationData>();
+	protected Map<Integer, ConfidentialReservationData> reservationDataMap = newHashMap();
 
-	private Map<Integer, SecretReservationKey> reservationKeyMap = new HashMap<Integer, SecretReservationKey>();
+	protected Map<Integer, SecretReservationKey> reservationKeyMap = newHashMap();
 
 	/**
 	 * The point in time that all reservations of this unit test will start from.
@@ -62,9 +66,9 @@ public abstract class RSPersistenceTest {
 	 */
 	protected static DateTime reservationEndingTime = reservationStartingTime.plusMinutes(30);
 
-	protected static final int RESERVATION_COUNT = 5;
+	protected static final NodeUrnPrefix NODE_URN_PREFIX = new NodeUrnPrefix("urn:wisebed:uzl1:");
 
-	private static final NodeUrnPrefix URN_PREFIX = new NodeUrnPrefix("urn:unittest:testbed1:");
+	protected static final int PARALLEL_RESERVATIONS = 5;
 
 	protected static class IntervalData {
 
@@ -102,7 +106,7 @@ public abstract class RSPersistenceTest {
 
 		description =
 				"query interval overlaps, ranging from the exact starting point until the exact ending point in time";
-		intervals.add(new IntervalData(reservationStartingTime, reservationEndingTime, RESERVATION_COUNT, description));
+		intervals.add(new IntervalData(reservationStartingTime, reservationEndingTime, PARALLEL_RESERVATIONS, description));
 
 		description = "query interval does not overlap, since it lies before reservation interval";
 		intervals.add(new IntervalData(reservationStartingTime.minusMillis(20000),
@@ -118,14 +122,14 @@ public abstract class RSPersistenceTest {
 
 		description = "query interval overlaps on the end of the reservation interval";
 		intervals.add(new IntervalData(reservationEndingTime.minusMillis(1), reservationEndingTime.plusMillis(20000),
-				RESERVATION_COUNT, description
+				PARALLEL_RESERVATIONS, description
 		)
 		);
 
 		description = "query interval overlaps on the start of the reservation interval";
 		intervals
 				.add(new IntervalData(reservationStartingTime.minusMillis(20000), reservationStartingTime.plusMillis(1),
-						RESERVATION_COUNT, description
+						PARALLEL_RESERVATIONS, description
 				)
 				);
 
@@ -141,14 +145,14 @@ public abstract class RSPersistenceTest {
 		description =
 				"query interval fully overlaps, ranging from a point after reservation start until before reservation end";
 		intervals.add(new IntervalData(reservationStartingTime.plusMillis(5), reservationEndingTime.minusMillis(5),
-				RESERVATION_COUNT, description
+				PARALLEL_RESERVATIONS, description
 		)
 		);
 
 		description =
 				"query interval fully overlaps, ranging from a point before reservation start until after reservation interval";
 		intervals.add(new IntervalData(reservationStartingTime.minusMillis(5), reservationEndingTime.plusMillis(5),
-				RESERVATION_COUNT, description
+				PARALLEL_RESERVATIONS, description
 		)
 		);
 
@@ -156,12 +160,21 @@ public abstract class RSPersistenceTest {
 
 	@Before
 	public void setUp() throws RSFault_Exception {
-		Logging.setLoggingDefaults();
-		for (int i = 0; i < RESERVATION_COUNT; i++) {
-			ConfidentialReservationData confidentialReservationData = new ConfidentialReservationData();
-			confidentialReservationData.setFrom(reservationStartingTime);
-			confidentialReservationData.setTo(reservationEndingTime);
-			reservationDataMap.put(i, confidentialReservationData);
+		for (int i = 0; i < PARALLEL_RESERVATIONS; i++) {
+			ConfidentialReservationData crd = new ConfidentialReservationData();
+			crd.setFrom(reservationStartingTime);
+			crd.setTo(reservationEndingTime);
+			crd.setDescription("description_" + i);
+			crd.getNodeUrns().add(new NodeUrn(NODE_URN_PREFIX, Integer.toString(i)));
+			final SecretReservationKey srk = new SecretReservationKey();
+			srk.setKey("srk_" + Integer.toString(i));
+			srk.setUrnPrefix(NODE_URN_PREFIX);
+			crd.setSecretReservationKey(srk);
+			final KeyValuePair pair = new KeyValuePair();
+			pair.setKey("key_" + i);
+			pair.setValue("value_" + i);
+			crd.getOptions().add(pair);
+			reservationDataMap.put(i, crd);
 		}
 	}
 
@@ -186,7 +199,7 @@ public abstract class RSPersistenceTest {
 	}
 
 	/**
-	 * Makes {@link RSPersistenceTest#RESERVATION_COUNT}
+	 * Makes {@link RSPersistenceTest#PARALLEL_RESERVATIONS}
 	 * reservations, each for different node URNs, starting at {@link RSPersistenceTest#reservationStartingTime}
 	 * and stopping at {@link RSPersistenceTest#reservationEndingTime}.
 	 *
@@ -194,7 +207,19 @@ public abstract class RSPersistenceTest {
 	 */
 	protected void makeReservations() throws Exception {
 		for (int i = 0; i < reservationDataMap.size(); i++) {
-			reservationKeyMap.put(i, persistence.addReservation(reservationDataMap.get(i), URN_PREFIX));
+			final ConfidentialReservationData crd = reservationDataMap.get(i);
+			reservationKeyMap.put(
+					i,
+					persistence.addReservation(
+							crd.getNodeUrns(),
+							crd.getFrom(),
+							crd.getTo(),
+							crd.getUsername(),
+							crd.getSecretReservationKey().getUrnPrefix(),
+							crd.getDescription(),
+							crd.getOptions()
+					).getSecretReservationKey()
+			);
 		}
 	}
 
@@ -208,6 +233,8 @@ public abstract class RSPersistenceTest {
 			assertEquals(rememberedCRD.getNodeUrns(), receivedCRD.getNodeUrns());
 			assertEquals(rememberedCRD.getFrom(), receivedCRD.getFrom());
 			assertEquals(rememberedCRD.getTo(), receivedCRD.getTo());
+			assertEquals(rememberedCRD.getDescription(), receivedCRD.getDescription());
+			assertEqualOptions(rememberedCRD, receivedCRD);
 		}
 	}
 
@@ -221,17 +248,13 @@ public abstract class RSPersistenceTest {
 		}
 	}
 
-	/**
-	 * @throws RSFault_Exception
-	 * @throws DatatypeConfigurationException
-	 */
 	@Test
 	public void testGetReservations() throws Exception {
 		makeReservations();
 
 		for (IntervalData id : intervals) {
 			Interval period = new Interval(id.from.getMillis(), id.until.getMillis());
-			int persistenceReservationCount = persistence.getReservations(period).size();
+			int persistenceReservationCount = persistence.getReservations(period, null, null).size();
 			assertSame(persistenceReservationCount, id.expectedReservationCount);
 		}
 	}
@@ -239,11 +262,27 @@ public abstract class RSPersistenceTest {
 	public void checkDeleteReservation()
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
-			ConfidentialReservationData actualData = persistence.deleteReservation(reservationKeyMap.get(i));
-			ConfidentialReservationData expectedData = reservationDataMap.get(i);
-			assertEquals(actualData.getFrom(), expectedData.getFrom());
-			assertEquals(actualData.getTo(), expectedData.getTo());
-			assertEquals(actualData.getNodeUrns(), expectedData.getNodeUrns());
+			ConfidentialReservationData actual = persistence.deleteReservation(reservationKeyMap.get(i));
+			ConfidentialReservationData expected = reservationDataMap.get(i);
+			assertEquals(actual.getFrom(), expected.getFrom());
+			assertEquals(actual.getTo(), expected.getTo());
+			assertEquals(actual.getNodeUrns(), expected.getNodeUrns());
+			assertEquals(actual.getDescription(), expected.getDescription());
+			assertEqualOptions(actual, expected);
+		}
+	}
+
+	private void assertEqualOptions(final ConfidentialReservationData actual,
+									final ConfidentialReservationData expected) {
+		for (KeyValuePair expectedPair : expected.getOptions()) {
+			boolean foundPair = false;
+			for (KeyValuePair actualPair : actual.getOptions()) {
+				if (expectedPair.getKey().equals(actualPair.getKey()) && expectedPair.getValue()
+						.equals(actualPair.getValue())) {
+					foundPair = true;
+				}
+			}
+			assertTrue(foundPair);
 		}
 	}
 

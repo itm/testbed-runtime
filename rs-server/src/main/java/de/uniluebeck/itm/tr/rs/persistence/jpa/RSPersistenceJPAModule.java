@@ -1,74 +1,35 @@
 package de.uniluebeck.itm.tr.rs.persistence.jpa;
 
-import com.google.common.collect.Lists;
 import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Provides;
+import com.google.inject.persist.jpa.JpaPersistModule;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.common.jpa.JPAInitializer;
+import de.uniluebeck.itm.tr.rs.RSServiceConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.*;
-import org.hibernate.ejb.Ejb3Configuration;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
 
 public class RSPersistenceJPAModule extends AbstractModule {
 
-	private final Map<String, String> properties;
+	private final TimeZone timeZone;
 
-	private final TimeZone localTimeZone;
+	private final Properties jpaProperties;
 
-	private EntityManagerFactory factory;
+	public RSPersistenceJPAModule(final TimeZone timeZone, final Properties jpaProperties) {
+		this.timeZone = timeZone;
+		this.jpaProperties = jpaProperties;
+	}
 
-	@Inject
-	public RSPersistenceJPAModule(final TimeZone localTimeZone, final Map<String, String> properties) {
-		this.localTimeZone = localTimeZone;
-		this.properties = properties;
+	public RSPersistenceJPAModule(final CommonConfig commonConfig, final RSServiceConfig rsServiceConfig) {
+		this(commonConfig.getTimeZone(), rsServiceConfig.getRsJPAProperties());
 	}
 
 	@Override
 	protected void configure() {
-		bind(TimeZone.class).toInstance(localTimeZone);
+		bind(TimeZone.class).toInstance(timeZone);
+		install(new JpaPersistModule("RS").properties(jpaProperties));
+		bind(JPAInitializer.class).asEagerSingleton();
 		bind(RSPersistence.class).to(RSPersistenceJPA.class);
-	}
-
-	@Provides
-	synchronized EntityManager provideEntityManager() {
-
-		// create singleton if it doesn't exist
-		if (factory == null) {
-			factory = createEntityManagerFactory();
-		}
-
-		// create a new entity manager using the factory
-		return factory.createEntityManager();
-	}
-
-	private EntityManagerFactory createEntityManagerFactory() {
-
-		Ejb3Configuration cfg = new Ejb3Configuration();
-
-		@SuppressWarnings("unchecked")
-		List<Class<?>> persistedClasses = Lists.<Class<?>>newArrayList(
-				ConfidentialReservationDataInternal.class,
-				DataInternal.class,
-				PublicReservationDataInternal.class,
-				ReservationDataInternal.class,
-				SecretReservationKeyInternal.class
-		);
-
-		for (Class<?> c : persistedClasses) {
-			cfg.addAnnotatedClass(c);
-		}
-
-		Properties props = new Properties();
-		for (Map.Entry<String, String> entry : properties.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-
-		return cfg.addProperties(props).buildEntityManagerFactory();
 	}
 }

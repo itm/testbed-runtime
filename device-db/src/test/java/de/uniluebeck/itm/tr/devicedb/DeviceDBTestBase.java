@@ -1,12 +1,27 @@
 package de.uniluebeck.itm.tr.devicedb;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
-import de.uniluebeck.itm.tr.util.StringUtils;
+import com.google.common.collect.Multimap;
+
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
+import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
+import de.uniluebeck.itm.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.wiseml.Capability;
+import eu.wisebed.wiseml.Coordinate;
+import eu.wisebed.wiseml.Dtypes;
+import eu.wisebed.wiseml.Units;
+
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Iterables.get;
@@ -16,16 +31,25 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class DeviceDBTestBase {
+public abstract class DeviceDBTestBase {
 
 	protected static final Properties JPA_PROPERTIES = new Properties();
 
 	static {
+		/*
 		JPA_PROPERTIES.put("hibernate.connection.url", "jdbc:hsqldb:mem:unit-testing-jpa");
 		JPA_PROPERTIES.put("hibernate.connection.driver_class", "org.hsqldb.jdbcDriver");
 		JPA_PROPERTIES.put("hibernate.dialect", "org.hibernate.dialect.HSQLDialect");
 		JPA_PROPERTIES.put("hibernate.hbm2ddl.auto", "create-drop");
 		JPA_PROPERTIES.put("hibernate.connection.username", "sa");
+		JPA_PROPERTIES.put("hibernate.connection.password", "");
+		*/
+
+		JPA_PROPERTIES.put("hibernate.connection.url", "jdbc:derby:memory:device-db-unit-test");
+		JPA_PROPERTIES.put("hibernate.connection.driver_class", "org.apache.derby.jdbc.EmbeddedDriver");
+		JPA_PROPERTIES.put("hibernate.dialect", "org.hibernate.dialect.DerbyTenSevenDialect");
+		JPA_PROPERTIES.put("hibernate.hbm2ddl.auto", "create-drop");
+		JPA_PROPERTIES.put("hibernate.connection.username", "");
 		JPA_PROPERTIES.put("hibernate.connection.password", "");
 	}
 
@@ -43,24 +67,42 @@ public class DeviceDBTestBase {
 
 	private DeviceConfig config3;
 
-	private DeviceDB db;
+	private DeviceDBService db;
 
-	public void setUp(DeviceDB db) throws Exception {
+	public void setUp(DeviceDBService db) throws Exception {
 
 		this.db = db;
-
+		
+		Map<String, String> nodeConfig1 = new ImmutableMap.Builder<String, String>()
+				.put("a", "b")
+				.build();
+		
+		
+		Multimap<String, String> handlerProps = ImmutableMultimap.of("Key1", "Val1", "Key1", "Val2", "Key2", "Val3");
+		ChannelHandlerConfig handler1 = new ChannelHandlerConfig("testHandler", "myTestInstance", handlerProps );
+		ChannelHandlerConfigList defaultChannelPipeline1 = new ChannelHandlerConfigList(ImmutableList.of(handler1));
+		
+		Capability cap1 = new Capability()
+				.withName("urn:wisebed:node:capability:light")
+				.withDatatype(Dtypes.INTEGER).withUnit(Units.LUX)
+				.withDefault("0");
+		Set<Capability> capabilities1 = ImmutableSet.of(cap1);
+		
 		config1 = new DeviceConfig(
 				NODE_URN1,
 				"isense48",
 				false,
 				null,
+				null,
 				NODE_CHIP_ID1,
-				null,
-				null,
+				nodeConfig1,
+				defaultChannelPipeline1,
 				TimeUnit.SECONDS.toMillis(1),
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
-				TimeUnit.SECONDS.toMillis(2)
+				TimeUnit.SECONDS.toMillis(2),
+				null,
+				null
 		);
 
 		config2 = new DeviceConfig(
@@ -71,10 +113,13 @@ public class DeviceDBTestBase {
 				null,
 				null,
 				null,
+				null,
 				TimeUnit.SECONDS.toMillis(1),
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
-				TimeUnit.SECONDS.toMillis(2)
+				TimeUnit.SECONDS.toMillis(2),
+				new Coordinate().withX(10).withY(3).withZ(5.0),
+				capabilities1
 		);
 
 		config3 = new DeviceConfig(
@@ -85,11 +130,21 @@ public class DeviceDBTestBase {
 				null,
 				null,
 				null,
+				null,
 				TimeUnit.SECONDS.toMillis(1),
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
-				TimeUnit.SECONDS.toMillis(2)
+				TimeUnit.SECONDS.toMillis(2),
+				null,
+				null
 		);
+
+		db.startAndWait();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		db.stopAndWait();
 	}
 
 	@Test
@@ -97,8 +152,10 @@ public class DeviceDBTestBase {
 
 		db.add(config1);
 
-		assertEquals(1, size(db.getAll()));
-		assertEquals(config1, db.getAll().iterator().next());
+		final Iterable<DeviceConfig> all = db.getAll();
+
+		assertEquals(1, size(all));
+		assertEquals(config1, all.iterator().next());
 	}
 
 	@Test

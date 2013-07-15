@@ -62,17 +62,22 @@ public interface RequestOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest getFlashImagesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequestOrBuilder getFlashImagesRequestOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 110;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getChannelPipelinesRequest = 110;
+  boolean hasGetChannelPipelinesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getGetChannelPipelinesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder getGetChannelPipelinesRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 111;
   boolean hasResetNodesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest getResetNodesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequestOrBuilder getResetNodesRequestOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 111;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 112;
   boolean hasSendDownstreamMessagesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest getSendDownstreamMessagesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequestOrBuilder getSendDownstreamMessagesRequestOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 112;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 113;
   boolean hasSetChannelPipelinesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest getSetChannelPipelinesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequestOrBuilder getSetChannelPipelinesRequestOrBuilder();

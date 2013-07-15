@@ -30,1159 +30,6 @@ public  final class SetChannelPipelinesRequest extends
     return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SetChannelPipelinesRequest_fieldAccessorTable;
   }
   
-  public interface ChannelHandlerConfigurationOrBuilder
-      extends com.google.protobuf.MessageOrBuilder {
-    
-    // required string name = 1;
-    boolean hasName();
-    String getName();
-    
-    // repeated .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair configuration = 2;
-    java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair> 
-        getConfigurationList();
-    de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair getConfiguration(int index);
-    int getConfigurationCount();
-    java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePairOrBuilder> 
-        getConfigurationOrBuilderList();
-    de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePairOrBuilder getConfigurationOrBuilder(
-        int index);
-  }
-  public static final class ChannelHandlerConfiguration extends
-      com.google.protobuf.GeneratedMessage
-      implements ChannelHandlerConfigurationOrBuilder {
-    // Use ChannelHandlerConfiguration.newBuilder() to construct.
-    private ChannelHandlerConfiguration(Builder builder) {
-      super(builder);
-    }
-    private ChannelHandlerConfiguration(boolean noInit) {}
-    
-    private static final ChannelHandlerConfiguration defaultInstance;
-    public static ChannelHandlerConfiguration getDefaultInstance() {
-      return defaultInstance;
-    }
-    
-    public ChannelHandlerConfiguration getDefaultInstanceForType() {
-      return defaultInstance;
-    }
-    
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SetChannelPipelinesRequest_ChannelHandlerConfiguration_descriptor;
-    }
-    
-    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SetChannelPipelinesRequest_ChannelHandlerConfiguration_fieldAccessorTable;
-    }
-    
-    public interface KeyValuePairOrBuilder
-        extends com.google.protobuf.MessageOrBuilder {
-      
-      // required string key = 1;
-      boolean hasKey();
-      String getKey();
-      
-      // required string value = 2;
-      boolean hasValue();
-      String getValue();
-    }
-    public static final class KeyValuePair extends
-        com.google.protobuf.GeneratedMessage
-        implements KeyValuePairOrBuilder {
-      // Use KeyValuePair.newBuilder() to construct.
-      private KeyValuePair(Builder builder) {
-        super(builder);
-      }
-      private KeyValuePair(boolean noInit) {}
-      
-      private static final KeyValuePair defaultInstance;
-      public static KeyValuePair getDefaultInstance() {
-        return defaultInstance;
-      }
-      
-      public KeyValuePair getDefaultInstanceForType() {
-        return defaultInstance;
-      }
-      
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SetChannelPipelinesRequest_ChannelHandlerConfiguration_KeyValuePair_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SetChannelPipelinesRequest_ChannelHandlerConfiguration_KeyValuePair_fieldAccessorTable;
-      }
-      
-      private int bitField0_;
-      // required string key = 1;
-      public static final int KEY_FIELD_NUMBER = 1;
-      private java.lang.Object key_;
-      public boolean hasKey() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      public String getKey() {
-        java.lang.Object ref = key_;
-        if (ref instanceof String) {
-          return (String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          String s = bs.toStringUtf8();
-          if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-            key_ = s;
-          }
-          return s;
-        }
-      }
-      private com.google.protobuf.ByteString getKeyBytes() {
-        java.lang.Object ref = key_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-          key_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      
-      // required string value = 2;
-      public static final int VALUE_FIELD_NUMBER = 2;
-      private java.lang.Object value_;
-      public boolean hasValue() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
-      }
-      public String getValue() {
-        java.lang.Object ref = value_;
-        if (ref instanceof String) {
-          return (String) ref;
-        } else {
-          com.google.protobuf.ByteString bs = 
-              (com.google.protobuf.ByteString) ref;
-          String s = bs.toStringUtf8();
-          if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-            value_ = s;
-          }
-          return s;
-        }
-      }
-      private com.google.protobuf.ByteString getValueBytes() {
-        java.lang.Object ref = value_;
-        if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-          value_ = b;
-          return b;
-        } else {
-          return (com.google.protobuf.ByteString) ref;
-        }
-      }
-      
-      private void initFields() {
-        key_ = "";
-        value_ = "";
-      }
-      private byte memoizedIsInitialized = -1;
-      public final boolean isInitialized() {
-        byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
-        
-        if (!hasKey()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        if (!hasValue()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-        memoizedIsInitialized = 1;
-        return true;
-      }
-      
-      public void writeTo(com.google.protobuf.CodedOutputStream output)
-                          throws java.io.IOException {
-        getSerializedSize();
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          output.writeBytes(1, getKeyBytes());
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          output.writeBytes(2, getValueBytes());
-        }
-        getUnknownFields().writeTo(output);
-      }
-      
-      private int memoizedSerializedSize = -1;
-      public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-      
-        size = 0;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(1, getKeyBytes());
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-          size += com.google.protobuf.CodedOutputStream
-            .computeBytesSize(2, getValueBytes());
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-      }
-      
-      private static final long serialVersionUID = 0L;
-      @java.lang.Override
-      protected java.lang.Object writeReplace()
-          throws java.io.ObjectStreamException {
-        return super.writeReplace();
-      }
-      
-      public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair parseFrom(
-          com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair parseFrom(
-          byte[] data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        return newBuilder().mergeFrom(data, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair parseFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair parseFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair parseDelimitedFrom(
-          java.io.InputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        Builder builder = newBuilder();
-        if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-          return builder.buildParsed();
-        } else {
-          return null;
-        }
-      }
-      public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair parseFrom(
-          com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input).buildParsed();
-      }
-      public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        return newBuilder().mergeFrom(input, extensionRegistry)
-                 .buildParsed();
-      }
-      
-      public static Builder newBuilder() { return Builder.create(); }
-      public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair prototype) {
-        return newBuilder().mergeFrom(prototype);
-      }
-      public Builder toBuilder() { return newBuilder(this); }
-      
-      @java.lang.Override
-      protected Builder newBuilderForType(
-          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        Builder builder = new Builder(parent);
-        return builder;
-      }
-      public static final class Builder extends
-          com.google.protobuf.GeneratedMessage.Builder<Builder>
-         implements de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePairOrBuilder {
-        public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-          return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SetChannelPipelinesRequest_ChannelHandlerConfiguration_KeyValuePair_descriptor;
-        }
-        
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-          return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SetChannelPipelinesRequest_ChannelHandlerConfiguration_KeyValuePair_fieldAccessorTable;
-        }
-        
-        // Construct using de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.newBuilder()
-        private Builder() {
-          maybeForceBuilderInitialization();
-        }
-        
-        private Builder(BuilderParent parent) {
-          super(parent);
-          maybeForceBuilderInitialization();
-        }
-        private void maybeForceBuilderInitialization() {
-          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          }
-        }
-        private static Builder create() {
-          return new Builder();
-        }
-        
-        public Builder clear() {
-          super.clear();
-          key_ = "";
-          bitField0_ = (bitField0_ & ~0x00000001);
-          value_ = "";
-          bitField0_ = (bitField0_ & ~0x00000002);
-          return this;
-        }
-        
-        public Builder clone() {
-          return create().mergeFrom(buildPartial());
-        }
-        
-        public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-          return de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.getDescriptor();
-        }
-        
-        public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair getDefaultInstanceForType() {
-          return de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.getDefaultInstance();
-        }
-        
-        public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair build() {
-          de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair result = buildPartial();
-          if (!result.isInitialized()) {
-            throw newUninitializedMessageException(result);
-          }
-          return result;
-        }
-        
-        private de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair buildParsed()
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair result = buildPartial();
-          if (!result.isInitialized()) {
-            throw newUninitializedMessageException(
-              result).asInvalidProtocolBufferException();
-          }
-          return result;
-        }
-        
-        public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair buildPartial() {
-          de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair result = new de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair(this);
-          int from_bitField0_ = bitField0_;
-          int to_bitField0_ = 0;
-          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-            to_bitField0_ |= 0x00000001;
-          }
-          result.key_ = key_;
-          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-            to_bitField0_ |= 0x00000002;
-          }
-          result.value_ = value_;
-          result.bitField0_ = to_bitField0_;
-          onBuilt();
-          return result;
-        }
-        
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair) {
-            return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair)other);
-          } else {
-            super.mergeFrom(other);
-            return this;
-          }
-        }
-        
-        public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair other) {
-          if (other == de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.getDefaultInstance()) return this;
-          if (other.hasKey()) {
-            setKey(other.getKey());
-          }
-          if (other.hasValue()) {
-            setValue(other.getValue());
-          }
-          this.mergeUnknownFields(other.getUnknownFields());
-          return this;
-        }
-        
-        public final boolean isInitialized() {
-          if (!hasKey()) {
-            
-            return false;
-          }
-          if (!hasValue()) {
-            
-            return false;
-          }
-          return true;
-        }
-        
-        public Builder mergeFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-          com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder(
-              this.getUnknownFields());
-          while (true) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                this.setUnknownFields(unknownFields.build());
-                onChanged();
-                return this;
-              default: {
-                if (!parseUnknownField(input, unknownFields,
-                                       extensionRegistry, tag)) {
-                  this.setUnknownFields(unknownFields.build());
-                  onChanged();
-                  return this;
-                }
-                break;
-              }
-              case 10: {
-                bitField0_ |= 0x00000001;
-                key_ = input.readBytes();
-                break;
-              }
-              case 18: {
-                bitField0_ |= 0x00000002;
-                value_ = input.readBytes();
-                break;
-              }
-            }
-          }
-        }
-        
-        private int bitField0_;
-        
-        // required string key = 1;
-        private java.lang.Object key_ = "";
-        public boolean hasKey() {
-          return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-        public String getKey() {
-          java.lang.Object ref = key_;
-          if (!(ref instanceof String)) {
-            String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-            key_ = s;
-            return s;
-          } else {
-            return (String) ref;
-          }
-        }
-        public Builder setKey(String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-          key_ = value;
-          onChanged();
-          return this;
-        }
-        public Builder clearKey() {
-          bitField0_ = (bitField0_ & ~0x00000001);
-          key_ = getDefaultInstance().getKey();
-          onChanged();
-          return this;
-        }
-        void setKey(com.google.protobuf.ByteString value) {
-          bitField0_ |= 0x00000001;
-          key_ = value;
-          onChanged();
-        }
-        
-        // required string value = 2;
-        private java.lang.Object value_ = "";
-        public boolean hasValue() {
-          return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-        public String getValue() {
-          java.lang.Object ref = value_;
-          if (!(ref instanceof String)) {
-            String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-            value_ = s;
-            return s;
-          } else {
-            return (String) ref;
-          }
-        }
-        public Builder setValue(String value) {
-          if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000002;
-          value_ = value;
-          onChanged();
-          return this;
-        }
-        public Builder clearValue() {
-          bitField0_ = (bitField0_ & ~0x00000002);
-          value_ = getDefaultInstance().getValue();
-          onChanged();
-          return this;
-        }
-        void setValue(com.google.protobuf.ByteString value) {
-          bitField0_ |= 0x00000002;
-          value_ = value;
-          onChanged();
-        }
-        
-        // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair)
-      }
-      
-      static {
-        defaultInstance = new KeyValuePair(true);
-        defaultInstance.initFields();
-      }
-      
-      // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair)
-    }
-    
-    private int bitField0_;
-    // required string name = 1;
-    public static final int NAME_FIELD_NUMBER = 1;
-    private java.lang.Object name_;
-    public boolean hasName() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
-    }
-    public String getName() {
-      java.lang.Object ref = name_;
-      if (ref instanceof String) {
-        return (String) ref;
-      } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
-        if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-          name_ = s;
-        }
-        return s;
-      }
-    }
-    private com.google.protobuf.ByteString getNameBytes() {
-      java.lang.Object ref = name_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-        name_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    
-    // repeated .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair configuration = 2;
-    public static final int CONFIGURATION_FIELD_NUMBER = 2;
-    private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair> configuration_;
-    public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair> getConfigurationList() {
-      return configuration_;
-    }
-    public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePairOrBuilder> 
-        getConfigurationOrBuilderList() {
-      return configuration_;
-    }
-    public int getConfigurationCount() {
-      return configuration_.size();
-    }
-    public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair getConfiguration(int index) {
-      return configuration_.get(index);
-    }
-    public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePairOrBuilder getConfigurationOrBuilder(
-        int index) {
-      return configuration_.get(index);
-    }
-    
-    private void initFields() {
-      name_ = "";
-      configuration_ = java.util.Collections.emptyList();
-    }
-    private byte memoizedIsInitialized = -1;
-    public final boolean isInitialized() {
-      byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
-      
-      if (!hasName()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      for (int i = 0; i < getConfigurationCount(); i++) {
-        if (!getConfiguration(i).isInitialized()) {
-          memoizedIsInitialized = 0;
-          return false;
-        }
-      }
-      memoizedIsInitialized = 1;
-      return true;
-    }
-    
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-                        throws java.io.IOException {
-      getSerializedSize();
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        output.writeBytes(1, getNameBytes());
-      }
-      for (int i = 0; i < configuration_.size(); i++) {
-        output.writeMessage(2, configuration_.get(i));
-      }
-      getUnknownFields().writeTo(output);
-    }
-    
-    private int memoizedSerializedSize = -1;
-    public int getSerializedSize() {
-      int size = memoizedSerializedSize;
-      if (size != -1) return size;
-    
-      size = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeBytesSize(1, getNameBytes());
-      }
-      for (int i = 0; i < configuration_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, configuration_.get(i));
-      }
-      size += getUnknownFields().getSerializedSize();
-      memoizedSerializedSize = size;
-      return size;
-    }
-    
-    private static final long serialVersionUID = 0L;
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-        throws java.io.ObjectStreamException {
-      return super.writeReplace();
-    }
-    
-    public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return newBuilder().mergeFrom(data, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      Builder builder = newBuilder();
-      if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
-        return builder.buildParsed();
-      } else {
-        return null;
-      }
-    }
-    public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input).buildParsed();
-    }
-    public static de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return newBuilder().mergeFrom(input, extensionRegistry)
-               .buildParsed();
-    }
-    
-    public static Builder newBuilder() { return Builder.create(); }
-    public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration prototype) {
-      return newBuilder().mergeFrom(prototype);
-    }
-    public Builder toBuilder() { return newBuilder(this); }
-    
-    @java.lang.Override
-    protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-      Builder builder = new Builder(parent);
-      return builder;
-    }
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessage.Builder<Builder>
-       implements de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfigurationOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
-          getDescriptor() {
-        return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SetChannelPipelinesRequest_ChannelHandlerConfiguration_descriptor;
-      }
-      
-      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-          internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_SetChannelPipelinesRequest_ChannelHandlerConfiguration_fieldAccessorTable;
-      }
-      
-      // Construct using de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
-      
-      private Builder(BuilderParent parent) {
-        super(parent);
-        maybeForceBuilderInitialization();
-      }
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getConfigurationFieldBuilder();
-        }
-      }
-      private static Builder create() {
-        return new Builder();
-      }
-      
-      public Builder clear() {
-        super.clear();
-        name_ = "";
-        bitField0_ = (bitField0_ & ~0x00000001);
-        if (configurationBuilder_ == null) {
-          configuration_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
-        } else {
-          configurationBuilder_.clear();
-        }
-        return this;
-      }
-      
-      public Builder clone() {
-        return create().mergeFrom(buildPartial());
-      }
-      
-      public com.google.protobuf.Descriptors.Descriptor
-          getDescriptorForType() {
-        return de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.getDescriptor();
-      }
-      
-      public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration getDefaultInstanceForType() {
-        return de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.getDefaultInstance();
-      }
-      
-      public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration build() {
-        de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(result);
-        }
-        return result;
-      }
-      
-      private de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration buildParsed()
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration result = buildPartial();
-        if (!result.isInitialized()) {
-          throw newUninitializedMessageException(
-            result).asInvalidProtocolBufferException();
-        }
-        return result;
-      }
-      
-      public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration buildPartial() {
-        de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration result = new de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration(this);
-        int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
-        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-          to_bitField0_ |= 0x00000001;
-        }
-        result.name_ = name_;
-        if (configurationBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            configuration_ = java.util.Collections.unmodifiableList(configuration_);
-            bitField0_ = (bitField0_ & ~0x00000002);
-          }
-          result.configuration_ = configuration_;
-        } else {
-          result.configuration_ = configurationBuilder_.build();
-        }
-        result.bitField0_ = to_bitField0_;
-        onBuilt();
-        return result;
-      }
-      
-      public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration) {
-          return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration)other);
-        } else {
-          super.mergeFrom(other);
-          return this;
-        }
-      }
-      
-      public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration other) {
-        if (other == de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.getDefaultInstance()) return this;
-        if (other.hasName()) {
-          setName(other.getName());
-        }
-        if (configurationBuilder_ == null) {
-          if (!other.configuration_.isEmpty()) {
-            if (configuration_.isEmpty()) {
-              configuration_ = other.configuration_;
-              bitField0_ = (bitField0_ & ~0x00000002);
-            } else {
-              ensureConfigurationIsMutable();
-              configuration_.addAll(other.configuration_);
-            }
-            onChanged();
-          }
-        } else {
-          if (!other.configuration_.isEmpty()) {
-            if (configurationBuilder_.isEmpty()) {
-              configurationBuilder_.dispose();
-              configurationBuilder_ = null;
-              configuration_ = other.configuration_;
-              bitField0_ = (bitField0_ & ~0x00000002);
-              configurationBuilder_ = 
-                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                   getConfigurationFieldBuilder() : null;
-            } else {
-              configurationBuilder_.addAllMessages(other.configuration_);
-            }
-          }
-        }
-        this.mergeUnknownFields(other.getUnknownFields());
-        return this;
-      }
-      
-      public final boolean isInitialized() {
-        if (!hasName()) {
-          
-          return false;
-        }
-        for (int i = 0; i < getConfigurationCount(); i++) {
-          if (!getConfiguration(i).isInitialized()) {
-            
-            return false;
-          }
-        }
-        return true;
-      }
-      
-      public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder(
-            this.getUnknownFields());
-        while (true) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              this.setUnknownFields(unknownFields.build());
-              onChanged();
-              return this;
-            default: {
-              if (!parseUnknownField(input, unknownFields,
-                                     extensionRegistry, tag)) {
-                this.setUnknownFields(unknownFields.build());
-                onChanged();
-                return this;
-              }
-              break;
-            }
-            case 10: {
-              bitField0_ |= 0x00000001;
-              name_ = input.readBytes();
-              break;
-            }
-            case 18: {
-              de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.newBuilder();
-              input.readMessage(subBuilder, extensionRegistry);
-              addConfiguration(subBuilder.buildPartial());
-              break;
-            }
-          }
-        }
-      }
-      
-      private int bitField0_;
-      
-      // required string name = 1;
-      private java.lang.Object name_ = "";
-      public boolean hasName() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
-      }
-      public String getName() {
-        java.lang.Object ref = name_;
-        if (!(ref instanceof String)) {
-          String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-          name_ = s;
-          return s;
-        } else {
-          return (String) ref;
-        }
-      }
-      public Builder setName(String value) {
-        if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-        name_ = value;
-        onChanged();
-        return this;
-      }
-      public Builder clearName() {
-        bitField0_ = (bitField0_ & ~0x00000001);
-        name_ = getDefaultInstance().getName();
-        onChanged();
-        return this;
-      }
-      void setName(com.google.protobuf.ByteString value) {
-        bitField0_ |= 0x00000001;
-        name_ = value;
-        onChanged();
-      }
-      
-      // repeated .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair configuration = 2;
-      private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair> configuration_ =
-        java.util.Collections.emptyList();
-      private void ensureConfigurationIsMutable() {
-        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          configuration_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair>(configuration_);
-          bitField0_ |= 0x00000002;
-         }
-      }
-      
-      private com.google.protobuf.RepeatedFieldBuilder<
-          de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePairOrBuilder> configurationBuilder_;
-      
-      public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair> getConfigurationList() {
-        if (configurationBuilder_ == null) {
-          return java.util.Collections.unmodifiableList(configuration_);
-        } else {
-          return configurationBuilder_.getMessageList();
-        }
-      }
-      public int getConfigurationCount() {
-        if (configurationBuilder_ == null) {
-          return configuration_.size();
-        } else {
-          return configurationBuilder_.getCount();
-        }
-      }
-      public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair getConfiguration(int index) {
-        if (configurationBuilder_ == null) {
-          return configuration_.get(index);
-        } else {
-          return configurationBuilder_.getMessage(index);
-        }
-      }
-      public Builder setConfiguration(
-          int index, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair value) {
-        if (configurationBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureConfigurationIsMutable();
-          configuration_.set(index, value);
-          onChanged();
-        } else {
-          configurationBuilder_.setMessage(index, value);
-        }
-        return this;
-      }
-      public Builder setConfiguration(
-          int index, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder builderForValue) {
-        if (configurationBuilder_ == null) {
-          ensureConfigurationIsMutable();
-          configuration_.set(index, builderForValue.build());
-          onChanged();
-        } else {
-          configurationBuilder_.setMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      public Builder addConfiguration(de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair value) {
-        if (configurationBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureConfigurationIsMutable();
-          configuration_.add(value);
-          onChanged();
-        } else {
-          configurationBuilder_.addMessage(value);
-        }
-        return this;
-      }
-      public Builder addConfiguration(
-          int index, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair value) {
-        if (configurationBuilder_ == null) {
-          if (value == null) {
-            throw new NullPointerException();
-          }
-          ensureConfigurationIsMutable();
-          configuration_.add(index, value);
-          onChanged();
-        } else {
-          configurationBuilder_.addMessage(index, value);
-        }
-        return this;
-      }
-      public Builder addConfiguration(
-          de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder builderForValue) {
-        if (configurationBuilder_ == null) {
-          ensureConfigurationIsMutable();
-          configuration_.add(builderForValue.build());
-          onChanged();
-        } else {
-          configurationBuilder_.addMessage(builderForValue.build());
-        }
-        return this;
-      }
-      public Builder addConfiguration(
-          int index, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder builderForValue) {
-        if (configurationBuilder_ == null) {
-          ensureConfigurationIsMutable();
-          configuration_.add(index, builderForValue.build());
-          onChanged();
-        } else {
-          configurationBuilder_.addMessage(index, builderForValue.build());
-        }
-        return this;
-      }
-      public Builder addAllConfiguration(
-          java.lang.Iterable<? extends de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair> values) {
-        if (configurationBuilder_ == null) {
-          ensureConfigurationIsMutable();
-          super.addAll(values, configuration_);
-          onChanged();
-        } else {
-          configurationBuilder_.addAllMessages(values);
-        }
-        return this;
-      }
-      public Builder clearConfiguration() {
-        if (configurationBuilder_ == null) {
-          configuration_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000002);
-          onChanged();
-        } else {
-          configurationBuilder_.clear();
-        }
-        return this;
-      }
-      public Builder removeConfiguration(int index) {
-        if (configurationBuilder_ == null) {
-          ensureConfigurationIsMutable();
-          configuration_.remove(index);
-          onChanged();
-        } else {
-          configurationBuilder_.remove(index);
-        }
-        return this;
-      }
-      public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder getConfigurationBuilder(
-          int index) {
-        return getConfigurationFieldBuilder().getBuilder(index);
-      }
-      public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePairOrBuilder getConfigurationOrBuilder(
-          int index) {
-        if (configurationBuilder_ == null) {
-          return configuration_.get(index);  } else {
-          return configurationBuilder_.getMessageOrBuilder(index);
-        }
-      }
-      public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePairOrBuilder> 
-           getConfigurationOrBuilderList() {
-        if (configurationBuilder_ != null) {
-          return configurationBuilder_.getMessageOrBuilderList();
-        } else {
-          return java.util.Collections.unmodifiableList(configuration_);
-        }
-      }
-      public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder addConfigurationBuilder() {
-        return getConfigurationFieldBuilder().addBuilder(
-            de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.getDefaultInstance());
-      }
-      public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder addConfigurationBuilder(
-          int index) {
-        return getConfigurationFieldBuilder().addBuilder(
-            index, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.getDefaultInstance());
-      }
-      public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder> 
-           getConfigurationBuilderList() {
-        return getConfigurationFieldBuilder().getBuilderList();
-      }
-      private com.google.protobuf.RepeatedFieldBuilder<
-          de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePairOrBuilder> 
-          getConfigurationFieldBuilder() {
-        if (configurationBuilder_ == null) {
-          configurationBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-              de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePair.Builder, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.KeyValuePairOrBuilder>(
-                  configuration_,
-                  ((bitField0_ & 0x00000002) == 0x00000002),
-                  getParentForChildren(),
-                  isClean());
-          configuration_ = null;
-        }
-        return configurationBuilder_;
-      }
-      
-      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration)
-    }
-    
-    static {
-      defaultInstance = new ChannelHandlerConfiguration(true);
-      defaultInstance.initFields();
-    }
-    
-    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration)
-  }
-  
   // repeated string nodeUrns = 1;
   public static final int NODEURNS_FIELD_NUMBER = 1;
   private com.google.protobuf.LazyStringList nodeUrns_;
@@ -1197,23 +44,23 @@ public  final class SetChannelPipelinesRequest extends
     return nodeUrns_.get(index);
   }
   
-  // repeated .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration channelHandlerConfigurations = 2;
+  // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration channelHandlerConfigurations = 2;
   public static final int CHANNELHANDLERCONFIGURATIONS_FIELD_NUMBER = 2;
-  private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations_;
-  public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration> getChannelHandlerConfigurationsList() {
+  private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> channelHandlerConfigurations_;
+  public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> getChannelHandlerConfigurationsList() {
     return channelHandlerConfigurations_;
   }
-  public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfigurationOrBuilder> 
+  public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> 
       getChannelHandlerConfigurationsOrBuilderList() {
     return channelHandlerConfigurations_;
   }
   public int getChannelHandlerConfigurationsCount() {
     return channelHandlerConfigurations_.size();
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration getChannelHandlerConfigurations(int index) {
+  public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration getChannelHandlerConfigurations(int index) {
     return channelHandlerConfigurations_.get(index);
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfigurationOrBuilder getChannelHandlerConfigurationsOrBuilder(
+  public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder getChannelHandlerConfigurationsOrBuilder(
       int index) {
     return channelHandlerConfigurations_.get(index);
   }
@@ -1547,7 +394,7 @@ public  final class SetChannelPipelinesRequest extends
             break;
           }
           case 18: {
-            de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.newBuilder();
+            de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.newBuilder();
             input.readMessage(subBuilder, extensionRegistry);
             addChannelHandlerConfigurations(subBuilder.buildPartial());
             break;
@@ -1614,20 +461,20 @@ public  final class SetChannelPipelinesRequest extends
       onChanged();
     }
     
-    // repeated .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration channelHandlerConfigurations = 2;
-    private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration> channelHandlerConfigurations_ =
+    // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration channelHandlerConfigurations = 2;
+    private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> channelHandlerConfigurations_ =
       java.util.Collections.emptyList();
     private void ensureChannelHandlerConfigurationsIsMutable() {
       if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-        channelHandlerConfigurations_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration>(channelHandlerConfigurations_);
+        channelHandlerConfigurations_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration>(channelHandlerConfigurations_);
         bitField0_ |= 0x00000002;
        }
     }
     
     private com.google.protobuf.RepeatedFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfigurationOrBuilder> channelHandlerConfigurationsBuilder_;
+        de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> channelHandlerConfigurationsBuilder_;
     
-    public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration> getChannelHandlerConfigurationsList() {
+    public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> getChannelHandlerConfigurationsList() {
       if (channelHandlerConfigurationsBuilder_ == null) {
         return java.util.Collections.unmodifiableList(channelHandlerConfigurations_);
       } else {
@@ -1641,7 +488,7 @@ public  final class SetChannelPipelinesRequest extends
         return channelHandlerConfigurationsBuilder_.getCount();
       }
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration getChannelHandlerConfigurations(int index) {
+    public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration getChannelHandlerConfigurations(int index) {
       if (channelHandlerConfigurationsBuilder_ == null) {
         return channelHandlerConfigurations_.get(index);
       } else {
@@ -1649,7 +496,7 @@ public  final class SetChannelPipelinesRequest extends
       }
     }
     public Builder setChannelHandlerConfigurations(
-        int index, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration value) {
+        int index, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration value) {
       if (channelHandlerConfigurationsBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -1663,7 +510,7 @@ public  final class SetChannelPipelinesRequest extends
       return this;
     }
     public Builder setChannelHandlerConfigurations(
-        int index, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder builderForValue) {
+        int index, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder builderForValue) {
       if (channelHandlerConfigurationsBuilder_ == null) {
         ensureChannelHandlerConfigurationsIsMutable();
         channelHandlerConfigurations_.set(index, builderForValue.build());
@@ -1673,7 +520,7 @@ public  final class SetChannelPipelinesRequest extends
       }
       return this;
     }
-    public Builder addChannelHandlerConfigurations(de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration value) {
+    public Builder addChannelHandlerConfigurations(de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration value) {
       if (channelHandlerConfigurationsBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -1687,7 +534,7 @@ public  final class SetChannelPipelinesRequest extends
       return this;
     }
     public Builder addChannelHandlerConfigurations(
-        int index, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration value) {
+        int index, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration value) {
       if (channelHandlerConfigurationsBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -1701,7 +548,7 @@ public  final class SetChannelPipelinesRequest extends
       return this;
     }
     public Builder addChannelHandlerConfigurations(
-        de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder builderForValue) {
+        de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder builderForValue) {
       if (channelHandlerConfigurationsBuilder_ == null) {
         ensureChannelHandlerConfigurationsIsMutable();
         channelHandlerConfigurations_.add(builderForValue.build());
@@ -1712,7 +559,7 @@ public  final class SetChannelPipelinesRequest extends
       return this;
     }
     public Builder addChannelHandlerConfigurations(
-        int index, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder builderForValue) {
+        int index, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder builderForValue) {
       if (channelHandlerConfigurationsBuilder_ == null) {
         ensureChannelHandlerConfigurationsIsMutable();
         channelHandlerConfigurations_.add(index, builderForValue.build());
@@ -1723,7 +570,7 @@ public  final class SetChannelPipelinesRequest extends
       return this;
     }
     public Builder addAllChannelHandlerConfigurations(
-        java.lang.Iterable<? extends de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration> values) {
+        java.lang.Iterable<? extends de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> values) {
       if (channelHandlerConfigurationsBuilder_ == null) {
         ensureChannelHandlerConfigurationsIsMutable();
         super.addAll(values, channelHandlerConfigurations_);
@@ -1753,18 +600,18 @@ public  final class SetChannelPipelinesRequest extends
       }
       return this;
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder getChannelHandlerConfigurationsBuilder(
+    public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder getChannelHandlerConfigurationsBuilder(
         int index) {
       return getChannelHandlerConfigurationsFieldBuilder().getBuilder(index);
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfigurationOrBuilder getChannelHandlerConfigurationsOrBuilder(
+    public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder getChannelHandlerConfigurationsOrBuilder(
         int index) {
       if (channelHandlerConfigurationsBuilder_ == null) {
         return channelHandlerConfigurations_.get(index);  } else {
         return channelHandlerConfigurationsBuilder_.getMessageOrBuilder(index);
       }
     }
-    public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfigurationOrBuilder> 
+    public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> 
          getChannelHandlerConfigurationsOrBuilderList() {
       if (channelHandlerConfigurationsBuilder_ != null) {
         return channelHandlerConfigurationsBuilder_.getMessageOrBuilderList();
@@ -1772,25 +619,25 @@ public  final class SetChannelPipelinesRequest extends
         return java.util.Collections.unmodifiableList(channelHandlerConfigurations_);
       }
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder addChannelHandlerConfigurationsBuilder() {
+    public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder addChannelHandlerConfigurationsBuilder() {
       return getChannelHandlerConfigurationsFieldBuilder().addBuilder(
-          de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.getDefaultInstance());
+          de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.getDefaultInstance());
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder addChannelHandlerConfigurationsBuilder(
+    public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder addChannelHandlerConfigurationsBuilder(
         int index) {
       return getChannelHandlerConfigurationsFieldBuilder().addBuilder(
-          index, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.getDefaultInstance());
+          index, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.getDefaultInstance());
     }
-    public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder> 
+    public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder> 
          getChannelHandlerConfigurationsBuilderList() {
       return getChannelHandlerConfigurationsFieldBuilder().getBuilderList();
     }
     private com.google.protobuf.RepeatedFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfigurationOrBuilder> 
+        de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> 
         getChannelHandlerConfigurationsFieldBuilder() {
       if (channelHandlerConfigurationsBuilder_ == null) {
         channelHandlerConfigurationsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-            de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.ChannelHandlerConfigurationOrBuilder>(
+            de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder>(
                 channelHandlerConfigurations_,
                 ((bitField0_ & 0x00000002) == 0x00000002),
                 getParentForChildren(),

@@ -40,10 +40,9 @@ import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiFactory;
 import de.uniluebeck.itm.tr.iwsn.pipeline.AbovePipelineLogger;
 import de.uniluebeck.itm.tr.iwsn.pipeline.BelowPipelineLogger;
-import de.uniluebeck.itm.tr.util.ExecutorUtils;
-import de.uniluebeck.itm.tr.util.ProgressListenableFuture;
-import de.uniluebeck.itm.tr.util.ProgressSettableFuture;
-import de.uniluebeck.itm.tr.util.TimeDiff;
+import de.uniluebeck.itm.util.TimeDiff;
+import de.uniluebeck.itm.util.concurrent.ProgressListenableFuture;
+import de.uniluebeck.itm.util.concurrent.ProgressSettableFuture;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
@@ -75,7 +74,8 @@ import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newNotificationEvent;
 import static de.uniluebeck.itm.tr.iwsn.pipeline.PipelineHelper.setPipeline;
-import static de.uniluebeck.itm.tr.util.StringUtils.toPrintableString;
+import static de.uniluebeck.itm.util.StringUtils.toPrintableString;
+import static de.uniluebeck.itm.util.concurrent.ExecutorUtils.shutdown;
 import static org.jboss.netty.channel.Channels.pipeline;
 
 
@@ -151,6 +151,8 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	private ExecutorService deviceExecutor;
 
+	private ChannelHandlerConfigList currentPipeline;
+
 	@Inject
 	public SingleDeviceAdapter(final String port,
 							   final DeviceConfig deviceConfig,
@@ -173,8 +175,9 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		}
 		this.handlerFactories = handlerFactoriesBuilder.build();
 
-		abovePipelineLogger = new AbovePipelineLogger(this.deviceConfig.getNodeUrn().toString());
-		belowPipelineLogger = new BelowPipelineLogger(this.deviceConfig.getNodeUrn().toString());
+		this.abovePipelineLogger = new AbovePipelineLogger(this.deviceConfig.getNodeUrn().toString());
+		this.belowPipelineLogger = new BelowPipelineLogger(this.deviceConfig.getNodeUrn().toString());
+		this.currentPipeline = deviceConfig.getDefaultChannelPipeline();
 	}
 
 	@Override
@@ -212,9 +215,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 				@Override
 				public ChannelPipeline getPipeline() throws Exception {
+					currentPipeline = deviceConfig.getDefaultChannelPipeline();
 					return setPipeline(
 							pipeline(),
-							createPipelineHandlers(createHandlers(deviceConfig.getDefaultChannelPipeline()))
+							createPipelineHandlers(createHandlers(currentPipeline))
 					);
 				}
 			}
@@ -229,6 +233,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 				throw new RuntimeException(e);
 			}
 
+			setDefaultChannelPipeline();
 			nodeApi.start();
 
 			gatewayEventBus.post(new DevicesAttachedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
@@ -255,7 +260,8 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			shutdownDeviceChannel();
 			device.close();
 			nodeApi.stop();
-			ExecutorUtils.shutdown(deviceExecutor, 1, TimeUnit.SECONDS);
+
+			shutdown(deviceExecutor, 1, TimeUnit.SECONDS);
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -553,14 +559,9 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	public ListenableFuture<Void> setDefaultChannelPipeline() {
 		try {
-			setPipeline(
-					deviceChannel.getPipeline(),
-					createPipelineHandlers(createHandlers(deviceConfig.getDefaultChannelPipeline()))
-			);
-			log.debug("{} => Channel pipeline now set to: {}",
-					deviceConfig.getNodeUrn(),
-					deviceConfig.getDefaultChannelPipeline()
-			);
+			currentPipeline = deviceConfig.getDefaultChannelPipeline();
+			setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(createHandlers(currentPipeline)));
+			log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), currentPipeline);
 			return immediateFuture(null);
 		} catch (Exception e) {
 			log.warn("Exception while setting default channel pipeline: {}", e);
@@ -583,7 +584,8 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 						channelHandlerConfigs
 				);
 
-				innerPipelineHandlers = createHandlers(channelHandlerConfigs);
+				currentPipeline = channelHandlerConfigs;
+				innerPipelineHandlers = createHandlers(currentPipeline);
 				setPipeline(deviceChannel.getPipeline(), createPipelineHandlers(innerPipelineHandlers));
 
 				log.debug("{} => Channel pipeline now set to: {}", deviceConfig.getNodeUrn(), innerPipelineHandlers);
@@ -607,6 +609,11 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		}
 
 		return future;
+	}
+
+	@Override
+	public ListenableFuture<ChannelHandlerConfigList> getChannelPipeline() {
+		return immediateFuture(currentPipeline);
 	}
 
 	private NamedChannelHandlerList createHandlers(@Nullable final ChannelHandlerConfigList configs) throws Exception {
@@ -728,12 +735,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 		final NamedChannelHandlerList handlers = new NamedChannelHandlerList();
 
-		handlers.add("forwardingHandler", forwardingHandler);
-
 		final boolean innerHandlersExist = !checkNotNull(innerChannelHandlers).isEmpty();
 
 		if (log.isTraceEnabled() && innerHandlersExist) {
-			handlers.add("aboveFilterPipelineLogger", abovePipelineLogger);
+			handlers.add("belowChannelPipelineLogger", belowPipelineLogger);
 		}
 
 		if (innerHandlersExist) {
@@ -741,8 +746,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		}
 
 		if (log.isTraceEnabled() && innerHandlersExist) {
-			handlers.add("belowFilterPipelineLogger", belowPipelineLogger);
+			handlers.add("aboveChannelPipelineLogger", abovePipelineLogger);
 		}
+
+		handlers.add("forwardingHandler", forwardingHandler);
 
 		return handlers;
 	}

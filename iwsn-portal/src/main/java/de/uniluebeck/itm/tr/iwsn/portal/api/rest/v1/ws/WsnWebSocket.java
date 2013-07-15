@@ -1,0 +1,154 @@
+package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws;
+
+import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
+import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
+import eu.wisebed.api.v3.common.NodeUrn;
+import org.eclipse.jetty.websocket.WebSocket;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+
+import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Lists.newArrayList;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSendDownstreamMessageRequest;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.decodeBytes;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.fromJSON;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
+
+public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
+
+	private static final Logger log = LoggerFactory.getLogger(WsnWebSocket.class);
+
+	private final Reservation reservation;
+
+	private final RequestIdProvider requestIdProvider;
+
+	private final String remoteAddress;
+
+	private Connection connection;
+
+	@Inject
+	public WsnWebSocket(final RequestIdProvider requestIdProvider,
+						final ReservationManager reservationManager,
+						@Assisted("secretReservationKeyBase64") final String secretReservationKeyBase64,
+						@Assisted("remoteAddress") final String remoteAddress) {
+		this.requestIdProvider = requestIdProvider;
+		this.remoteAddress = remoteAddress;
+		try {
+			this.reservation = reservationManager.getReservation(secretReservationKeyBase64);
+		} catch (ReservationUnknownException e) {
+			throw propagate(e);
+		}
+	}
+
+	@Override
+	public void onMessage(final String data) {
+
+		try {
+			final WebSocketDownstreamMessage message = fromJSON(data, WebSocketDownstreamMessage.class);
+			byte[] decodedPayload = decodeBytes(message.payloadBase64);
+			reservation.getEventBus().post(newSendDownstreamMessageRequest(
+					reservation.getKey(),
+					requestIdProvider.get(),
+					newArrayList(new NodeUrn(message.targetNodeUrn)),
+					decodedPayload
+			)
+			);
+		} catch (Exception e) {
+			final WebSocketNotificationMessage notificationMessage = new WebSocketNotificationMessage(
+					DateTime.now(),
+					null,
+					"The following downstream message could not be parsed by the server: " + data + ". Exception: " + e
+			);
+			sendMessage(toJSON(notificationMessage));
+		}
+	}
+
+	@Subscribe
+	public void onUpstreamMessageEvent(final UpstreamMessageEvent event) {
+		sendMessage(toJSON(new WebSocketUpstreamMessage(event)));
+	}
+
+	@Subscribe
+	public void onNotificationsEvent(final NotificationEvent event) {
+		sendMessage(toJSON(new WebSocketNotificationMessage(event)));
+	}
+
+	@Subscribe
+	public void onDevicesAttachedEvent(final DevicesAttachedEvent event) {
+		sendMessage(toJSON(new DevicesAttachedMessage(event)));
+	}
+
+	@Subscribe
+	public void onDevicesDetachedEvent(final DevicesDetachedEvent event) {
+		sendMessage(toJSON(new DevicesDetachedMessage(event)));
+	}
+
+	@Subscribe
+	public void onReservationStarted(final ReservationStartedEvent event) {
+		sendMessage(toJSON(new ReservationStartedMessage(event)));
+	}
+
+	@Subscribe
+	public void onReservationEnded(final ReservationEndedEvent event) {
+		sendMessage(toJSON(new ReservationEndedMessage(event)));
+	}
+
+	@Override
+	public void onOpen(final Connection connection) {
+
+		if (log.isTraceEnabled()) {
+			log.trace("Websocket connection opened: {}", connection);
+		}
+
+		this.connection = connection;
+		reservation.getEventBus().register(this);
+
+		final DateTime start = reservation.getInterval().getStart();
+		final DateTime end = reservation.getInterval().getEnd();
+
+		if (end.isBeforeNow()) {
+			sendMessage(toJSON(new ReservationEndedMessage(end)));
+		} else if (start.isBeforeNow()) {
+			sendMessage(toJSON(new ReservationStartedMessage(start)));
+		}
+	}
+
+	@Override
+	public void onClose(final int closeCode, final String message) {
+
+		if (log.isTraceEnabled()) {
+			log.trace("Websocket connection closed with code {} and message \"{}\": {}", closeCode, message, connection
+			);
+		}
+
+		reservation.getEventBus().unregister(this);
+		this.connection = null;
+	}
+
+	@Override
+	public String toString() {
+		return "WsnWebSocket[" + remoteAddress + "]@" + Integer.toHexString(hashCode());
+	}
+
+	private void sendMessage(final String data) {
+		try {
+			if (connection != null) {
+				connection.sendMessage(data);
+			} else {
+				log.warn("Trying to send message over closed WebSocket!");
+			}
+		} catch (IOException e) {
+			log.error("IOException while sending message over websocket connection " + connection);
+		}
+	}
+}

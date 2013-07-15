@@ -41,6 +41,8 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 	private final Lock connectScheduleLock = new ReentrantLock();
 
+	private volatile boolean shuttingDown = false;
+
 	@Inject
 	GatewayEventBusImpl(final GatewayConfig config,
 						final GatewayScheduler gatewayScheduler,
@@ -98,8 +100,8 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 		log.debug("Trying to connect to portal server...");
 
 		final InetSocketAddress portalAddress = new InetSocketAddress(
-				config.portalOverlayAddress.getHostText(),
-				config.portalOverlayAddress.getPort()
+				config.getPortalAddress().getHostText(),
+				config.getPortalAddress().getPort()
 		);
 
 		nettyClient = nettyClientFactory.create(
@@ -141,12 +143,16 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 		@Override
 		public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 			log.trace("GatewayEventBusImpl.channelDisconnected()");
-			connectScheduleLock.lock();
-			try {
-				gatewayScheduler.execute(tryToConnectToPortalRunnable);
-			} finally {
-				connectScheduleLock.unlock();
+
+			if (!shuttingDown) {
+				connectScheduleLock.lock();
+				try {
+					gatewayScheduler.execute(tryToConnectToPortalRunnable);
+				} finally {
+					connectScheduleLock.unlock();
+				}
 			}
+
 			super.channelDisconnected(ctx, e);
 		}
 
@@ -179,8 +185,12 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 		log.trace("GatewayEventBusImpl.doStop()");
 
+		shuttingDown = true;
+
 		try {
-			nettyClient.stopAndWait();
+			if (nettyClient != null && nettyClient.isRunning()) {
+				nettyClient.stopAndWait();
+			}
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);

@@ -1,0 +1,163 @@
+package de.uniluebeck.itm.tr.iwsn.portal;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import de.uniluebeck.itm.util.propconf.converters.MultimapTypeConverter;
+import de.uniluebeck.itm.util.propconf.converters.URITypeConverter;
+import de.uniluebeck.itm.util.propconf.PropConf;
+
+import java.net.URI;
+
+public class PortalServerConfig {
+
+	@PropConf(
+			usage = "Port to listen on for the internal overlay network",
+			example = "8880",
+			defaultValue = "8880"
+	)
+	public static final String OVERLAY_PORT = "portal.overlay.port";
+
+	@Inject
+	@Named(OVERLAY_PORT)
+	private int overlayPort;
+
+	@PropConf(
+			usage = "Port to provide the protobuf-based API on",
+			example = "8885"
+	)
+	public static final String PROTOBUF_API_PORT = "portal.protobuf.api.port";
+
+	@Inject(optional = true)
+	@Named(PROTOBUF_API_PORT)
+	private int protobufApiPort;
+
+	@PropConf(
+			usage = "The context path under which the REST API runs",
+			example = "/rest/v1.0",
+			defaultValue = "/rest/v1.0"
+	)
+	public static final String REST_API_CONTEXT_PATH = "rest_api.context_path";
+
+	@Inject
+	@Named(REST_API_CONTEXT_PATH)
+	private String restApiContextPath;
+
+	@PropConf(
+			usage = "The context path under which the WebSocket API runs",
+			example = "/ws/v1.0",
+			defaultValue = "/ws/v1.0"
+	)
+	public static final String WEBSOCKET_CONTEXT_PATH = "websocket.context_path";
+
+	@Inject
+	@Named(WEBSOCKET_CONTEXT_PATH)
+	private String websocketContextPath;
+
+	@PropConf(
+			usage = "The DNS-resolvable endpoint URI of the reservation system (RS) service (to be returned by SessionManagement.getConfiguration())",
+			example = "http://portal.mydomain.tld/rs",
+			typeConverter = URITypeConverter.class
+	)
+	public static final String CONFIGURATION_RS_ENDPOINT_URI = "portal.configuration.rs_endpoint_uri";
+
+	@Inject
+	@Named(CONFIGURATION_RS_ENDPOINT_URI)
+	private URI configurationRsEndpointUri;
+
+	@PropConf(
+			usage = "The DNS-resolvable endpoint URI of the authentication and authorization (SNAA) service  (to be returned by SessionManagement.getConfiguration())",
+			example = "http://portal.mydomain.tld/snaa",
+			typeConverter = URITypeConverter.class
+	)
+	public static final String CONFIGURATION_SNAA_ENDPOINT_URI = "portal.configuration.snaa_endpoint_uri";
+
+	@Inject
+	@Named(CONFIGURATION_SNAA_ENDPOINT_URI)
+	private URI configurationSnaaEndpointUri;
+
+	@PropConf(
+			usage = "The DNS-resolvable endpoint URI of the Session Management (SM) service (to be returned by SessionManagement.getConfiguration())",
+			example = "http://portal.mydomain.tld/sm",
+			typeConverter = URITypeConverter.class
+	)
+	public static final String CONFIGURATION_SM_ENDPOINT_URI = "portal.configuration.sm_endpoint_uri";
+
+	@Inject
+	@Named(CONFIGURATION_SM_ENDPOINT_URI)
+	private URI configurationSmEndpointUri;
+
+	@PropConf(
+			usage = "The endpoint URL of the WSN service instances",
+			example = "http://portal.mydomain.tld/wsn",
+			typeConverter = URITypeConverter.class
+	)
+	public static final String CONFIGURATION_WSN_ENDPOINT_URI_BASE = "portal.configuration.wsn_endpoint_uri_base";
+
+	@Inject
+	@Named(CONFIGURATION_WSN_ENDPOINT_URI_BASE)
+	private URI configurationWsnEndpointUriBase;
+
+	@PropConf(
+			usage = "Additional key/value pairs to be returned by SessionManagements.getConfiguration(). "
+					+ "Multiple comma-separated values are allowed per key.",
+			example = "k1=k1v1 k2=k2v1,k2v2",
+			typeConverter = MultimapTypeConverter.class
+	)
+	public static final String CONFIGURATION_OPTIONS = "portal.configuration.options";
+
+	@Inject(optional = true)
+	@Named(CONFIGURATION_OPTIONS)
+	private Multimap<String, String> configurationOptions;
+
+	@PropConf(
+			usage = "Name of the testbed to be displayed in WiseGui frontend",
+			defaultValue = "local testbed"
+	)
+	public static final String WISEGUI_TESTBED_NAME = "wisegui.testbed_name";
+
+	@Inject
+	@Named(WISEGUI_TESTBED_NAME)
+	private String wiseguiTestbedName;
+
+	public int getOverlayPort() {
+		return overlayPort;
+	}
+
+	public int getProtobufApiPort() {
+		return protobufApiPort;
+	}
+
+	public URI getConfigurationRsEndpointUri() {
+		return configurationRsEndpointUri;
+	}
+
+	public Multimap<String, String> getConfigurationOptions() {
+		return configurationOptions == null ? HashMultimap.<String, String>create() : configurationOptions;
+	}
+
+	public URI getConfigurationSnaaEndpointUri() {
+		return configurationSnaaEndpointUri;
+	}
+
+	public URI getConfigurationSmEndpointUri() {
+		return configurationSmEndpointUri;
+	}
+
+	public URI getConfigurationWsnEndpointUriBase() {
+		return configurationWsnEndpointUriBase;
+	}
+
+	public String getRestApiContextPath() {
+		return restApiContextPath;
+	}
+
+	public String getWebsocketContextPath() {
+		return websocketContextPath;
+	}
+
+	public String getWiseguiTestbedName() {
+		return wiseguiTestbedName;
+	}
+}

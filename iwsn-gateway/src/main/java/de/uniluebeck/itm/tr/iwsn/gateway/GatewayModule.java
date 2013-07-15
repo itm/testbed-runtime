@@ -7,9 +7,10 @@ import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
-import de.uniluebeck.itm.servicepublisher.ServicePublisherJettyMetroJerseyModule;
-import de.uniluebeck.itm.tr.devicedb.RemoteDeviceDBConfig;
-import de.uniluebeck.itm.tr.devicedb.RemoteDeviceDBModule;
+import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiModule;
 import de.uniluebeck.itm.wsn.deviceutils.ScheduledExecutorServiceModule;
@@ -17,18 +18,30 @@ import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 
 import javax.inject.Singleton;
 
+import static com.google.inject.util.Providers.of;
+
 public class GatewayModule extends AbstractModule {
+
+	private final CommonConfig commonConfig;
 
 	private final GatewayConfig gatewayConfig;
 
-	public GatewayModule(final GatewayConfig gatewayConfig) {
+	private final DeviceDBConfig deviceDBConfig;
+
+	public GatewayModule(final CommonConfig commonConfig, final GatewayConfig gatewayConfig,
+						 final DeviceDBConfig deviceDBConfig) {
+		this.commonConfig = commonConfig;
 		this.gatewayConfig = gatewayConfig;
+		this.deviceDBConfig = deviceDBConfig;
 	}
 
 	@Override
 	protected void configure() {
 
-		bind(GatewayConfig.class).toInstance(gatewayConfig);
+		bind(CommonConfig.class).toProvider(of(commonConfig));
+		bind(GatewayConfig.class).toProvider(of(gatewayConfig));
+		bind(DeviceDBConfig.class).toProvider(of(deviceDBConfig));
+
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class).in(Scopes.SINGLETON);
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
 		bind(EventIdProvider.class).to(IncrementalEventIdProvider.class).in(Scopes.SINGLETON);
@@ -42,11 +55,12 @@ public class GatewayModule extends AbstractModule {
 
 		install(new NettyClientModule());
 		install(new DeviceFactoryModule());
-		install(new RemoteDeviceDBModule(new RemoteDeviceDBConfig(gatewayConfig.deviceDBUri)));
+
+		install(new DeviceDBServiceModule(deviceDBConfig));
 		install(new NodeApiModule());
 		install(new ScheduledExecutorServiceModule("GatewayScheduler"));
 		install(new NettyProtocolsModule());
-		install(new ServicePublisherJettyMetroJerseyModule());
+		install(new ServicePublisherCxfModule());
 	}
 
 	@Provides
@@ -56,10 +70,8 @@ public class GatewayModule extends AbstractModule {
 	}
 
 	@Provides
-	ServicePublisherConfig provideServicePublisherConfig() {
-		return new ServicePublisherConfig(
-				gatewayConfig.restAPIPort,
-				this.getClass().getResource("/").toString()
-		);
+	@Singleton
+	ServicePublisherConfig provideServicePublisherConfig(final GatewayConfig config) {
+		return new ServicePublisherConfig(config.getRestAPIPort());
 	}
 }

@@ -24,12 +24,17 @@ public interface MessageOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse getResponse();
   de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponseOrBuilder getResponseOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.Event event = 104;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getChannelPipelinesResponse = 104;
+  boolean hasGetChannelPipelinesResponse();
+  de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getGetChannelPipelinesResponse();
+  de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponseOrBuilder getGetChannelPipelinesResponseOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.Event event = 105;
   boolean hasEvent();
   de.uniluebeck.itm.tr.iwsn.messages.Event getEvent();
   de.uniluebeck.itm.tr.iwsn.messages.EventOrBuilder getEventOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.EventAck eventAck = 105;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.EventAck eventAck = 106;
   boolean hasEventAck();
   de.uniluebeck.itm.tr.iwsn.messages.EventAck getEventAck();
   de.uniluebeck.itm.tr.iwsn.messages.EventAckOrBuilder getEventAckOrBuilder();

@@ -44,7 +44,7 @@ public class NettyClient extends AbstractService {
 	@Override
 	protected void doStart() {
 
-		log.trace("NettyClient.startUp(remoteAddress={}, handlers={})", remoteAddress, handlers);
+		log.trace("NettyClient.doStart(remoteAddress={}, handlers={})", remoteAddress, handlers);
 
 		try {
 
@@ -70,7 +70,7 @@ public class NettyClient extends AbstractService {
 	@Override
 	protected void doStop() {
 
-		log.trace("NettyClient.shutDown(remoteAddress={}, handlers={})", remoteAddress, handlers);
+		log.trace("NettyClient.doStop(remoteAddress={}, handlers={})", remoteAddress, handlers);
 
 		try {
 

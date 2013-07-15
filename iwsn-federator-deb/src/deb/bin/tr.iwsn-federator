@@ -1,0 +1,9 @@
+#!/bin/sh
+
+NAME="tr.iwsn-federator"
+CP=""
+APP_DIR="/usr/share/testbed-runtime/$NAME"
+CONF_DIR="/etc/$NAME"
+JAR="$NAME.jar"
+
+exec java -Dlog4j.configuration="$CONF_DIR/log4j.properties" -jar $APP_DIR/$JAR --config $CONF_DIR/$NAME.properties

@@ -1,4 +1,3 @@
-hibernate.bytecode.use_reflection_optimizer = false
 hibernate.dialect = org.hibernate.dialect.MySQLDialect
 hibernate.connection.driver_class = org.gjt.mm.mysql.Driver
 hibernate.connection.url = jdbc:mysql://localhost:3306/trauth

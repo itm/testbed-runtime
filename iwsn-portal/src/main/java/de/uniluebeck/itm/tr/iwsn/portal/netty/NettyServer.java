@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 
+import static org.jboss.netty.channel.Channels.pipeline;
+
 public class NettyServer extends AbstractService {
 
 	private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
@@ -43,15 +45,34 @@ public class NettyServer extends AbstractService {
 	private ChannelPipelineFactory pipelineFactory(final ChannelHandler[] handlers) {
 		return new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(handlers);
+				final ChannelPipeline pipeline = pipeline(handlers);
+				pipeline.addFirst("NettyServer.connectionsHandler", connectionsHandler);
+				return pipeline;
 			}
 		};
 	}
 
+	private ChannelUpstreamHandler connectionsHandler = new ChannelUpstreamHandler() {
+		@Override
+		public void handleUpstream(final ChannelHandlerContext ctx, final ChannelEvent e) throws Exception {
+			if (e instanceof UpstreamChannelStateEvent) {
+				final ChannelState state = ((UpstreamChannelStateEvent) e).getState();
+				if (state == ChannelState.CONNECTED) {
+					if (((UpstreamChannelStateEvent) e).getValue() != null) {
+						allChannels.add(e.getChannel());
+					} else {
+						allChannels.remove(e.getChannel());
+					}
+				}
+			}
+			ctx.sendUpstream(e);
+		}
+	};
+
 	@Override
 	protected void doStart() {
 
-		log.trace("NettyServer.startUp(address={}, handlers={})", address, handlers);
+		log.trace("NettyServer.doStart(address={}, handlers={})", address, handlers);
 
 		try {
 
@@ -71,7 +92,7 @@ public class NettyServer extends AbstractService {
 	@Override
 	protected void doStop() {
 
-		log.trace("NettyServer.shutDown(address={}, handlers={})", address, handlers);
+		log.trace("NettyServer.doStop(address={}, handlers={})", address, handlers);
 
 		try {
 

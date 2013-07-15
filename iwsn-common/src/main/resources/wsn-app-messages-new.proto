@@ -79,15 +79,20 @@ message SendDownstreamMessagesRequest {
 	required bytes  messageBytes   = 2;
 }
 
-message SetChannelPipelinesRequest {
-	message ChannelHandlerConfiguration {
-		message KeyValuePair {
-			required string key = 1;
-			required string value = 2;
-		}
-		required string name = 1;
-		repeated KeyValuePair configuration = 2;
+message GetChannelPipelinesRequest {
+	repeated string nodeUrns = 1;
+}
+
+message ChannelHandlerConfiguration {
+	message KeyValuePair {
+		required string key = 1;
+		required string value = 2;
 	}
+	required string name = 1;
+	repeated KeyValuePair configuration = 2;
+}
+
+message SetChannelPipelinesRequest {
 	repeated string                      nodeUrns                     = 1;
 	repeated ChannelHandlerConfiguration channelHandlerConfigurations = 2;
 }
@@ -104,9 +109,10 @@ message Request {
 		ENABLE_PHYSICAL_LINKS    = 7;
 		ENABLE_VIRTUAL_LINKS     = 8;
 		FLASH_IMAGES             = 9;
-		RESET_NODES              = 10;
-		SEND_DOWNSTREAM_MESSAGES = 11;
-		SET_CHANNEL_PIPELINES    = 12;
+		GET_CHANNEL_PIPELINES    = 10;
+		RESET_NODES              = 11;
+		SEND_DOWNSTREAM_MESSAGES = 12;
+		SET_CHANNEL_PIPELINES    = 13;
 	}
 
 	optional string                           reservationId                    = 1;
@@ -122,9 +128,10 @@ message Request {
 	optional EnablePhysicalLinksRequest       enablePhysicalLinksRequest       = 107;
 	optional EnableVirtualLinksRequest        enableVirtualLinksRequest        = 108;
 	optional FlashImagesRequest               flashImagesRequest               = 109;
-	optional ResetNodesRequest                resetNodesRequest                = 110;
-	optional SendDownstreamMessagesRequest    sendDownstreamMessagesRequest    = 111;
-	optional SetChannelPipelinesRequest       setChannelPipelinesRequest       = 112;
+	optional GetChannelPipelinesRequest       getChannelPipelinesRequest       = 110;
+	optional ResetNodesRequest                resetNodesRequest                = 111;
+	optional SendDownstreamMessagesRequest    sendDownstreamMessagesRequest    = 112;
+	optional SetChannelPipelinesRequest       setChannelPipelinesRequest       = 113;
 }
 
 message SingleNodeProgress {
@@ -141,6 +148,16 @@ message SingleNodeResponse {
 	optional bytes  response      = 4;
 	optional int32  statusCode    = 5;
 	optional string errorMessage  = 6;
+}
+
+message GetChannelPipelinesResponse {
+	message GetChannelPipelineResponse {
+		required string                      nodeUrn               = 1;
+		repeated ChannelHandlerConfiguration handlerConfigurations = 2;
+	}
+	optional string                     reservationId = 1;
+    required int64                      requestId     = 2;
+	repeated GetChannelPipelineResponse pipelines     = 3;
 }
 
 /////////////////////// EVENTS /////////////////////// 
@@ -194,18 +211,20 @@ message EventAck {
 message Message {
 
 	enum Type {
-		REQUEST   = 1;
-		PROGRESS  = 2;
-		RESPONSE  = 3;
-		EVENT     = 4;
-		EVENT_ACK = 5;
+		REQUEST                       = 1;
+		PROGRESS                      = 2;
+		RESPONSE                      = 3;
+		GET_CHANNELPIPELINES_RESPONSE = 4;
+		EVENT                         = 5;
+		EVENT_ACK                     = 6;
 	}
 
-	required Type               type     = 1;
+	required Type                        type     = 1;
 
-	optional Request            request  = 101;
-	optional SingleNodeProgress progress = 102;
-	optional SingleNodeResponse response = 103;
-	optional Event              event    = 104;
-	optional EventAck           eventAck = 105;
+	optional Request                     request  = 101;
+	optional SingleNodeProgress          progress = 102;
+	optional SingleNodeResponse          response = 103;
+	optional GetChannelPipelinesResponse getChannelPipelinesResponse = 104;
+	optional Event                       event    = 105;
+	optional EventAck                    eventAck = 106;
 }
