@@ -45,7 +45,6 @@
 		<module>rs-federator</module>
 		<module>rs</module>
 		<module>snaa-common</module>
-		<module>snaa-client</module>
 		<module>snaa-federator</module>
 		<module>snaa</module>
 	</modules>

@@ -21,7 +21,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.snaa.client;
+package de.uniluebeck.itm.tr.snaa.shibboleth;
 
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.WisebedServiceHelper;
@@ -43,13 +43,13 @@ import java.util.List;
 
 import static eu.wisebed.api.v3.util.WisebedConversionHelper.convertToUsernameNodeUrnsMap;
 
-public class SNAAClient {
+public class ShibbolethTestClient {
 
 	static {
 		Logging.setLoggingDefaults();
 	}
 
-	private static final Logger log = LoggerFactory.getLogger(SNAAClient.class);
+	private static final Logger log = LoggerFactory.getLogger(ShibbolethTestClient.class);
 
 	enum Operation {
 		authenticate, authorize
@@ -181,7 +181,7 @@ public class SNAAClient {
 
 	private static void printUsageAndExit(Options options) {
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(120, SNAAClient.class.getCanonicalName(), null, options, null);
+		formatter.printHelp(120, ShibbolethTestClient.class.getCanonicalName(), null, options, null);
 		System.exit(1);
 	}
 
