@@ -1,4 +1,4 @@
 #!/bin/bash
 DIR=`dirname $0`
 cd "$DIR/../"
-mvn -am -pl rs-server install -DskipTests
+mvn -am -pl rs install -DskipTests

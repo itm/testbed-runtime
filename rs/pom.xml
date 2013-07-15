@@ -34,9 +34,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.rs-server</artifactId>
+	<artifactId>tr.rs</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: RS Server</name>
+	<name>TR :: RS</name>
 
 	<dependencies>
 
@@ -176,6 +176,8 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>server</shadedClassifierName>
 							<filters>
 								<filter>
 									<artifact>*:*</artifact>
