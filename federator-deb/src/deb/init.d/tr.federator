@@ -1,11 +1,11 @@
 #! /bin/sh
 ### BEGIN INIT INFO
-# Provides:          tr.iwsn-federator
+# Provides:          tr.federator
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: tr.iwsn-federator daemon
+# Short-Description: tr.federator daemon
 # Description:       Testbed-Runtime Portal service
 ### END INIT INFO
 
@@ -15,8 +15,8 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC="Testbed-Runtime Service"
-NAME=tr.iwsn-federator
+DESC="Testbed Runtime Federator"
+NAME=tr.federator
 DAEMON=/usr/bin/$NAME
 DAEMON_ARGS="--options args"
 PIDFILE=/var/run/$NAME.pid

@@ -91,7 +91,11 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.iwsn-federator</artifactId>
-				<classifier>onejar</classifier>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.federator</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -102,11 +106,6 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.snaa-common</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.iwsn-federator</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

@@ -29,7 +29,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
-		<project.pathName>tr.iwsn-federator</project.pathName>
+		<project.pathName>tr.federator</project.pathName>
 	</properties>
 
 	<parent>
@@ -39,16 +39,14 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.iwsn-federator-deb</artifactId>
-	<name>TR :: iWSN Portal Debian Package</name>	
+	<artifactId>tr.federator-deb</artifactId>
+	<name>TR :: Federator Debian Package</name>	
 
 	<dependencies>
-
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.iwsn-federator</artifactId>
+			<artifactId>tr.federator</artifactId>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -69,7 +67,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>de.uniluebeck.itm</groupId>
-									<artifactId>tr.iwsn-federator</artifactId>
+									<artifactId>tr.federator</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
