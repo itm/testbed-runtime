@@ -47,7 +47,7 @@
 		<module>snaa-common</module>
 		<module>snaa-client</module>
 		<module>snaa-federator</module>
-		<module>snaa-server</module>
+		<module>snaa</module>
 	</modules>
 
 	<dependencyManagement>
@@ -86,7 +86,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.snaa-server</artifactId>
+				<artifactId>tr.snaa</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

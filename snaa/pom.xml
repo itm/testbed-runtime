@@ -33,9 +33,9 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.snaa-server</artifactId>
+	<artifactId>tr.snaa</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: SNAA Server</name>
+	<name>TR :: SNAA</name>
 
 	<dependencies>
 
@@ -175,6 +175,8 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>server</shadedClassifierName>
 							<filters>
 								<filter>
 									<artifact>*:*</artifact>

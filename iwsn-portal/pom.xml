@@ -67,7 +67,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-server</artifactId>
+			<artifactId>tr.snaa</artifactId>
 		</dependency>
 
 		<dependency>
