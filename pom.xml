@@ -37,11 +37,14 @@
 		<module>common</module>
 		<module>device-db</module>
 		<module>federator</module>
+		<module>federator-deb</module>
 		<module>federator-utils</module>
 		<module>iwsn-common</module>
 		<module>iwsn-federator</module>
-		<module>iwsn-portal</module>
 		<module>iwsn-gateway</module>
+		<module>iwsn-gateway-deb</module>
+		<module>iwsn-portal</module>
+		<module>iwsn-portal-deb</module>
 		<module>rs-federator</module>
 		<module>rs</module>
 		<module>snaa-common</module>
