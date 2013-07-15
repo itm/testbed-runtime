@@ -150,6 +150,8 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>server</shadedClassifierName>
 							<filters>
 								<filter>
 									<artifact>*:*</artifact>
