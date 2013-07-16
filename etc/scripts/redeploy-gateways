@@ -1,0 +1,53 @@
+#!/bin/bash
+
+BASEDIR=`dirname $0`
+
+source $BASEDIR/config
+
+if [[ -z "$GATEWAY_USER" || -z "$GATEWAY_HOSTS" ]]
+then
+	echo "GATEWAY_USER and GATEWAY_HOSTS must be set in config file"
+	exit 1
+fi
+
+GATEWAY_DEB=tr.iwsn-gateway-deb_0.9+SNAPSHOT_all.deb
+GATEWAY_DEB_PATH=$BASEDIR/../../iwsn-gateway-deb/target
+
+
+for GATEWAY_HOST in "${GATEWAY_HOSTS[@]}"
+do
+	echo ""
+	echo "*** Copying .deb package to $GATEWAY_HOST ***"
+	echo scp $GATEWAY_DEB_PATH/$GATEWAY_DEB $GATEWAY_USER@$GATEWAY_HOST:~/
+done
+
+
+for GATEWAY_HOST in "${GATEWAY_HOSTS[@]}"
+do
+	echo ""
+	echo "*** Stopping old version on $GATEWAY_HOST ***"
+	echo ssh $GATEWAY_USER@$GATEWAY_HOST "/etc/init.d/tr.iwsn-gateway stop"
+done
+
+for GATEWAY_HOST in "${GATEWAY_HOSTS[@]}"
+do
+	echo ""
+	echo "*** Purging old version installation and reinstalling new version on $GATEWAY_HOST ***"
+	echo ssh $GATEWAY_USER@$GATEWAY_HOST "dpkg -P tr.iwsn-gateway && dpkg -i ~/$GATEWAY_DEB"
+done
+
+for GATEWAY_HOST in "${GATEWAY_HOSTS[@]}"
+do
+	echo ""
+	echo "*** Starting new version on $GATEWAY_HOST ***"
+	echo ssh $GATEWAY_USER@$GATEWAY_HOST "/etc/init.d/tr.iwsn-gateway start"
+done
+
+for GATEWAY_HOST in "${GATEWAY_HOSTS[@]}"
+do
+	echo ""
+	echo "*** Cleaning up .deb package from $GATEWAY_HOST ***"
+	echo ssh $GATEWAY_USER@$GATEWAY_HOST "rm ~/$GATEWAY_DEB"
+done
+
+echo ""
