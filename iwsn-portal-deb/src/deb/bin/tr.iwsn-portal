@@ -2,7 +2,7 @@
 
 NAME="tr.iwsn-portal"
 CP=""
-APP_DIR="/usr/share/testbed-runtime/$NAME"
+APP_DIR="/usr/share/$NAME"
 CONF_DIR="/etc/$NAME"
 JAR="$NAME.jar"
 
