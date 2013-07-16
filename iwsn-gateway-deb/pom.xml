@@ -47,6 +47,7 @@
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.iwsn-gateway</artifactId>
+			<classifier>server</classifier>
 		</dependency>
 
 	</dependencies>
@@ -70,6 +71,7 @@
 								<artifactItem>
 									<groupId>de.uniluebeck.itm</groupId>
 									<artifactId>tr.iwsn-gateway</artifactId>
+									<classifier>server</classifier>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -97,11 +99,11 @@
 							<dataSet>
 
 								<data>
-									<src>${project.build.directory}/dependency/${project.dependencies[0].artifactId}-${project.dependencies[0].version}.jar</src>
+									<src>${project.build.directory}/dependency/${project.dependencies[0].artifactId}-${project.dependencies[0].version}-${project.dependencies[0].classifier}.jar</src>
 									<type>file</type>
 									<mapper>
 										<type>perm</type>
-										<prefix>/usr/share/testbed-runtime/${project.pathName}</prefix>
+										<prefix>/usr/share/${project.pathName}</prefix>
 										<user>root</user>
 										<group>root</group>
 									</mapper>
@@ -122,8 +124,8 @@
 								<data>
 									<type>link</type>
 									<symlink>true</symlink>
-									<linkName>/usr/share/testbed-runtime/${project.pathName}/${project.pathName}.jar</linkName>
-									<linkTarget>/usr/share/testbed-runtime/${project.pathName}/${project.build.finalName}.jar</linkTarget>
+									<linkName>/usr/share/${project.pathName}/${project.pathName}.jar</linkName>
+									<linkTarget>/usr/share/${project.pathName}/${project.dependencies[0].artifactId}-${project.dependencies[0].version}-${project.dependencies[0].classifier}.jar</linkTarget>
 								</data>
 
 								<data>

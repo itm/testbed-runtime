@@ -2,7 +2,7 @@
 
 NAME="tr.iwsn-gateway"
 CP=""
-APP_DIR="/usr/share/testbed-runtime/$NAME"
+APP_DIR="/usr/share/$NAME"
 CONF_DIR="/etc/$NAME"
 JAR="$NAME.jar"
 

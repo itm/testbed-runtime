@@ -83,6 +83,12 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.iwsn-gateway</artifactId>
+				<classifier>server</classifier>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.rs</artifactId>
 				<version>${project.version}</version>
 			</dependency>
