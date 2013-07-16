@@ -3,7 +3,7 @@ Uses [jDeb](https://github.com/tcurdt/jdeb) to build a Debian package.
 
 Use ``mvn clean install`` to build the package.
 
-Edit ``/etc/tr.iwsn-federator/tr.iwsn-federator.properties`` before starting the service.
+Edit ``/etc/tr.federator/tr.federator.properties`` before starting the service.
 
 Creates the following directory structure:
 (``-|`` marks a file)
@@ -11,24 +11,24 @@ Creates the following directory structure:
 /
 ├── etc
 │   ├── init.d
-│   │   └──| tr.iwsn-federator
-│   └── tr.iwsn-federator
-│       ├──| log4j.properties
-│       └──| tr.iwsn-federator.properties
+│   │   └──| tr.federator
+│   └── tr.federator
+│       ├──| tr.federator.log4j.properties
+│       └──| tr.federator.properties
 ├── usr
 │   ├── bin
-│   │   └──| tr.iwsn-federator
+│   │   └──| tr.federator
 │   └── share
 │       └── testbed-runtime
-│           └── tr.iwsn-federator
-│               ├──| tr.iwsn-federator-[version].jar
-│               └──| tr.iwsn-federator.jar -> tr.iwsn-federator-[version].jar
+│           └── tr.federator
+│               ├──| tr.federator-[version].jar
+│               └──| tr.federator.jar -> tr.federator-[version].jar
 └── var
     ├── lib
-    │   └── tr.iwsn-federator
+    │   └── tr.federator
     ├── log
-    │   └── tr.iwsn-federator
+    │   └── tr.federator
     └── run
-        └── tr.iwsn-federator
+        └── tr.federator
 
 ```
