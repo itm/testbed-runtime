@@ -115,6 +115,12 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.federator</artifactId>
+				<classifier>server</classifier>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.federator-utils</artifactId>
 				<version>${project.version}</version>
 			</dependency>
