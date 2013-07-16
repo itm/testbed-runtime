@@ -152,9 +152,11 @@ public abstract class DeviceDBDtoHelper {
 		final List<KeyValueDto> configList = newArrayList();
 		final Multimap<String,String> properties = config.getProperties();
 
-		for (String key : properties.keySet()) {
-			for (String value : properties.get(key)) {
-				configList.add(new KeyValueDto(key, value));
+		if (properties != null) {
+			for (String key : properties.keySet()) {
+				for (String value : properties.get(key)) {
+					configList.add(new KeyValueDto(key, value));
+				}
 			}
 		}
 
