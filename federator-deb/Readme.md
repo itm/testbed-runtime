@@ -12,17 +12,15 @@ Creates the following directory structure:
 ├── etc
 │   ├── init.d
 │   │   └──| tr.federator
-│   └── tr.federator
-│       ├──| tr.federator.log4j.properties
-│       └──| tr.federator.properties
+│   ├──| tr.federator.log4j.properties
+│   └──| tr.federator.properties
 ├── usr
 │   ├── bin
 │   │   └──| tr.federator
 │   └── share
-│       └── testbed-runtime
-│           └── tr.federator
-│               ├──| tr.federator-[version].jar
-│               └──| tr.federator.jar -> tr.federator-[version].jar
+│       └── tr.federator
+│           ├──| tr.federator-[version].jar
+│           └──| tr.federator.jar -> tr.federator-[version].jar
 └── var
     ├── lib
     │   └── tr.federator
