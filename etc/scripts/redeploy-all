@@ -1,0 +1,5 @@
+#!/bin/bash
+DIR=`dirname $0`
+source $DIR/redeploy-gateways
+source $DIR/redeploy-portal
+source $DIR/redeploy-federator
