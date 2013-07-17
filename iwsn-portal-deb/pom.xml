@@ -143,7 +143,7 @@
 									<type>directory</type>
 									<mapper>
 										<type>perm</type>
-										<prefix>/etc/${project.pathName}</prefix>
+										<prefix>/etc/</prefix>
 									</mapper>
 								</data>
 
