@@ -2,10 +2,13 @@
 
 PORTAL_USER=root
 PORTAL_HOST=testbeduzl22.wisebed.itm.uni-luebeck.de
+PORTAL_CONFIGS[0]=tr.iwsn-portal.properties
 
 FEDERATOR_USER=root
 FEDERATOR_HOST=testbeduzl22.wisebed.itm.uni-luebeck.de
+FEDERATOR_CONFIGS[0]=tr.federator.properties
 
 GATEWAY_USER=root
 GATEWAY_HOSTS[0]=testbeduzl22.wisebed.itm.uni-luebeck.de
 GATEWAY_HOSTS[1]=testbeduzl35.wisebed.itm.uni-luebeck.de
+GATEWAY_CONFIGS[0]=tr.iwsn-gateway.properties
