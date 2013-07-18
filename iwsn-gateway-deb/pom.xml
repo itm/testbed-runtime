@@ -154,6 +154,7 @@
 									<paths>
 										<path>etc/${project.artifactId}</path>
 										<path>var/lib/${project.pathName}</path>
+										<path>var/log/${project.pathName}</path>
 										<path>var/run/${project.pathName}</path>
 									</paths>
 									<mapper>
