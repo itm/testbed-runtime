@@ -27,7 +27,7 @@ ssh $PORTAL_USER@$PORTAL_HOST "dpkg -P tr.iwsn-portal && dpkg -i ~/$PORTAL_DEB"
 
 echo ""
 echo "*** Copying config file(s) to $PORTAL_HOST ***"
-for $PORTAL_CONFIG in "${PORTAL_CONFIGS[@]}"
+for PORTAL_CONFIG in "${PORTAL_CONFIGS[@]}"
 do
 	scp $PORTAL_CONFIG $PORTAL_USER@$PORTAL_HOST:/etc/
 done
