@@ -3,6 +3,6 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-Depends: java7-runtime
+Depends: java7-runtime, adduser
 Description: [[description]]
 Maintainer: bimschas@itm.uni-luebeck.de

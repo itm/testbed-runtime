@@ -30,6 +30,7 @@
 
 	<properties>
 		<project.pathName>tr.iwsn-gateway</project.pathName>
+		<project.systemUser>iwsn-gateway</project.systemUser>
 	</properties>
 
 	<parent>
@@ -152,15 +153,14 @@
 								<data>
 									<type>template</type>
 									<paths>
-										<path>etc/${project.artifactId}</path>
 										<path>var/lib/${project.pathName}</path>
 										<path>var/log/${project.pathName}</path>
 										<path>var/run/${project.pathName}</path>
 									</paths>
 									<mapper>
 										<type>perm</type>
-										<user>root</user>
-										<group>root</group>
+										<user>${project.systemUser}</user>
+										<group>${project.systemUser}</group>
 									</mapper>
 								</data>
 
