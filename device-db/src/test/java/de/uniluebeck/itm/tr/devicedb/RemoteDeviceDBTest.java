@@ -6,10 +6,7 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.util.NetworkUtils;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -18,6 +15,7 @@ import java.net.URI;
 import java.util.Properties;
 
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
+import static org.junit.Assert.assertNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RemoteDeviceDBTest extends DeviceDBTestBase {
@@ -27,6 +25,8 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 	}
 
 	private static int port = NetworkUtils.findFreePort();
+
+	private static int portWithoutService = NetworkUtils.findFreePort();
 
 	private static DeviceDBServer deviceDBServer;
 
@@ -75,5 +75,16 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 	@AfterClass
 	public static void stopServer() {
 		deviceDBServer.stopAndWait();
+	}
+
+	@Test(expected = Exception.class)
+	public void testIfGetByMacAddressThrowsExceptionIfRemoteUriDoesNotRunAService() {
+
+		DeviceDBService db = Guice.createInjector(
+				new RemoteDeviceDBModule(URI.create("http://localhost:" + portWithoutService + "/rest/wrong/uri"))
+		).getInstance(DeviceDBService.class);
+		db.startAndWait();
+
+		assertNull(db.getConfigByMacAddress(0x1234L));
 	}
 }

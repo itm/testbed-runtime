@@ -250,4 +250,14 @@ public abstract class DeviceDBTestBase {
 		assertEquals(config1, retrievedConfig);
 	}
 
+	@Test
+	public void testIfGetByMacAddressWithUnknownMacReturnsNull() {
+
+		db.add(config1);
+		db.add(config2);
+
+		final Long macAddress = StringUtils.parseHexOrDecLongFromUrn(config3.getNodeUrn().toString());
+
+		assertNull(db.getConfigByMacAddress(macAddress));
+	}
 }
