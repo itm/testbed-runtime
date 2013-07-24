@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
@@ -23,6 +24,7 @@ import java.util.concurrent.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.util.concurrent.ExecutorUtils.shutdown;
 
 public class DeviceObserverWrapper extends AbstractService implements DeviceObserverListener {
@@ -30,6 +32,8 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 	private static final Logger log = LoggerFactory.getLogger(DeviceObserverWrapper.class);
 
 	private final Map<String, DeviceAdapter> connectedDevices = newHashMap();
+
+	private final Set<DeviceInfo> detectedButNotConnectedDevices = newHashSet();
 
 	private final DeviceDBService deviceDBService;
 
@@ -44,6 +48,42 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 	private ScheduledFuture<?> deviceObserverSchedule;
 
 	private ExecutorService deviceDriverExecutorService;
+
+	private Runnable tryToConnectToDetectedButUnconnectedDevicesRunnable = new Runnable() {
+		@Override
+		public void run() {
+			synchronized (detectedButNotConnectedDevices) {
+
+				log.trace("Before retrying to connect: detectedButNotConnectedDevices: {}",
+						detectedButNotConnectedDevices
+				);
+
+				for (Iterator<DeviceInfo> iterator = detectedButNotConnectedDevices.iterator(); iterator.hasNext(); ) {
+					final DeviceInfo deviceInfo = iterator.next();
+					if (tryToConnectToDevice(deviceInfo)) {
+						iterator.remove();
+					}
+				}
+
+				log.trace("After retrying to connect: detectedButNotConnectedDevices: {}",
+						detectedButNotConnectedDevices
+				);
+
+				synchronized (tryToConnectToDetectedButUnconnectedDevicesScheduleLock) {
+
+					if (detectedButNotConnectedDevices.isEmpty() &&
+							tryToConnectToDetectedButUnconnectedDevicesSchedule != null) {
+						tryToConnectToDetectedButUnconnectedDevicesSchedule.cancel(false);
+					}
+				}
+			}
+		}
+	};
+
+	private final Object tryToConnectToDetectedButUnconnectedDevicesScheduleLock = new Object();
+
+	@Nullable
+	private ScheduledFuture<?> tryToConnectToDetectedButUnconnectedDevicesSchedule;
 
 	@Inject
 	public DeviceObserverWrapper(final DeviceDBService deviceDBService,
@@ -112,68 +152,98 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 	public void deviceEvent(final DeviceEvent event) {
 		switch (event.getType()) {
 			case ATTACHED:
-				onDeviceAttached(event.getDeviceInfo());
+				if (!tryToConnectToDevice(event.getDeviceInfo())) {
+					scheduleToRetryConnectionToDevice(event.getDeviceInfo());
+				}
 				break;
 			case REMOVED:
-				onDeviceDetached(event.getDeviceInfo());
+				onDeviceDetachedFromDeviceObserver(event.getDeviceInfo());
 				break;
 		}
 	}
 
-	private void onDeviceAttached(final DeviceInfo deviceInfo) {
+	private boolean tryToConnectToDevice(final DeviceInfo deviceInfo) {
 
-		log.trace("DeviceObserverWrapper.onDeviceAttached({})", deviceInfo);
+		log.trace("DeviceObserverWrapper.tryToConnectToDevice({})", deviceInfo);
 
 		final boolean deviceAlreadyConnected;
 		synchronized (connectedDevices) {
 			deviceAlreadyConnected = connectedDevices.containsKey(deviceInfo.getPort());
 		}
 
-		if (!deviceAlreadyConnected) {
+		if (deviceAlreadyConnected) {
+			return true;
+		}
 
-			final DeviceConfig deviceConfig = getDeviceConfigFromDeviceDB(deviceInfo);
+		final DeviceConfig deviceConfig = getDeviceConfigFromDeviceDB(deviceInfo);
 
-			if (deviceConfig == null) {
-				log.warn("Ignoring unknown device: {}", deviceInfo);
-				return;
+		if (deviceConfig == null) {
+			log.warn("Ignoring device unknown to DeviceDB: {}", deviceInfo);
+			return false;
+		}
+
+		try {
+
+			for (DeviceAdapterFactory deviceAdapterFactory : deviceAdapterFactories) {
+
+				if (deviceAdapterFactory.canHandle(deviceConfig)) {
+
+					final DeviceAdapter deviceAdapter = deviceAdapterFactory.create(
+							deviceInfo.getPort(),
+							deviceConfig
+					);
+
+					deviceAdapter.startAndWait();
+
+					synchronized (connectedDevices) {
+						connectedDevices.put(deviceInfo.getPort(), deviceAdapter);
+					}
+
+					return true;
+				}
 			}
 
-			try {
+			return false;
 
-				for (DeviceAdapterFactory deviceAdapterFactory : deviceAdapterFactories) {
+		} catch (Exception e) {
+			log.error("{} => Could not connect to {} device at {}.", e);
+			return false;
+		}
+	}
 
-					if (deviceAdapterFactory.canHandle(deviceConfig)) {
+	private void scheduleToRetryConnectionToDevice(final DeviceInfo deviceInfo) {
 
-						final DeviceAdapter deviceAdapter = deviceAdapterFactory.create(
-								deviceInfo.getPort(),
-								deviceConfig
-						);
+		synchronized (detectedButNotConnectedDevices) {
 
-						deviceAdapter.startAndWait();
+			detectedButNotConnectedDevices.add(deviceInfo);
 
-						synchronized (connectedDevices) {
-							connectedDevices.put(deviceInfo.getPort(), deviceAdapter);
-						}
-					}
+			synchronized (tryToConnectToDetectedButUnconnectedDevicesScheduleLock) {
+				if (tryToConnectToDetectedButUnconnectedDevicesSchedule == null) {
+					tryToConnectToDetectedButUnconnectedDevicesSchedule = scheduler
+							.scheduleAtFixedRate(tryToConnectToDetectedButUnconnectedDevicesRunnable, 30, 30, TimeUnit.SECONDS);
 				}
-
-			} catch (Exception e) {
-				log.error("{} => Could not connect to {} device at {}.", e);
-				throw new RuntimeException(e);
 			}
 		}
 	}
 
-	private void onDeviceDetached(final DeviceInfo deviceInfo) {
+	private void onDeviceDetachedFromDeviceObserver(final DeviceInfo deviceInfo) {
 
-		log.trace("DeviceObserverWrapper.onDeviceDetached({})", deviceInfo);
+		log.trace("DeviceObserverWrapper.onDeviceDetachedFromDeviceObserver({})", deviceInfo);
 
-		final DeviceAdapter deviceAdapter = connectedDevices.get(deviceInfo.getPort());
+		synchronized (connectedDevices) {
+			final DeviceAdapter deviceAdapter = connectedDevices.get(deviceInfo.getPort());
 
-		if (deviceAdapter != null) {
-			deviceAdapter.stopAndWait();
-			synchronized (connectedDevices) {
-				connectedDevices.remove(deviceInfo.getPort());
+			if (deviceAdapter != null) {
+				deviceAdapter.stopAndWait();
+				synchronized (connectedDevices) {
+					connectedDevices.remove(deviceInfo.getPort());
+				}
+			}
+		}
+
+		synchronized (detectedButNotConnectedDevices) {
+			if (detectedButNotConnectedDevices.contains(deviceInfo)) {
+				detectedButNotConnectedDevices.remove(deviceInfo);
 			}
 		}
 	}
