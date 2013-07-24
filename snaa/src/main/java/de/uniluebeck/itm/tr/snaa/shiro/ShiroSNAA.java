@@ -168,11 +168,12 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "")
-			List<AuthenticationTriple> authenticationTriples)
+	public AuthenticateResponse authenticate(
+			@WebParam(name = "authenticate", targetNamespace = "http://wisebed.eu/api/v3/snaa", partName = "parameters")
+			Authenticate parameters)
 			throws AuthenticationFault, SNAAFault_Exception {
 
+		final List<AuthenticationTriple> authenticationTriples = parameters.getAuthenticationData();
 		assertAuthenticationCount(authenticationTriples, 1, 1);
 		assertAllUrnPrefixesServed(servedNodeUrnPrefixesProvider.get(), authenticationTriples);
 
@@ -208,10 +209,9 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 		secretAuthenticationKey.setUsername(authenticationTriple.getUsername());
 
 		/* Return the single secret authentication key in a list (due to the federator) */
-		List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(1);
-		keys.add(secretAuthenticationKey);
-
-		return keys;
+		final AuthenticateResponse authenticateResponse = new AuthenticateResponse();
+		authenticateResponse.getSecretAuthenticationKey().add(secretAuthenticationKey);
+		return authenticateResponse;
 	}
 
 	@Override

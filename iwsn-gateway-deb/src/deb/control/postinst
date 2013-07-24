@@ -1,7 +1,7 @@
 #!/bin/sh
 
 USER=[[project.systemUser]]
-GROUP=testbed-runtime
+GROUP=[[project.systemGroup]]
 
 set -e
 
@@ -21,9 +21,7 @@ case "$1" in
   
   	# Create User and a Group with the same name as the User
     if ! getent passwd $USER >/dev/null; then
-		adduser --disabled-password  --quiet --system \
-			--home /var/run/$USER --no-create-home \
-			--gecos "${USER} daemon" --group $USER
+		adduser --disabled-password --quiet --system --home /var/run/$USER --gecos "${USER} daemon" --group $USER
     fi
     
 	# Add the additional group GROUP unless it's already there
@@ -35,6 +33,12 @@ case "$1" in
 	if test -n $GROUP
 	then
 		adduser $USER $GROUP || true
+	fi
+
+	# Add the user to the GROUP 'dialout' so he can connect to serial devices
+	if test -n dialout
+	then
+		adduser $USER dialout || true
 	fi
 	
 	# add daemon to runlevel specified in its header

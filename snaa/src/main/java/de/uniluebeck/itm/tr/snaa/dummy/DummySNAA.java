@@ -34,7 +34,6 @@ import eu.wisebed.api.v3.snaa.*;
 
 import javax.jws.WebService;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -64,20 +63,21 @@ public class DummySNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
+	public AuthenticateResponse authenticate(final Authenticate parameters)
 			throws AuthenticationFault, SNAAFault_Exception {
 
-		final List<SecretAuthenticationKey> keys = new ArrayList<SecretAuthenticationKey>(authenticationData.size());
+		final List<AuthenticationTriple> authenticationData = parameters.getAuthenticationData();
+		final AuthenticateResponse authenticateResponse = new AuthenticateResponse();
 
 		for (AuthenticationTriple triple : authenticationData) {
 			SecretAuthenticationKey secretAuthenticationKey = new SecretAuthenticationKey();
 			secretAuthenticationKey.setUrnPrefix(triple.getUrnPrefix());
 			secretAuthenticationKey.setKey(Long.toString(r.nextLong()));
 			secretAuthenticationKey.setUsername(triple.getUsername());
-			keys.add(secretAuthenticationKey);
+			authenticateResponse.getSecretAuthenticationKey().add(secretAuthenticationKey);
 		}
 
-		return keys;
+		return authenticateResponse;
 	}
 
 	@Override

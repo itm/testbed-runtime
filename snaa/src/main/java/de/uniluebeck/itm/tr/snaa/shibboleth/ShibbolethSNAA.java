@@ -43,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jws.WebService;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -117,9 +116,10 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
+	public AuthenticateResponse authenticate(final Authenticate authenticate)
 			throws AuthenticationFault, SNAAFault_Exception {
 
+		final List<AuthenticationTriple> authenticationData = authenticate.getAuthenticationData();
 		HashSet<SecretAuthenticationKey> keys = new HashSet<SecretAuthenticationKey>();
 		log.debug("Starting for " + authenticationData.size() + " urns.");
 
@@ -190,7 +190,9 @@ public class ShibbolethSNAA extends AbstractService implements de.uniluebeck.itm
 		}
 
 		log.debug("Done, returning " + keys.size() + " secret authentication key(s).");
-		return new ArrayList<SecretAuthenticationKey>(keys);
+		final AuthenticateResponse authenticateResponse = new AuthenticateResponse();
+		authenticateResponse.getSecretAuthenticationKey().addAll(keys);
+		return authenticateResponse;
 
 	}
 

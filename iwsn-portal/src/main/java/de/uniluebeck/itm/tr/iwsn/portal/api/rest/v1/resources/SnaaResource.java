@@ -6,10 +6,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SnaaSecretAuthentication
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.NotLoggedInException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.snaa.AuthenticationFault;
-import eu.wisebed.api.v3.snaa.SNAA;
-import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
-import eu.wisebed.api.v3.snaa.ValidationResult;
+import eu.wisebed.api.v3.snaa.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -89,8 +86,10 @@ public class SnaaResource {
 	@Path("login")
 	public Response login(final LoginData loginData) throws SNAAFault_Exception, AuthenticationFault {
 
-		SnaaSecretAuthenticationKeyList loginResult = new SnaaSecretAuthenticationKeyList(
-				snaa.authenticate(loginData.authenticationData)
+		final Authenticate authenticate = new Authenticate();
+		authenticate.getAuthenticationData().addAll(loginData.authenticationData);
+		final SnaaSecretAuthenticationKeyList loginResult = new SnaaSecretAuthenticationKeyList(
+				snaa.authenticate(authenticate).getSecretAuthenticationKey()
 		);
 
 		return Response

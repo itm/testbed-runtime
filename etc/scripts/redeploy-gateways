@@ -38,9 +38,9 @@ done
 
 for GATEWAY_HOST in "${GATEWAY_HOSTS[@]}"
 do
-	for GATEWAY_CONFIG in "${GATEWAY_CONFIGS[0]}"
+	for GATEWAY_CONFIG in "${GATEWAY_CONFIGS[@]}"
 	do
-		echo "*** Copying config file(s) to $GATEWAY_HOST ***"
+		echo "*** Copying config file $GATEWAY_CONFIG to $GATEWAY_HOST ***"
 		scp $GATEWAY_CONFIG $GATEWAY_USER@$GATEWAY_HOST:/etc/
 	done
 done

@@ -17,7 +17,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
-import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.Authenticate;
 import eu.wisebed.api.v3.snaa.AuthenticationFault;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
@@ -30,6 +30,7 @@ import java.util.*;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.inject.util.Providers.of;
+import static eu.wisebed.api.v3.snaa.Action.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -131,7 +132,8 @@ public abstract class ShiroSNAATestBase {
 
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
 		try {
-			List<SecretAuthenticationKey> sakList = shiroSNAA.authenticate(authenticationData);
+			List<SecretAuthenticationKey> sakList =
+					shiroSNAA.authenticate(wrap(authenticationData)).getSecretAuthenticationKey();
 			assertNotNull(sakList);
 			assertEquals(EXPERIMENTER1, sakList.get(0).getUsername());
 			assertEquals(NODE_URN_PREFIX_1, sakList.get(0).getUrnPrefix());
@@ -146,6 +148,12 @@ public abstract class ShiroSNAATestBase {
 
 	}
 
+	private Authenticate wrap(final List<AuthenticationTriple> authenticationData) {
+		final Authenticate authenticate = new Authenticate();
+		authenticate.getAuthenticationData().addAll(authenticationData);
+		return authenticate;
+	}
+
 	@Test
 	public void testAuthenticationFailForExperimenter1DueToWrongPassword() {
 
@@ -156,7 +164,7 @@ public abstract class ShiroSNAATestBase {
 		List<AuthenticationTriple> authenticationData = new LinkedList<AuthenticationTriple>();
 		authenticationData.add(authTriple);
 		try {
-			shiroSNAA.authenticate(authenticationData);
+			shiroSNAA.authenticate(wrap(authenticationData));
 			fail();
 		} catch (AuthenticationFault e) {
 			// an exception has to be thrown
@@ -170,7 +178,8 @@ public abstract class ShiroSNAATestBase {
 
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForServiceProvider1();
 		try {
-			List<SecretAuthenticationKey> sakList = shiroSNAA.authenticate(authenticationData);
+			List<SecretAuthenticationKey> sakList =
+					shiroSNAA.authenticate(wrap(authenticationData)).getSecretAuthenticationKey();
 			assertNotNull(sakList);
 			assertEquals(SERVICE_PROVIDER1, sakList.get(0).getUsername());
 			assertEquals(NODE_URN_PREFIX_1, sakList.get(0).getUrnPrefix());
@@ -190,7 +199,7 @@ public abstract class ShiroSNAATestBase {
 
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListWithEmptyUserName();
 		try {
-			shiroSNAA.authenticate(authenticationData);
+			shiroSNAA.authenticate(wrap(authenticationData));
 		} catch (NullPointerException e) {
 			assertEquals("The user could not be authenticated: username is null.", e.getMessage());
 			return;
@@ -207,7 +216,7 @@ public abstract class ShiroSNAATestBase {
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
 		List<SecretAuthenticationKey> sakList = null;
 		try {
-			sakList = shiroSNAA.authenticate(authenticationData);
+			sakList = shiroSNAA.authenticate(wrap(authenticationData)).getSecretAuthenticationKey();
 		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -230,7 +239,7 @@ public abstract class ShiroSNAATestBase {
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
 		List<SecretAuthenticationKey> sakList = null;
 		try {
-			sakList = shiroSNAA.authenticate(authenticationData);
+			sakList = shiroSNAA.authenticate(wrap(authenticationData)).getSecretAuthenticationKey();
 		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -253,7 +262,7 @@ public abstract class ShiroSNAATestBase {
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
 		List<SecretAuthenticationKey> sakList = null;
 		try {
-			sakList = shiroSNAA.authenticate(authenticationData);
+			sakList = shiroSNAA.authenticate(wrap(authenticationData)).getSecretAuthenticationKey();
 		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -276,7 +285,7 @@ public abstract class ShiroSNAATestBase {
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
 		List<SecretAuthenticationKey> sakList = null;
 		try {
-			sakList = shiroSNAA.authenticate(authenticationData);
+			sakList = shiroSNAA.authenticate(wrap(authenticationData)).getSecretAuthenticationKey();
 		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -305,7 +314,7 @@ public abstract class ShiroSNAATestBase {
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
 		List<SecretAuthenticationKey> sakList = null;
 		try {
-			sakList = shiroSNAA.authenticate(authenticationData);
+			sakList = shiroSNAA.authenticate(wrap(authenticationData)).getSecretAuthenticationKey();
 		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -336,7 +345,7 @@ public abstract class ShiroSNAATestBase {
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
 		List<SecretAuthenticationKey> sakList = null;
 		try {
-			sakList = shiroSNAA.authenticate(authenticationData);
+			sakList = shiroSNAA.authenticate(wrap(authenticationData)).getSecretAuthenticationKey();
 		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -367,7 +376,7 @@ public abstract class ShiroSNAATestBase {
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
 		List<SecretAuthenticationKey> sakList = null;
 		try {
-			sakList = shiroSNAA.authenticate(authenticationData);
+			sakList = shiroSNAA.authenticate(wrap(authenticationData)).getSecretAuthenticationKey();
 		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -396,7 +405,7 @@ public abstract class ShiroSNAATestBase {
 		List<AuthenticationTriple> authenticationData = getAuthenticationTripleListForExperimenter1();
 		List<SecretAuthenticationKey> sakList = null;
 		try {
-			sakList = shiroSNAA.authenticate(authenticationData);
+			sakList = shiroSNAA.authenticate(wrap(authenticationData)).getSecretAuthenticationKey();
 		} catch (AuthenticationFault e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -460,7 +469,7 @@ public abstract class ShiroSNAATestBase {
 				NODE_URN_PREFIX_1, "urn:wisebed:uzl2:0x2211"
 		);
 		try {
-			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.SM_ARE_NODES_ALIVE).isAuthorized());
+			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, SM_ARE_NODES_ALIVE).isAuthorized());
 		} catch (SNAAFault_Exception e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -473,7 +482,7 @@ public abstract class ShiroSNAATestBase {
 				NODE_URN_PREFIX_1, "urn:wisebed:ulanc:0x1211"
 		);
 		try {
-			shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.SM_ARE_NODES_ALIVE).isAuthorized();
+			shiroSNAA.isAuthorized(usernameNodeUrnsMaps, SM_ARE_NODES_ALIVE).isAuthorized();
 			fail();
 		} catch (SNAAFault_Exception e) {
 			// expected exception 
@@ -487,7 +496,7 @@ public abstract class ShiroSNAATestBase {
 				NODE_URN_PREFIX_1, "urn:wisebed:uzl2:0x2211"
 		);
 		try {
-			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
+			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -500,7 +509,7 @@ public abstract class ShiroSNAATestBase {
 				NODE_URN_PREFIX_1, "urn:wisebed:uzl2:0x2211"
 		);
 		try {
-			assertFalse(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
+			assertFalse(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -513,7 +522,7 @@ public abstract class ShiroSNAATestBase {
 				NODE_URN_PREFIX_1, "urn:wisebed:uzl2:0x2311"
 		);
 		try {
-			assertFalse(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_FLASH_PROGRAMS).isAuthorized());
+			assertFalse(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -526,7 +535,7 @@ public abstract class ShiroSNAATestBase {
 				NODE_URN_PREFIX_1, "urn:wisebed:uzl2:0x2311"
 		);
 		try {
-			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, Action.WSN_ARE_NODES_ALIVE).isAuthorized());
+			assertTrue(shiroSNAA.isAuthorized(usernameNodeUrnsMaps, WSN_ARE_NODES_ALIVE).isAuthorized());
 		} catch (SNAAFault_Exception e) {
 			log.error(e.getMessage(), e);
 			fail();
@@ -594,7 +603,7 @@ public abstract class ShiroSNAATestBase {
 	 */
 	protected User getExperimenter1() {
 		Role role = new Role("EXPERIMENTER");
-		role.setPermissions(newHashSet(getPermissionsObject(Action.WSN_FLASH_PROGRAMS, "EXPERIMENT_ONLY_NODES")));
+		role.setPermissions(newHashSet(getPermissionsObject(WSN_FLASH_PROGRAMS, "EXPERIMENT_ONLY_NODES")));
 		return new User(EXPERIMENTER1, EXPERIMENTER1_PASS_HASHED, EXPERIMENTER1_SALT, newHashSet(role));
 	}
 
@@ -605,7 +614,7 @@ public abstract class ShiroSNAATestBase {
 	 */
 	protected User getServiceProvider1() {
 		Role role = new Role("SERVICE_PROVIDER");
-		role.setPermissions(newHashSet(getPermissionsObject(Action.WSN_ARE_NODES_ALIVE, "SERVICE_ONLY_NODES")));
+		role.setPermissions(newHashSet(getPermissionsObject(WSN_ARE_NODES_ALIVE, "SERVICE_ONLY_NODES")));
 		return new User(SERVICE_PROVIDER1, SERVICE_PROVIDER1_PASS_HASHED, SERVICE_PROVIDER1_SALT, newHashSet(role));
 	}
 
@@ -618,13 +627,13 @@ public abstract class ShiroSNAATestBase {
 		Role role = new Role("ADMINISTRATOR");
 		Set<Permission> permissionsSet = new HashSet<Permission>();
 		role.setPermissions(permissionsSet);
-		permissionsSet.add(getPermissionsObject(Action.WSN_ARE_NODES_ALIVE, "SERVICE_ONLY_NODES"));
-		permissionsSet.add(getPermissionsObject(Action.SM_ARE_NODES_ALIVE, "EXPERIMENT_ONLY_NODES"));
+		permissionsSet.add(getPermissionsObject(WSN_ARE_NODES_ALIVE, "SERVICE_ONLY_NODES"));
+		permissionsSet.add(getPermissionsObject(SM_ARE_NODES_ALIVE, "EXPERIMENT_ONLY_NODES"));
 		return new User(ADMINISTRATOR1, ADMINISTRATOR1_PASS_HASHED, ADMINISTRATOR1_SALT, newHashSet(role));
 	}
 
 
-	protected Permission getPermissionsObject(Action action, String resourceGroupsName) {
+	protected Permission getPermissionsObject(eu.wisebed.api.v3.snaa.Action action, String resourceGroupsName) {
 		Permission permission = new Permission();
 		permission.setAction(new de.uniluebeck.itm.tr.snaa.shiro.entity.Action(action.name()));
 		permission.setResourceGroup(new ResourceGroup(resourceGroupsName));

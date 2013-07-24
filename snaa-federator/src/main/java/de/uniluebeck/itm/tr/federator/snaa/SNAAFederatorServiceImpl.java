@@ -78,34 +78,35 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
+	public AuthenticateResponse authenticate(final Authenticate authenticate)
 			throws AuthenticationFault, SNAAFault_Exception {
 
 		checkState(isRunning());
 
-		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet = getIntersectionPrefixSetAT(authenticationData);
+		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet = getIntersectionPrefixSetAT(authenticate.getAuthenticationData());
 
-		Set<Future<List<SecretAuthenticationKey>>> futures = new HashSet<Future<List<SecretAuthenticationKey>>>();
+		Set<Future<AuthenticateResponse>> futures = new HashSet<Future<AuthenticateResponse>>();
 
 		for (SNAA snaa : intersectionPrefixSet.keySet()) {
 
-			final ArrayList<AuthenticationTriple> atList = newArrayList(intersectionPrefixSet.get(snaa));
-			final AuthenticationCallable callable = new AuthenticationCallable(snaa, atList);
+			final Authenticate subAuth = new Authenticate();
+			subAuth.getAuthenticationData().addAll(newArrayList(intersectionPrefixSet.get(snaa)));
+			final AuthenticationCallable callable = new AuthenticationCallable(snaa, subAuth);
 
 			futures.add(executorService.submit(callable));
 		}
 
-		final List<SecretAuthenticationKey> resultSet = newArrayList();
+		final AuthenticateResponse authenticateResponse = new AuthenticateResponse();
 
-		for (Future<List<SecretAuthenticationKey>> future : futures) {
+		for (Future<AuthenticateResponse> future : futures) {
 			try {
-				resultSet.addAll(future.get());
+				authenticateResponse.getSecretAuthenticationKey().addAll(future.get().getSecretAuthenticationKey());
 			} catch (Exception e) {
 				throw createSNAAFault(e.getMessage(), e);
 			}
 		}
 
-		return resultSet;
+		return authenticateResponse;
 
 	}
 

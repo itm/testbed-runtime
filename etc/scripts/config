@@ -15,3 +15,4 @@ GATEWAY_USER=root
 GATEWAY_HOSTS[0]=testbeduzl22.wisebed.itm.uni-luebeck.de
 GATEWAY_HOSTS[1]=testbeduzl35.wisebed.itm.uni-luebeck.de
 GATEWAY_CONFIGS[0]=tr.iwsn-gateway.properties
+GATEWAY_CONFIGS[1]=tr.iwsn-gateway.log4j.properties

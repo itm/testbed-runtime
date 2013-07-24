@@ -134,7 +134,9 @@ public class ShibbolethTestClient {
 					+ "]"
 			);
 			try {
-				List<SecretAuthenticationKey> list = port.authenticate(authTriples);
+				final Authenticate parameters = new Authenticate();
+				parameters.getAuthenticationData().addAll(authTriples);
+				List<SecretAuthenticationKey> list = port.authenticate(parameters).getSecretAuthenticationKey();
 
 				System.out.println("Authentication succeeded, secret authentication key(s): ");
 				for (SecretAuthenticationKey sak : list) {

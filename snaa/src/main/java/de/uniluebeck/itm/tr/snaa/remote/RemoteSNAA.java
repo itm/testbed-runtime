@@ -66,11 +66,12 @@ public class RemoteSNAA extends AbstractService implements SNAAService {
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(
-			@WebParam(name = "authenticationData", targetNamespace = "") final List<AuthenticationTriple> authenticationData)
+	public AuthenticateResponse authenticate(
+			@WebParam(name = "authenticate", targetNamespace = "http://wisebed.eu/api/v3/snaa", partName = "parameters")
+			Authenticate parameters)
 			throws AuthenticationFault, SNAAFault_Exception {
 		checkState(isRunning());
-		return snaa.authenticate(authenticationData);
+		return snaa.authenticate(parameters);
 	}
 
 	@Override

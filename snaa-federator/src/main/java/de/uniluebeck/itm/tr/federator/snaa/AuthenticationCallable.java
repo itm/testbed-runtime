@@ -1,26 +1,25 @@
 package de.uniluebeck.itm.tr.federator.snaa;
 
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.snaa.AuthenticationTriple;
+import eu.wisebed.api.v3.snaa.Authenticate;
+import eu.wisebed.api.v3.snaa.AuthenticateResponse;
 import eu.wisebed.api.v3.snaa.SNAA;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
-class AuthenticationCallable implements Callable<List<SecretAuthenticationKey>> {
+class AuthenticationCallable implements Callable<AuthenticateResponse> {
 
 	private final SNAA snaa;
 
-	private final List<AuthenticationTriple> authenticationTriples;
+	private final Authenticate authenticate;
 
-	public AuthenticationCallable(SNAA snaa, List<AuthenticationTriple> authenticationTriples) {
+	public AuthenticationCallable(SNAA snaa, Authenticate authenticate) {
 		this.snaa = snaa;
-		this.authenticationTriples = authenticationTriples;
+		this.authenticate = authenticate;
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> call() throws Exception {
-		return snaa.authenticate(authenticationTriples);
+	public AuthenticateResponse call() throws Exception {
+		return snaa.authenticate(authenticate);
 	}
 
 }

@@ -31,6 +31,7 @@
 	<properties>
 		<project.pathName>tr.iwsn-gateway</project.pathName>
 		<project.systemUser>iwsn-gateway</project.systemUser>
+		<project.systemGroup>iwsn-gateway</project.systemGroup>
 	</properties>
 
 	<parent>
@@ -44,13 +45,11 @@
 	<name>TR :: iWSN Portal Debian Package</name>	
 
 	<dependencies>
-
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.iwsn-gateway</artifactId>
 			<classifier>server</classifier>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -155,12 +154,12 @@
 									<paths>
 										<path>var/lib/${project.pathName}</path>
 										<path>var/log/${project.pathName}</path>
-										<path>var/run/${project.pathName}</path>
+										<path>var/run/${project.systemUser}</path>
 									</paths>
 									<mapper>
 										<type>perm</type>
 										<user>${project.systemUser}</user>
-										<group>${project.systemUser}</group>
+										<group>${project.systemGroup}</group>
 									</mapper>
 								</data>
 

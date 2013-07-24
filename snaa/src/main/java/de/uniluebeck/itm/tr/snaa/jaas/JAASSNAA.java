@@ -42,7 +42,6 @@ import javax.jws.WebService;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -133,9 +132,10 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 	private TimedCache<String, AuthData> authenticatedSessions = new TimedCache<String, AuthData>(30, TimeUnit.MINUTES);
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
+	public AuthenticateResponse authenticate(final Authenticate authenticate)
 			throws AuthenticationFault, SNAAFault_Exception {
 
+		final List<AuthenticationTriple> authenticationData = authenticate.getAuthenticationData();
 		assertAuthenticationCount(authenticationData, 1, 1);
 		assertUrnPrefixServed(servedNodeUrnPrefixesProvider.get(), authenticationData);
 		AuthenticationTriple authenticationTriple = authenticationData.get(0);
@@ -159,10 +159,9 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 			secretAuthenticationKey.setUrnPrefix(authenticationTriple.getUrnPrefix());
 			secretAuthenticationKey.setUsername(username);
 
-			List<SecretAuthenticationKey> secretAuthenticationKeyList = new ArrayList<SecretAuthenticationKey>(1);
-			secretAuthenticationKeyList.add(secretAuthenticationKey);
-
-			return secretAuthenticationKeyList;
+			final AuthenticateResponse authenticateResponse = new AuthenticateResponse();
+			authenticateResponse.getSecretAuthenticationKey().add(secretAuthenticationKey);
+			return authenticateResponse;
 
 		} catch (LoginException le) {
 			log.debug("LoginException: " + le, le);
