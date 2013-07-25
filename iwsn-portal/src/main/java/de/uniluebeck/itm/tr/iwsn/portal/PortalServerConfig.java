@@ -4,10 +4,11 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import de.uniluebeck.itm.util.propconf.PropConf;
 import de.uniluebeck.itm.util.propconf.converters.MultimapTypeConverter;
 import de.uniluebeck.itm.util.propconf.converters.URITypeConverter;
-import de.uniluebeck.itm.util.propconf.PropConf;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 
 public class PortalServerConfig {
@@ -121,6 +122,15 @@ public class PortalServerConfig {
 	@Named(WISEGUI_TESTBED_NAME)
 	private String wiseguiTestbedName;
 
+	@PropConf(
+			usage = "Path to a directory which Testbed Runtime will check for plugins"
+	)
+	public static final String PLUGIN_DIRECTORY = "portal.plugin_directory";
+
+	@Inject(optional = true)
+	@Named(PLUGIN_DIRECTORY)
+	private String pluginDirectory;
+
 	public int getOverlayPort() {
 		return overlayPort;
 	}
@@ -159,5 +169,10 @@ public class PortalServerConfig {
 
 	public String getWiseguiTestbedName() {
 		return wiseguiTestbedName;
+	}
+
+	@Nullable
+	public String getPluginDirectory() {
+		return pluginDirectory;
 	}
 }

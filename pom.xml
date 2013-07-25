@@ -50,6 +50,7 @@
 		<module>snaa-common</module>
 		<module>snaa-federator</module>
 		<module>snaa</module>
+		<module>plugins/default-image</module>
 	</modules>
 
 	<dependencyManagement>
@@ -234,6 +235,11 @@
 			</dependency>
 
 			<!-- 3rd party libraries -->
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.framework</artifactId>
+				<version>4.2.1</version>
+			</dependency>
 			<dependency>
 				<groupId>args4j</groupId>
 				<artifactId>args4j</artifactId>

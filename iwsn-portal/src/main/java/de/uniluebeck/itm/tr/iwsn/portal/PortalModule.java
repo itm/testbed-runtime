@@ -27,6 +27,7 @@ import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
+import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginModule;
 import de.uniluebeck.itm.tr.rs.RSServiceConfig;
 import de.uniluebeck.itm.tr.rs.RSServiceModule;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
@@ -116,6 +117,8 @@ public class PortalModule extends AbstractModule {
 		install(new SoapApiModule());
 		install(new RestApiModule());
 		install(new WiseGuiServiceModule());
+
+		install(new PortalPluginModule());
 	}
 
 	@Provides

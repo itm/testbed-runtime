@@ -12,6 +12,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBRestService;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
+import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginService;
 import de.uniluebeck.itm.tr.rs.RSService;
 import de.uniluebeck.itm.tr.rs.RSServiceConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
@@ -55,6 +56,8 @@ public class PortalServer extends AbstractService {
 
 	private final WiseGuiService wiseGuiService;
 
+	private final PortalPluginService portalPluginService;
+
 	@Inject
 	public PortalServer(final ServicePublisher servicePublisher,
 						final DeviceDBService deviceDBService,
@@ -65,7 +68,8 @@ public class PortalServer extends AbstractService {
 						final DeviceDBRestService deviceDBRestService,
 						final SoapApiService soapApiService,
 						final RestApiService restApiService,
-						final WiseGuiService wiseGuiService) {
+						final WiseGuiService wiseGuiService,
+						final PortalPluginService portalPluginService) {
 
 		this.servicePublisher = checkNotNull(servicePublisher);
 
@@ -80,6 +84,8 @@ public class PortalServer extends AbstractService {
 		this.soapApiService = checkNotNull(soapApiService);
 		this.restApiService = checkNotNull(restApiService);
 		this.wiseGuiService = checkNotNull(wiseGuiService);
+
+		this.portalPluginService = checkNotNull(portalPluginService);
 	}
 
 	@Override
@@ -104,6 +110,8 @@ public class PortalServer extends AbstractService {
 			restApiService.startAndWait();
 			wiseGuiService.startAndWait();
 
+			portalPluginService.startAndWait();
+
 			notifyStarted();
 
 		} catch (Exception e) {
@@ -114,6 +122,8 @@ public class PortalServer extends AbstractService {
 	@Override
 	protected void doStop() {
 		try {
+
+			portalPluginService.stopAndWait();
 
 			// services that the portal server exposes to clients
 			wiseGuiService.stopAndWait();
