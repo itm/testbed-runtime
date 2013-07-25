@@ -23,6 +23,7 @@ import java.util.concurrent.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.util.concurrent.ExecutorUtils.shutdown;
@@ -175,7 +176,13 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 			return true;
 		}
 
-		final DeviceConfig deviceConfig = getDeviceConfigFromDeviceDB(deviceInfo);
+		final DeviceConfig deviceConfig;
+		try {
+			deviceConfig = getDeviceConfigFromDeviceDB(deviceInfo);
+		} catch (Exception e) {
+			log.error("Exception while fetching device configuration from DeviceDB: ", e);
+			return false;
+		}
 
 		if (deviceConfig == null) {
 			log.warn("Ignoring device unknown to DeviceDB: {}", deviceInfo);
@@ -206,7 +213,14 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 			return false;
 
 		} catch (Exception e) {
-			log.error("{} => Could not connect to {} device at {}.", e);
+			if (log.isErrorEnabled()) {
+				log.error("{} => Could not connect to {} device at {}: {}",
+						deviceConfig.getNodeUrn(),
+						deviceConfig.getNodeType(),
+						deviceInfo.getPort(),
+						getStackTraceAsString(e)
+				);
+			}
 			return false;
 		}
 	}
@@ -220,7 +234,9 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 			synchronized (tryToConnectToDetectedButUnconnectedDevicesScheduleLock) {
 				if (tryToConnectToDetectedButUnconnectedDevicesSchedule == null) {
 					tryToConnectToDetectedButUnconnectedDevicesSchedule = scheduler
-							.scheduleAtFixedRate(tryToConnectToDetectedButUnconnectedDevicesRunnable, 30, 30, TimeUnit.SECONDS);
+							.scheduleAtFixedRate(tryToConnectToDetectedButUnconnectedDevicesRunnable, 30, 30,
+									TimeUnit.SECONDS
+							);
 				}
 			}
 		}
