@@ -82,45 +82,7 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 					throw new IllegalArgumentException(pluginDirectory.getAbsolutePath() + " is not readable!");
 				}
 
-				pluginContainer = pluginContainerFactory.create(
-						pluginDirectory.getAbsolutePath(),
-						"com.google.common.annotations",
-						"com.google.common.base",
-						"com.google.common.cache",
-						"com.google.common.collect",
-						"com.google.common.eventbus",
-						"com.google.common.hash",
-						"com.google.common.io",
-						"com.google.common.math",
-						"com.google.common.net",
-						"com.google.common.primitives",
-						"com.google.common.reflect",
-						"com.google.common.util.concurrent",
-						"de.uniluebeck.itm.util.concurrent",
-						"de.uniluebeck.itm.util.files",
-						"de.uniluebeck.itm.util.util",
-						"de.uniluebeck.itm.tr.common",
-						"de.uniluebeck.itm.tr.common.config",
-						"de.uniluebeck.itm.tr.common.dto",
-						"de.uniluebeck.itm.tr.common.jpa",
-						"de.uniluebeck.itm.tr.common.plugins",
-						"de.uniluebeck.itm.tr.devicedb",
-						"de.uniluebeck.itm.tr.iwsn.common",
-						"de.uniluebeck.itm.tr.iwsn.messages",
-						"de.uniluebeck.itm.tr.iwsn.nodeapi",
-						"de.uniluebeck.itm.tr.iwsn.pipeline",
-						"de.uniluebeck.itm.tr.iwsn.portal",
-						"de.uniluebeck.itm.tr.iwsn.portal.plugins",
-						"de.uniluebeck.itm.tr.common.plugins",
-						"eu.wisebed.api.v3.common",
-						"eu.wisebed.api.v3.controller",
-						"eu.wisebed.api.v3.rs",
-						"eu.wisebed.api.v3.sm",
-						"eu.wisebed.api.v3.snaa",
-						"eu.wisebed.api.v3.wsn",
-						"eu.wisebed.api.v3.util",
-						"org.joda.time"
-				);
+				pluginContainer = pluginContainerFactory.create(pluginDirectory.getAbsolutePath());
 
 				pluginContainer.startAndWait();
 
