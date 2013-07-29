@@ -5,6 +5,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.tr.common.*;
+import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.iwsn.common.*;
 import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
@@ -18,6 +19,7 @@ public class SoapApiModule extends AbstractModule {
 
 		requireBinding(ServedNodeUrnsProvider.class);
 		requireBinding(ServedNodeUrnPrefixesProvider.class);
+		requireBinding(WisemlProvider.class);
 
 		install(new PreconditionsModule());
 

@@ -1,6 +1,9 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.inject.PrivateModule;
+import de.uniluebeck.itm.tr.common.WisemlProvider;
+import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
+import eu.wisebed.wiseml.Wiseml;
 
 public class DeviceDBServiceModule extends PrivateModule {
 
@@ -14,6 +17,7 @@ public class DeviceDBServiceModule extends PrivateModule {
 	protected void configure() {
 
 		requireBinding(DeviceDBConfig.class);
+		requireBinding(WisemlProviderConfig.class);
 
 		switch (deviceDBConfig.getDeviceDBType()) {
 			case IN_MEMORY:
@@ -31,6 +35,11 @@ public class DeviceDBServiceModule extends PrivateModule {
 				);
 		}
 
+		bind(WisemlProvider.class).to(DeviceDBWisemlProvider.class);
+		bind(Wiseml.class).toProvider(DeviceDBWisemlProvider.class);
+
+		expose(WisemlProvider.class);
+		expose(Wiseml.class);
 		expose(DeviceDBService.class);
 	}
 }

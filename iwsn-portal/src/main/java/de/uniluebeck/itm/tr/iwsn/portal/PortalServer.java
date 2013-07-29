@@ -1,10 +1,10 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.util.concurrent.AbstractService;
-import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.inject.Guice.createInjector;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
@@ -171,15 +172,17 @@ public class PortalServer extends AbstractService {
 			);
 		}
 
-		final Injector confInjector = Guice.createInjector(new PropConfModule(
-				config.config,
-				CommonConfig.class,
-				RSServiceConfig.class,
-				DeviceDBConfig.class,
-				PortalServerConfig.class,
-				SNAAServiceConfig.class,
-				WiseGuiServiceConfig.class
-		)
+		final Injector confInjector = createInjector(
+				new PropConfModule(
+						config.config,
+						CommonConfig.class,
+						RSServiceConfig.class,
+						DeviceDBConfig.class,
+						PortalServerConfig.class,
+						SNAAServiceConfig.class,
+						WiseGuiServiceConfig.class,
+						WisemlProviderConfig.class
+				)
 		);
 
 		final CommonConfig commonConfig = confInjector.getInstance(CommonConfig.class);
@@ -188,6 +191,7 @@ public class PortalServer extends AbstractService {
 		final PortalServerConfig portalServerConfig = confInjector.getInstance(PortalServerConfig.class);
 		final SNAAServiceConfig snaaServiceConfig = confInjector.getInstance(SNAAServiceConfig.class);
 		final WiseGuiServiceConfig wiseGuiServiceConfig = confInjector.getInstance(WiseGuiServiceConfig.class);
+		final WisemlProviderConfig wisemlProviderConfig = confInjector.getInstance(WisemlProviderConfig.class);
 
 		final PortalModule portalModule = new PortalModule(
 				commonConfig,
@@ -195,9 +199,11 @@ public class PortalServer extends AbstractService {
 				portalServerConfig,
 				rsServiceConfig,
 				snaaServiceConfig,
-				wiseGuiServiceConfig
+				wiseGuiServiceConfig,
+				wisemlProviderConfig
 		);
-		final PortalServer portalServer = Guice.createInjector(portalModule).getInstance(PortalServer.class);
+
+		final PortalServer portalServer = createInjector(portalModule).getInstance(PortalServer.class);
 
 		try {
 			portalServer.start().get();

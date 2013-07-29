@@ -16,12 +16,10 @@ import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
+import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfigServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBRestServiceModule;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
+import de.uniluebeck.itm.tr.devicedb.*;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
@@ -56,19 +54,23 @@ public class PortalModule extends AbstractModule {
 
 	private final WiseGuiServiceConfig wiseGuiServiceConfig;
 
+	private final WisemlProviderConfig wisemlProviderConfig;
+
 	@Inject
 	public PortalModule(final CommonConfig commonConfig,
 						final DeviceDBConfig deviceDBConfig,
 						final PortalServerConfig portalServerConfig,
 						final RSServiceConfig rsServiceConfig,
 						final SNAAServiceConfig snaaServiceConfig,
-						final WiseGuiServiceConfig wiseGuiServiceConfig) {
+						final WiseGuiServiceConfig wiseGuiServiceConfig,
+						final WisemlProviderConfig wisemlProviderConfig) {
 		this.commonConfig = commonConfig;
 		this.deviceDBConfig = deviceDBConfig;
 		this.portalServerConfig = portalServerConfig;
 		this.rsServiceConfig = rsServiceConfig;
 		this.snaaServiceConfig = snaaServiceConfig;
 		this.wiseGuiServiceConfig = wiseGuiServiceConfig;
+		this.wisemlProviderConfig = wisemlProviderConfig;
 	}
 
 	@Override
@@ -80,6 +82,7 @@ public class PortalModule extends AbstractModule {
 		bind(RSServiceConfig.class).toProvider(of(rsServiceConfig));
 		bind(SNAAServiceConfig.class).toProvider(of(snaaServiceConfig));
 		bind(WiseGuiServiceConfig.class).toProvider(of(wiseGuiServiceConfig));
+		bind(WisemlProviderConfig.class).toProvider(of(wisemlProviderConfig));
 
 		install(new SNAAServiceModule(commonConfig, snaaServiceConfig));
 		install(new RSServiceModule(commonConfig, rsServiceConfig));

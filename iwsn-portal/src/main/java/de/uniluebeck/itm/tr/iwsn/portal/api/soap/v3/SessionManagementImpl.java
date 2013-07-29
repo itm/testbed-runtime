@@ -6,12 +6,11 @@ import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
@@ -24,6 +23,7 @@ import eu.wisebed.api.v3.sm.NodeConnectionStatus;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault;
 import eu.wisebed.api.v3.wsn.WSN;
+import eu.wisebed.wiseml.Wiseml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,6 @@ import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newAreNodesConnectedRequest;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createSMUnknownSecretReservationKeyFault;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
@@ -68,8 +67,6 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final Set<HandlerFactory> handlerFactories;
 
-	private final DeviceDBService deviceDBService;
-
 	private final ReservationManager reservationManager;
 
 	private final Provider<SessionManagementPreconditions> preconditions;
@@ -90,26 +87,27 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final CommonConfig commonConfig;
 
+	private final Provider<Wiseml> wisemlProvider;
+
 	@Inject
 	public SessionManagementImpl(final CommonConfig commonConfig,
 								 final PortalServerConfig portalServerConfig,
 								 final PortalEventBus portalEventBus,
 								 final ResponseTrackerFactory responseTrackerFactory,
 								 final Set<HandlerFactory> handlerFactories,
-								 final DeviceDBService deviceDBService,
 								 final ReservationManager reservationManager,
 								 final WSNServiceFactory wsnServiceFactory,
 								 final AuthorizingWSNFactory authorizingWSNFactory,
 								 final WSNFactory wsnFactory,
 								 final DeliveryManagerFactory deliveryManagerFactory,
 								 final RequestIdProvider requestIdProvider,
-								 final Provider<SessionManagementPreconditions> preconditions) {
+								 final Provider<SessionManagementPreconditions> preconditions,
+								 final Provider<Wiseml> wisemlProvider) {
 		this.commonConfig = checkNotNull(commonConfig);
 		this.portalServerConfig = checkNotNull(portalServerConfig);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.handlerFactories = checkNotNull(handlerFactories);
-		this.deviceDBService = checkNotNull(deviceDBService);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.wsnServiceFactory = checkNotNull(wsnServiceFactory);
 		this.authorizingWSNFactory = checkNotNull(authorizingWSNFactory);
@@ -117,6 +115,7 @@ public class SessionManagementImpl implements SessionManagement {
 		this.deliveryManagerFactory = checkNotNull(deliveryManagerFactory);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
 		this.preconditions = checkNotNull(preconditions);
+		this.wisemlProvider = checkNotNull(wisemlProvider);
 	}
 
 	@Override
@@ -318,7 +317,7 @@ public class SessionManagementImpl implements SessionManagement {
 			className = "eu.wisebed.api.v3.common.GetNetworkResponse"
 	)
 	public String getNetwork() {
-		return serialize(convertToWiseML(deviceDBService.getAll()));
+		return serialize(wisemlProvider.get());
 	}
 
 	@Override

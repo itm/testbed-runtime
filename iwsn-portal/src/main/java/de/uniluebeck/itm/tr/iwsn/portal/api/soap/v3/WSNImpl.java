@@ -2,7 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
+import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static de.uniluebeck.itm.tr.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters.*;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
@@ -30,8 +29,6 @@ public class WSNImpl implements WSN {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNImpl.class);
 
-	private final DeviceDBService deviceDBService;
-
 	private final Reservation reservation;
 
 	private final DeliveryManager deliveryManager;
@@ -40,16 +37,17 @@ public class WSNImpl implements WSN {
 
 	private final RequestIdProvider requestIdProvider;
 
+	private final WisemlProvider wisemlProvider;
+
 	@Inject
-	public WSNImpl(final DeviceDBService deviceDBService,
-				   final RequestIdProvider requestIdProvider,
+	public WSNImpl(final RequestIdProvider requestIdProvider,
+				   final WisemlProvider wisemlProvider,
 				   @Assisted final String reservationId,
 				   @Assisted final Reservation reservation,
 				   @Assisted final DeliveryManager deliveryManager) {
-
+		this.wisemlProvider = checkNotNull(wisemlProvider);
 		this.reservationId = checkNotNull(reservationId);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
-		this.deviceDBService = checkNotNull(deviceDBService);
 		this.reservation = checkNotNull(reservation);
 		this.deliveryManager = checkNotNull(deliveryManager);
 	}
@@ -167,7 +165,7 @@ public class WSNImpl implements WSN {
 
 	@Override
 	public String getNetwork() {
-		return serialize(convertToWiseML(deviceDBService.getConfigsByNodeUrns(reservation.getNodeUrns()).values()));
+		return serialize(wisemlProvider.get(reservation.getNodeUrns()));
 	}
 
 	@Override
@@ -222,7 +220,7 @@ public class WSNImpl implements WSN {
 		reservation.getEventBus().post(
 				newEnableVirtualLinksRequest(reservationId, requestId, convertVirtualLinks(links))
 		);
-		// TODO remember virtual link mapping in specialized class that also delivers vlink messages to remote instance
+		// TODO remember virtual link mapping in specialized class that also delivers virtual link messages to remote instance
 		throw new RuntimeException("TODO only partially implemented");
 	}
 
