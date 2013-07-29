@@ -8,6 +8,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
+import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 
 public class DeviceDBServerModule extends AbstractModule {
@@ -16,9 +17,14 @@ public class DeviceDBServerModule extends AbstractModule {
 
 	private final DeviceDBConfig deviceDBConfig;
 
-	public DeviceDBServerModule(final CommonConfig commonConfig, final DeviceDBConfig deviceDBConfig) {
+	private final WisemlProviderConfig wisemlProviderConfig;
+
+	public DeviceDBServerModule(final CommonConfig commonConfig,
+								final DeviceDBConfig deviceDBConfig,
+								final WisemlProviderConfig wisemlProviderConfig) {
 		this.commonConfig = commonConfig;
 		this.deviceDBConfig = deviceDBConfig;
+		this.wisemlProviderConfig = wisemlProviderConfig;
 	}
 
 	@Override
@@ -26,6 +32,7 @@ public class DeviceDBServerModule extends AbstractModule {
 
 		bind(CommonConfig.class).toProvider(Providers.of(commonConfig));
 		bind(DeviceDBConfig.class).toProvider(Providers.of(deviceDBConfig));
+		bind(WisemlProviderConfig.class).toProvider(Providers.of(wisemlProviderConfig));
 
 		install(new ServicePublisherCxfModule());
 		install(new DeviceDBServiceModule(deviceDBConfig));

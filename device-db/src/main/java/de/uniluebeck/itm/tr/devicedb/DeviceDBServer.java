@@ -1,10 +1,10 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.util.concurrent.AbstractService;
-import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.inject.Guice.createInjector;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
@@ -88,13 +89,15 @@ public class DeviceDBServer extends AbstractService {
 			printDocumentationAndExit(System.out, CommonConfig.class, DeviceDBConfig.class);
 		}
 
-		final Injector confInjector =
-				Guice.createInjector(new PropConfModule(config.config, CommonConfig.class, DeviceDBConfig.class));
+		final Injector confInjector = createInjector(
+				new PropConfModule(config.config, CommonConfig.class, DeviceDBConfig.class, WisemlProviderConfig.class)
+		);
 		final CommonConfig commonConfig = confInjector.getInstance(CommonConfig.class);
 		final DeviceDBConfig deviceDBConfig = confInjector.getInstance(DeviceDBConfig.class);
+		final WisemlProviderConfig wisemlProviderConfig = confInjector.getInstance(WisemlProviderConfig.class);
 
-		final DeviceDBServerModule module = new DeviceDBServerModule(commonConfig, deviceDBConfig);
-		final DeviceDBServer deviceDBServer = Guice.createInjector(module).getInstance(DeviceDBServer.class);
+		final DeviceDBServerModule module = new DeviceDBServerModule(commonConfig, deviceDBConfig, wisemlProviderConfig);
+		final DeviceDBServer deviceDBServer = createInjector(module).getInstance(DeviceDBServer.class);
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override

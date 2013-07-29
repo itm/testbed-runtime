@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.util.NetworkUtils;
 import de.uniluebeck.itm.util.logging.LogLevel;
@@ -49,8 +50,9 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 		final CommonConfig commonConfig = buildConfig(CommonConfig.class, properties);
 		final DeviceDBConfig deviceDBConfig = buildConfig(DeviceDBConfig.class, properties);
+		final WisemlProviderConfig wisemlProviderConfig = buildConfig(WisemlProviderConfig.class, properties);
 
-		final DeviceDBServerModule module = new DeviceDBServerModule(commonConfig, deviceDBConfig);
+		final DeviceDBServerModule module = new DeviceDBServerModule(commonConfig, deviceDBConfig, wisemlProviderConfig);
 		final Injector injector = Guice.createInjector(module);
 		deviceDBServer = injector.getInstance(DeviceDBServer.class);
 		deviceDBServer.startAndWait();

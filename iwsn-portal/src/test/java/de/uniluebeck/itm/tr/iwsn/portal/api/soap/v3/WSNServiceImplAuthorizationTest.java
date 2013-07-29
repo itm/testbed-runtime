@@ -5,8 +5,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
@@ -46,7 +46,7 @@ public class WSNServiceImplAuthorizationTest {
 	private SNAA snaa;
 
 	@Mock
-	private DeviceDBService deviceDBService;
+	private WisemlProvider wisemlProvider;
 
 	@Mock
 	private DeliveryManager deliveryManager;
@@ -64,7 +64,6 @@ public class WSNServiceImplAuthorizationTest {
 	private AuthorizationResponse authorizationDeniedResponse;
 
 	private AuthorizationResponse authorizationGrantedResponse;
-
 
 	@Before
 	public void setUp() throws Exception {
@@ -92,7 +91,7 @@ public class WSNServiceImplAuthorizationTest {
 				);
 
 				bind(SNAA.class).toInstance(snaa);
-				bind(DeviceDBService.class).toProvider(of(deviceDBService));
+				bind(WisemlProvider.class).toProvider(of(wisemlProvider));
 				bind(CommonConfig.class).toProvider(of(commonConfig));
 				bind(RequestIdProvider.class).to(RandomRequestIdProvider.class);
 			}
@@ -414,7 +413,7 @@ public class WSNServiceImplAuthorizationTest {
 		try{
 			authorizingWsn.getNetwork();
 		} catch (RuntimeException e){
-			if (!(e.getCause() instanceof ReservationNotRunningFault_Exception)
+			if (e.getCause() != null && !(e.getCause() instanceof ReservationNotRunningFault_Exception)
 					&& !e.getCause().getMessage().equals("Reservation interval lies in the future")) {
 				e.printStackTrace();
 				fail("An unexpected exception was thrown");

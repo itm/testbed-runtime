@@ -35,35 +35,35 @@ public class WisemlProviderConfig {
 	@PropConf(usage = "The x coordinate of the testbeds origin")
 	public static final String ORIGIN_X = "portal.wiseml.setup.origin.x";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(ORIGIN_X)
 	private Double originX;
 
 	@PropConf(usage = "The y coordinate of the testbeds origin")
 	public static final String ORIGIN_Y = "portal.wiseml.setup.origin.y";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(ORIGIN_Y)
 	private Double originY;
 
 	@PropConf(usage = "The z coordinate of the testbeds origin")
 	public static final String ORIGIN_Z = "portal.wiseml.setup.origin.z";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(ORIGIN_Z)
 	private Double originZ;
 
 	@PropConf(usage = "The phi angle of the testbeds origin")
 	public static final String ORIGIN_PHI = "portal.wiseml.setup.origin.phi";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(ORIGIN_PHI)
 	private Double originPhi;
 
 	@PropConf(usage = "The theta angle of the testbeds origin")
 	public static final String ORIGIN_THETA = "portal.wiseml.setup.origin.theta";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(ORIGIN_THETA)
 	private Double originTheta;
 
