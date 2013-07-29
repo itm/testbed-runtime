@@ -14,6 +14,8 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.rs.PublicReservationData;
 import eu.wisebed.api.v3.rs.RS;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Random;
@@ -30,6 +32,9 @@ import static de.uniluebeck.itm.tr.devicedb.DeviceConfig.TO_NODE_URN_FUNCTION;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newFlashImagesRequest;
 
 public class DefaultImagePluginImpl extends AbstractService implements DefaultImagePlugin {
+
+	private static final Logger log = LoggerFactory.getLogger(DefaultImagePlugin.class);
+
 
 	private final Random random = new Random();
 
@@ -73,7 +78,7 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 				responseTracker.addProgressListener(new Runnable() {
 					@Override
 					public void run() {
-						System.out.println("Flashing progress: " + responseTracker.getProgress());
+						log.trace("Flashing progress: " + responseTracker.getProgress());
 					}
 				}, MoreExecutors.sameThreadExecutor());
 
@@ -100,7 +105,7 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 	@Override
 	protected void doStart() {
 		try {
-			System.out.println("DefaultImagePluginImpl.doStart()");
+			log.trace("DefaultImagePluginImpl.doStart()");
 			scheduler = Executors.newScheduledThreadPool(1,
 					new ThreadFactoryBuilder().setNameFormat("DefaultImagePlugin %d").build()
 			);
@@ -114,7 +119,7 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 	@Override
 	protected void doStop() {
 		try {
-			System.out.println("DefaultImagePluginImpl.doStop()");
+			log.trace("DefaultImagePluginImpl.doStop()");
 			schedule.cancel(false);
 			ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
 			notifyStopped();
