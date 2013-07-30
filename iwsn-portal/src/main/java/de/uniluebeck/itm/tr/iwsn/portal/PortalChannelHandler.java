@@ -42,6 +42,16 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		this.portalEventBus = portalEventBus;
 	}
 
+	public void registerOnEventBus() {
+		log.debug("Subscribing to the event bus.");
+		portalEventBus.register(this);
+	}
+
+	public void unregisterFromEventBus() {
+		log.debug("Unsubscribing from the event bus.");
+		portalEventBus.unregister(this);
+	}
+
 	@Subscribe
 	public void onRequest(final Request request) {
 
@@ -363,7 +373,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				break;
 
 			case GET_CHANNELPIPELINES_RESPONSE:
-				final GetChannelPipelinesResponse getChannelPipelinesResponse = message.getGetChannelPipelinesResponse();
+				final GetChannelPipelinesResponse getChannelPipelinesResponse =
+						message.getGetChannelPipelinesResponse();
 				log.trace("PortalChannelHandler.messageReceived({})", getChannelPipelinesResponse);
 				portalEventBus.post(getChannelPipelinesResponse);
 				break;
@@ -395,10 +406,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	@Override
 	public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 		log.trace("PortalChannelHandler.channelConnected(ctx={}, event={})", ctx, e);
-		if (allChannels.isEmpty()) {
-			log.debug("Subscribing to the event bus.");
-			portalEventBus.register(this);
-		}
 		allChannels.add(e.getChannel());
 		super.channelConnected(ctx, e);
 	}
@@ -407,10 +414,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 		log.trace("PortalChannelHandler.channelDisconnected(ctx={}, event={})", ctx, e);
 		allChannels.remove(e.getChannel());
-		if (allChannels.isEmpty()) {
-			log.debug("Unsubscribing from the event bus.");
-			portalEventBus.unregister(this);
-		}
 		synchronized (contextToNodeUrnsMap) {
 			final Collection<NodeUrn> nodeUrns = contextToNodeUrnsMap.get(ctx);
 			if (!nodeUrns.isEmpty()) {
