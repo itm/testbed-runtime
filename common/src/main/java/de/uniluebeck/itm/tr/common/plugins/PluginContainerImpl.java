@@ -29,9 +29,10 @@ public class PluginContainerImpl extends AbstractService implements PluginContai
 	private static final Logger log = LoggerFactory.getLogger(PluginContainerImpl.class);
 
 	private static final String[] SYSTEM_BUNDLES = {
+			"tr.plugins.framework-extender-0.9-SNAPSHOT.jar",
+			"osgi-over-slf4j-1.7.5.jar",
 			"org.apache.felix.fileinstall-3.2.0.jar",
-			"org.apache.felix.configadmin-1.6.0.jar",
-			"tr.plugins.framework-extender-0.9-SNAPSHOT.jar"
+			"org.apache.felix.configadmin-1.6.0.jar"
 	};
 
 	private final Framework framework;
