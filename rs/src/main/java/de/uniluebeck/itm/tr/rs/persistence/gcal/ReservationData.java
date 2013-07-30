@@ -33,7 +33,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "reservationData", propOrder = {"reservation", "urnPrefix", "secretReservationKey"})
-public class ReservationData {
+class ReservationData {
 
 	private ConfidentialReservationData reservation;
 
