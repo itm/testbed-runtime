@@ -11,14 +11,14 @@ public class WisemlProviderConfig {
 	@PropConf(usage = "A human readable description of the testbed")
 	public static final String DESCRIPTION = "portal.wiseml.setup.description";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(DESCRIPTION)
 	private String description;
 
 	@PropConf(usage = "The type of coordinate used for the testbed origin")
 	public static final String COORDINATE_TYPE = "portal.wiseml.setup.coordinate_type";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(COORDINATE_TYPE)
 	private String coordinateType;
 
@@ -28,7 +28,7 @@ public class WisemlProviderConfig {
 	)
 	public static final String INTERPOLATION = "portal.wiseml.setup.interpolation";
 
-	@Inject
+	@Inject(optional = true)
 	@Named(INTERPOLATION)
 	private String interpolation;
 
