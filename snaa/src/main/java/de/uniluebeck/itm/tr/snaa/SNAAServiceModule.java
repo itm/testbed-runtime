@@ -10,6 +10,7 @@ import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shiro.JpaModule;
 import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAModule;
 import eu.wisebed.api.v3.snaa.SNAA;
+import fr.tr.certificate.SNAACertificateModule;
 
 public class SNAAServiceModule extends PrivateModule {
 
@@ -43,7 +44,10 @@ public class SNAAServiceModule extends PrivateModule {
 				install(new JpaModule("ShiroSNAA", snaaServiceConfig.getShiroJpaProperties()));
 				install(new ShiroSNAAModule(snaaServiceConfig));
 				break;
-			case REMOTE:
+                        case CERTIFICATE:
+                                install(new fr.tr.certificate.JpaModule("SNAACertificate", snaaServiceConfig.getShiroJpaProperties()));
+                                install(new SNAACertificateModule(snaaServiceConfig));
+                        case REMOTE:
 				install(new RemoteSNAAModule());
 				break;
 			default:
