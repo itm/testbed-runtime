@@ -6,5 +6,6 @@ public enum SNAAType {
 	JAAS,
 	SHIBBOLETH,
 	SHIRO,
+        CERTIFICATE,
 	REMOTE
 }
