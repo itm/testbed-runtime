@@ -191,7 +191,7 @@ public class SNAACertificate extends AbstractService implements SNAAService {
             currentUser.logout();
         } catch (AuthenticationException e) {
             throw new AuthenticationFault(
-                "The user could not be authenticated: Wrong username and/or password.", null, e);
+                "The user could not be authenticated: Wrong username and/or certificate.", null, e);
         }
         
         String randomLongAsString = Long.toString(r.nextLong());
@@ -377,9 +377,9 @@ public class SNAACertificate extends AbstractService implements SNAAService {
         String userDir = System.getProperty("user.dir");
         X509Certificate cert = null;
         if (!com.cea.util.Helper.HelperUtilities.isWindows()) {
-            cert = CertificateUtilies.getCertificate(userDir+"/"+ SNAACertificateConfig.CERTIFICATE_DIRECTORY_NAME+"/"+organizationId+"/"+userId);
+            cert = CertificateUtilies.getCertificate(userDir+"/"+ SNAACertificateConfig.CERTIFICATE_DIRECTORY_NAME+"/"+organizationId);
         } else {
-            cert = CertificateUtilies.getCertificate(userDir+"\\"+SNAACertificateConfig.CERTIFICATE_DIRECTORY_NAME+"\\"+organizationId+"\\"+userId);
+            cert = CertificateUtilies.getCertificate(userDir+"\\"+SNAACertificateConfig.CERTIFICATE_DIRECTORY_NAME+"\\"+organizationId);
         }
         authenticationTripleCertificate.setCertificate(cert);
         lists.add(authenticationTripleCertificate);
