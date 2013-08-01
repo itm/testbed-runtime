@@ -115,9 +115,7 @@ public abstract class SNAACertificateTestBase {
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX_1);
 		when(servedNodeUrnPrefixesProvider.get()).thenReturn(newHashSet(NODE_URN_PREFIX_1, NODE_URN_PREFIX_2));
 		when(snaaServiceConfig.getShiroJpaProperties()).thenReturn(new Properties());
-		when(snaaServiceConfig.getShiroHashAlgorithmName()).thenReturn(Sha512Hash.ALGORITHM_NAME);
-		when(snaaServiceConfig.getShiroHashAlgorithmIterations()).thenReturn(1000);
-
+		
 		final AbstractModule mocksModule = new AbstractModule() {
 			@Override
 			protected void configure() {

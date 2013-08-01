@@ -166,20 +166,6 @@ public class X509CertificateRealm extends AuthorizingRealm implements Realm {
 	}
         
    
-        public static Properties getProperties() {
-          Properties props = new Properties();
-        try {
-           props.load(X509CertificateRealm.class.getClassLoader().getResourceAsStream("config.properties"));
-         } catch (IOException ie) {
-            ie.printStackTrace();
-        }
-        return props;
-      }
-      
-    public static String getProperty(String nameProperty) {
-          return getProperties().getProperty(nameProperty);
-    }
-    
     public boolean doesUserExist(final String userId) {
 	return userCertDao.find(userId) != null;
     }
