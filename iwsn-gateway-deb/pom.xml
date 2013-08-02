@@ -28,12 +28,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<properties>
-		<project.pathName>tr.iwsn-gateway</project.pathName>
-		<project.systemUser>iwsn-gateway</project.systemUser>
-		<project.systemGroup>iwsn-gateway</project.systemGroup>
-	</properties>
-
 	<parent>
 		<groupId>de.uniluebeck.itm</groupId>
 		<artifactId>tr</artifactId>
@@ -42,7 +36,13 @@
 	</parent>
 
 	<artifactId>tr.iwsn-gateway-deb</artifactId>
-	<name>TR :: iWSN Portal Debian Package</name>	
+	<name>TR :: iWSN Portal Debian Package</name>
+
+	<properties>
+		<project.pathName>tr.iwsn-gateway</project.pathName>
+		<project.systemUser>iwsn-gateway</project.systemUser>
+		<project.systemGroup>iwsn-gateway</project.systemGroup>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -154,10 +154,10 @@
 									<paths>
 										<path>var/lib/${project.pathName}</path>
 										<path>var/log/${project.pathName}</path>
-										<path>var/run/${project.systemUser}</path>
 									</paths>
 									<mapper>
 										<type>perm</type>
+										<filemode>750</filemode>
 										<user>${project.systemUser}</user>
 										<group>${project.systemGroup}</group>
 									</mapper>

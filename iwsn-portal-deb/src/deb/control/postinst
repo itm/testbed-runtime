@@ -3,6 +3,7 @@
 USER=[[project.systemUser]]
 GROUP=[[project.systemGroup]]
 
+
 set -e
 
 # summary of how this script can be called:
@@ -17,34 +18,20 @@ set -e
 # the debian-policy package
 
 case "$1" in
-  configure)
-  
-  	# Create User and a Group with the same name as the User
-    if ! getent passwd $USER >/dev/null; then
-		adduser --disabled-password  --quiet --system \
-			--home /var/run/$USER --no-create-home \
-			--gecos "${USER} daemon" --group $USER
-    fi
-    
-	# Add the additional group GROUP unless it's already there
-    if ! getent group $GROUP >/dev/null; then
-		addgroup --quiet --system $GROUP || true
-    fi
-    
- 	# 6. Add the user to the GROUP group
-	if test -n $GROUP
-	then
-		adduser $USER $GROUP || true
-	fi
-	
-	# add daemon to runlevel specified in its header
-	update-rc.d [[project.pathName]] defaults || true
 
-  ;;
+  configure)
+
+	# add daemon to runlevel specified in its header
+	echo "Adding [[project.pathName]] daemon to default runlevel..."
+	update-rc.d [[project.pathName]] defaults || true
+	;;
+
   abort-upgrade|abort-remove|abort-deconfigure)
-  ;;
+    ;;
+
   *)
     echo "postinst called with unknown argument \`$1'" >&2
     exit 1
-  ;;
+    ;;
+
 esac

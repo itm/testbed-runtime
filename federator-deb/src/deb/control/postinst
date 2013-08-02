@@ -1,4 +1,37 @@
 #!/bin/sh
 
-# add daemon to runlevel specified in its header
-update-rc.d tr.federator defaults || true
+USER=[[project.systemUser]]
+GROUP=[[project.systemGroup]]
+
+
+set -e
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+case "$1" in
+
+  configure)
+
+	# add daemon to runlevel specified in its header
+	echo "Adding [[project.pathName]] daemon to default runlevel..."
+	update-rc.d [[project.pathName]] defaults || true
+	;;
+
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+
+esac

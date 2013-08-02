@@ -154,10 +154,10 @@
 									<paths>
 										<path>var/lib/${project.pathName}</path>
 										<path>var/log/${project.pathName}</path>
-										<path>var/run/${project.pathName}</path>
 									</paths>
 									<mapper>
 										<type>perm</type>
+										<filemode>750</filemode>
 										<user>${project.systemUser}</user>
 										<group>${project.systemGroup}</group>
 									</mapper>
