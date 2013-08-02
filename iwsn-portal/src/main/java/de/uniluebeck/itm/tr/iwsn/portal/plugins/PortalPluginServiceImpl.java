@@ -70,7 +70,7 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 
 			log.trace("PortalPluginServiceImpl.doStart()");
 
-			if (portalServerConfig.getPluginDirectory() != null) {
+			if (portalServerConfig.getPluginDirectory() != null && !"".equals(portalServerConfig.getPluginDirectory())) {
 
 				final File pluginDirectory = new File(portalServerConfig.getPluginDirectory());
 
