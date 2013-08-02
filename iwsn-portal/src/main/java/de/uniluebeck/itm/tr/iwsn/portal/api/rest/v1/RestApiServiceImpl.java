@@ -4,7 +4,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws.WsnWebSocketServlet;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws.WebSocketServlet;
 
 public class RestApiServiceImpl extends AbstractService implements RestApiService {
 
@@ -12,18 +12,21 @@ public class RestApiServiceImpl extends AbstractService implements RestApiServic
 
 	private final RestApiApplication application;
 
-	private final WsnWebSocketServlet wsnWebSocketServlet;
+	private final WebSocketServlet webSocketServlet;
 
 	private ServicePublisherService restApi;
 
-	private ServicePublisherService webSocketService;
+	private ServicePublisherService wsnWebSocketService;
+
+	private ServicePublisherService eventWebSocketService;
 
 	@Inject
-	public RestApiServiceImpl(final ServicePublisher servicePublisher, final RestApiApplication application,
-							  final WsnWebSocketServlet wsnWebSocketServlet) {
+	public RestApiServiceImpl(final ServicePublisher servicePublisher,
+							  final RestApiApplication application,
+							  final WebSocketServlet webSocketServlet) {
 		this.servicePublisher = servicePublisher;
 		this.application = application;
-		this.wsnWebSocketServlet = wsnWebSocketServlet;
+		this.webSocketServlet = webSocketServlet;
 	}
 
 	@Override
@@ -33,8 +36,8 @@ public class RestApiServiceImpl extends AbstractService implements RestApiServic
 			restApi = servicePublisher.createJaxRsService("/rest/v1.0", application);
 			restApi.startAndWait();
 
-			webSocketService = servicePublisher.createWebSocketService("/ws/v1.0", wsnWebSocketServlet);
-			webSocketService.startAndWait();
+			wsnWebSocketService = servicePublisher.createWebSocketService("/ws/v1.0", webSocketServlet);
+			wsnWebSocketService.startAndWait();
 
 			notifyStarted();
 		} catch (Exception e) {
@@ -46,8 +49,12 @@ public class RestApiServiceImpl extends AbstractService implements RestApiServic
 	protected void doStop() {
 		try {
 
-			if (webSocketService != null) {
-				webSocketService.stopAndWait();
+			if (eventWebSocketService != null) {
+				eventWebSocketService.stopAndWait();
+			}
+
+			if (wsnWebSocketService != null) {
+				wsnWebSocketService.stopAndWait();
 			}
 
 			if (restApi != null) {
