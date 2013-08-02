@@ -64,11 +64,23 @@ public class DeviceDBWisemlProvider implements WisemlProvider {
 		}
 
 		final Coordinate origin = new Coordinate();
-		origin.setPhi(config.getOriginPhi());
-		origin.setTheta(config.getOriginTheta());
-		origin.setX(config.getOriginX());
-		origin.setY(config.getOriginY());
-		origin.setZ(config.getOriginZ());
+
+		if (config.getOriginPhi() != null) {
+			origin.setPhi(config.getOriginPhi());
+		}
+		if (config.getOriginTheta() != null) {
+			origin.setTheta(config.getOriginTheta());
+		}
+		if (config.getOriginX() != null) {
+			origin.setX(config.getOriginX());
+		}
+		if (config.getOriginZ() != null) {
+			origin.setY(config.getOriginY());
+		}
+		if (config.getOriginZ() != null) {
+			origin.setZ(config.getOriginZ());
+		}
+
 		setup.setOrigin(origin);
 
 		final Wiseml wiseml = new Wiseml();
