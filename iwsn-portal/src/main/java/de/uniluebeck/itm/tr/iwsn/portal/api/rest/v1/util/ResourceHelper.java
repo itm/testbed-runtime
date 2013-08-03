@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
+package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util;
 
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SnaaSecretAuthenticationKeyList;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.NotLoggedInException;
@@ -13,12 +13,14 @@ import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.fromJ
 
 public class ResourceHelper {
 
+	public static final String COOKIE_SECRET_AUTH_KEY = "wisebed-secret-authentication-key";
+
 	public static List<SecretAuthenticationKey> getSAKsFromCookie(final HttpHeaders httpHeaders) {
 
 		try {
 
 			Cookie snaaSecretAuthCookie = httpHeaders.getCookies().get(
-					Constants.COOKIE_SECRET_AUTH_KEY
+					COOKIE_SECRET_AUTH_KEY
 			);
 
 			return snaaSecretAuthCookie == null ?

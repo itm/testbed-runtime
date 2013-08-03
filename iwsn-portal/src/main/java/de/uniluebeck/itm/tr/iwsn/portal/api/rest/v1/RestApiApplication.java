@@ -20,23 +20,23 @@ public class RestApiApplication extends RestApplicationBase {
 
 	private final SnaaResource snaaResource;
 
-	private final CookieResource cookieResource;
-
 	private final TestbedsResource testbedsResource;
 
+	private final CookieResource cookieResource;
+
 	@Inject
-	public RestApiApplication(final ExperimentResource experimentResource,
-							  final RemoteExperimentConfigurationResource remoteExperimentConfigurationResource,
-							  final RsResource rsResource,
-							  final SnaaResource snaaResource,
+	public RestApiApplication(final ExperimentResourceImpl experimentResource,
 							  final CookieResource cookieResource,
-							  final TestbedsResource testbedsResource) {
+							  final RemoteExperimentConfigurationResourceImpl remoteExperimentConfigurationResource,
+							  final RsResourceImpl rsResource,
+							  final SnaaResourceImpl snaaResource,
+							  final TestbedsResourceImpl testbedsResource) {
 
 		this.experimentResource = checkNotNull(experimentResource);
+		this.cookieResource = checkNotNull(cookieResource);
 		this.remoteExperimentConfigurationResource = checkNotNull(remoteExperimentConfigurationResource);
 		this.rsResource = checkNotNull(rsResource);
 		this.snaaResource = checkNotNull(snaaResource);
-		this.cookieResource = checkNotNull(cookieResource);
 		this.testbedsResource = checkNotNull(testbedsResource);
 	}
 
@@ -44,10 +44,10 @@ public class RestApiApplication extends RestApplicationBase {
 	public Set<?> getSingletonsInternal() {
 		return newHashSet(
 				experimentResource,
+				cookieResource,
 				remoteExperimentConfigurationResource,
 				rsResource,
 				snaaResource,
-				cookieResource,
 				testbedsResource,
 				new Base64ExceptionMapper(),
 				new SNAAFaultExceptionMapper(),
