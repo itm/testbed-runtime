@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.federator.utils;
 
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -288,6 +289,15 @@ class FederationManagerImpl<V> implements FederationManager<V> {
 			endpointsBuilder.add(getEndpointFromCache(endpointUrl));
 		}
 		return endpointsBuilder.build();
+	}
+
+	@Override
+	public ImmutableBiMap<V, URI> getEndpointsURIMap() {
+		final ImmutableBiMap.Builder<V, URI> builder = ImmutableBiMap.builder();
+		for (URI endpointUrl : getEndpointUrls()) {
+			builder.put(getEndpointFromCache(endpointUrl), endpointUrl);
+		}
+		return builder.build();
 	}
 
 	/**

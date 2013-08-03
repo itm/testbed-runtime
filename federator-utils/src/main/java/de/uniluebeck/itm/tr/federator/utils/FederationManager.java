@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.federator.utils;
 
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableSet;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -47,6 +48,8 @@ public interface FederationManager<V> {
 	ImmutableSet<URI> getEndpointUrls();
 
 	ImmutableSet<V> getEndpoints();
+
+	ImmutableBiMap<V, URI> getEndpointsURIMap();
 
 	ImmutableSet<NodeUrnPrefix> getUrnPrefixesByEndpointUrl(URI endpointUrl);
 
