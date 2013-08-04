@@ -14,8 +14,8 @@ public class DeviceDBConfig {
 
 	@PropConf(
 			usage = "The context path on which to run the device database REST API",
-			example = "/rest/v1/devicedb",
-			defaultValue = "/rest/v1/devicedb"
+			example = "/rest/v1.0/devicedb",
+			defaultValue = "/rest/v1.0/devicedb"
 	)
 	public static final String DEVICEDB_REST_API_CONTEXT_PATH = "devicedb.rest_api.context_path";
 

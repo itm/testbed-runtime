@@ -58,7 +58,7 @@ public class PortalServerConfig {
 
 	@PropConf(
 			usage = "The DNS-resolvable endpoint URI of the reservation system (RS) service (to be returned by SessionManagement.getConfiguration())",
-			example = "http://portal.mydomain.tld/rs",
+			example = "http://portal.mydomain.tld/soap/v3/rs",
 			typeConverter = URITypeConverter.class
 	)
 	public static final String CONFIGURATION_RS_ENDPOINT_URI = "portal.configuration.rs_endpoint_uri";
@@ -69,7 +69,7 @@ public class PortalServerConfig {
 
 	@PropConf(
 			usage = "The DNS-resolvable endpoint URI of the authentication and authorization (SNAA) service  (to be returned by SessionManagement.getConfiguration())",
-			example = "http://portal.mydomain.tld/snaa",
+			example = "http://portal.mydomain.tld/soap/v3/snaa",
 			typeConverter = URITypeConverter.class
 	)
 	public static final String CONFIGURATION_SNAA_ENDPOINT_URI = "portal.configuration.snaa_endpoint_uri";
@@ -80,7 +80,7 @@ public class PortalServerConfig {
 
 	@PropConf(
 			usage = "The DNS-resolvable endpoint URI of the Session Management (SM) service (to be returned by SessionManagement.getConfiguration())",
-			example = "http://portal.mydomain.tld/sm",
+			example = "http://portal.mydomain.tld/soap/v3/sm",
 			typeConverter = URITypeConverter.class
 	)
 	public static final String CONFIGURATION_SM_ENDPOINT_URI = "portal.configuration.sm_endpoint_uri";

@@ -13,7 +13,7 @@ public class SNAAFederatorServiceConfig {
 
 	@PropConf(
 			usage = "(endpoint URL / URN prefix set)-pairs indicating which SNAA instances to federate",
-			example = "http://portal.tb1and2.tld/api/soap/v3.0/snaa=urn:wisebed:tb1:,urn:wisebed:tb2: http://portal.tb3.tld/api/soap/v3.0/snaa=urn:wisebed:tb3:",
+			example = "http://portal.tb1and2.tld/soap/v3/snaa=urn:wisebed:tb1:,urn:wisebed:tb2: http://portal.tb3.tld/soap/v3/snaa=urn:wisebed:tb3:",
 			typeConverter = UriToNodeUrnPrefixSetMapTypeConverter.class
 	)
 	public static final String FEDERATOR_FEDERATES = "federator.snaa.federates";
@@ -24,8 +24,8 @@ public class SNAAFederatorServiceConfig {
 
 	@PropConf(
 			usage = "Context path on which to run the SNAA federator",
-			example = "/federator/soap/v3.0/snaa",
-			defaultValue = "/federator/soap/v3.0/snaa"
+			example = "/soap/v3/snaa",
+			defaultValue = "/soap/v3/snaa"
 	)
 	public static final String FEDERATOR_CONTEXT_PATH = "federator.snaa.context_path";
 

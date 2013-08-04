@@ -10,7 +10,7 @@ public class RSFederatorServiceConfig {
 
 	@PropConf(
 			usage = "(endpoint URL / URN prefix set)-pairs indicating which RS instances to federate",
-			example = "http://portal.tb1and2.tld/api/soap/v3.0/rs=urn:wisebed:tb1:,urn:wisebed:tb2: http://portal.tb3.tld/api/soap/v3.0/rs=urn:wisebed:tb3:",
+			example = "http://portal.tb1and2.tld/soap/v3/rs=urn:wisebed:tb1:,urn:wisebed:tb2: http://portal.tb3.tld/soap/v3/rs=urn:wisebed:tb3:",
 			typeConverter = UriToNodeUrnPrefixSetMapTypeConverter.class
 	)
 	public static final String FEDERATOR_FEDERATES = "federator.rs.federates";
@@ -21,8 +21,8 @@ public class RSFederatorServiceConfig {
 
 	@PropConf(
 			usage = "Context path on which to run the RS federator",
-			example = "/federator/soap/v3.0/rs",
-			defaultValue = "/federator/soap/v3.0/rs"
+			example = "/soap/v3/rs",
+			defaultValue = "/soap/v3/rs"
 	)
 	public static final String FEDERATOR_CONTEXT_PATH = "federator.rs.context_path";
 

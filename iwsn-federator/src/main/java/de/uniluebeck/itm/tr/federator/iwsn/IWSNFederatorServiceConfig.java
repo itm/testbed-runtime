@@ -13,7 +13,7 @@ public class IWSNFederatorServiceConfig {
 
 	@PropConf(
 			usage = "(endpoint URL / URN prefix set)-pairs indicating which iWSN instances to federate",
-			example = "http://portal.tb1and2.tld/api/soap/v3.0/sm=urn:wisebed:tb1:,urn:wisebed:tb2: http://portal.tb3.tld/api/soap/v3.0/sm=urn:wisebed:tb3:",
+			example = "http://portal.tb1and2.tld/api/soap/v3/sm=urn:wisebed:tb1:,urn:wisebed:tb2: http://portal.tb3.tld/api/soap/v3/sm=urn:wisebed:tb3:",
 			typeConverter = UriToNodeUrnPrefixSetMapTypeConverter.class
 	)
 	public static final String FEDERATOR_FEDERATES = "federator.iwsn.federates";
@@ -24,7 +24,7 @@ public class IWSNFederatorServiceConfig {
 
 	@PropConf(
 			usage = "Context path base under which to run the federated WSN instances",
-			example = "http://federator.mydomain.tld/federator/soap/v3.0/wsn"
+			example = "http://federator.mydomain.tld/soap/v3/wsn"
 	)
 	public static final String FEDERATOR_WSN_ENDPOINT_URI_BASE = "federator.iwsn.wsn_endpoint_uri_base";
 
@@ -34,8 +34,8 @@ public class IWSNFederatorServiceConfig {
 
 	@PropConf(
 			usage = "Context path base under which to run the Controller instances that receive data from federated testbeds",
-			example = "/federator/soap/v3.0/controller",
-			defaultValue = "/federator/soap/v3.0/controller"
+			example = "/soap/v3/controller",
+			defaultValue = "/soap/v3/controller"
 	)
 	public static final String FEDERATOR_CONTROLLER_CONTEXT_PATH_BASE = "federator.iwsn.controller_context_path_base";
 
@@ -45,7 +45,7 @@ public class IWSNFederatorServiceConfig {
 
 	@PropConf(
 			usage = "The Endpoint URI of the federator SessionManagement service (to be returned by SessionManagement.getConfiguration())",
-			example = "http://federator.mydomain.tld/sm",
+			example = "http://federator.mydomain.tld/soap/v3/sm",
 			typeConverter = URITypeConverter.class
 	)
 	public static final String FEDERATOR_SM_ENDPOINT_URI = "federator.iwsn.sm_endpoint_uri";
@@ -56,7 +56,7 @@ public class IWSNFederatorServiceConfig {
 
 	@PropConf(
 			usage = "The Endpoint URI of the federator RS service",
-			example = "http://federator.mydomain.tld/rs",
+			example = "http://federator.mydomain.tld/soap/v3/rs",
 			typeConverter = URITypeConverter.class
 	)
 	public static final String FEDERATOR_RS_ENDPOINT_URI = "federator.iwsn.rs_endpoint_uri";
@@ -67,7 +67,7 @@ public class IWSNFederatorServiceConfig {
 
 	@PropConf(
 			usage = "The Endpoint URI of the federator SNAA service",
-			example = "http://federator.mydomain.tld/snaa",
+			example = "http://federator.mydomain.tld/soap/v3/snaa",
 			typeConverter = URITypeConverter.class
 	)
 	public static final String FEDERATOR_SNAA_ENDPOINT_URI = "federator.iwsn.snaa_endpoint_uri";
