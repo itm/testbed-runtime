@@ -29,8 +29,9 @@ import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.CommonPreconditions;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
+import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.Message;
@@ -38,6 +39,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
+import eu.wisebed.api.v3.wsn.WSN;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +48,11 @@ import javax.jws.WebService;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @WebService(
 		name = "Controller",
@@ -93,6 +96,8 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 
 	private final DeliveryManager deliveryManager;
 
+	private final FederationManager<WSN> wsnFederationManager;
+
 	private ServicePublisherService jaxWsService;
 
 	@Inject
@@ -101,18 +106,21 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 									  final IWSNFederatorServiceConfig config,
 									  final SecureIdGenerator secureIdGenerator,
 									  final PreconditionsFactory preconditionsFactory,
+									  @Assisted FederationManager<WSN> wsnFederationManager,
 									  @Assisted Set<NodeUrnPrefix> servedNodeUrnPrefixes,
 									  @Assisted Set<NodeUrn> servedNodeUrns) {
-		this.servicePublisher = servicePublisher;
-		this.contextPath = config.getControllerContextPathBase().endsWith("/") ?
-				"/" + secureIdGenerator.getNextId() :
-				secureIdGenerator.getNextId();
-		this.endpointUri = URI.create(config.getFederatorSmEndpointUri().getScheme() + "://" +
-				config.getFederatorSmEndpointUri().getHost() + ":" +
-				config.getFederatorSmEndpointUri().getPort() + contextPath
-		);
-		this.deliveryManager = deliveryManager;
+
+		this.servicePublisher = checkNotNull(servicePublisher);
+		this.deliveryManager = checkNotNull(deliveryManager);
+		this.wsnFederationManager = checkNotNull(wsnFederationManager);
+
 		this.preconditions = preconditionsFactory.createCommonPreconditions(servedNodeUrnPrefixes, servedNodeUrns);
+
+		final String id = secureIdGenerator.getNextId();
+		final String endpointUriBaseString = config.getFederatorControllerEndpointUriBase().toString();
+		this.contextPath = config.getFederatorControllerEndpointUriBase().getPath() +
+				(config.getFederatorControllerEndpointUriBase().getPath().endsWith("/") ? id : "/" + id);
+		this.endpointUri = URI.create(endpointUriBaseString + (endpointUriBaseString.endsWith("/") ? id : "/" + id));
 	}
 
 	@Override
@@ -127,8 +135,18 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 
 			deliveryManager.startAndWait();
 
-			log.debug("Started federator controller on {}!", endpointUri);
+			for (Map.Entry<WSN, URI> entry : wsnFederationManager.getEndpointsURIMap().entrySet()) {
+				final WSN endpoint = entry.getKey();
+				final URI uri = entry.getValue();
+				try {
+					endpoint.addController(getEndpointUrl().toString());
+				} catch (Exception e) {
+					log.error("Exception while adding federator controller to federated testbed " + uri + ": ", e);
+					notifyFailed(e);
+				}
+			}
 
+			log.debug("Started federator controller on {}!", endpointUri);
 			notifyStarted();
 
 		} catch (Exception e) {
@@ -140,6 +158,16 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 	protected void doStop() {
 
 		try {
+
+			for (Map.Entry<WSN, URI> entry : wsnFederationManager.getEndpointsURIMap().entrySet()) {
+				final WSN endpoint = entry.getKey();
+				final URI uri = entry.getValue();
+				try {
+					endpoint.removeController(endpointUri.toString());
+				} catch (Exception e) {
+					log.error("Exception while removing federator controller from federated testbed " + uri + ": ", e);
+				}
+			}
 
 			log.debug("Calling reservationEnded() on connected controllers...");
 			deliveryManager.reservationEnded(DateTime.now());
@@ -166,7 +194,7 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 		requestIdMappingCache.put(federatedRequestId, federatorRequestId);
 
 		// Dispatch potentially received status updates
-		LinkedList<RequestStatus> requestStatusList = pendingRequestStatus.get(federatedRequestId);
+		final LinkedList<RequestStatus> requestStatusList = pendingRequestStatus.get(federatedRequestId);
 
 		if (requestStatusList != null) {
 			log.debug("Already got {} status updates for federatedRequestId {} ", requestStatusList.size(),
@@ -184,10 +212,12 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 	}
 
 	public void addController(String controllerEndpointUrl) {
+		log.trace("WSNFederatorControllerImpl.addController({})", controllerEndpointUrl);
 		deliveryManager.addController(controllerEndpointUrl);
 	}
 
 	public void removeController(String controllerEndpointUrl) {
+		log.trace("WSNFederatorControllerImpl.removeController({})", controllerEndpointUrl);
 		deliveryManager.removeController(controllerEndpointUrl);
 	}
 
@@ -247,21 +277,21 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 
 	@Override
 	public void receive(final List<Message> messageList) {
-		checkState(isRunning());
 		for (Message message : messageList) {
+			log.trace("WSNFederatorControllerImpl.receive({})", message);
 			receive(message);
 		}
 	}
 
 	@Override
 	public void receiveNotification(final List<Notification> notifications) {
-		checkState(isRunning());
+		log.trace("WSNFederatorControllerImpl.receiveNotification({})", notifications);
 		deliveryManager.receiveNotification(notifications);
 	}
 
 	@Override
 	public void receiveStatus(final List<RequestStatus> requestStatusList) {
-		checkState(isRunning());
+		log.trace("WSNFederatorControllerImpl.receiveStatus({})", requestStatusList);
 		for (RequestStatus requestStatus : requestStatusList) {
 			receiveStatus(requestStatus);
 		}
@@ -269,27 +299,27 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 
 	@Override
 	public void nodesAttached(final DateTime timestamp, final List<NodeUrn> nodeUrns) {
-		checkState(isRunning());
+		log.trace("WSNFederatorControllerImpl.nodesAttached({}, {})", timestamp, nodeUrns);
 		preconditions.checkNodesKnown(nodeUrns);
 		deliveryManager.nodesAttached(timestamp, nodeUrns);
 	}
 
 	@Override
 	public void nodesDetached(final DateTime timestamp, final List<NodeUrn> nodeUrns) {
-		checkState(isRunning());
+		log.trace("WSNFederatorControllerImpl.nodesDetached({}, {})", timestamp, nodeUrns);
 		preconditions.checkNodesKnown(nodeUrns);
 		deliveryManager.nodesDetached(timestamp, nodeUrns);
 	}
 
 	@Override
 	public void reservationStarted(final DateTime timestamp) {
-		checkState(isRunning());
+		log.trace("WSNFederatorControllerImpl.reservationStarted({})", timestamp);
 		deliveryManager.reservationStarted(timestamp);
 	}
 
 	@Override
 	public void reservationEnded(final DateTime timestamp) {
-		checkState(isRunning());
+		log.trace("WSNFederatorControllerImpl.reservationEnded({})", timestamp);
 		deliveryManager.reservationEnded(timestamp);
 	}
 

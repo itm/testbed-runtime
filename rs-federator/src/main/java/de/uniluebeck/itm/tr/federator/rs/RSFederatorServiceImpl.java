@@ -189,7 +189,9 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 				map.put(rs, callable);
 			}
 
-			callable.getSecretAuthenticationKeys().add(sak);
+			if (!callable.getSecretAuthenticationKeys().contains(sak)) {
+				callable.getSecretAuthenticationKeys().add(sak);
+			}
 			callable.getNodeUrns().add(nodeUrn);
 		}
 

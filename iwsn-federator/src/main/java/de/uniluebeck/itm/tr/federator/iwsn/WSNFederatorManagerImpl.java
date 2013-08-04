@@ -22,7 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -31,6 +33,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.iwsn.common.SessionManagementHelper.calculateWSNInstanceHash;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createSMUnknownSecretReservationKeyFault;
@@ -105,23 +108,33 @@ public class WSNFederatorManagerImpl extends AbstractService implements WSNFeder
 			smToSrkMap.put(endpointUrl, srk);
 		}
 
-		final Set<Future<GetInstanceCallable.Result>> futures = newHashSet();
+		final Map<URI, Future<GetInstanceCallable.Result>> futures = newHashMap();
 		for (URI smEndpointUrl : smToSrkMap.keys()) {
-			futures.add(executorService.submit(new GetInstanceCallable(
+
+			final GetInstanceCallable callable = new GetInstanceCallable(
+					smEndpointUrl,
 					smFederationManager.getEndpointByEndpointUrl(smEndpointUrl),
 					newArrayList(smToSrkMap.get(smEndpointUrl))
-			)
-			));
+			);
+			final Future<GetInstanceCallable.Result> future = executorService.submit(callable);
+			futures.put(smEndpointUrl, future);
 		}
 
 		final Multimap<URI, NodeUrnPrefix> endpointUrlsToUrnPrefixesMap = HashMultimap.create();
-		for (final Future<GetInstanceCallable.Result> future : futures) {
 
+		for (Map.Entry<URI, Future<GetInstanceCallable.Result>> entry : futures.entrySet()) {
+
+			final URI uri = entry.getKey();
+			final Future<GetInstanceCallable.Result> future = entry.getValue();
 			final GetInstanceCallable.Result result;
 
 			try {
 				result = future.get();
 			} catch (Exception e) {
+				if (e instanceof ExecutionException && e.getCause() instanceof UnknownSecretReservationKeyFault) {
+					throw (UnknownSecretReservationKeyFault) e.getCause();
+				}
+				log.error("Exception while calling getInstance on federated testbed " + uri + ":", e);
 				throw propagate(e);
 			}
 

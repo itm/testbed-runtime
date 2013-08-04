@@ -108,6 +108,9 @@ public class WSNFederatorServiceImplTest {
 	@Mock
 	private PreconditionsFactory preconditionsFactory;
 
+	@Mock
+	private FederationManager<WSN> wsnFederationManager;
+
 	private WSNFederatorServiceImpl wsnFederatorServiceImpl;
 
 	private ListeningExecutorService executorService;
@@ -121,11 +124,12 @@ public class WSNFederatorServiceImplTest {
 		)
 		).thenReturn(wsnPreconditions);
 		when(federatorControllerFactory.create(
+				wsnFederationManager,
 				Matchers.<Set<NodeUrnPrefix>>any(),
 				Matchers.<Set<NodeUrn>>any()
 		)
 		).thenReturn(federatorController);
-		when(config.getWsnEndpointUriBase()).thenReturn(URI.create("http://localhost/"));
+		when(config.getFederatorWsnEndpointUriBase()).thenReturn(URI.create("http://localhost/"));
 		when(federationManager.getUrnPrefixes()).thenReturn(
 				ImmutableSet.of(TESTBED_1_URN_PREFIX, TESTBED_2_URN_PREFIX, TESTBED_3_URN_PREFIX)
 		);

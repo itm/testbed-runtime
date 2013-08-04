@@ -27,18 +27,21 @@ class GetInstanceCallable implements Callable<GetInstanceCallable.Result> {
 
 	}
 
+	private final URI uri;
+
 	private SessionManagement sm;
 
 	private List<SecretReservationKey> secretReservationKeys;
 
-	public GetInstanceCallable(final SessionManagement sm, final List<SecretReservationKey> secretReservationKeys) {
+	public GetInstanceCallable(final URI uri, final SessionManagement sm, final List<SecretReservationKey> secretReservationKeys) {
+		this.uri = uri;
 		this.sm = sm;
 		this.secretReservationKeys = secretReservationKeys;
 	}
 
 	@Override
 	public GetInstanceCallable.Result call() throws Exception {
-		log.debug("Calling getInstance on {}", sm);
+		log.debug("Calling getInstance on {}", uri);
 		return new GetInstanceCallable.Result(secretReservationKeys, URI.create(sm.getInstance(secretReservationKeys)));
 	}
 }

@@ -35,9 +35,9 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.WSNPreconditions;
+import de.uniluebeck.itm.tr.federator.utils.FederationManager;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -52,6 +52,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.Callable;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -96,13 +97,20 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 								   @Assisted final Set<NodeUrnPrefix> servedNodeUrnPrefixes,
 								   @Assisted final Set<NodeUrn> servedNodeUrns) {
 		this.servicePublisher = servicePublisher;
-		this.endpointUri = URI.create(config.getWsnEndpointUriBase().getPath() + (
-				config.getWsnEndpointUriBase().getPath().endsWith("/") ?
+		checkArgument(
+				config.getFederatorWsnEndpointUriBase() != null && !""
+						.equals(config.getFederatorWsnEndpointUriBase().toString()),
+				"Configuration parameter " + IWSNFederatorServiceConfig.FEDERATOR_WSN_ENDPOINT_URI_BASE + " must be set"
+		);
+		assert config.getFederatorWsnEndpointUriBase() != null;
+		this.endpointUri = URI.create(config.getFederatorWsnEndpointUriBase().toString() + (
+				config.getFederatorWsnEndpointUriBase().toString().endsWith("/") ?
 						secureIdGenerator.getNextId() :
 						"/" + secureIdGenerator.getNextId()
 		)
 		);
 		this.federatorController = federatorControllerFactory.create(
+				wsnFederationManager,
 				servedNodeUrnPrefixes,
 				servedNodeUrns
 		);

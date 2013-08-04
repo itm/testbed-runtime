@@ -91,7 +91,7 @@ public class PortalServerConfig {
 
 	@PropConf(
 			usage = "The endpoint URL of the WSN service instances",
-			example = "http://portal.mydomain.tld/wsn",
+			example = "http://portal.mydomain.tld/soap/v3/wsn",
 			typeConverter = URITypeConverter.class
 	)
 	public static final String CONFIGURATION_WSN_ENDPOINT_URI_BASE = "portal.configuration.wsn_endpoint_uri_base";

@@ -43,10 +43,7 @@ public abstract class FederatorWiseMLMerger {
 			String serializedWiseML = null;
 
 			try {
-
 				serializedWiseML = job.getSecond().get();
-				serializedWiseMLs.add(serializedWiseML);
-
 			} catch (Exception e) {
 				log.warn(
 						"Ignoring federated testbed {} because it threw an exception when calling getNetwork(): {}",
