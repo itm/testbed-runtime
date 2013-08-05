@@ -22,7 +22,7 @@ import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentation
 public class FederatorServer extends AbstractService {
 
 	static {
-		Logging.setLoggingDefaults(LogLevel.WARN);
+		Logging.setLoggingDefaults(LogLevel.ERROR);
 	}
 
 	public static final Logger log = LoggerFactory.getLogger(FederatorServer.class);
