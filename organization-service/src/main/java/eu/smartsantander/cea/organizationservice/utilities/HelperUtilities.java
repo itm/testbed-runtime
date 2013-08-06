@@ -4,7 +4,7 @@
 *   ROUX Pierre
 *   Kim Thuat NGUYEN
 *******************************************************************************/
-package com.smartsantander.cea.organizationservice.utilities;
+package eu.smartsantander.cea.organizationservice.utilities;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -5,7 +5,7 @@
 *   Kim Thuat NGUYEN
 *******************************************************************************/
 
-package com.smartsantander.cea.organizationservice.utilities;
+package eu.smartsantander.cea.organizationservice.utilities;
 
 public class Config {
     

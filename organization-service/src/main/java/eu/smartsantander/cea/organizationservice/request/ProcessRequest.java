@@ -5,12 +5,12 @@
 *   Kim Thuat NGUYEN
 *******************************************************************************/
 
-package com.smartsantander.cea.organizationservice.request;
+package eu.smartsantander.cea.organizationservice.request;
 
 
 import eu.smartsantander.cea.organizationservice.dao.ConnnectionBD;
-import com.smartsantander.cea.organizationservice.utilities.Config;
-import com.smartsantander.cea.organizationservice.utilities.HelperUtilities;
+import eu.smartsantander.cea.organizationservice.utilities.Config;
+import eu.smartsantander.cea.organizationservice.utilities.HelperUtilities;
 import eu.smartsantander.cea.utils.saml.SAMLGenerator;
 import eu.smartsantander.cea.utils.saml.SAMLInput;
 import eu.smartsantander.cea.utils.saml.SignAssertion;
