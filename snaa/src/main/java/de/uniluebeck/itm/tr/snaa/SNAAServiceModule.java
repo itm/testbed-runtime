@@ -10,7 +10,7 @@ import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shiro.JpaModule;
 import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAModule;
 import eu.wisebed.api.v3.snaa.SNAA;
-import fr.tr.certificate.SNAACertificateModule;
+import eu.smartsantander.cea.certificate.SNAACertificateModule;
 
 public class SNAAServiceModule extends PrivateModule {
 
@@ -25,7 +25,7 @@ public class SNAAServiceModule extends PrivateModule {
 
 	@Override
 	protected void configure() {
-
+            try {
 		requireBinding(CommonConfig.class);
 		requireBinding(SNAAServiceConfig.class);
 		requireBinding(ServedNodeUrnPrefixesProvider.class);
@@ -45,8 +45,9 @@ public class SNAAServiceModule extends PrivateModule {
 				install(new ShiroSNAAModule(snaaServiceConfig));
 				break;
                         case CERTIFICATE:
-                                install(new fr.tr.certificate.JpaModule("SNAACertificate", snaaServiceConfig.getShiroJpaProperties()));
-                                install(new SNAACertificateModule(snaaServiceConfig));
+                                install(new eu.smartsantander.cea.certificate.JpaModule("ShiroSNAA", snaaServiceConfig.getShiroJpaProperties()));
+                                install(new SNAACertificateModule());
+                                break;
                         case REMOTE:
 				install(new RemoteSNAAModule());
 				break;
@@ -56,5 +57,8 @@ public class SNAAServiceModule extends PrivateModule {
 
 		expose(SNAA.class);
 		expose(SNAAService.class);
+            } catch (Exception e) {
+                addError(e);
+            }
 	}
 }
