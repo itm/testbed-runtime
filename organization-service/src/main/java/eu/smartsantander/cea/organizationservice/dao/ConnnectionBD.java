@@ -7,7 +7,7 @@
 package eu.smartsantander.cea.organizationservice.dao;
 
 
-import com.smartsantander.cea.organizationservice.utilities.HelperUtilities;
+import eu.smartsantander.cea.organizationservice.utilities.HelperUtilities;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;

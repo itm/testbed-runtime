@@ -47,13 +47,6 @@ import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 
 
-/*******************************************************************************
-* Copyright (c) 2013 CEA LIST.
-* Contributor:
-*   ROUX Pierre
-*   Kim Thuat NGUYEN
-*******************************************************************************/
-
 public class X509CertificateRealm extends AuthorizingRealm implements Realm {
 
     @Inject
