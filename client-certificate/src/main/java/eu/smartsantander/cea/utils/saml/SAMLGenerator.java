@@ -33,10 +33,7 @@ import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.opensaml.xml.schema.XSString;
 
-/**
- *
- * 
- */
+
 public class SAMLGenerator {
     
     private XMLObjectBuilderFactory builderFactory = null;

@@ -8,10 +8,6 @@ package eu.smartsantander.cea.utils.saml;
 
 import java.util.Map;
 
-/**
- *
- * 
- */
 public class SAMLInput {
     
     private String issuer;
