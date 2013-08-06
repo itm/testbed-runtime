@@ -1,0 +1,12 @@
+To make the organization portail work, we need to configure:
+- The organization DB by executing the file idpDB.sql
+- The properties file "config.properties":
+    * organizationDbUrl: The url to access the organization database
+    * certificateAliasName: The alias name when we create the certificate for the organization, in this exemple, it doesn't need to change
+    * pathToKeyStoreFile: The path to the keystore, change it to some thing like: ../../testbed-runtime/snaa/certs/keystore/keystore.jks
+    * keystorePassword: The password that keystore use to protect to private key, by defaut, it is "changeit".
+    * organizationDB_username: Username to access to the organization database, in this case, we use: trorg
+    * organizationDB_password: Password to access to the organization database, in this case, we use: trorg
+
+- The reposity to stock the client's public key. We named the repository "keys", each client public key is stocked in a folder which has the name
+of this client's username.
