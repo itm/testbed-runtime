@@ -61,7 +61,6 @@
             <groupId>de.uniluebeck.itm.util</groupId>
             <artifactId>jpa</artifactId>
         </dependency>
-
         <dependency>
             <groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
             <artifactId>service-publisher-api</artifactId>

@@ -3,8 +3,6 @@
 * Contributor:
 *   ROUX Pierre
 *   Kim Thuat NGUYEN
-* 
-* Java class for authenticating user based on the use of certificate
 *******************************************************************************/
 
 package eu.smartsantander.cea.certificate;
