@@ -1,12 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package eu.smartsantander.cea.certificate;
-
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
-import java.security.cert.X509Certificate;
-
 /*******************************************************************************
 * Copyright (c) 2013 CEA LIST.
 * Contributor:
@@ -15,6 +6,12 @@ import java.security.cert.X509Certificate;
 * 
 * Java class for authenticating user based on the use of certificate
 *******************************************************************************/
+
+package eu.smartsantander.cea.certificate;
+
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import java.security.cert.X509Certificate;
+
 
 public class AuthenticationTripleCertificate {
     private String username;

@@ -1,7 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+/*******************************************************************************
+* 
+* Contributor:
+*   ROUX Pierre
+*   Kim Thuat NGUYEN
+* 
+* Java class for authenticating user based on the use of certificate
+*******************************************************************************/
+
+
 package eu.smartsantander.cea.certificate;
 
 import eu.smartsantander.cea.utils.Helper.HelperUtilities;

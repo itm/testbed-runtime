@@ -1,4 +1,9 @@
-
+/*******************************************************************************
+* Copyright (c) 2013 CEA LIST.
+* Contributor:
+*   ROUX Pierre
+*   Kim Thuat NGUYEN
+*******************************************************************************/
 package eu.smartsantander.cea.utils.client;
 
 import eu.smartsantander.cea.utils.Helper.HelperUtilities;

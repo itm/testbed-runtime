@@ -1,8 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package eu.smartsantander.cea.utils.certificate;
+/*******************************************************************************
+* Copyright (c) 2013 CEA LIST.
+* Contributor:
+*   ROUX Pierre
+*   Kim Thuat NGUYEN
+*******************************************************************************/package eu.smartsantander.cea.utils.certificate;
 
 import eu.smartsantander.cea.utils.Helper.HelperUtilities;
 import java.io.File;

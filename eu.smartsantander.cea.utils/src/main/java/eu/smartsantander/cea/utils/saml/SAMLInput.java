@@ -1,7 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+/*******************************************************************************
+* Copyright (c) 2013 CEA LIST.
+* Contributor:
+*   ROUX Pierre
+*   Kim Thuat NGUYEN
+*******************************************************************************/
 package eu.smartsantander.cea.utils.saml;
 
 import java.util.Map;
