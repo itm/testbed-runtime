@@ -25,10 +25,6 @@ import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Element;
 
-/**
- *
- * 
- */
 public class HelperUtilities {
         
     

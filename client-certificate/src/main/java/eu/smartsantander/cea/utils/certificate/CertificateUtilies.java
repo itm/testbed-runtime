@@ -17,10 +17,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.logging.Level;
 
-/**
- *
- * 
- */
+
 public class CertificateUtilies {
     
     public static X509Certificate getCertificate(String pathToFolder) {

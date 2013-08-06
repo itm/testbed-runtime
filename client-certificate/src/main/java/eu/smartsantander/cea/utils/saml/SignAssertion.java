@@ -36,10 +36,7 @@ import org.opensaml.xml.signature.SignatureException;
 import org.opensaml.xml.signature.Signer;
 import org.w3c.dom.Element;
 
-/**
- *
- * 
- */
+
 public class SignAssertion {
     
     private Assertion assertionToSign;
