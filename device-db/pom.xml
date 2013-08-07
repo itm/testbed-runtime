@@ -136,7 +136,7 @@
 		</dependency>
         <dependency>
             <groupId>rd3api</groupId>
-            <artifactId>rd3api</artifactId>
+            <artifactId>rd3interactorj</artifactId>
             <version>1.0</version>
         </dependency>
 	</dependencies>

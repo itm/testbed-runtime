@@ -1,21 +1,21 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.AbstractService;
 import eu.smartsantander.rd.rd3api.IRD3API;
-import eu.smartsantander.rd.rd3api.RD3APIImpl;
+import eu.smartsantander.rd.rd3api.QueryOptions;
+import eu.smartsantander.rd.rd3api.RD3InteractorJ;
 import eu.smartsantander.rd.rd3api.RDAPIException;
+import eu.smartsantander.testbed.jaxb.resource.ResourceDescription;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.wiseml.Capability;
-import rd3.model.RDNodeValueType;
-import rd3.model.RDResource;
 
 import javax.annotation.Nullable;
+import javax.xml.bind.*;
+import javax.xml.namespace.QName;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -25,7 +25,7 @@ import static de.uniluebeck.itm.util.StringUtils.parseHexOrDecLong;
 public class DeviceDBRD extends AbstractService implements DeviceDB {
 
     private final List<DeviceConfig> configs = newArrayList();
-
+    private final String portal = "testbed.smartsantander.eu";
 
     public DeviceDBRD() {
         this.bootstrapResourcesFromRD();
@@ -160,54 +160,35 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
     }
 
 
+    public void bootstrapResourcesFromRD() {
+        try {
+            IRD3API rdapi = RD3InteractorJ.getInstance();
+            Optional<QueryOptions> options = Optional.absent();
+            List<ResourceDescription> resources = rdapi.getTestbedResourcesURN(portal, options);
+            JAXBContext jc = JAXBContext.newInstance(ResourceDescription.class.getPackage().getName());
+            Marshaller m = jc.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            for (ResourceDescription res : resources) {
+                System.out.println("node: " + res.getUid());
+                m.marshal(new JAXBElement(new QName("", "resource-description"), ResourceDescription.class, res), System.out);
+                DeviceConfig deviceConfig = DeviceDBRDManager.deviceConfigFromRDResource(res);
+                if (deviceConfig != null)
+                    this.add(deviceConfig);
+            }
+            System.out.println("list count: " + resources.size());
+        } catch (RDAPIException e) {
+            e.printStackTrace();
+        } catch (PropertyException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (JAXBException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
-
-    DeviceConfig deviceConfigFromRDResource(RDResource rdResource) {
-
-        Map<String, String> nodeConfig1 = new ImmutableMap.Builder<String, String>()
-                .put("a", "b")
-                .build();
-
-        NodeUrn urn = new NodeUrn();
-        urn.setNodeUrn(rdResource.getUid());
-
-        RDNodeValueType type = rdResource.getType();
-        Set<Capability> capabilities = DeviceDBRDManager.getCapabilities(rdResource);
-        Long[] timeouts = DeviceDBRDManager.getTimeouts(rdResource);
-        DeviceConfig devConfig = new DeviceConfig(
-                urn,
-                type.toString(),
-                false,
-                null,
-                rdResource.toString(),
-                null,
-                nodeConfig1,
-                null,
-                timeouts[3],
-                timeouts[1],
-                timeouts[2],
-                timeouts[0],
-                null,
-                capabilities
-        );
-
-        return devConfig;
     }
 
 
-    public void bootstrapResourcesFromRD() {
-        try {
-            IRD3API rdv3API = RD3APIImpl.getInstance();
-            Set<RDResource> rdResources = rdv3API.ResourceQuery("resource_type=SENSOR_NODE", null);
-            System.out.println("Resources: " + rdResources.size());
-            for (RDResource RDResource : rdResources) {
-                System.out.println(RDResource.getUid());
-                DeviceConfig deviceConfig = this.deviceConfigFromRDResource(RDResource);
-                this.add(deviceConfig);
-            }
-
-        } catch (RDAPIException e) {
-            e.printStackTrace();
-        }
+    public void printeDeviceCongigurations() {
+        for (DeviceConfig config : this.configs)
+            System.out.println(config.getNodeUrn());
     }
 }

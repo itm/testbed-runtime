@@ -4,6 +4,6 @@ public class DeviceDBRDTest   {
 
 	public static void main(String[] args){
 		DeviceDBRD deviceDB=new DeviceDBRD();
-
+        deviceDB.printeDeviceCongigurations();
 	}
 }

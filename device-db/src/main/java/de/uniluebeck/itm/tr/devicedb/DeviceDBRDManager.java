@@ -1,75 +1,69 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.collect.ImmutableMap;
+import eu.smartsantander.testbed.jaxb.resource.CapabilityType;
+import eu.smartsantander.testbed.jaxb.resource.IoTNodeType;
+import eu.smartsantander.testbed.jaxb.resource.ResourceDescription;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Dtypes;
 import eu.wisebed.wiseml.Units;
-import rd3.model.RDNode;
-import rd3.model.RDNodeValueType;
-import rd3.model.RDResource;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 
 public class DeviceDBRDManager {
 
-    public static Long[] getTimeouts(RDResource rdResource) {
+    public static Long[] getTimeouts(ResourceDescription rdResource) {
         Long[] timeouts = new Long[4];
-        for (RDNode rdNode : rdResource.getChildren()) {
-            if (rdNode.getName().equals("timeout_ms_reset")) {
-                timeouts[0] = Long.parseLong(rdNode.getValue().toString());
-            } else if (rdNode.getName().equals("timeout_ms_flash")) {
-                timeouts[1] = Long.parseLong(rdNode.getValue().toString());
-            } else if (rdNode.getName().equals("timeout_ms_nodeapi")) {
-                timeouts[2] = Long.parseLong(rdNode.getValue().toString());
-            } else if (rdNode.getName().equals("timeout_ms_checkalive")) {
-                timeouts[3] = Long.parseLong(rdNode.getValue().toString());
-            }
-        }
+        if (rdResource.getTimeoutMsReset() != null)
+            timeouts[0] = rdResource.getTimeoutMsReset().longValue();
+        if (rdResource.getTimeoutMsFlash() != null)
+            timeouts[1] = rdResource.getTimeoutMsFlash().longValue();
+        if (rdResource.getTimeoutMsNodeapi() != null)
+            timeouts[2] = rdResource.getTimeoutMsNodeapi().longValue();
+        if (rdResource.getTimeoutMsCheckalive() != null)
+            timeouts[3] = rdResource.getTimeoutMsCheckalive().longValue();
         return timeouts;
     }
 
-    public static Set<Capability> getCapabilities(RDResource rdResource) {
-        Set<Capability> capabilities = new HashSet<Capability>();
-        for (RDNode rdNode : rdResource.getChildren()) {
-            if (rdNode.getName().equals("capability")) {
-                String capabilityName = rdNode.getChild("phenomenon").getValue().toString();
-                Dtypes dtype;
-                if (rdNode.getChild("type").getValue().toString().equals("float"))
-                    dtype = Dtypes.fromValue("decimal");
-                else
-                    dtype = Dtypes.fromValue("integer");
-                Units unit;
-                try {
-                    unit = Units.fromValue(rdNode.getChild("type").getValue().toString());
-                } catch (Exception e) {
-                    unit = null;
-                }
-                System.out.println(capabilityName + "," + dtype + "," + unit);
-                Capability cap = new Capability()
-                        .withName(capabilityName)
-                        .withDatatype(dtype)
-                        .withUnit(unit);
-                capabilities.add(cap);
-            }
-        }
-        return capabilities;
-    }
+    public static DeviceConfig deviceConfigFromRDResource(ResourceDescription rdResource) {
 
-    DeviceConfig deviceConfigFromRDResource(RDResource rdResource) {
+        IoTNodeType type = rdResource.getResourceType();
+        if (!(type.equals(IoTNodeType.SENSOR_NODE) == true
+                || type.equals(IoTNodeType.MOBILE_SENSOR_NODE) == true) ) return null;
+
 
         Map<String, String> nodeConfig1 = new ImmutableMap.Builder<String, String>()
                 .put("a", "b")
                 .build();
 
+
         NodeUrn urn = new NodeUrn();
         urn.setNodeUrn(rdResource.getUid());
 
-        RDNodeValueType type = rdResource.getType();
-        Set<Capability> capabilities = getCapabilities(rdResource);
+
+        List<CapabilityType> caps = rdResource.getCapabilities().getCapability();
+        Set<Capability> capabilities = new HashSet<Capability>();
+        for (CapabilityType c : caps) {
+            Capability capability = new Capability();
+            capability.setName(c.getPhenomenon());
+            if (c.getType().equals("float")) {   //todo extend types
+                c.setType(Dtypes.DECIMAL.toString());
+            }
+
+            capability.setDatatype(Dtypes.valueOf(c.getType()));
+            if (c.getUom().equals("lumen")) {                        //todo extend units
+                c.setUom(Units.LUX.toString());// 1 lx = 1 lm/m2.
+            } else if (c.getUom().equals("celsius")) {
+                c.setUom(Units.KELVIN.toString()); //todo extend units
+            }
+            capability.setUnit(Units.valueOf(c.getUom()));
+            capabilities.add(capability);
+        }
         Long[] timeouts = getTimeouts(rdResource);
         DeviceConfig devConfig = new DeviceConfig(
                 urn,
