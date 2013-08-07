@@ -7,6 +7,7 @@ import eu.smartsantander.rd.rd3api.IRD3API;
 import eu.smartsantander.rd.rd3api.QueryOptions;
 import eu.smartsantander.rd.rd3api.RD3InteractorJ;
 import eu.smartsantander.rd.rd3api.RDAPIException;
+import eu.smartsantander.testbed.eventbroker.exceptions.EventBrokerException;
 import eu.smartsantander.testbed.jaxb.resource.ResourceDescription;
 import eu.wisebed.api.v3.common.NodeUrn;
 
@@ -26,9 +27,12 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
 
     private final List<DeviceConfig> configs = newArrayList();
     private final String portal = "testbed.smartsantander.eu";
+    private final String brokerUrl = "tcp://lira.tlmat.unican.es:9020";
+    private SmartSantanderEventBrokerClient iotMgr;
 
     public DeviceDBRD() {
         this.bootstrapResourcesFromRD();
+        this.subscribeForRDEvents();
     }
 
     @Override
@@ -186,6 +190,16 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
 
     }
 
+    public void subscribeForRDEvents() {
+
+        try {
+            iotMgr = new SmartSantanderEventBrokerClient(brokerUrl, System.currentTimeMillis(), this);
+            System.out.println("Starting EventBrokerClient ...");
+            iotMgr.start();
+        } catch (EventBrokerException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void printeDeviceCongigurations() {
         for (DeviceConfig config : this.configs)
