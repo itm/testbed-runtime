@@ -31,8 +31,6 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
     private SmartSantanderEventBrokerClient iotMgr;
 
     public DeviceDBRD() {
-        this.bootstrapResourcesFromRD();
-        this.subscribeForRDEvents();
     }
 
     @Override
@@ -147,7 +145,6 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
 
     @Override
     public void removeAll() {
-
         synchronized (configs) {
             configs.clear();
         }
@@ -155,7 +152,13 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
 
     @Override
     protected void doStart() {
-        notifyStarted();
+        try {
+            this.bootstrapResourcesFromRD();
+            this.subscribeForRDEvents();
+            notifyStarted();
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
     }
 
     @Override
@@ -164,41 +167,27 @@ public class DeviceDBRD extends AbstractService implements DeviceDB {
     }
 
 
-    public void bootstrapResourcesFromRD() {
-        try {
-            IRD3API rdapi = RD3InteractorJ.getInstance();
-            Optional<QueryOptions> options = Optional.absent();
-            List<ResourceDescription> resources = rdapi.getTestbedResourcesURN(portal, options);
-            JAXBContext jc = JAXBContext.newInstance(ResourceDescription.class.getPackage().getName());
-            Marshaller m = jc.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            for (ResourceDescription res : resources) {
-                System.out.println("node: " + res.getUid());
-                m.marshal(new JAXBElement(new QName("", "resource-description"), ResourceDescription.class, res), System.out);
-                DeviceConfig deviceConfig = DeviceDBRDManager.deviceConfigFromRDResource(res);
-                if (deviceConfig != null)
-                    this.add(deviceConfig);
-            }
-            System.out.println("list count: " + resources.size());
-        } catch (RDAPIException e) {
-            e.printStackTrace();
-        } catch (PropertyException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (JAXBException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    public void bootstrapResourcesFromRD() throws RDAPIException, JAXBException {
+        IRD3API rdapi = RD3InteractorJ.getInstance();
+        Optional<QueryOptions> options = Optional.absent();
+        List<ResourceDescription> resources = rdapi.getTestbedResourcesURN(portal, options);
+        JAXBContext jc = JAXBContext.newInstance(ResourceDescription.class.getPackage().getName());
+        Marshaller m = jc.createMarshaller();
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        for (ResourceDescription res : resources) {
+            System.out.println("node: " + res.getUid());
+            m.marshal(new JAXBElement(new QName("", "resource-description"), ResourceDescription.class, res), System.out);
+            DeviceConfig deviceConfig = DeviceDBRDManager.deviceConfigFromRDResource(res);
+            if (deviceConfig != null)
+                this.add(deviceConfig);
         }
-
+        System.out.println("list count: " + resources.size());
     }
 
-    public void subscribeForRDEvents() {
-
-        try {
+    public void subscribeForRDEvents() throws EventBrokerException {
             iotMgr = new SmartSantanderEventBrokerClient(brokerUrl, System.currentTimeMillis(), this);
             System.out.println("Starting EventBrokerClient ...");
             iotMgr.start();
-        } catch (EventBrokerException e) {
-            e.printStackTrace();
-        }
     }
 
     public void printeDeviceCongigurations() {
