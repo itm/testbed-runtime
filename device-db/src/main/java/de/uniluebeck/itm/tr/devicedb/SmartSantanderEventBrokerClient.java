@@ -81,6 +81,7 @@ public class SmartSantanderEventBrokerClient implements IEventListener {
                     logger.debug("Registration request received from node " + sn.getNodeId());
                     //Do something....
                     DeviceConfig deviceConfig = DeviceDBRDManager.deviceConfigFromRDResource(sn);
+                    this.deviceDB.add(deviceConfig);
                     break;
 
                 case DEL_GW_NODE:
