@@ -52,7 +52,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>${project.name}</Bundle-Name>
-						<Bundle-Version>1.0.0</Bundle-Version>
+						<Bundle-Version>${project.version}</Bundle-Version>
 						<Bundle-Activator>de.uniluebeck.itm.tr.plugins.defaultimage.DefaultImagePluginActivator</Bundle-Activator>
 						<Import-Package>*</Import-Package>
 					</instructions>
