@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import eu.smartsantander.testbed.events.NodeOperationsEvents;
 import eu.smartsantander.testbed.jaxb.resource.CapabilityType;
 import eu.smartsantander.testbed.jaxb.resource.IoTNodeType;
+import eu.smartsantander.testbed.jaxb.resource.KeyValuePair;
 import eu.smartsantander.testbed.jaxb.resource.ResourceDescription;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
@@ -11,10 +12,7 @@ import eu.wisebed.wiseml.Coordinate;
 import eu.wisebed.wiseml.Dtypes;
 import eu.wisebed.wiseml.Units;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class DeviceDBRDManager {
@@ -35,12 +33,23 @@ public class DeviceDBRDManager {
 
     public static Coordinate getCoordinates(ResourceDescription rdResource) {
         Coordinate coord = new Coordinate();
-        if (rdResource.getPosition() != null && rdResource.getPosition().getOutdoorCoordinates()!=null){
+        if (rdResource.getPosition() != null && rdResource.getPosition().getOutdoorCoordinates() != null) {
             coord.setX(rdResource.getPosition().getOutdoorCoordinates().getLongitude());
             coord.setY(rdResource.getPosition().getOutdoorCoordinates().getLatitude());
-         }
+        }
         return coord;
     }
+
+    public static Map<String, String> getKeyValueConfig(ResourceDescription rdResource) {
+        Map<String, String> answer = new HashMap<String, String>();
+        if (rdResource.getTrConfiguration() != null && rdResource.getTrConfiguration().getKeyvalue() != null)
+            for (KeyValuePair pair : rdResource.getTrConfiguration().getKeyvalue()) {
+                answer.put(pair.getKey(), pair.getValue());
+            }
+        if (answer.size() == 0) return null;
+        return answer;
+    }
+
 
     public static Long[] getTimeouts(NodeOperationsEvents.AddSensorNode eventResource) {
         Long[] timeouts = new Long[4];
@@ -53,13 +62,23 @@ public class DeviceDBRDManager {
 
     public static Coordinate getCoordinates(NodeOperationsEvents.AddSensorNode eventResource) {
         Coordinate coord = new Coordinate();
-        if (eventResource.getPosition() != null){
+        if (eventResource.getPosition() != null) {
             coord.setX(eventResource.getPosition().getLongitude());
             coord.setY(eventResource.getPosition().getLatitude());
         }
         return coord;
     }
 
+
+    public static Map<String, String> getKeyValueConfig(NodeOperationsEvents.AddSensorNode eventResource) {
+        Map<String, String> answer = new HashMap<String, String>();
+        if (eventResource.getNodeTrConfig() != null && eventResource.getNodeTrConfig().getNodeConfigList() != null)
+            for (eu.smartsantander.testbed.events.RegistrationEvents.KeyValue pair : eventResource.getNodeTrConfig().getNodeConfigList()) {
+                answer.put(pair.getKey(), pair.getValue());
+            }
+        if (answer.size() == 0) return null;
+        return answer;
+    }
 
     public static DeviceConfig deviceConfigFromRDResource(ResourceDescription rdResource) {
 
@@ -90,7 +109,8 @@ public class DeviceDBRDManager {
             capabilities.add(capability);
         }
         Long[] timeouts = getTimeouts(rdResource);
-        Coordinate coord=getCoordinates(rdResource);
+        Coordinate coord = getCoordinates(rdResource);
+        Map<String, String> keyValues = getKeyValueConfig(rdResource);
 
         DeviceConfig devConfig = new DeviceConfig(
                 urn,
@@ -99,7 +119,7 @@ public class DeviceDBRDManager {
                 rdResource.getNodePort(),
                 rdResource.getNodeDesc(),
                 null,
-                null,
+                keyValues,
                 null,
                 timeouts[3],
                 timeouts[1],
@@ -143,6 +163,7 @@ public class DeviceDBRDManager {
             capabilities.add(capability);
         }
         Long[] timeouts = getTimeouts(eventResource);
+        Map<String, String> keyValues = getKeyValueConfig(eventResource);
         DeviceConfig devConfig = new DeviceConfig(
                 urn,
                 type.toString(),
@@ -150,7 +171,7 @@ public class DeviceDBRDManager {
                 eventResource.getNodeTrConfig().getNodePort(),
                 eventResource.getNodeDesc(),
                 null,
-                null,
+                keyValues,
                 null,
                 timeouts[3],
                 timeouts[1],
