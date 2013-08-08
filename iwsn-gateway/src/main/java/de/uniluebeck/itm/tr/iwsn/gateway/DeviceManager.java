@@ -26,7 +26,7 @@ public interface DeviceManager extends Service {
 	 *
 	 * @return all currently connected devices
 	 */
-	Iterable<DeviceAdapter> getDeviceAdapters();
+	Iterable<DeviceAdapter> getAttachedDeviceAdapters();
 
 	/**
 	 * Returns the node URNs of all currently connected devices.
