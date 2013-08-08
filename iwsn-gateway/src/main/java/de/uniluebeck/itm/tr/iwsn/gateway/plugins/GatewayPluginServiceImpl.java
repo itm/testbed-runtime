@@ -9,6 +9,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapterRegistry;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayScheduler;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -43,6 +44,8 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 
 	private final DeviceAdapterRegistry deviceAdapterRegistry;
 
+	private final GatewayScheduler gatewayScheduler;
+
 	private PluginContainer pluginContainer;
 
 	@Inject
@@ -53,7 +56,8 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 									final SessionManagement sessionManagement,
 									final DeviceDBService deviceDBService,
 									final GatewayEventBus gatewayEventBus,
-									final DeviceAdapterRegistry deviceAdapterRegistry) {
+									final DeviceAdapterRegistry deviceAdapterRegistry,
+									final GatewayScheduler gatewayScheduler) {
 
 		this.pluginContainerFactory = checkNotNull(pluginContainerFactory);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
@@ -64,6 +68,7 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 		this.deviceAdapterRegistry = checkNotNull(deviceAdapterRegistry);
+		this.gatewayScheduler = checkNotNull(gatewayScheduler);
 	}
 
 	@Override
@@ -99,6 +104,7 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 				pluginContainer.registerService(GatewayEventBus.class, gatewayEventBus);
 				pluginContainer.registerService(DeviceDBService.class, deviceDBService);
 				pluginContainer.registerService(DeviceAdapterRegistry.class, deviceAdapterRegistry);
+				pluginContainer.registerService(GatewayScheduler.class, gatewayScheduler);
 			}
 
 			notifyStarted();

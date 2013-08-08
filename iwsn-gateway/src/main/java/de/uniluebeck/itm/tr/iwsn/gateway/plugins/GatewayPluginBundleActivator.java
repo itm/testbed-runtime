@@ -8,6 +8,7 @@ import de.uniluebeck.itm.tr.common.plugins.PluginContainer;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapterRegistry;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayScheduler;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -49,10 +50,17 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 
 	protected DeviceAdapterRegistry deviceAdapterRegistry;
 
+	protected ServiceReference<GatewayScheduler> gatewaySchedulerServiceReference;
+
+	protected GatewayScheduler gatewayScheduler;
+
 	@Override
 	public final void start(final BundleContext bundleContext) throws Exception {
 
 		this.bundleContext = bundleContext;
+
+		gatewaySchedulerServiceReference = bundleContext.getServiceReference(GatewayScheduler.class);
+		gatewayScheduler = bundleContext.getService(gatewaySchedulerServiceReference);
 
 		deviceAdapterRegistryServiceReference = bundleContext.getServiceReference(DeviceAdapterRegistry.class);
 		deviceAdapterRegistry = bundleContext.getService(deviceAdapterRegistryServiceReference);
@@ -113,6 +121,10 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 		bundleContext.ungetService(deviceAdapterRegistryServiceReference);
 		deviceAdapterRegistryServiceReference = null;
 
+		gatewayScheduler = null;
+		bundleContext.ungetService(gatewaySchedulerServiceReference);
+		gatewaySchedulerServiceReference = null;
+
 		this.bundleContext = null;
 	}
 
@@ -131,6 +143,7 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 				bind(RS.class).toProvider(of(rs));
 				bind(DeviceDBService.class).toProvider(of(deviceDBService));
 				bind(DeviceAdapterRegistry.class).toProvider(of(deviceAdapterRegistry));
+				bind(GatewayScheduler.class).toProvider(of(gatewayScheduler));
 			}
 		}
 		).createChildInjector(modules);
