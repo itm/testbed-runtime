@@ -21,6 +21,8 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -66,8 +68,7 @@ public class ProcessRequest extends HttpServlet {
             
             
             System.out.println("IDP SIDE: VERIFYING THE SIGNED CHALLENGE USING CLIENT PUBLIC KEY");
-            boolean isValide = false;
-            userId = HelperUtilities.getTmpProperties().getProperty("userId");
+            boolean isValide;
             if (eu.smartsantander.cea.utils.Helper.HelperUtilities.isWindows()) {
                     isValide = VerifyData.verifySignature(challengeBytes, eu.smartsantander.cea.utils.Helper.HelperUtilities.getPublicKeyFromFile(userDir+"\\"+Config.CLIENT_PUBKEY_DIRECTORY+"\\"+userId), signedData);
             } else {
@@ -77,9 +78,6 @@ public class ProcessRequest extends HttpServlet {
             if (isValide) {
                 System.out.println("IDP SIDE: SINGED CHALLENGE IS VERIFIED SUCCESSFULLY. GENERATING SAMLRESPONSE TO CLIENT.......");
                 try {
-                    Properties pros = HelperUtilities.getTmpProperties();
-                    userId = pros.getProperty("userId");
-                    idpId = pros.getProperty("idpId");
                     ConnnectionBD dao = new ConnnectionBD();
                     String role = dao.getUserRole(userId);
                     // Generate SAML Response to Client
@@ -113,9 +111,7 @@ public class ProcessRequest extends HttpServlet {
                 String error = "USERID "+userId+ "  DOES NOT EXIST";
                 out.println("["+error+"]");
             } else {
-                // Save the client request information to the properties file
-                HelperUtilities.saveCurrentClient(userId, idpId, userDir);
-                
+                                
                 challenge = getSecureNumber();
                 System.out.println("IN IDP SIDE: Challenge generated: "+challenge);
                 

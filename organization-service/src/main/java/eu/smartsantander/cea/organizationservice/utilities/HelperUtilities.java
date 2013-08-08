@@ -27,42 +27,6 @@ public class HelperUtilities {
         return props;
       }
      
-      public static Properties getTmpProperties() {
-         Properties props = new Properties();
-        try {
-           props.load(HelperUtilities.class.getClassLoader().getResourceAsStream("tmp.properties"));
-         } catch (IOException ie) {
-            ie.printStackTrace();
-        }
-        return props; 
-      }
-      // TODO: Need to change when there is concurrent access.
-      public static void saveCurrentClient(String userId, String idpId, String userDir) {
-        try {
-            Properties props = new Properties();
-            props.setProperty("userId", userId);
-            props.setProperty("idpId", idpId);
-            
-            if (!eu.smartsantander.cea.utils.Helper.HelperUtilities.isWindows()) {
-                String pathToFile = userDir+"/src/main/resources/tmp.properties";
-                if (deleteFile(pathToFile)) {
-                    props.store(new FileOutputStream(pathToFile), "Identity of current user");
-                }
-                System.out.println("Can NOT delete file tmp.properties");
-            } else {
-                String pathToFile = userDir+"\\src\\main\\resources\\tmp.properties";
-                if (deleteFile(pathToFile)) {
-                    props.store(new FileOutputStream(pathToFile), "Identity of current user");
-                }
-                System.out.println("Can NOT delete file tmp.properties");
-            }
-   
-        } catch (IOException ie) {
-            ie.printStackTrace();
-        } 
-      }
-      
-      
       public static String getUserDir(HttpServletRequest request) {
         String userDir = "";
         String absuluPath = request.getSession().getServletContext().getRealPath("/");
@@ -70,8 +34,7 @@ public class HelperUtilities {
         userDir = absuluPath.substring(0, indexOfTarget-1);
         return userDir;
       }
-      
-     
+           
       public static String getProperty(String nameProperty) {
           return getProperties().getProperty(nameProperty);
       }
