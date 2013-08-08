@@ -51,7 +51,8 @@
 		<module>snaa-federator</module>
 		<module>snaa</module>
 		<module>plugins/default-image</module>
-		<module>plugins/framework-extender</module>
+		<module>plugins/framework-extender-portal</module>
+		<module>plugins/framework-extender-gateway</module>
 	</modules>
 
 	<dependencyManagement>

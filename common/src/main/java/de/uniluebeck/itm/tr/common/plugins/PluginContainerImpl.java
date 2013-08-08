@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.common.plugins;
 
-import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
@@ -19,7 +18,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.io.Files.copy;
 import static com.google.common.io.Resources.newInputStreamSupplier;
@@ -29,7 +27,6 @@ public class PluginContainerImpl extends AbstractService implements PluginContai
 	private static final Logger log = LoggerFactory.getLogger(PluginContainerImpl.class);
 
 	private static final String[] SYSTEM_BUNDLES = {
-			"tr.plugins.framework-extender-0.9-SNAPSHOT.jar",
 			"osgi-over-slf4j-1.7.5.jar",
 			"org.apache.felix.fileinstall-3.2.0.jar",
 			"org.apache.felix.configadmin-1.6.0.jar"
@@ -39,9 +36,13 @@ public class PluginContainerImpl extends AbstractService implements PluginContai
 
 	private final Map<Class<?>, ServiceRegistration<?>> serviceRegistrationMap = newHashMap();
 
+	private final String[] extenderBundles;
+
 	@Inject
 	public PluginContainerImpl(@Assisted(PluginContainer.PLUGIN_DIR) final String pluginDir,
-							   @Assisted(PluginContainer.SYSTEM_PACKAGES) final String... systemPackages) {
+							   @Assisted(PluginContainer.EXTENDER_BUNDLES) final String... extenderBundles) {
+
+		this.extenderBundles = extenderBundles;
 
 		final File storageDir = Files.createTempDir();
 		final FrameworkFactory frameworkFactory = ServiceLoader.load(FrameworkFactory.class).iterator().next();
@@ -51,14 +52,6 @@ public class PluginContainerImpl extends AbstractService implements PluginContai
 		config.put("felix.fileinstall.log.level", "4");
 		config.put(Constants.FRAMEWORK_STORAGE, storageDir.getAbsolutePath());
 		config.put(Constants.FRAMEWORK_STORAGE_CLEAN, "true");
-
-		final List<String> systemPackageList = newArrayList(systemPackages);
-		systemPackageList.add("org.slf4j");
-		systemPackageList.add("org.slf4j.helpers");
-		systemPackageList.add("org.slf4j.spi");
-		systemPackageList.add("org.slf4j.impl");
-
-		config.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, Joiner.on(",").join(systemPackageList));
 
 		framework = frameworkFactory.newFramework(config);
 	}
@@ -70,6 +63,7 @@ public class PluginContainerImpl extends AbstractService implements PluginContai
 			log.trace("PluginContainerImpl.doStart()");
 
 			framework.start();
+			installExtenderBundles();
 			installSystemBundles();
 			notifyStarted();
 
@@ -100,12 +94,19 @@ public class PluginContainerImpl extends AbstractService implements PluginContai
 		}
 	}
 
+	private void installExtenderBundles() throws Exception {
+
+		for (String extenderBundle : extenderBundles) {
+			framework.getBundleContext().installBundle("file:" + extenderBundle);
+		}
+	}
+
 	private void installSystemBundles() throws Exception {
 
 		final List<Bundle> installedBundles = new LinkedList<Bundle>();
 
 		for (String systemBundle : SYSTEM_BUNDLES) {
-			final String bundlePath = copySystemBundleToTmpFile(systemBundle);
+			final String bundlePath = copyBundleToTmpFile(systemBundle);
 			final Bundle bundle = framework.getBundleContext().installBundle("file:" + bundlePath);
 			installedBundles.add(bundle);
 		}
@@ -117,7 +118,7 @@ public class PluginContainerImpl extends AbstractService implements PluginContai
 		}
 	}
 
-	private String copySystemBundleToTmpFile(final String fileName) throws IOException {
+	private String copyBundleToTmpFile(final String fileName) throws IOException {
 		final URL resource = PluginContainerImpl.class.getResource(fileName);
 		final File tempDir = Files.createTempDir();
 		final File tempFile = new File(tempDir, fileName);

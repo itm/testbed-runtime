@@ -11,6 +11,7 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
+import de.uniluebeck.itm.tr.iwsn.gateway.plugins.GatewayPluginService;
 import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -49,6 +50,8 @@ public class Gateway extends AbstractService {
 
 	private final DeviceDBService deviceDBService;
 
+	private final GatewayPluginService gatewayPluginService;
+
 	private ServicePublisher servicePublisher;
 
 	@Inject
@@ -60,7 +63,8 @@ public class Gateway extends AbstractService {
 				   final RestApplication restApplication,
 				   final RequestHandler requestHandler,
 				   final ServicePublisherConfig servicePublisherConfig,
-				   final ServicePublisherFactory servicePublisherFactory) {
+				   final ServicePublisherFactory servicePublisherFactory,
+				   final GatewayPluginService gatewayPluginService) {
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
@@ -70,6 +74,7 @@ public class Gateway extends AbstractService {
 		this.requestHandler = checkNotNull(requestHandler);
 		this.servicePublisherConfig = checkNotNull(servicePublisherConfig);
 		this.servicePublisherFactory = checkNotNull(servicePublisherFactory);
+		this.gatewayPluginService = checkNotNull(gatewayPluginService);
 	}
 
 	@Override
@@ -84,6 +89,7 @@ public class Gateway extends AbstractService {
 			requestHandler.startAndWait();
 			deviceManager.startAndWait();
 			deviceObserverWrapper.startAndWait();
+			gatewayPluginService.startAndWait();
 
 			if (gatewayConfig.isRestAPI()) {
 
@@ -105,6 +111,8 @@ public class Gateway extends AbstractService {
 		log.trace("Gateway.doStop()");
 
 		try {
+
+			gatewayPluginService.stopAndWait();
 
 			if (gatewayConfig.isRestAPI() && servicePublisher != null) {
 				servicePublisher.stopAndWait();

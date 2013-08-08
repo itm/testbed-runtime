@@ -94,7 +94,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	@Nullable
 	@Override
-	public DeviceAdapter getGatewayDeviceAdapter(final NodeUrn nodeUrn) {
+	public DeviceAdapter getDeviceAdapter(final NodeUrn nodeUrn) {
 		synchronized (deviceAdapters) {
 			for (DeviceAdapter deviceAdapter : deviceAdapters) {
 				if (deviceAdapter.getNodeUrns().contains(nodeUrn)) {

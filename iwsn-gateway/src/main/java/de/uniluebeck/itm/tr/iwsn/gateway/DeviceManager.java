@@ -19,7 +19,7 @@ public interface DeviceManager extends Service {
 	 * @return the device or {@code null} if not connected
 	 */
 	@Nullable
-	DeviceAdapter getGatewayDeviceAdapter(NodeUrn nodeUrn);
+	DeviceAdapter getDeviceAdapter(NodeUrn nodeUrn);
 
 	/**
 	 * Returns all currently connected devices.

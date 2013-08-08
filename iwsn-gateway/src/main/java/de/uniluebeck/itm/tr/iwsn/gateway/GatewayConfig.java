@@ -3,8 +3,10 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.net.HostAndPort;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.util.propconf.converters.HostAndPortTypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
+import de.uniluebeck.itm.util.propconf.converters.HostAndPortTypeConverter;
+
+import javax.annotation.Nullable;
 
 public class GatewayConfig {
 
@@ -39,6 +41,15 @@ public class GatewayConfig {
 	@Named(REST_API_PORT)
 	private int restAPIPort;
 
+	@PropConf(
+			usage = "Path to a directory which Testbed Runtime will check for plugins"
+	)
+	public static final String PLUGIN_DIRECTORY = "gateway.plugin_directory";
+
+	@Inject(optional = true)
+	@Named(PLUGIN_DIRECTORY)
+	private String pluginDirectory;
+
 	public HostAndPort getPortalAddress() {
 		return portalAddress;
 	}
@@ -49,5 +60,10 @@ public class GatewayConfig {
 
 	public int getRestAPIPort() {
 		return restAPIPort;
+	}
+
+	@Nullable
+	public String getPluginDirectory() {
+		return pluginDirectory;
 	}
 }

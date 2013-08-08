@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.portal.plugins;
+package de.uniluebeck.itm.tr.iwsn.gateway.plugins;
 
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractService;
@@ -6,10 +6,9 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.plugins.PluginContainer;
 import de.uniluebeck.itm.tr.common.plugins.PluginContainerFactory;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapterRegistry;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayConfig;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -24,13 +23,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.io.Files.copy;
 import static com.google.common.io.Resources.newInputStreamSupplier;
 
-class PortalPluginServiceImpl extends AbstractService implements PortalPluginService {
+class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginService {
 
-	private static final Logger log = LoggerFactory.getLogger(PortalPluginServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(GatewayPluginServiceImpl.class);
 
 	private final PluginContainerFactory pluginContainerFactory;
 
-	private final PortalServerConfig portalServerConfig;
+	private final GatewayConfig gatewayConfig;
 
 	private final RS rs;
 
@@ -38,47 +37,44 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 
 	private final SessionManagement sessionManagement;
 
-	private final PortalEventBus portalEventBus;
-
-	private final ReservationManager reservationManager;
+	private final GatewayEventBus gatewayEventBus;
 
 	private final DeviceDBService deviceDBService;
 
-	private final ResponseTrackerFactory responseTrackerFactory;
+	private final DeviceAdapterRegistry deviceAdapterRegistry;
 
 	private PluginContainer pluginContainer;
 
 	@Inject
-	public PortalPluginServiceImpl(final PluginContainerFactory pluginContainerFactory,
-								   final PortalServerConfig portalServerConfig,
-								   final RS rs,
-								   final SNAA snaa,
-								   final SessionManagement sessionManagement,
-								   final PortalEventBus portalEventBus,
-								   final ReservationManager reservationManager,
-								   final DeviceDBService deviceDBService,
-								   final ResponseTrackerFactory responseTrackerFactory) {
-		this.portalEventBus = checkNotNull(portalEventBus);
-		this.reservationManager = checkNotNull(reservationManager);
+	public GatewayPluginServiceImpl(final PluginContainerFactory pluginContainerFactory,
+									final GatewayConfig gatewayConfig,
+									final RS rs,
+									final SNAA snaa,
+									final SessionManagement sessionManagement,
+									final DeviceDBService deviceDBService,
+									final GatewayEventBus gatewayEventBus,
+									final DeviceAdapterRegistry deviceAdapterRegistry) {
+
+		this.pluginContainerFactory = checkNotNull(pluginContainerFactory);
+		this.gatewayConfig = checkNotNull(gatewayConfig);
+
 		this.rs = checkNotNull(rs);
 		this.snaa = checkNotNull(snaa);
 		this.sessionManagement = checkNotNull(sessionManagement);
-		this.pluginContainerFactory = checkNotNull(pluginContainerFactory);
-		this.portalServerConfig = checkNotNull(portalServerConfig);
 		this.deviceDBService = checkNotNull(deviceDBService);
-		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
+		this.gatewayEventBus = checkNotNull(gatewayEventBus);
+		this.deviceAdapterRegistry = checkNotNull(deviceAdapterRegistry);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
 
-			log.trace("PortalPluginServiceImpl.doStart()");
+			log.trace("GatewayPluginServiceImpl.doStart()");
 
-			if (portalServerConfig.getPluginDirectory() != null && !""
-					.equals(portalServerConfig.getPluginDirectory())) {
+			if (gatewayConfig.getPluginDirectory() != null && !"".equals(gatewayConfig.getPluginDirectory())) {
 
-				final File pluginDirectory = new File(portalServerConfig.getPluginDirectory());
+				final File pluginDirectory = new File(gatewayConfig.getPluginDirectory());
 
 				if (!pluginDirectory.isDirectory()) {
 					throw new IllegalArgumentException(pluginDirectory.getAbsolutePath() + " is not a directory!");
@@ -89,7 +85,7 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 				}
 
 				final String extenderBundle = copyBundleToTmpFile(
-						"tr.plugins.framework-extender-portal-0.9-SNAPSHOT.jar"
+						"tr.plugins.framework-extender-gateway-0.9-SNAPSHOT.jar"
 				);
 
 				pluginContainer = pluginContainerFactory.create(pluginDirectory.getAbsolutePath(), extenderBundle);
@@ -100,10 +96,9 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 				pluginContainer.registerService(RS.class, rs);
 				pluginContainer.registerService(SNAA.class, snaa);
 				pluginContainer.registerService(SessionManagement.class, sessionManagement);
-				pluginContainer.registerService(PortalEventBus.class, portalEventBus);
-				pluginContainer.registerService(ReservationManager.class, reservationManager);
+				pluginContainer.registerService(GatewayEventBus.class, gatewayEventBus);
 				pluginContainer.registerService(DeviceDBService.class, deviceDBService);
-				pluginContainer.registerService(ResponseTrackerFactory.class, responseTrackerFactory);
+				pluginContainer.registerService(DeviceAdapterRegistry.class, deviceAdapterRegistry);
 			}
 
 			notifyStarted();
@@ -116,7 +111,7 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 	@Override
 	protected void doStop() {
 		try {
-			log.trace("PortalPluginServiceImpl.doStop()");
+			log.trace("GatewayPluginServiceImpl.doStop()");
 			pluginContainer.stopAndWait();
 			notifyStopped();
 		} catch (Exception e) {
@@ -125,7 +120,7 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 	}
 
 	private String copyBundleToTmpFile(final String fileName) throws IOException {
-		final URL resource = PortalPluginServiceImpl.class.getResource(fileName);
+		final URL resource = GatewayPluginServiceImpl.class.getResource(fileName);
 		final File tempDir = Files.createTempDir();
 		final File tempFile = new File(tempDir, fileName);
 		copy(newInputStreamSupplier(resource), tempFile);

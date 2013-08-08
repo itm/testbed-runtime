@@ -6,7 +6,8 @@ import org.osgi.framework.ServiceReference;
 public interface PluginContainer extends Service {
 
 	String PLUGIN_DIR = "de.uniluebeck.itm.tr.common.plugins.PluginContainer.pluginDir";
-	String SYSTEM_PACKAGES = "de.uniluebeck.itm.tr.common.plugins.PluginContainer.systemPackages";
+
+	String EXTENDER_BUNDLES = "de.uniluebeck.itm.tr.common.plugins.PluginContainer.extenderBundles";
 
 	<T> ServiceReference<T> registerService(Class<T> serviceClass, T service);
 
