@@ -61,7 +61,7 @@ public class SNAAClient {
     public static void main(String args[]) {
          
         
-        if (args.length>0) {
+        if (args.length==2 && args.length>0) {
             try {
                 
                 String propertiesFile = args[1];
@@ -99,6 +99,8 @@ public class SNAAClient {
                     String signedChallenge = HelperUtilities.encodeToByte(challengeSignedInBytes);
                     
                     params.clear();
+                    params.put("userId", userId);
+                    params.put("idpId", organizationId);
                     params.put("challenge", HelperUtilities.encode(challenge));
                     params.put("challengeSigned", signedChallenge);
                     
@@ -137,9 +139,7 @@ public class SNAAClient {
                                                             + sak.getKey()+ "]");
                             }
                         
-                        } catch (AuthenticationFault ex) {
-                            Logger.getLogger(SNAAClient.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (SNAAFault_Exception ex) {
+                        } catch (                AuthenticationFault | SNAAFault_Exception ex) {
                             Logger.getLogger(SNAAClient.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     } else if (args[0].equalsIgnoreCase("-authorize")) {
@@ -166,9 +166,9 @@ public class SNAAClient {
             }
             
         } else {
-            System.out.println("Please provide your configuration file for the experiment");
-            System.out.println("Usage: [program] pathToExperimentFile");
+            System.out.println("Please provide correctly the arguments");
+            System.out.println("Usage: [program] [option] pathToExperimentFile");
+            System.out.println("Possible options: -authenticate or -authorize");
         }
-       
     }
 }
