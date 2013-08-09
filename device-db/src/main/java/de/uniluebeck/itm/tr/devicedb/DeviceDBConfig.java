@@ -65,6 +65,26 @@ public class DeviceDBConfig {
 	@Named(DEVICEDB_REMOTE_URI)
 	private URI deviceDBRemoteUri;
 
+	@PropConf(
+			usage = "If used in the SmartSantander context: the ID of the TR portal server in the Resource Directory (RD)"
+	)
+	public static final String SMARTSANTANDER_RD_PORTAL_ID = "devicedb.smartsantander.rd.portal_id";
+
+	@Inject(optional = true)
+	@Named(SMARTSANTANDER_RD_PORTAL_ID)
+	private String smartSantanderRDPortalId;
+
+	@PropConf(
+			usage = "If used in the SmartSantander context: the URI of the EventBroker to connect to",
+			example = "tcp://lira.tlmat.unican.es:9020",
+			typeConverter = URITypeConverter.class
+	)
+	public static final String SMARTSANTANDER_EVENTBROKER_URI = "devicedb.smartsantander.eventbroker.uri";
+
+	@Inject(optional = true)
+	@Named(SMARTSANTANDER_EVENTBROKER_URI)
+	private URI smartSantanderEventBrokerUri;
+
 	public String getDeviceDBWebappContextPath() {
 		return deviceDBWebappContextPath;
 	}
@@ -84,5 +104,15 @@ public class DeviceDBConfig {
 	@Nullable
 	public URI getDeviceDBRemoteUri() {
 		return deviceDBRemoteUri;
+	}
+
+	@Nullable
+	public String getSmartSantanderRDPortalId() {
+		return smartSantanderRDPortalId;
+	}
+
+	@Nullable
+	public URI getSmartSantanderEventBrokerUri() {
+		return smartSantanderEventBrokerUri;
 	}
 }
