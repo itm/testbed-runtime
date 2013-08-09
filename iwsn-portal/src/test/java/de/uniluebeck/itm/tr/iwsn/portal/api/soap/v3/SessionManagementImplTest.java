@@ -1,20 +1,21 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import com.google.inject.Provider;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.sm.NodeConnectionStatus;
+import eu.wisebed.wiseml.Wiseml;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,12 +60,6 @@ public class SessionManagementImplTest {
 
 	private static final long REQUEST_ID = new Random().nextLong();
 
-	private static final Iterable<DeviceConfig> DEVICE_CONFIGS = ImmutableList.of(
-			new DeviceConfig(NODE_URN_1, "isense", true, null, null, null, null, null, null, null, null, null,null,null),
-			new DeviceConfig(NODE_URN_2, "isense", true, null, null, null, null, null, null, null, null, null,null,null),
-			new DeviceConfig(NODE_URN_3, "isense", true, null, null, null, null, null, null, null, null, null,null,null)
-	);
-
 	@Mock
 	private PortalEventBus portalEventBus;
 
@@ -73,9 +68,6 @@ public class SessionManagementImplTest {
 
 	@Mock
 	private ResponseTracker responseTracker;
-
-	@Mock
-	private DeviceDB deviceDB;
 
 	@Mock
 	private ReservationManager reservationManager;
@@ -87,7 +79,7 @@ public class SessionManagementImplTest {
 	private AuthorizingWSNFactory authorizingWSNFactory;
 
 	@Mock
-	private  WSNFactory wsnFactory;
+	private WSNFactory wsnFactory;
 
 	@Mock
 	private DeliveryManagerFactory deliveryManagerFactory;
@@ -99,38 +91,48 @@ public class SessionManagementImplTest {
 	private RequestIdProvider requestIdProvider;
 
 	@Mock
-	private PortalConfig portalConfig;
+	private PortalServerConfig portalServerConfig;
+
+	@Mock
+	private CommonConfig commonConfig;
+
+	@Mock
+	private Provider<SessionManagementPreconditions> sessionManagementPreconditionsProvider;
+
+	@Mock
+	private Provider<Wiseml> wisemlProvider;
 
 	private SessionManagementImpl sessionManagement;
 
 	@Before
 	public void setUp() throws Exception {
 
-		when(portalConfig.getUrnPrefix()).thenReturn(new NodeUrnPrefix("urn:unit-test:"));
+		when(commonConfig.getUrnPrefix()).thenReturn(new NodeUrnPrefix("urn:unit-test:"));
 
 		final Map<NodeUrn, SingleNodeResponse> responseMap = newHashMap();
 		responseMap.put(NODE_URN_1, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_1, 1, null));
 		responseMap.put(NODE_URN_2, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_2, 0, null));
 		responseMap.put(NODE_URN_3, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_3, 1, null));
 
-		when(deviceDB.getAll()).thenReturn(DEVICE_CONFIGS);
 		when(deliveryManagerFactory.create(isA(Reservation.class))).thenReturn(deliveryManager);
 		when(responseTrackerFactory.create(isA(Request.class), isA(EventBusService.class))).thenReturn(responseTracker);
 		when(requestIdProvider.get()).thenReturn(REQUEST_ID);
 		when(responseTracker.get(anyLong(), Matchers.<TimeUnit>any())).thenReturn(responseMap);
 
 		sessionManagement = new SessionManagementImpl(
+				commonConfig,
+				portalServerConfig,
 				portalEventBus,
 				responseTrackerFactory,
-				portalConfig,
 				Sets.<HandlerFactory>newHashSet(),
-				deviceDB,
 				reservationManager,
 				wsnServiceFactory,
 				authorizingWSNFactory,
 				wsnFactory,
 				deliveryManagerFactory,
-				requestIdProvider
+				requestIdProvider,
+				sessionManagementPreconditionsProvider,
+				wisemlProvider
 		);
 	}
 

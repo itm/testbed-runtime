@@ -5,7 +5,7 @@ $(function () {
 
     app.NodeModel = Backbone.Model.extend({
         idAttribute: 'nodeUrn',
-        urlRoot: 'rest/deviceConfigs',
+        urlRoot: deviceDBRestApiContextPath + '/deviceConfigs',
         defaults: {
             "nodeUrn" : "urn:wisebed:uzl1:"
             // TODO add sensible defaults
@@ -14,7 +14,7 @@ $(function () {
 
     var NodeCollection = Backbone.Collection.extend({
         model: app.NodeModel,
-        url: "rest/deviceConfigs",
+        url: deviceDBRestApiContextPath + '/deviceConfigs',
 		toJSON: function(list) {
 			return { "configs" : list };
 		},

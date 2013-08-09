@@ -2,9 +2,10 @@ package de.uniluebeck.itm.tr.federator.snaa;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederationManager;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -12,12 +13,12 @@ import eu.wisebed.api.v3.snaa.*;
 
 import javax.jws.WebService;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
@@ -32,66 +33,7 @@ import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.createSNAAFault;
 )
 public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFederatorService {
 
-	protected static class AuthenticationCallable implements Callable<List<SecretAuthenticationKey>> {
-
-		private final SNAA snaa;
-
-		private final List<AuthenticationTriple> authenticationTriples;
-
-		public AuthenticationCallable(SNAA snaa, List<AuthenticationTriple> authenticationTriples) {
-			this.snaa = snaa;
-			this.authenticationTriples = authenticationTriples;
-		}
-
-		@Override
-		public List<SecretAuthenticationKey> call() throws Exception {
-			return snaa.authenticate(authenticationTriples);
-		}
-
-	}
-
-	protected static class IsAuthorizedCallable implements Callable<AuthorizationResponse> {
-
-		private final SNAA snaa;
-
-		private final List<UsernameNodeUrnsMap> userNamesNodeUrnsMaps;
-
-		private final Action action;
-
-		public IsAuthorizedCallable(final SNAA snaa,
-									final List<UsernameNodeUrnsMap> userNamesNodeUrnsMaps,
-									final Action action) {
-			this.snaa = snaa;
-			this.userNamesNodeUrnsMaps = userNamesNodeUrnsMaps;
-			this.action = action;
-		}
-
-		@Override
-		public AuthorizationResponse call() throws Exception {
-			return snaa.isAuthorized(userNamesNodeUrnsMaps, action);
-		}
-
-	}
-
-	protected static class IsValidCallable implements Callable<List<ValidationResult>> {
-
-		private final SNAA snaa;
-
-		private final List<SecretAuthenticationKey> secretAuthenticationKeys;
-
-		public IsValidCallable(final SNAA snaa, final List<SecretAuthenticationKey> secretAuthenticationKeys) {
-			this.snaa = snaa;
-			this.secretAuthenticationKeys = secretAuthenticationKeys;
-		}
-
-		@Override
-		public List<ValidationResult> call() throws Exception {
-			return snaa.isValid(secretAuthenticationKeys);
-		}
-
-	}
-
-	protected final SNAAFederatorConfig config;
+	protected final SNAAFederatorServiceConfig config;
 
 	protected final FederationManager<SNAA> federationManager;
 
@@ -101,12 +43,11 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 
 	protected ServicePublisherService jaxWsService;
 
-
 	@Inject
-	public SNAAFederatorServiceImpl(final SNAAFederatorConfig config,
+	public SNAAFederatorServiceImpl(@Named(SNAAFederatorService.SNAA_FEDERATOR_EXECUTOR_SERVICE) final ExecutorService executorService,
+									final SNAAFederatorServiceConfig config,
 									final FederationManager<SNAA> federationManager,
-									final ServicePublisher servicePublisher,
-									final ExecutorService executorService) {
+									final ServicePublisher servicePublisher) {
 		this.config = checkNotNull(config);
 		this.federationManager = checkNotNull(federationManager);
 		this.servicePublisher = checkNotNull(servicePublisher);
@@ -137,38 +78,43 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationFault_Exception, SNAAFault_Exception {
+	public AuthenticateResponse authenticate(final Authenticate authenticate)
+			throws AuthenticationFault, SNAAFault_Exception {
 
-		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet = getIntersectionPrefixSetAT(authenticationData);
+		checkState(isRunning());
 
-		Set<Future<List<SecretAuthenticationKey>>> futures = new HashSet<Future<List<SecretAuthenticationKey>>>();
+		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet = getIntersectionPrefixSetAT(authenticate.getAuthenticationData());
+
+		Set<Future<AuthenticateResponse>> futures = new HashSet<Future<AuthenticateResponse>>();
 
 		for (SNAA snaa : intersectionPrefixSet.keySet()) {
 
-			final ArrayList<AuthenticationTriple> atList = newArrayList(intersectionPrefixSet.get(snaa));
-			final AuthenticationCallable callable = new AuthenticationCallable(snaa, atList);
+			final Authenticate subAuth = new Authenticate();
+			subAuth.getAuthenticationData().addAll(newArrayList(intersectionPrefixSet.get(snaa)));
+			final AuthenticationCallable callable = new AuthenticationCallable(snaa, subAuth);
 
 			futures.add(executorService.submit(callable));
 		}
 
-		final List<SecretAuthenticationKey> resultSet = newArrayList();
+		final AuthenticateResponse authenticateResponse = new AuthenticateResponse();
 
-		for (Future<List<SecretAuthenticationKey>> future : futures) {
+		for (Future<AuthenticateResponse> future : futures) {
 			try {
-				resultSet.addAll(future.get());
+				authenticateResponse.getSecretAuthenticationKey().addAll(future.get().getSecretAuthenticationKey());
 			} catch (Exception e) {
-				throw createSNAAFault(e.getMessage(),e);
+				throw createSNAAFault(e.getMessage(), e);
 			}
 		}
 
-		return resultSet;
+		return authenticateResponse;
 
 	}
 
 	@Override
 	public AuthorizationResponse isAuthorized(final List<UsernameNodeUrnsMap> usernameNodeUrnsMapList,
 											  final Action action) throws SNAAFault_Exception {
+
+		checkState(isRunning());
 
 		if (usernameNodeUrnsMapList == null || action == null) {
 			throw createSNAAFault("Arguments must not be null!");
@@ -209,6 +155,8 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 	@Override
 	public List<ValidationResult> isValid(final List<SecretAuthenticationKey> secretAuthenticationKeys)
 			throws SNAAFault_Exception {
+
+		checkState(isRunning());
 
 		try {
 
@@ -268,5 +216,4 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 
 		return intersectionPrefixSet;
 	}
-
 }

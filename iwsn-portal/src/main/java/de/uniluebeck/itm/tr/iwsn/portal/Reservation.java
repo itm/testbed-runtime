@@ -49,4 +49,6 @@ public interface Reservation extends Service {
 	void enableVirtualization();
 
 	void disableVirtualization();
+
+	boolean isVirtualizationEnabled();
 }

@@ -1,0 +1,43 @@
+#!/bin/bash
+
+BASEDIR=`dirname $0`
+
+source $BASEDIR/config
+
+if [[ -z "$FEDERATOR_USER" || -z "$FEDERATOR_HOST" ]]
+then
+	echo "FEDERATOR_USER and FEDERATOR_HOST must be set in config file"
+	exit 1
+fi
+
+FEDERATOR_DEB=tr.federator-deb_0.9+SNAPSHOT_all.deb
+FEDERATOR_DEB_PATH=$BASEDIR/../../federator-deb/target
+
+echo ""
+echo "*** Copying .deb package to $FEDERATOR_HOST [...] ***"
+scp $FEDERATOR_DEB_PATH/$FEDERATOR_DEB $FEDERATOR_USER@$FEDERATOR_HOST:~/
+
+echo ""
+echo "*** Stopping old version on $FEDERATOR_HOST ***"
+ssh $FEDERATOR_USER@$FEDERATOR_HOST "/etc/init.d/tr.federator stop"
+
+echo ""
+echo "*** Purging old version installation and reinstalling new version ***"
+ssh $FEDERATOR_USER@$FEDERATOR_HOST "dpkg -P tr.federator && dpkg -i ~/$FEDERATOR_DEB"
+
+echo ""
+echo "*** Copying config file(s) to $FEDERATOR_HOST ***"
+for $FEDERATOR_CONFIG in "${FEDERATOR_CONFIGS[@]}"
+do
+	scp $FEDERATOR_CONFIG $FEDERATOR_USER@$FEDERATOR_HOST:/etc/
+done
+
+echo ""
+echo "*** Starting new version instance of Portal ***"
+ssh $FEDERATOR_USER@$FEDERATOR_HOST "/etc/init.d/tr.federator start"
+
+echo ""
+echo "*** Cleaning up .deb package from $FEDERATOR_HOST ***"
+ssh $FEDERATOR_USER@$FEDERATOR_HOST "rm ~/$FEDERATOR_DEB"
+
+echo ""

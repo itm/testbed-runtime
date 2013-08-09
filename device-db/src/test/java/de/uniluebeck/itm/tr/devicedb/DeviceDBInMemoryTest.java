@@ -6,6 +6,6 @@ import org.junit.Before;
 public class DeviceDBInMemoryTest extends DeviceDBTestBase {
 	@Before
 	public void setUp() throws Exception {
-		super.setUp(Guice.createInjector(new DeviceDBInMemoryModule()).getInstance(DeviceDB.class));
+		super.setUp(Guice.createInjector(new DeviceDBInMemoryModule()).getInstance(DeviceDBService.class));
 	}
 }

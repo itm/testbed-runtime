@@ -29,9 +29,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.federatorutils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederationManager;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.*;
@@ -46,8 +47,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -69,18 +69,18 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 	private final FederationManager<RS> federationManager;
 
+	private final RSFederatorServiceConfig config;
+
 	private ServicePublisherService jaxWsService;
 
-	private RSFederatorConfig config;
-
 	@Inject
-	public RSFederatorServiceImpl(final ServicePublisher servicePublisher,
+	public RSFederatorServiceImpl(@Named(RS_FEDERATOR_EXECUTOR_SERVICE) final ExecutorService executorService,
+								  final ServicePublisher servicePublisher,
 								  final FederationManager<RS> federationManager,
-								  final ExecutorService executorService,
-								  final RSFederatorConfig config) {
+								  final RSFederatorServiceConfig config) {
+		this.executorService = checkNotNull(executorService);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.federationManager = checkNotNull(federationManager);
-		this.executorService = checkNotNull(executorService);
 		this.config = checkNotNull(config);
 	}
 
@@ -89,6 +89,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 								  final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
+		checkState(isRunning());
 		assertNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null");
 		assertNotNull(secretReservationKeys, "Parameter secretReservationKeys is null");
 
@@ -125,7 +126,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(config.contextPath, this);
+			jaxWsService = servicePublisher.createJaxWsService(config.getContextPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
@@ -156,6 +157,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 		try {
 
+			checkState(isRunning());
 			checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null");
 			checkNotNull(nodeUrns, "Parameter nodeUrns is null");
 			checkNotNull(from, "Parameter from is null");
@@ -187,7 +189,9 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 				map.put(rs, callable);
 			}
 
-			callable.getSecretAuthenticationKeys().add(sak);
+			if (!callable.getSecretAuthenticationKeys().contains(sak)) {
+				callable.getSecretAuthenticationKeys().add(sak);
+			}
 			callable.getNodeUrns().add(nodeUrn);
 		}
 
@@ -258,16 +262,18 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	}
 
 	@Override
-	public List<PublicReservationData> getReservations(final DateTime from,
-													   final DateTime to) throws RSFault_Exception {
+	public List<PublicReservationData> getReservations(final DateTime from, final DateTime to,
+													   final Integer offset, final Integer amount)
+			throws RSFault_Exception {
 
+		checkState(isRunning());
 		assertNotNull(from, "from");
 		assertNotNull(to, "to");
 
 		// fork processes to collect reservations from federated services
 		List<Future<List<PublicReservationData>>> futures = newArrayList();
 		for (RS rs : federationManager.getEndpoints()) {
-			futures.add(executorService.submit(new GetReservationsCallable(rs, from, to)));
+			futures.add(executorService.submit(new GetReservationsCallable(rs, from, to, offset, amount)));
 		}
 
 		// join processes and collect results
@@ -289,7 +295,12 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
 			final DateTime from,
-			final DateTime to) throws RSFault_Exception {
+			final DateTime to,
+			final Integer offset,
+			final Integer amount)
+			throws AuthorizationFault, RSFault_Exception {
+
+		checkState(isRunning());
 
 		//check for null
 		if (from == null || to == null) {
@@ -306,7 +317,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 		for (RS rs : federationManager.getEndpoints()) {
 			GetConfidentialReservationsCallable callable = new GetConfidentialReservationsCallable(
-					rs, endpointToAuthenticationMap.get(rs), from, to
+					rs, endpointToAuthenticationMap.get(rs), from, to, offset, amount
 			);
 			futures.add(executorService.submit(callable));
 		}
@@ -333,6 +344,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	public List<ConfidentialReservationData> getReservation(final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
+		checkState(isRunning());
 		assertNotNull(secretReservationKeys, "Parameter secretReservationKeys is null");
 
 		Map<RS, List<SecretReservationKey>> map = constructEndpointToReservationKeyMap(secretReservationKeys);

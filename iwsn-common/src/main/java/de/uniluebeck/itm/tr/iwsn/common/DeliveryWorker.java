@@ -9,10 +9,12 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
+import org.apache.cxf.interceptor.Fault;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.ConnectException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
@@ -235,8 +237,12 @@ class DeliveryWorker implements Runnable {
 
 		} catch (Exception e) {
 
+			boolean clientDied = e instanceof Fault && e.getCause() instanceof ConnectException;
+
 			// if delivery failed
-			log.warn("{} => Exception while delivering messages. Reason: {}", endpointUrl, e);
+			if (!clientDied) {
+				log.warn("{} => Exception while delivering messages. Reason: {}", endpointUrl, e);
+			}
 
 			// put messages back in that have been taken out before (in reverse order)
 			lock.lock();

@@ -16,6 +16,7 @@ import eu.wisebed.wiseml.Coordinate;
 import eu.wisebed.wiseml.Dtypes;
 import eu.wisebed.wiseml.Units;
 
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.Map;
@@ -66,9 +67,9 @@ public abstract class DeviceDBTestBase {
 
 	private DeviceConfig config3;
 
-	private DeviceDB db;
+	private DeviceDBService db;
 
-	public void setUp(DeviceDB db) throws Exception {
+	public void setUp(DeviceDBService db) throws Exception {
 
 		this.db = db;
 		
@@ -137,6 +138,13 @@ public abstract class DeviceDBTestBase {
 				null,
 				null
 		);
+
+		db.startAndWait();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		db.stopAndWait();
 	}
 
 	@Test
@@ -242,4 +250,14 @@ public abstract class DeviceDBTestBase {
 		assertEquals(config1, retrievedConfig);
 	}
 
+	@Test
+	public void testIfGetByMacAddressWithUnknownMacReturnsNull() {
+
+		db.add(config1);
+		db.add(config2);
+
+		final Long macAddress = StringUtils.parseHexOrDecLongFromUrn(config3.getNodeUrn().toString());
+
+		assertNull(db.getConfigByMacAddress(macAddress));
+	}
 }

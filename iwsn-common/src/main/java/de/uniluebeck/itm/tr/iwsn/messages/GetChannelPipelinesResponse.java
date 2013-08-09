@@ -37,10 +37,15 @@ public  final class GetChannelPipelinesResponse extends
     boolean hasNodeUrn();
     String getNodeUrn();
     
-    // required .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration pipeline = 2;
-    boolean hasPipeline();
-    de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration getPipeline();
-    de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder getPipelineOrBuilder();
+    // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration handlerConfigurations = 2;
+    java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> 
+        getHandlerConfigurationsList();
+    de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration getHandlerConfigurations(int index);
+    int getHandlerConfigurationsCount();
+    java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> 
+        getHandlerConfigurationsOrBuilderList();
+    de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder getHandlerConfigurationsOrBuilder(
+        int index);
   }
   public static final class GetChannelPipelineResponse extends
       com.google.protobuf.GeneratedMessage
@@ -103,22 +108,30 @@ public  final class GetChannelPipelinesResponse extends
       }
     }
     
-    // required .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration pipeline = 2;
-    public static final int PIPELINE_FIELD_NUMBER = 2;
-    private de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration pipeline_;
-    public boolean hasPipeline() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+    // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration handlerConfigurations = 2;
+    public static final int HANDLERCONFIGURATIONS_FIELD_NUMBER = 2;
+    private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> handlerConfigurations_;
+    public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> getHandlerConfigurationsList() {
+      return handlerConfigurations_;
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration getPipeline() {
-      return pipeline_;
+    public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> 
+        getHandlerConfigurationsOrBuilderList() {
+      return handlerConfigurations_;
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder getPipelineOrBuilder() {
-      return pipeline_;
+    public int getHandlerConfigurationsCount() {
+      return handlerConfigurations_.size();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration getHandlerConfigurations(int index) {
+      return handlerConfigurations_.get(index);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder getHandlerConfigurationsOrBuilder(
+        int index) {
+      return handlerConfigurations_.get(index);
     }
     
     private void initFields() {
       nodeUrn_ = "";
-      pipeline_ = de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.getDefaultInstance();
+      handlerConfigurations_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -129,13 +142,11 @@ public  final class GetChannelPipelinesResponse extends
         memoizedIsInitialized = 0;
         return false;
       }
-      if (!hasPipeline()) {
-        memoizedIsInitialized = 0;
-        return false;
-      }
-      if (!getPipeline().isInitialized()) {
-        memoizedIsInitialized = 0;
-        return false;
+      for (int i = 0; i < getHandlerConfigurationsCount(); i++) {
+        if (!getHandlerConfigurations(i).isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
       }
       memoizedIsInitialized = 1;
       return true;
@@ -147,8 +158,8 @@ public  final class GetChannelPipelinesResponse extends
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, getNodeUrnBytes());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
-        output.writeMessage(2, pipeline_);
+      for (int i = 0; i < handlerConfigurations_.size(); i++) {
+        output.writeMessage(2, handlerConfigurations_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -163,9 +174,9 @@ public  final class GetChannelPipelinesResponse extends
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(1, getNodeUrnBytes());
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      for (int i = 0; i < handlerConfigurations_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(2, pipeline_);
+          .computeMessageSize(2, handlerConfigurations_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -283,7 +294,7 @@ public  final class GetChannelPipelinesResponse extends
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-          getPipelineFieldBuilder();
+          getHandlerConfigurationsFieldBuilder();
         }
       }
       private static Builder create() {
@@ -294,12 +305,12 @@ public  final class GetChannelPipelinesResponse extends
         super.clear();
         nodeUrn_ = "";
         bitField0_ = (bitField0_ & ~0x00000001);
-        if (pipelineBuilder_ == null) {
-          pipeline_ = de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.getDefaultInstance();
+        if (handlerConfigurationsBuilder_ == null) {
+          handlerConfigurations_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
         } else {
-          pipelineBuilder_.clear();
+          handlerConfigurationsBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
       
@@ -342,13 +353,14 @@ public  final class GetChannelPipelinesResponse extends
           to_bitField0_ |= 0x00000001;
         }
         result.nodeUrn_ = nodeUrn_;
-        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-          to_bitField0_ |= 0x00000002;
-        }
-        if (pipelineBuilder_ == null) {
-          result.pipeline_ = pipeline_;
+        if (handlerConfigurationsBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002)) {
+            handlerConfigurations_ = java.util.Collections.unmodifiableList(handlerConfigurations_);
+            bitField0_ = (bitField0_ & ~0x00000002);
+          }
+          result.handlerConfigurations_ = handlerConfigurations_;
         } else {
-          result.pipeline_ = pipelineBuilder_.build();
+          result.handlerConfigurations_ = handlerConfigurationsBuilder_.build();
         }
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -369,8 +381,31 @@ public  final class GetChannelPipelinesResponse extends
         if (other.hasNodeUrn()) {
           setNodeUrn(other.getNodeUrn());
         }
-        if (other.hasPipeline()) {
-          mergePipeline(other.getPipeline());
+        if (handlerConfigurationsBuilder_ == null) {
+          if (!other.handlerConfigurations_.isEmpty()) {
+            if (handlerConfigurations_.isEmpty()) {
+              handlerConfigurations_ = other.handlerConfigurations_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+            } else {
+              ensureHandlerConfigurationsIsMutable();
+              handlerConfigurations_.addAll(other.handlerConfigurations_);
+            }
+            onChanged();
+          }
+        } else {
+          if (!other.handlerConfigurations_.isEmpty()) {
+            if (handlerConfigurationsBuilder_.isEmpty()) {
+              handlerConfigurationsBuilder_.dispose();
+              handlerConfigurationsBuilder_ = null;
+              handlerConfigurations_ = other.handlerConfigurations_;
+              bitField0_ = (bitField0_ & ~0x00000002);
+              handlerConfigurationsBuilder_ = 
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                   getHandlerConfigurationsFieldBuilder() : null;
+            } else {
+              handlerConfigurationsBuilder_.addAllMessages(other.handlerConfigurations_);
+            }
+          }
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -381,13 +416,11 @@ public  final class GetChannelPipelinesResponse extends
           
           return false;
         }
-        if (!hasPipeline()) {
-          
-          return false;
-        }
-        if (!getPipeline().isInitialized()) {
-          
-          return false;
+        for (int i = 0; i < getHandlerConfigurationsCount(); i++) {
+          if (!getHandlerConfigurations(i).isInitialized()) {
+            
+            return false;
+          }
         }
         return true;
       }
@@ -422,11 +455,8 @@ public  final class GetChannelPipelinesResponse extends
             }
             case 18: {
               de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.newBuilder();
-              if (hasPipeline()) {
-                subBuilder.mergeFrom(getPipeline());
-              }
               input.readMessage(subBuilder, extensionRegistry);
-              setPipeline(subBuilder.buildPartial());
+              addHandlerConfigurations(subBuilder.buildPartial());
               break;
             }
           }
@@ -471,94 +501,190 @@ public  final class GetChannelPipelinesResponse extends
         onChanged();
       }
       
-      // required .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration pipeline = 2;
-      private de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration pipeline_ = de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.getDefaultInstance();
-      private com.google.protobuf.SingleFieldBuilder<
-          de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> pipelineBuilder_;
-      public boolean hasPipeline() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+      // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration handlerConfigurations = 2;
+      private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> handlerConfigurations_ =
+        java.util.Collections.emptyList();
+      private void ensureHandlerConfigurationsIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          handlerConfigurations_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration>(handlerConfigurations_);
+          bitField0_ |= 0x00000002;
+         }
       }
-      public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration getPipeline() {
-        if (pipelineBuilder_ == null) {
-          return pipeline_;
+      
+      private com.google.protobuf.RepeatedFieldBuilder<
+          de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> handlerConfigurationsBuilder_;
+      
+      public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> getHandlerConfigurationsList() {
+        if (handlerConfigurationsBuilder_ == null) {
+          return java.util.Collections.unmodifiableList(handlerConfigurations_);
         } else {
-          return pipelineBuilder_.getMessage();
+          return handlerConfigurationsBuilder_.getMessageList();
         }
       }
-      public Builder setPipeline(de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration value) {
-        if (pipelineBuilder_ == null) {
+      public int getHandlerConfigurationsCount() {
+        if (handlerConfigurationsBuilder_ == null) {
+          return handlerConfigurations_.size();
+        } else {
+          return handlerConfigurationsBuilder_.getCount();
+        }
+      }
+      public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration getHandlerConfigurations(int index) {
+        if (handlerConfigurationsBuilder_ == null) {
+          return handlerConfigurations_.get(index);
+        } else {
+          return handlerConfigurationsBuilder_.getMessage(index);
+        }
+      }
+      public Builder setHandlerConfigurations(
+          int index, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration value) {
+        if (handlerConfigurationsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          pipeline_ = value;
+          ensureHandlerConfigurationsIsMutable();
+          handlerConfigurations_.set(index, value);
           onChanged();
         } else {
-          pipelineBuilder_.setMessage(value);
+          handlerConfigurationsBuilder_.setMessage(index, value);
         }
-        bitField0_ |= 0x00000002;
         return this;
       }
-      public Builder setPipeline(
-          de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder builderForValue) {
-        if (pipelineBuilder_ == null) {
-          pipeline_ = builderForValue.build();
+      public Builder setHandlerConfigurations(
+          int index, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder builderForValue) {
+        if (handlerConfigurationsBuilder_ == null) {
+          ensureHandlerConfigurationsIsMutable();
+          handlerConfigurations_.set(index, builderForValue.build());
           onChanged();
         } else {
-          pipelineBuilder_.setMessage(builderForValue.build());
+          handlerConfigurationsBuilder_.setMessage(index, builderForValue.build());
         }
-        bitField0_ |= 0x00000002;
         return this;
       }
-      public Builder mergePipeline(de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration value) {
-        if (pipelineBuilder_ == null) {
-          if (((bitField0_ & 0x00000002) == 0x00000002) &&
-              pipeline_ != de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.getDefaultInstance()) {
-            pipeline_ =
-              de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.newBuilder(pipeline_).mergeFrom(value).buildPartial();
-          } else {
-            pipeline_ = value;
+      public Builder addHandlerConfigurations(de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration value) {
+        if (handlerConfigurationsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
           }
+          ensureHandlerConfigurationsIsMutable();
+          handlerConfigurations_.add(value);
           onChanged();
         } else {
-          pipelineBuilder_.mergeFrom(value);
+          handlerConfigurationsBuilder_.addMessage(value);
         }
-        bitField0_ |= 0x00000002;
         return this;
       }
-      public Builder clearPipeline() {
-        if (pipelineBuilder_ == null) {
-          pipeline_ = de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.getDefaultInstance();
+      public Builder addHandlerConfigurations(
+          int index, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration value) {
+        if (handlerConfigurationsBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          ensureHandlerConfigurationsIsMutable();
+          handlerConfigurations_.add(index, value);
           onChanged();
         } else {
-          pipelineBuilder_.clear();
+          handlerConfigurationsBuilder_.addMessage(index, value);
         }
-        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
-      public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder getPipelineBuilder() {
-        bitField0_ |= 0x00000002;
-        onChanged();
-        return getPipelineFieldBuilder().getBuilder();
-      }
-      public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder getPipelineOrBuilder() {
-        if (pipelineBuilder_ != null) {
-          return pipelineBuilder_.getMessageOrBuilder();
+      public Builder addHandlerConfigurations(
+          de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder builderForValue) {
+        if (handlerConfigurationsBuilder_ == null) {
+          ensureHandlerConfigurationsIsMutable();
+          handlerConfigurations_.add(builderForValue.build());
+          onChanged();
         } else {
-          return pipeline_;
+          handlerConfigurationsBuilder_.addMessage(builderForValue.build());
+        }
+        return this;
+      }
+      public Builder addHandlerConfigurations(
+          int index, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder builderForValue) {
+        if (handlerConfigurationsBuilder_ == null) {
+          ensureHandlerConfigurationsIsMutable();
+          handlerConfigurations_.add(index, builderForValue.build());
+          onChanged();
+        } else {
+          handlerConfigurationsBuilder_.addMessage(index, builderForValue.build());
+        }
+        return this;
+      }
+      public Builder addAllHandlerConfigurations(
+          java.lang.Iterable<? extends de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> values) {
+        if (handlerConfigurationsBuilder_ == null) {
+          ensureHandlerConfigurationsIsMutable();
+          super.addAll(values, handlerConfigurations_);
+          onChanged();
+        } else {
+          handlerConfigurationsBuilder_.addAllMessages(values);
+        }
+        return this;
+      }
+      public Builder clearHandlerConfigurations() {
+        if (handlerConfigurationsBuilder_ == null) {
+          handlerConfigurations_ = java.util.Collections.emptyList();
+          bitField0_ = (bitField0_ & ~0x00000002);
+          onChanged();
+        } else {
+          handlerConfigurationsBuilder_.clear();
+        }
+        return this;
+      }
+      public Builder removeHandlerConfigurations(int index) {
+        if (handlerConfigurationsBuilder_ == null) {
+          ensureHandlerConfigurationsIsMutable();
+          handlerConfigurations_.remove(index);
+          onChanged();
+        } else {
+          handlerConfigurationsBuilder_.remove(index);
+        }
+        return this;
+      }
+      public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder getHandlerConfigurationsBuilder(
+          int index) {
+        return getHandlerConfigurationsFieldBuilder().getBuilder(index);
+      }
+      public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder getHandlerConfigurationsOrBuilder(
+          int index) {
+        if (handlerConfigurationsBuilder_ == null) {
+          return handlerConfigurations_.get(index);  } else {
+          return handlerConfigurationsBuilder_.getMessageOrBuilder(index);
         }
       }
-      private com.google.protobuf.SingleFieldBuilder<
+      public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> 
+           getHandlerConfigurationsOrBuilderList() {
+        if (handlerConfigurationsBuilder_ != null) {
+          return handlerConfigurationsBuilder_.getMessageOrBuilderList();
+        } else {
+          return java.util.Collections.unmodifiableList(handlerConfigurations_);
+        }
+      }
+      public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder addHandlerConfigurationsBuilder() {
+        return getHandlerConfigurationsFieldBuilder().addBuilder(
+            de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.getDefaultInstance());
+      }
+      public de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder addHandlerConfigurationsBuilder(
+          int index) {
+        return getHandlerConfigurationsFieldBuilder().addBuilder(
+            index, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.getDefaultInstance());
+      }
+      public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder> 
+           getHandlerConfigurationsBuilderList() {
+        return getHandlerConfigurationsFieldBuilder().getBuilderList();
+      }
+      private com.google.protobuf.RepeatedFieldBuilder<
           de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder> 
-          getPipelineFieldBuilder() {
-        if (pipelineBuilder_ == null) {
-          pipelineBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+          getHandlerConfigurationsFieldBuilder() {
+        if (handlerConfigurationsBuilder_ == null) {
+          handlerConfigurationsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder>(
-                  pipeline_,
+                  handlerConfigurations_,
+                  ((bitField0_ & 0x00000002) == 0x00000002),
                   getParentForChildren(),
                   isClean());
-          pipeline_ = null;
+          handlerConfigurations_ = null;
         }
-        return pipelineBuilder_;
+        return handlerConfigurationsBuilder_;
       }
       
       // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse)

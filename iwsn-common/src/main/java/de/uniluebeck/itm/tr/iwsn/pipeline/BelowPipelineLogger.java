@@ -25,7 +25,7 @@ public class BelowPipelineLogger extends SimpleChannelHandler {
 
 		if (log.isTraceEnabled()) {
 
-			log.trace("{} => Downstream to device below FilterPipeline: {}",
+			log.trace("{} => Downstream to device below pipeline: {}",
 					nodeUrn,
 					toPrintableString((ChannelBuffer) e.getMessage(), 200)
 			);
@@ -39,7 +39,7 @@ public class BelowPipelineLogger extends SimpleChannelHandler {
 
 		if (log.isTraceEnabled()) {
 
-			log.trace("{} => Upstream from device below FilterPipeline: {}",
+			log.trace("{} => Upstream from device below pipeline: {}",
 					nodeUrn,
 					toPrintableString((ChannelBuffer) e.getMessage(), 200)
 			);

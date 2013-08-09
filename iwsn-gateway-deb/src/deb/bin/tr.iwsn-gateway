@@ -1,0 +1,8 @@
+#!/bin/sh
+
+NAME="tr.iwsn-gateway"
+CP=""
+APP_DIR="/usr/share/$NAME"
+JAR="$NAME.jar"
+
+exec java -Dlog4j.configuration="/etc/$NAME.log4j.properties" -jar $APP_DIR/$JAR --config /etc/$NAME.properties

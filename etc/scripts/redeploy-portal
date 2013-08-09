@@ -1,0 +1,43 @@
+#!/bin/bash
+
+BASEDIR=`dirname $0`
+
+source $BASEDIR/config
+
+if [[ -z "$PORTAL_USER" || -z "$PORTAL_HOST" ]]
+then
+	echo "PORTAL_USER and PORTAL_HOST must be set in config file"
+	exit 1
+fi
+
+PORTAL_DEB=tr.iwsn-portal-deb_0.9+SNAPSHOT_all.deb
+PORTAL_DEB_PATH=$BASEDIR/../../iwsn-portal-deb/target
+
+echo ""
+echo "*** Copying .deb package to $PORTAL_HOST [...] ***"
+scp $PORTAL_DEB_PATH/$PORTAL_DEB $PORTAL_USER@$PORTAL_HOST:~/
+
+echo ""
+echo "*** Stopping old version instance of Portal ***"
+ssh $PORTAL_USER@$PORTAL_HOST "/etc/init.d/tr.iwsn-portal stop"
+
+echo ""
+echo "*** Purging old version installation and reinstalling new version ***"
+ssh $PORTAL_USER@$PORTAL_HOST "dpkg -P tr.iwsn-portal && dpkg -i ~/$PORTAL_DEB"
+
+echo ""
+echo "*** Copying config file(s) to $PORTAL_HOST ***"
+for PORTAL_CONFIG in "${PORTAL_CONFIGS[@]}"
+do
+	scp $PORTAL_CONFIG $PORTAL_USER@$PORTAL_HOST:/etc/
+done
+
+echo ""
+echo "*** Starting new version instance of Portal ***"
+ssh $PORTAL_USER@$PORTAL_HOST "/etc/init.d/tr.iwsn-portal start"
+
+echo ""
+echo "*** Cleaning up .deb package from $PORTAL_HOST ***"
+ssh $PORTAL_USER@$PORTAL_HOST "rm ~/$PORTAL_DEB"
+
+echo ""

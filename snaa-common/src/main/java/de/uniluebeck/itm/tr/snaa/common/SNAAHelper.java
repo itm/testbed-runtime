@@ -23,10 +23,9 @@
 
 package de.uniluebeck.itm.tr.snaa.common;
 
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.snaa.*;
+import eu.wisebed.api.v3.snaa.AuthenticationFault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +38,10 @@ import static com.google.common.collect.Sets.newHashSet;
 public class SNAAHelper {
 
 	private static final Logger log = LoggerFactory.getLogger(SNAAHelper.class);
+
+	private SNAAHelper() {
+		// disallow instantiation
+	}
 
 	public static void assertMinAuthenticationCount(List<AuthenticationTriple> authenticationData,
 													int minCountInclusive)
@@ -161,11 +164,11 @@ public class SNAAHelper {
 		return createSNAAFault(msg, null);
 	}
 
-	public static AuthenticationFault_Exception createAuthenticationFault_Exception(String msg) {
+	public static AuthenticationFault createAuthenticationFault(final String msg) {
 		log.warn(msg);
-		AuthenticationFault exception = new AuthenticationFault();
-		exception.setMessage(msg);
-		return new AuthenticationFault_Exception(msg, exception);
+		eu.wisebed.api.v3.common.AuthenticationFault faultInfo = new eu.wisebed.api.v3.common.AuthenticationFault();
+		faultInfo.setMessage(msg);
+		return new AuthenticationFault(msg, faultInfo);
 	}
 
 	public static void assertCollectionMinMaxCount(Collection<?> collection, int minInclusive, int maxInclusive)

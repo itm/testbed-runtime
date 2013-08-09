@@ -9,17 +9,19 @@ import java.util.Properties;
 
 public class DeviceDBJpaModule extends PrivateModule {
 
-	private Properties properties;
+	private final Properties jpaProperties;
 
-	public DeviceDBJpaModule(final Properties properties) {
-		this.properties = properties;
+	public DeviceDBJpaModule(final Properties jpaProperties) {
+		this.jpaProperties = jpaProperties;
 	}
 
 	@Override
 	protected void configure() {
-		install(new JpaPersistModule("DeviceDB").properties(properties));
+
+		install(new JpaPersistModule("DeviceDB").properties(jpaProperties));
 		bind(JPAInitializer.class).asEagerSingleton();
-		bind(DeviceDB.class).to(DeviceDBJpa.class).in(Scopes.SINGLETON);
-		expose(DeviceDB.class);
+		bind(DeviceDBService.class).to(DeviceDBJpa.class).in(Scopes.SINGLETON);
+
+		expose(DeviceDBService.class);
 	}
 }

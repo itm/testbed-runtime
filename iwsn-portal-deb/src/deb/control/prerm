@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# stop running service
+service [[project.pathName]] stop || true
+
+# remove daemon from runlevels
+update-rc.d [[project.pathName]] remove || true

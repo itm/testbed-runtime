@@ -1,30 +1,21 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
-import com.google.common.eventbus.Subscribe;
-import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.devicedb.DeviceDB;
+import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.util.NetworkUtils;
-import de.uniluebeck.itm.util.concurrent.SettableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.devicedb.WiseMLConverter.convertToWiseML;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters.*;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
@@ -38,8 +29,6 @@ public class WSNImpl implements WSN {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNImpl.class);
 
-	private final DeviceDB deviceDB;
-
 	private final Reservation reservation;
 
 	private final DeliveryManager deliveryManager;
@@ -48,16 +37,17 @@ public class WSNImpl implements WSN {
 
 	private final RequestIdProvider requestIdProvider;
 
+	private final WisemlProvider wisemlProvider;
+
 	@Inject
-	public WSNImpl(final DeviceDB deviceDB,
-				   final RequestIdProvider requestIdProvider,
+	public WSNImpl(final RequestIdProvider requestIdProvider,
+				   final WisemlProvider wisemlProvider,
 				   @Assisted final String reservationId,
 				   @Assisted final Reservation reservation,
 				   @Assisted final DeliveryManager deliveryManager) {
-
+		this.wisemlProvider = checkNotNull(wisemlProvider);
 		this.reservationId = checkNotNull(reservationId);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
-		this.deviceDB = checkNotNull(deviceDB);
 		this.reservation = checkNotNull(reservation);
 		this.deliveryManager = checkNotNull(deliveryManager);
 	}
@@ -91,8 +81,9 @@ public class WSNImpl implements WSN {
 
 	@Override
 	public void disableVirtualLinks(long requestId, List<Link> links)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus().post(
 				newDisableVirtualLinksRequest(reservationId, requestId, convertLinksToMap(links))
 		);
@@ -100,15 +91,17 @@ public class WSNImpl implements WSN {
 
 	@Override
 	public void disableNodes(long requestId, List<NodeUrn> nodeUrns)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus().post(newDisableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void disablePhysicalLinks(long requestId, List<Link> links)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus()
 				.post(newDisablePhysicalLinksRequest(reservationId, requestId, convertLinksToMap(links)));
 	}
@@ -116,28 +109,28 @@ public class WSNImpl implements WSN {
 	@Override
 	public void disableVirtualization()
 			throws VirtualizationNotSupportedFault_Exception, ReservationNotRunningFault_Exception {
-		assertReservationIntervalMet();
-		throw new RuntimeException("TODO implement");
+		throwVirtualizationNotSupportedFault();
 	}
 
 	@Override
 	public void enableVirtualization() throws VirtualizationNotSupportedFault_Exception,
 			ReservationNotRunningFault_Exception {
-		assertReservationIntervalMet();
-		throw new RuntimeException("TODO implement");
+		throwVirtualizationNotSupportedFault();
 	}
 
 	@Override
 	public void enableNodes(long requestId, List<NodeUrn> nodeUrns)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus().post(newEnableNodesRequest(reservationId, requestId, nodeUrns));
 	}
 
 	@Override
 	public void enablePhysicalLinks(long requestId, List<Link> links)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus().post(
 				newEnablePhysicalLinksRequest(reservationId, requestId, convertLinksToMap(links))
 		);
@@ -161,57 +154,18 @@ public class WSNImpl implements WSN {
 	@Override
 	public List<ChannelPipelinesMap> getChannelPipelines(List<NodeUrn> nodeUrns)
 			throws ReservationNotRunningFault_Exception {
-
 		assertReservationIntervalMet();
-
-		final long requestId = requestIdProvider.get();
-		final Request request = newGetChannelPipelinesRequest(
+		return RequestHelper.getChannelPipelines(
+				nodeUrns,
 				reservationId,
-				requestId,
-				nodeUrns
+				requestIdProvider.get(),
+				reservation.getEventBus()
 		);
-
-		final Map<NodeUrn, SettableFuture<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>>
-				map = newHashMap();
-		for (NodeUrn nodeUrn : nodeUrns) {
-			map.put(nodeUrn, SettableFuture.<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>create());
-		}
-		final SettableFutureMap<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse>
-				future =
-				new SettableFutureMap<NodeUrn, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>(map);
-
-		final Object eventBusListener = new Object() {
-			@Subscribe
-			public void onResponse(de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse response) {
-				if (response.getRequestId() == requestId) {
-					for (de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse p : response.getPipelinesList()) {
-
-						final SettableFuture<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> nodeFuture =
-								map.get(new NodeUrn(p.getNodeUrn()));
-						nodeFuture.set(p);
-					}
-				}
-			}
-		};
-
-		reservation.getEventBus().register(eventBusListener);
-		reservation.getEventBus().post(request);
-
-		try {
-
-			final Map<NodeUrn, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> resultMap =
-					future.get(30, TimeUnit.SECONDS);
-			reservation.getEventBus().unregister(eventBusListener);
-			return convert(resultMap);
-
-		} catch (Exception e) {
-			throw propagate(e);
-		}
 	}
 
 	@Override
 	public String getNetwork() {
-		return serialize(convertToWiseML(deviceDB.getConfigsByNodeUrns(reservation.getNodeUrns()).values()));
+		return serialize(wisemlProvider.get(reservation.getNodeUrns()));
 	}
 
 	@Override
@@ -260,12 +214,13 @@ public class WSNImpl implements WSN {
 
 	@Override
 	public void enableVirtualLinks(long requestId, List<VirtualLink> links)
-			throws ReservationNotRunningFault_Exception {
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception {
 		assertReservationIntervalMet();
+		assertVirtualizationEnabled();
 		reservation.getEventBus().post(
 				newEnableVirtualLinksRequest(reservationId, requestId, convertVirtualLinks(links))
 		);
-		// TODO remember virtual link mapping in specialized class that also delivers vlink messages to remote instance
+		// TODO remember virtual link mapping in specialized class that also delivers virtual link messages to remote instance
 		throw new RuntimeException("TODO only partially implemented");
 	}
 
@@ -278,5 +233,21 @@ public class WSNImpl implements WSN {
 			fault.setMessage(message);
 			throw new RuntimeException(new ReservationNotRunningFault_Exception(message, fault));
 		}
+	}
+
+	private void assertVirtualizationEnabled() throws VirtualizationNotEnabledFault_Exception {
+		if (!reservation.isVirtualizationEnabled()) {
+			final String message = "Virtualization features are not enabled! Please enable them by calling WSN.enableVirtualization()";
+			final VirtualizationNotEnabledFault faultInfo = new VirtualizationNotEnabledFault();
+			faultInfo.setMessage(message);
+			throw new VirtualizationNotEnabledFault_Exception(message, faultInfo);
+		}
+	}
+
+	private void throwVirtualizationNotSupportedFault() throws VirtualizationNotSupportedFault_Exception {
+		final String message = "Virtualization features are currently not supported!";
+		final VirtualizationNotSupportedFault faultInfo = new VirtualizationNotSupportedFault();
+		faultInfo.setMessage(message);
+		throw new VirtualizationNotSupportedFault_Exception(message, faultInfo);
 	}
 }

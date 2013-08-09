@@ -6,37 +6,42 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.devicedb.dto.DeviceConfigDto;
+import com.google.inject.name.Named;
+import de.uniluebeck.itm.tr.common.dto.DeviceConfigDto;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
-import org.apache.cxf.jaxrs.provider.json.JSONProvider;
+import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Functions.toStringFunction;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newHashMap;
+import static de.uniluebeck.itm.tr.devicedb.DeviceDBDtoHelper.toDeviceConfig;
 
-public class RemoteDeviceDB extends AbstractService implements DeviceDB {
+public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 	private static final Function<DeviceConfigDto, DeviceConfig> DTO_TO_CONFIG_FUNCTION =
 			new Function<DeviceConfigDto, DeviceConfig>() {
 				@Override
 				public DeviceConfig apply(final DeviceConfigDto input) {
-					return input.toDeviceConfig();
+					return toDeviceConfig(input);
 				}
 			};
 
-	private final RemoteDeviceDBConfig config;
+	private final URI remoteDeviceDBUri;
 
 	@Inject
-	public RemoteDeviceDB(final RemoteDeviceDBConfig config) {
-		this.config = config;
+	public RemoteDeviceDB(@Named(DeviceDBConfig.DEVICEDB_REMOTE_URI) final URI remoteDeviceDBUri) {
+		this.remoteDeviceDBUri = remoteDeviceDBUri;
 	}
 
 	@Override
@@ -60,11 +65,13 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	@Override
 	public Map<NodeUrn, DeviceConfig> getConfigsByNodeUrns(final Iterable<NodeUrn> nodeUrns) {
 
+		checkState(isRunning());
+
 		final List<DeviceConfigDto> configs = getDeviceConfigDtos(nodeUrns);
 		final Map<NodeUrn, DeviceConfig> map = newHashMap();
 
 		for (DeviceConfigDto config : configs) {
-			map.put(new NodeUrn(config.getNodeUrn()), config.toDeviceConfig());
+			map.put(new NodeUrn(config.getNodeUrn()), toDeviceConfig(config));
 		}
 
 		return map;
@@ -73,13 +80,16 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	@Override
 	@Nullable
 	public DeviceConfig getConfigByUsbChipId(final String usbChipId) {
+
+		checkState(isRunning());
+
 		try {
 
 			final Response response = client().getByUsbChipId(usbChipId);
 			if (Response.Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
 				return null;
 			}
-			return response.readEntity(DeviceConfigDto.class).toDeviceConfig();
+			return toDeviceConfig(response.readEntity(DeviceConfigDto.class));
 
 		} catch (Exception e) {
 			throw propagate(e);
@@ -89,18 +99,24 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	@Override
 	@Nullable
 	public DeviceConfig getConfigByNodeUrn(final NodeUrn nodeUrn) {
+
+		checkState(isRunning());
+
 		final List<DeviceConfigDto> configs = getDeviceConfigDtos(newArrayList(nodeUrn));
- 		return configs.isEmpty() ? null : configs.get(0).toDeviceConfig();
+ 		return configs.isEmpty() ? null : toDeviceConfig(configs.get(0));
 	}
 
 	@Override
 	public DeviceConfig getConfigByMacAddress(final long macAddress) {
+
+		checkState(isRunning());
+
 		try {
 
 			final Response response = client().getByMacAddress(macAddress);
 			final Response.Status status = Response.Status.fromStatusCode(response.getStatus());
 			if (status == Response.Status.OK) {
-				return response.readEntity(DeviceConfigDto.class).toDeviceConfig();
+				return toDeviceConfig(response.readEntity(DeviceConfigDto.class));
 			} else if (status == Response.Status.NOT_FOUND) {
 				return null;
 			} else {
@@ -114,6 +130,9 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 
 	@Override
 	public Iterable<DeviceConfig> getAll() {
+
+		checkState(isRunning());
+
 		final List<DeviceConfigDto> dtos = getDeviceConfigDtos(ImmutableList.<NodeUrn>of());
 		if (dtos != null) {
 			return transform(dtos, DTO_TO_CONFIG_FUNCTION);
@@ -125,9 +144,11 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	@Override
 	public void add(final DeviceConfig deviceConfig) {
 
+		checkState(isRunning());
+
 		try {
 
-			final DeviceConfigDto config = DeviceConfigDto.fromDeviceConfig(deviceConfig);
+			final DeviceConfigDto config = DeviceDBDtoHelper.fromDeviceConfig(deviceConfig);
 			client().add(config, config.getNodeUrn());
 
 		} catch (Exception e) {
@@ -138,9 +159,11 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	@Override
 	public void update(DeviceConfig deviceConfig) {
 
+		checkState(isRunning());
+
 		try {
 
-			client().update(DeviceConfigDto.fromDeviceConfig(deviceConfig), deviceConfig.getNodeUrn().toString());
+			client().update(DeviceDBDtoHelper.fromDeviceConfig(deviceConfig), deviceConfig.getNodeUrn().toString());
 
 		} catch (Exception e) {
 			throw propagate(e);
@@ -150,6 +173,8 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 
 	@Override
 	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
+
+		checkState(isRunning());
 
 		try {
 
@@ -163,6 +188,9 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 
 	@Override
 	public void removeAll() {
+
+		checkState(isRunning());
+
 		try {
 
 			client().delete(Lists.<String>newArrayList());
@@ -183,13 +211,10 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDB {
 	}
 
 	private DeviceDBRestResource client() {
-
-		final JSONProvider jsonProvider = new JSONProvider();
-		jsonProvider.setDropRootElement(true);
-		jsonProvider.setSupportUnwrapped(true);
-		jsonProvider.setDropCollectionWrapperElement(true);
-		jsonProvider.setSerializeAsArray(true);
-
-		return JAXRSClientFactory.create(config.uri.toString(), DeviceDBRestResource.class, newArrayList(jsonProvider));
+		return JAXRSClientFactory.create(
+				remoteDeviceDBUri.toString(),
+				DeviceDBRestResource.class,
+				newArrayList(new JacksonJsonProvider(new ObjectMapper()))
+		);
 	}
 }

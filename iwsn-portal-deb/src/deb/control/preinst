@@ -1,0 +1,41 @@
+#!/bin/sh
+
+USER=[[project.systemUser]]
+GROUP=[[project.systemGroup]]
+
+set -e
+
+case "$1" in
+
+  install|upgrade)
+
+  	# Create User and a Group with the same name as the User
+    if ! getent passwd $USER >/dev/null; then
+		adduser --disabled-password --quiet --system --home /var/run/$USER --gecos "${USER} daemon" --group $USER
+    fi
+
+	# Add the additional group GROUP unless it's already there
+    if ! getent group $GROUP >/dev/null; then
+		addgroup --quiet --system $GROUP || true
+    fi
+
+ 	# 6. Add the user to the GROUP group
+	if test -n $GROUP
+	then
+		adduser $USER $GROUP || true
+	fi
+
+	# Add the user to the GROUP 'dialout' so he can connect to serial devices
+	echo "Adding user ${USER} to group 'dialout' so he can connect to serial devices"
+	adduser $USER dialout || true
+	;;
+
+  abort-upgrade)
+    ;;
+
+  *)
+    echo "preinst called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+
+esac

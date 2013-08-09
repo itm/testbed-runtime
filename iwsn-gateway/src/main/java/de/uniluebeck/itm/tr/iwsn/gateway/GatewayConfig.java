@@ -1,38 +1,86 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.net.HostAndPort;
-import de.uniluebeck.itm.tr.common.config.ConfigWithLogging;
-import de.uniluebeck.itm.tr.common.config.HostAndPortOptionHandler;
-import org.kohsuke.args4j.Option;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import de.uniluebeck.itm.util.propconf.PropConf;
+import de.uniluebeck.itm.util.propconf.converters.HostAndPortTypeConverter;
+import de.uniluebeck.itm.util.propconf.converters.URITypeConverter;
 
 import java.net.URI;
 
-public class GatewayConfig extends ConfigWithLogging {
+public class GatewayConfig {
 
-	@Option(name = "--portalOverlayAddress",
-			usage = "Hostname and port on which the portal server listens for the internal overlay network "
-					+ "(usually $PORTAL_HOSTNAME:8880)",
-			required = true,
-			handler = HostAndPortOptionHandler.class
+	@PropConf(
+			usage = "Hostname and port on which the portal server listens for the internal network "
+					+ "(e.g. $PORTAL_HOSTNAME:8880)",
+			typeConverter = HostAndPortTypeConverter.class
 	)
-	public HostAndPort portalOverlayAddress;
+	public static final String PORTAL_ADDRESS = "gateway.portaladdress";
 
-	@Option(name = "--restAPI",
-			usage = "If set a REST API is started (default: false)",
-			required = false
+	@Inject
+	@Named(PORTAL_ADDRESS)
+	private HostAndPort portalAddress;
+
+	@PropConf(
+			usage = "If set to true, a REST API is started",
+			defaultValue = "false"
 	)
-	public boolean restAPI = false;
+	public static final String REST_API_START = "gateway.restapi.start";
 
-	@Option(name = "--restAPIPort",
-			usage = "The port for the REST API to run on (only used when --restAPI is set, default: 8080)",
-			required = false
+	@Inject
+	@Named(REST_API_START)
+	private boolean restAPI;
+
+	@PropConf(
+			usage = "The port for the REST API to run on (only used when --restAPI is set)",
+			defaultValue = "8080"
 	)
-	public int restAPIPort = 8080;
+	public static final String REST_API_PORT = "gateway.restapi.port";
 
-	@Option(name = "--deviceDBUri",
-			usage = "The URI on which the DeviceDB runs",
-			required = true
+	@Inject
+	@Named(REST_API_PORT)
+	private int restAPIPort;
+
+	@PropConf(
+			usage = "If run in the context of the SmartSantander project, this must be set to the URI on which the " +
+					"SmartSantander EventBroker runs ",
+			example = "failover://(tcp://localhost:9009)?startupMaxReconnectAttempts=1&initialReconnectDelay=1",
+			typeConverter = URITypeConverter.class
 	)
-	public URI deviceDBUri = null;
+	public static final String SMARTSANTANDER_EVENT_BROKER_URI = "gateway.smartsantander.event_broker.uri";
 
+	@Inject(optional = true)
+	@Named(SMARTSANTANDER_EVENT_BROKER_URI)
+	private URI smartSantanderEventBrokerUri;
+
+	@PropConf(
+			usage = "If run in the context of the SmartSantander project, this must be set to the gateways ID that is "
+					+ "used to identify the gateway machine in the EventBroker messages"
+	)
+	public static final String SMARTSANTANDER_GATEWAY_ID = "gateway.smartsantander.gateway_id";
+
+	@Inject(optional = true)
+	@Named(SMARTSANTANDER_GATEWAY_ID)
+	private String smartSantanderGatewayId;
+
+	public HostAndPort getPortalAddress() {
+		return portalAddress;
+	}
+
+	public boolean isRestAPI() {
+		return restAPI;
+	}
+
+	public int getRestAPIPort() {
+		return restAPIPort;
+	}
+
+	public URI getSmartSantanderEventBrokerUri() {
+		return smartSantanderEventBrokerUri;
+	}
+
+	public String getSmartSantanderGatewayId() {
+		return smartSantanderGatewayId;
+	}
 }

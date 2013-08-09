@@ -50,7 +50,7 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.snaa-server</artifactId>
+			<artifactId>tr.snaa</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
@@ -131,7 +131,7 @@
 							<transformers>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>de.uniluebeck.itm.tr.federator.snaa.SNAAFederator</mainClass>
+									<mainClass>de.uniluebeck.itm.tr.federator.snaa.SNAAFederatorServer</mainClass>
 								</transformer>
 								<transformer
 										implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">

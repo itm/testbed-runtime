@@ -1,0 +1,8 @@
+Package: [[project.pathName]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Depends: java7-runtime, java7-jdk, adduser
+Description: [[description]]
+Maintainer: bimschas@itm.uni-luebeck.de

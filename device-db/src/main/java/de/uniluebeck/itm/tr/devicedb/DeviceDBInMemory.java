@@ -9,11 +9,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static de.uniluebeck.itm.util.StringUtils.parseHexOrDecLong;
 
-public class DeviceDBInMemory extends AbstractService implements DeviceDB {
+public class DeviceDBInMemory extends AbstractService implements DeviceDBService {
 
 	private final List<DeviceConfig> configs = newArrayList();
 
@@ -40,6 +41,8 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDB {
 	@Override
 	public DeviceConfig getConfigByUsbChipId(final String usbChipId) {
 
+		checkState(isRunning());
+
 		if (usbChipId == null) {
 			throw new IllegalArgumentException("usbChipId is null");
 		}
@@ -59,6 +62,8 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDB {
 	@Override
 	public DeviceConfig getConfigByNodeUrn(final NodeUrn nodeUrn) {
 
+		checkState(isRunning());
+
 		synchronized (configs) {
 			for (DeviceConfig config : configs) {
 				if (config.getNodeUrn().equals(nodeUrn)) {
@@ -74,6 +79,8 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDB {
 	@Override
 	public DeviceConfig getConfigByMacAddress(final long macAddress) {
 
+		checkState(isRunning());
+
 		synchronized (configs) {
 			for (DeviceConfig config : configs) {
 				if (parseHexOrDecLong(config.getNodeUrn().getSuffix()) == macAddress) {
@@ -88,6 +95,8 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDB {
 	@Override
 	public Iterable<DeviceConfig> getAll() {
 
+		checkState(isRunning());
+
 		synchronized (configs) {
 			return Iterables.unmodifiableIterable(configs);
 		}
@@ -95,6 +104,8 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDB {
 
 	@Override
 	public void add(final DeviceConfig deviceConfig) {
+
+		checkState(isRunning());
 
 		synchronized (configs) {
 			if (getConfigByNodeUrn(deviceConfig.getNodeUrn()) != null) {
@@ -107,6 +118,8 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDB {
 	@Override
 	public void update(final DeviceConfig deviceConfig) {
 
+		checkState(isRunning());
+
 		synchronized (configs) {
 			if (removeByNodeUrn(deviceConfig.getNodeUrn())) {
 				configs.add(deviceConfig);
@@ -118,6 +131,8 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDB {
 
 	@Override
 	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
+
+		checkState(isRunning());
 
 		synchronized (configs) {
 			for (Iterator<DeviceConfig> iterator = configs.iterator(); iterator.hasNext(); ) {
@@ -134,6 +149,8 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDB {
 
 	@Override
 	public void removeAll() {
+
+		checkState(isRunning());
 
 		synchronized (configs) {
 			configs.clear();

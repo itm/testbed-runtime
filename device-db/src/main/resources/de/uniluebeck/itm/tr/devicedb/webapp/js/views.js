@@ -13,8 +13,6 @@ $(function () {
         },
 
         initialize: function() {
-            app.Nodes.fetch();
-
             // changes in our collection will redraw view
             this.listenTo(app.Nodes, 'all', this.render);
 
@@ -26,7 +24,6 @@ $(function () {
                 return el.attributes;
             }) };
             this.$el.html(this.template(seed));
-
             return this;
         },
 
@@ -44,41 +41,61 @@ $(function () {
         editClicked: function(e) {
             e.preventDefault();
             var id = $(e.target).parents('tr').data('id');
-            new app.DetailView({
-                el:     jQuery("#edit-view"),
-                model:  app.Nodes.get(id)
-            });
+            app.routes.navigate(id,{trigger:true});
+        },
+
+        show: function() {
+            app.routes.navigate('home');
+            this.$el.show();
+        },
+        hide: function() {
+            this.$el.hide();
         }
 
     });
 
 
     app.DetailView = Backbone.View.extend({
+
         template: Handlebars.getTemplate('modal'),
         paramTpl: Handlebars.getTemplate('param-text-input'),
-        capTpl: Handlebars.getTemplate('cap-text-inputs'),
+        capTpl:   Handlebars.getTemplate('cap-text-inputs'),
+        pipeTpl:  Handlebars.getTemplate('pipeline-text-inputs'),
+        pipeParamTpl:  Handlebars.getTemplate('pipeline-param-input'),
+
         events: {
-            'click #save'       : 'save',
-            'click #close'      : 'hide',
-            'click #add-param'  : 'addParam',
-            'click #add-cap'    : 'addCapability',
-            'click .rm-param'   : 'rmParam',
-            'click .rm-cap'     : 'rmCapability',
-            'hidden'            : 'undelegateEvents'
+            'click #save'           : 'save',
+            'click #close'          : 'close',
+            'click #add-param'      : 'addParam',
+            'click #add-cap'        : 'addCapability',
+            'click #add-pipe-param' : 'addPipeParam',
+            'click .rm-param'       : 'rmParam',
+            'click .rm-pipe-param'  : 'rmPipeParam',
+            'click .rm-pipe'        : 'rmPipeElem',
+            'click #add-pipe'       : 'addPipeElem',
+            'click .up-pipe'        : 'pipeElemUp',
+            'click .down-pipe'      : 'pipeElemDown',
+            'click .rm-cap'         : 'rmCapability',
+            'hidden'                : 'hidden'
         },
+
         initialize: function() {
             Handlebars.registerExternalPartial('param-text-input');
             Handlebars.registerExternalPartial('cap-text-inputs');
+            Handlebars.registerExternalPartial('pipeline-text-inputs');
+            Handlebars.registerExternalPartial('pipeline-param-input');
             this.render();
         },
 
         render: function() {
             this.$el.html(this.template(this.model.attributes));
             this.show();
+            app.routes.navigate(this.model.get('nodeUrn'));
             return this;
         },
 
-        save: function() {
+        save: function(e) {
+            e.preventDefault();
             var self = this;
             var nodeCallback = function(node) {
                 if ( node.id && node.id=='gatewayNode' )  {
@@ -97,7 +114,7 @@ $(function () {
                 wait: true,
                 success: function(model, response, options) {
                     app.Nodes.add(self.model, {merge: true});
-                    self.hide();
+                    self.close(e);
                 },
                 error: function(model, xhr, options) {
                     alert(xhr.responseText);
@@ -106,8 +123,9 @@ $(function () {
             });
         },
 
-        _rmParentClass: function(e) {
-            $(e.target).parents('.parent').remove();
+        _rmParentClass: function(e, element) {
+            e.preventDefault();
+            $(e.target).parents(element).remove();
         },
 
         _getMaxParamIdx: function() {
@@ -132,7 +150,7 @@ $(function () {
             $('#params').append(param);
         },
         rmParam: function(e) {
-            this._rmParentClass(e);
+            this._rmParentClass(e, '.parent');
         },
 
         _getMaxCapIdx: function() {
@@ -146,6 +164,7 @@ $(function () {
             return max;
         },
         addCapability: function(e) {
+            e.preventDefault();
             var cap = this.capTpl({
                 'name' : '',
                 'defaultValue': '',
@@ -159,11 +178,83 @@ $(function () {
             $('#capabilities').append(cap);
         },
         rmCapability: function(e) {
-            this._rmParentClass(e);
+            this._rmParentClass(e, '.parent');
         },
 
-        hide: function() {
+
+        _getMaxPipeParamIdx: function(handlerIdx) {
+            var max = -1;
+            $('#pipeline .parent[data-idx="'+handlerIdx+'"] [name]').each(function(idx,val){
+                // parse number e.g. '1' from 'defaultChannelPipeline[1]'
+                $(val).attr('name').match(/configuration\[(\d+)\]/);
+                var thisIdx = parseInt(RegExp.$1, 10);
+                max =  thisIdx > max ? thisIdx : max;
+            });
+            return max;
+        },
+        addPipeParam: function(e) {
+            e.preventDefault();
+            var curHandler = Number($(e.target).parents('.parent').data('idx'));
+            var param = this.pipeParamTpl({
+                'outerIndex': curHandler,
+                'key' : '',
+                'value': ''
+            }, {
+                data: {
+                    index: this._getMaxPipeParamIdx(curHandler)+1
+                }
+            });
+            $('#pipeline .parent[data-idx="'+curHandler+'"] .pipeline-params').append(param);
+        },
+
+        rmPipeParam: function(e) {
+            this._rmParentClass(e, '.control-group');
+        },
+
+        _getMaxPipeElemIdx: function() {
+            var max = -1;
+            $('#pipeline .parent').each(function(idx,val){
+                var thisIdx = Number($(val).data('idx'));
+                max =  thisIdx > max ? thisIdx : max;
+            });
+            return max;
+        },
+        addPipeElem: function(e) {
+            e.preventDefault();
+            var handler = this.pipeTpl({
+                'handlerName'  : '',
+                'instanceName' : '',
+                'configuration': []
+            }, {
+                data: {
+                    index: this._getMaxPipeElemIdx()+1
+                }
+            });
+            $('#pipeline').append(handler);
+        },
+        rmPipeElem: function(e) {
+            this._rmParentClass(e, '.parent');
+        },
+
+        pipeElemUp: function(e) {
+            e.preventDefault();
+            var elem = $(e.target).parents('.parent');
+            elem.after(elem.prev());
+        },
+
+        pipeElemDown: function(e) {
+            e.preventDefault();
+            var elem = $(e.target).parents('.parent');
+            elem.after(elem.next());
+        },
+
+        close: function(e) {
+            e.preventDefault();
             this.$el.find('.modal').modal('hide');
+        },
+        hidden: function() {
+            this.undelegateEvents();
+            app.routes.navigate('home',{trigger:true});
         },
         show: function() {
             this.$el.find('.modal').modal('show');

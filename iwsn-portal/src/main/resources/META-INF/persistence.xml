@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+			 version="1.0">
+
+	<persistence-unit name="DeviceDB" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<class>de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity</class>
+		<class>de.uniluebeck.itm.tr.devicedb.entity.CoordinateEntity</class>
+		<class>de.uniluebeck.itm.tr.devicedb.entity.ChannelHandlerConfigEntity</class>
+		<class>de.uniluebeck.itm.tr.devicedb.entity.KeyValueEntity</class>
+		<class>de.uniluebeck.itm.tr.devicedb.entity.CapabilityEntity</class>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+		<properties>
+			<!-- vendor-specific properties go here -->
+			<!-- Load these properties from hibernate.properties when setting up the
+				DeviceDB module to prevent inconsistencies -->
+		</properties>
+	</persistence-unit>
+
+	<persistence-unit name="RS" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ConfidentialReservationDataInternal</class>
+		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.PublicReservationDataInternal</class>
+		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal</class>
+		<class>de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal</class>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+		<properties>
+			<!-- vendor-specific properties go here -->
+			<!-- Load these properties from hibernate.properties when setting up the 
+				DeviceDB module to prevent inconsistencies -->
+		</properties>
+	</persistence-unit>
+
+	<persistence-unit name="ShiroSNAA" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.Action</class>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.Permission</class>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.ResourceGroup</class>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.Role</class>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup</class>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.User</class>
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+		<properties>
+			<!-- vendor-specific properties go here -->
+			<!-- Load these properties from hibernate.properties when
+				 setting up the jpa persistence module to prevent inconsistencies -->
+		</properties>
+	</persistence-unit>
+
+</persistence>

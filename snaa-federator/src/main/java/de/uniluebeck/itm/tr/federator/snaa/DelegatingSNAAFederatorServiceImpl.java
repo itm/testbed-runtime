@@ -61,11 +61,11 @@ public class DelegatingSNAAFederatorServiceImpl extends AbstractService implemen
 	}
 
 	@Override
-	public List<SecretAuthenticationKey> authenticate(final List<AuthenticationTriple> authenticationData)
-			throws AuthenticationFault_Exception, SNAAFault_Exception {
+	public AuthenticateResponse authenticate(final Authenticate authenticate)
+			throws AuthenticationFault, SNAAFault_Exception {
 
 		log.debug("DelegatingSNAAFederatorServiceImpl::authenticate delegating to internal ShibbolethSNAA instance");
-		return authenticationSnaa.authenticate(authenticationData);
+		return authenticationSnaa.authenticate(authenticate);
 	}
 
 	@Override

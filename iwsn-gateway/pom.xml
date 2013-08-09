@@ -86,6 +86,15 @@
 			<groupId>de.uniluebeck.itm.util</groupId>
 			<artifactId>concurrent</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>propconf</artifactId>
+		</dependency>
+
+        <dependency>
+            <groupId>SmartSantanderClient</groupId>
+            <artifactId>SmartSantanderClient</artifactId>
+        </dependency>
 
 		<dependency>
 			<groupId>args4j</groupId>
@@ -138,6 +147,16 @@
 			<artifactId>mockito-all</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 	</dependencies>
 
@@ -154,6 +173,8 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>server</shadedClassifierName>
 							<filters>
 								<filter>
 									<artifact>*:*</artifact>

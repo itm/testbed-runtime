@@ -12,15 +12,15 @@ import static de.uniluebeck.itm.tr.devicedb.DeviceConfig.TO_NODE_URN_FUNCTION;
 
 public class DeviceDBServedNodeUrnsProvider implements ServedNodeUrnsProvider {
 
-	private final DeviceDB deviceDB;
+	private final DeviceDBService deviceDBService;
 
 	@Inject
-	public DeviceDBServedNodeUrnsProvider(final DeviceDB deviceDB) {
-		this.deviceDB = deviceDB;
+	public DeviceDBServedNodeUrnsProvider(final DeviceDBService deviceDBService) {
+		this.deviceDBService = deviceDBService;
 	}
 
 	@Override
 	public Set<NodeUrn> get() {
-		return newHashSet(transform(deviceDB.getAll(), TO_NODE_URN_FUNCTION));
+		return newHashSet(transform(deviceDBService.getAll(), TO_NODE_URN_FUNCTION));
 	}
 }

@@ -36,17 +36,22 @@
 	<modules>
 		<module>common</module>
 		<module>device-db</module>
+		<module>federator</module>
+		<module>federator-deb</module>
+		<module>federator-utils</module>
 		<module>iwsn-common</module>
 		<module>iwsn-federator</module>
-		<module>iwsn-portal</module>
 		<module>iwsn-gateway</module>
+		<module>iwsn-gateway-deb</module>
+		<module>iwsn-portal</module>
+		<module>iwsn-portal-deb</module>
 		<module>rs-federator</module>
-		<module>rs-server</module>
+		<module>rs</module>
 		<module>snaa-common</module>
-		<module>snaa-client</module>
 		<module>snaa-federator</module>
-		<module>snaa-server</module>
-		<module>federator-utils</module>
+		<module>snaa</module>
+		<module>plugins/default-image</module>
+		<module>plugins/framework-extender</module>
 	</modules>
 
 	<dependencyManagement>
@@ -75,28 +80,45 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.iwsn-portal</artifactId>
+				<classifier>server</classifier>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.iwsn-gateway</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.rs-federator</artifactId>
+				<artifactId>tr.iwsn-gateway</artifactId>
+				<classifier>server</classifier>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.rs-server</artifactId>
+				<artifactId>tr.rs</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.snaa-server</artifactId>
+				<artifactId>tr.snaa</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.iwsn-federator</artifactId>
-				<classifier>onejar</classifier>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.federator</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.federator</artifactId>
+				<classifier>server</classifier>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -107,6 +129,16 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
 				<artifactId>tr.snaa-common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.rs-federator</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm</groupId>
+				<artifactId>tr.snaa-federator</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
@@ -149,7 +181,22 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
+				<artifactId>args4j</artifactId>
+				<version>0.5-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>concurrent</artifactId>
+				<version>0.5-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.util</groupId>
+				<artifactId>files</artifactId>
+				<version>0.5-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.util</groupId>
+				<artifactId>jpa</artifactId>
 				<version>0.5-SNAPSHOT</version>
 			</dependency>
 			<dependency>
@@ -188,7 +235,19 @@
 				<version>1.7-SNAPSHOT</version>
 			</dependency>
 
+            <!-- smartsantander projects -->
+            <dependency>
+                <groupId>SmartSantanderClient</groupId>
+                <artifactId>SmartSantanderClient</artifactId>
+                <version>1.5</version>
+            </dependency>
+
 			<!-- 3rd party libraries -->
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.framework</artifactId>
+				<version>4.2.1</version>
+			</dependency>
 			<dependency>
 				<groupId>args4j</groupId>
 				<artifactId>args4j</artifactId>
@@ -265,6 +324,11 @@
 				<version>1.2</version>
 			</dependency>
 			<dependency>
+				<groupId>commons-collections</groupId>
+				<artifactId>commons-collections</artifactId>
+				<version>3.0</version>
+			</dependency>
+			<dependency>
 				<groupId>commons-configuration</groupId>
 				<artifactId>commons-configuration</artifactId>
 				<version>1.6</version>
@@ -326,13 +390,13 @@
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-entitymanager</artifactId>
-				<version>4.1.9.Final</version>
+				<artifactId>hibernate-core</artifactId>
+				<version>4.2.3.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
-				<artifactId>hibernate-core</artifactId>
-				<version>4.1.9.Final</version>
+				<artifactId>hibernate-entitymanager</artifactId>
+				<version>4.2.3.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.transaction</groupId>
@@ -407,6 +471,23 @@
 				<scope>test</scope>
 			</dependency>
 
+            <!-- PowerMock is necessary to mock static methods
+                see https://code.google.com/p/powermock/wiki/MockitoUsage13
+                for version dependencies between Mockito and PowerMock
+            -->
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>1.4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>1.4.12</version>
+                <scope>test</scope>
+            </dependency>
+
 			<!-- Apache Shiro dependencies -->
 			<dependency>
 				<groupId>org.apache.shiro</groupId>
@@ -471,13 +552,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<extensions>
-			<extension>
-				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ssh-external</artifactId>
-				<version>1.0</version>
-			</extension>
-		</extensions>
 	</build>
 
 	<repositories>
