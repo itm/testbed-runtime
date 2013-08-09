@@ -237,9 +237,9 @@
 
             <!-- smartsantander projects -->
             <dependency>
-                <groupId>SmartSantanderClient</groupId>
-                <artifactId>SmartSantanderClient</artifactId>
-                <version>1.5</version>
+                <groupId>eu.smartsantander.eventbroker</groupId>
+                <artifactId>client</artifactId>
+                <version>1.6</version>
             </dependency>
 
 			<!-- 3rd party libraries -->

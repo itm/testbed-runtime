@@ -4,13 +4,13 @@ import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
-import eu.smartsantander.testbed.eventbroker.EventObject;
-import eu.smartsantander.testbed.eventbroker.IEventPublisher;
-import eu.smartsantander.testbed.eventbroker.IEventReceiver;
-import eu.smartsantander.testbed.eventbroker.exceptions.EventBrokerException;
-import eu.smartsantander.testbed.events.IEventFactory;
-import eu.smartsantander.testbed.events.NodeOperationsEvents;
-import eu.smartsantander.testbed.events.RegistrationEvents;
+import eu.smartsantander.eventbroker.client.EventObject;
+import eu.smartsantander.eventbroker.client.IEventPublisher;
+import eu.smartsantander.eventbroker.client.IEventReceiver;
+import eu.smartsantander.eventbroker.client.exceptions.EventBrokerException;
+import eu.smartsantander.eventbroker.events.IEventFactory;
+import eu.smartsantander.eventbroker.events.NodeOperationsEvents;
+import eu.smartsantander.eventbroker.events.RegistrationEvents;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.junit.Before;
@@ -25,6 +25,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
+
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(SmartSantanderEventBrokerObserverHelper.class)

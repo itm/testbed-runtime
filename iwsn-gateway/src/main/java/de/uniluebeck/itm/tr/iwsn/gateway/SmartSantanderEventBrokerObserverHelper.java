@@ -2,8 +2,8 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import eu.smartsantander.testbed.events.NodeOperationsEvents;
-import eu.smartsantander.testbed.events.RegistrationEvents;
+import eu.smartsantander.eventbroker.events.NodeOperationsEvents;
+import eu.smartsantander.eventbroker.events.RegistrationEvents;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;

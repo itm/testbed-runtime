@@ -4,7 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
-import eu.smartsantander.testbed.eventbroker.IEventListener;
+import eu.smartsantander.eventbroker.client.IEventListener;
 
 /**
  * Implementations of this interface connect TestbedRuntime to the SmartSantanderEventBroker.<br/>
