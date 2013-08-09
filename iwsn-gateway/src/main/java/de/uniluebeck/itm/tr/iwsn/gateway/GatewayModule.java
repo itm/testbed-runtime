@@ -66,7 +66,9 @@ public class GatewayModule extends AbstractModule {
 
 		final URI smartSantanderEventBrokerUri = gatewayConfig.getSmartSantanderEventBrokerUri();
 		if (smartSantanderEventBrokerUri != null) {
-			install(new SmartSantanderEventBrokerObserverModule(gatewayConfig));
+			install(new SmartSantanderEventBrokerObserverModule());
+		} else {
+			bind(SmartSantanderEventBrokerObserver.class).toProvider(of((SmartSantanderEventBrokerObserver) null));
 		}
 	}
 

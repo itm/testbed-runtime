@@ -14,6 +14,7 @@ import eu.wisebed.wiseml.Units;
 
 import java.util.*;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static eu.smartsantander.rd.jaxb.IoTNodeType.MOBILE_SENSOR_NODE;
 import static eu.smartsantander.rd.jaxb.IoTNodeType.SENSOR_NODE;
 
@@ -62,11 +63,12 @@ public abstract class DeviceDBRDHelper {
 
 
 	public static Long[] getTimeouts(NodeOperationsEvents.AddSensorNode eventResource) {
+		final RegistrationEvents.NodeTRConfig config = eventResource.getNodeTrConfig();
 		Long[] timeouts = new Long[4];
-		timeouts[0] = (long) eventResource.getNodeTrConfig().getTimeoutMsReset();
-		timeouts[1] = (long) eventResource.getNodeTrConfig().getTimeoutMsFlash();
-		timeouts[2] = (long) eventResource.getNodeTrConfig().getTimeoutMsNodeapi();
-		timeouts[3] = (long) eventResource.getNodeTrConfig().getTimeoutMsCheckalive();
+		timeouts[0] = config.hasTimeoutMsReset() ? (long) config.getTimeoutMsReset() : null;
+		timeouts[1] = config.hasTimeoutMsFlash() ? (long) config.getTimeoutMsFlash() : null;
+		timeouts[2] = config.hasTimeoutMsNodeapi() ? (long) config.getTimeoutMsNodeapi() : null;
+		timeouts[3] = config.hasTimeoutMsCheckalive () ? (long) config.getTimeoutMsCheckalive() : null;
 		return timeouts;
 	}
 
@@ -158,21 +160,39 @@ public abstract class DeviceDBRDHelper {
 		List<RegistrationEvents.Capability> caps = eventResource.getSensorCapabilityList();
 		Set<Capability> capabilities = new HashSet<Capability>();
 		for (RegistrationEvents.Capability c : caps) {
+
 			Capability capability = new Capability();
 			capability.setName(c.getName());
-			if (c.getDatatype().equals("float")) {   //todo extend types
-				capability.setDatatype(Dtypes.valueOf(Dtypes.DECIMAL.toString()));
-			} else {
-				capability.setDatatype(Dtypes.valueOf(c.getDatatype()));
+
+			final Map<String, String> datatypeMapping = newHashMap();
+			datatypeMapping.put("float", "decimal");
+			datatypeMapping.put("decimal", "decimal");
+			datatypeMapping.put("integer", "integer");
+
+			for (Dtypes dtypes : Dtypes.values()) {
+				if (dtypes.value().equals(datatypeMapping.get(c.getDatatype()))) {
+					capability.setDatatype(dtypes);
+				}
 			}
-			if (c.getUnit().equals("lumen")) {                        //todo extend units
-				// 1 lx = 1 lm/m2.
-				capability.setUnit(Units.valueOf(Units.LUX.toString()));
-			} else if (c.getUnit().equals("celsius")) {               //todo extend units
-				capability.setUnit(Units.valueOf(Units.KELVIN.toString()));
-			} else {
-				capability.setUnit(Units.valueOf(c.getUnit()));
+
+			if (c.getDatatype() != null && !"".equals(c.getDatatype()) && capability.getDatatype() == null) {
+				throw new RuntimeException("Could not convert datatype \"" + c
+						.getDatatype() + "\" from AddSensorNode message to the DeviceConfig equivalent."
+				);
 			}
+
+			for (Units units : Units.values()) {
+				if (units.value().equals(c.getUnit())) {
+					capability.setUnit(units);
+				}
+			}
+
+			if (c.getUnit() != null && !"".equals(c.getUnit()) && capability.getUnit() == null) {
+				throw new RuntimeException("Could not convert unit \"" + c
+						.getUnit() + "\" from AddSensorNode message to the DeviceConfig equivalent."
+				);
+			}
+
 			capabilities.add(capability);
 		}
 		Long[] timeouts = getTimeouts(eventResource);

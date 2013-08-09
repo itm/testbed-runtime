@@ -4,16 +4,13 @@ import com.google.common.base.Joiner;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
-import eu.smartsantander.eventbroker.client.EventObject;
-import eu.smartsantander.eventbroker.client.IEventPublisher;
-import eu.smartsantander.eventbroker.client.IEventReceiver;
+import eu.smartsantander.eventbroker.client.*;
 import eu.smartsantander.eventbroker.client.exceptions.EventBrokerException;
 import eu.smartsantander.eventbroker.events.IEventFactory.EventType;
 import eu.smartsantander.eventbroker.events.NodeOperationsEvents;
@@ -32,45 +29,50 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService imple
 
 	private static final Logger log = LoggerFactory.getLogger(SmartSantanderEventBrokerObserverImpl.class);
 
-	private int numPublishedEvents;
-
 	/**
-	 * The identifier of the Gateway which hosts this instance.
+	 * Events this component will listen for on the SmartSantander EventBus
 	 */
-	private final String gatewayID;
+	public static final EventType[] incomingEvents = {
+			EventType.ADD_SENSOR_NODE,
+			EventType.DEL_SENSOR_NODE
+	};
 
-	/**
-	 * The instance of this interface will establish the connection to the SmartSantander EventBroker
-	 */
-	private final IEventReceiver eventReceiver;
+	private final GatewayConfig gatewayConfig;
 
-	private final IEventPublisher eventPublisher;
+	private final IEventReceiverFactory eventReceiverFactory;
+
+	private final IEventPublisherFactory eventPublisherFactory;
 
 	/**
 	 * Component used establish a publish/subscribe communication within the Gateway
 	 */
 	private final GatewayEventBus gatewayEventBus;
 
+	private int numPublishedEvents;
+
 	/**
-	 * Events this component will listen for on the SmartSantander EventBus
+	 * The instance of this interface will establish the connection to the SmartSantander EventBroker
 	 */
-	public static final EventType[] incomingEvents = {EventType.ADD_SENSOR_NODE,
-			EventType.DEL_SENSOR_NODE};
+	private IEventReceiver eventReceiver;
+
+	private IEventPublisher eventPublisher;
 
 	@Inject
-	public SmartSantanderEventBrokerObserverImpl(@Named(GatewayConfig.SMARTSANTANDER_GATEWAY_ID) final String gatewayID,
-	                                             final IEventReceiver eventReceiver,
-	                                             final IEventPublisher eventPublisher,
+	public SmartSantanderEventBrokerObserverImpl(final GatewayConfig gatewayConfig,
+	                                             final IEventReceiverFactory eventReceiverFactory,
+	                                             final IEventPublisherFactory eventPublisherFactory,
 	                                             final GatewayEventBus gatewayEventBus) {
-		this.gatewayID = gatewayID;
-		this.eventReceiver = eventReceiver;
-		this.eventPublisher = eventPublisher;
+		this.gatewayConfig = gatewayConfig;
+		this.eventReceiverFactory = eventReceiverFactory;
+		this.eventPublisherFactory = eventPublisherFactory;
 		this.gatewayEventBus = gatewayEventBus;
-		numPublishedEvents = 0;
+		this.numPublishedEvents = 0;
 	}
 
 	@Override
 	protected void doStart() {
+
+		log.trace("SmartSantanderEventBrokerObserverImpl.doStart()");
 
 		try {
 			connectToEventBroker();
@@ -85,8 +87,11 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService imple
 
 	@Override
 	protected void doStop() {
+
+		log.trace("SmartSantanderEventBrokerObserverImpl.doStop()");
+
 		try {
-			eventReceiver.unsubscribe(incomingEvents);
+			closeConnectionToEventBroker();
 			gatewayEventBus.unregister(this);
 			notifyStopped();
 		} catch (EventBrokerException e) {
@@ -97,18 +102,21 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService imple
 
 	@Override
 	public boolean handleEvent(final EventObject event) {
+
 		try {
+
 			checkNotNull(event);
 
 			switch (event.eventType) {
 
 				case ADD_SENSOR_NODE:
 					final AddSensorNode addSensorNode = AddSensorNode.parseFrom(event.eventBytes);
-					if (gatewayID.equals(addSensorNode.getParentId())) {
+					if (gatewayConfig.getSmartSantanderGatewayId().equals(addSensorNode.getParentId())) {
 						DeviceConfig deviceConfig = convert(addSensorNode);
 						if (deviceConfig != null){
-							gatewayEventBus.post(new DeviceFoundEvent(null, deviceConfig));
-							log.trace("A DeviceConnectedEvent was posted on the gateway event bus.");
+							final DeviceFoundEvent deviceFoundEvent = new DeviceFoundEvent(null, deviceConfig);
+							log.trace("Posting DeviceFoundEvent on the gateway event bus: {}", deviceFoundEvent);
+							gatewayEventBus.post(deviceFoundEvent);
 							return true;
 						}
 						log.warn("No device configuration was found matching the information in the AddSensorNode event {} ", addSensorNode);
@@ -116,26 +124,26 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService imple
 
 					}
 					log.trace("The parent identifier provided by the AddSensorNode event ({}) " +
-							"does not match the identifier of this gateway ({})", addSensorNode.getParentId(), gatewayID);
+							"does not match the identifier of this gateway ({})", addSensorNode.getParentId(), gatewayConfig.getSmartSantanderGatewayId());
 					return false;
 
 
 				case DEL_SENSOR_NODE:
 					final DelSensorNode delSensorNode = DelSensorNode.parseFrom(event.eventBytes);
-					if (gatewayID.equals(delSensorNode.getParentId())) {
+					if (gatewayConfig.getSmartSantanderGatewayId().equals(delSensorNode.getParentId())) {
 						DeviceLostEvent deviceLostEvent = new DeviceLostEvent(
 								null,
 								new NodeUrn(delSensorNode.getNodeId()));
+						log.trace("Posting DeviceLostEvent on the gateway event bus: {}", deviceLostEvent);
 						gatewayEventBus.post(deviceLostEvent);
-						log.trace("A DeviceLostEvent was posted on the gateway event bus.");
 						return true;
 					}
 					log.trace("The parent identifier provided by the DelSensorNode event ({}) " +
-							"does not match the identifier of this gateway ({})", delSensorNode.getParentId(), gatewayID);
+							"does not match the identifier of this gateway ({})", delSensorNode.getParentId(), gatewayConfig.getSmartSantanderGatewayId());
 					return false;
 
 				default:
-					log.warn("Events of type {} ar not handled.", event.eventType);
+					log.warn("Events of type {} are not handled.", event.eventType);
 					return false;
 			}
 
@@ -160,7 +168,19 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService imple
 
 		log.trace("Connecting to EventBroker listening for events {} ", Joiner.on(", ").join(incomingEvents));
 
+		eventReceiver = eventReceiverFactory.create(gatewayConfig.getSmartSantanderEventBrokerUri().toString());
 		eventReceiver.subscribe(incomingEvents, this, true);
+
+		eventPublisher = eventPublisherFactory.create(gatewayConfig.getSmartSantanderEventBrokerUri().toString());
+	}
+
+	private void closeConnectionToEventBroker() throws EventBrokerException {
+
+		log.trace("SmartSantanderEventBrokerObserverImpl.closeConnectionToEventBroker()");
+
+		eventReceiver.unsubscribe(incomingEvents);
+		eventReceiver.close();
+		eventPublisher.close();
 	}
 
 	@Override

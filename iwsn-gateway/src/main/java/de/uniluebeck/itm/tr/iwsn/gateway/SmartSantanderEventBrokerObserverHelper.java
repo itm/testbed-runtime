@@ -34,10 +34,19 @@ public class SmartSantanderEventBrokerObserverHelper {
 			final boolean gatewayNode =
 					addSensorNode.getIotNodeType() == RegistrationEvents.RegRequestHeader.IoTNodeType.GATEWAY;
 			final String nodePort = nodeTrConfig.getNodePort();
-			final Long timeoutCheckAliveMillis = (long) nodeTrConfig.getTimeoutMsCheckalive();
-			final Long timeoutFlashMillis = (long) nodeTrConfig.getTimeoutMsFlash();
-			final Long timeoutNodeApiMillis = (long) nodeTrConfig.getTimeoutMsNodeapi();
-			final Long timeoutResetMillis = (long) nodeTrConfig.getTimeoutMsReset();
+
+			final Long timeoutCheckAliveMillis = nodeTrConfig.hasTimeoutMsCheckalive() ?
+					(long) nodeTrConfig.getTimeoutMsCheckalive() :
+					null;
+			final Long timeoutFlashMillis = nodeTrConfig.hasTimeoutMsFlash() ?
+					(long) nodeTrConfig.getTimeoutMsFlash() :
+					null;
+			final Long timeoutNodeApiMillis = nodeTrConfig.hasTimeoutMsNodeapi() ?
+					(long) nodeTrConfig.getTimeoutMsNodeapi() :
+					null;
+			final Long timeoutResetMillis = nodeTrConfig.hasTimeoutMsReset() ?
+					(long) nodeTrConfig.getTimeoutMsReset() :
+					null;
 
 			final RegistrationEvents.Position position = addSensorNode.getPosition();
 			final Coordinate coordinate = new Coordinate();

@@ -32,4 +32,12 @@ public class DeviceFoundEvent {
 	public String getPort() {
 		return port;
 	}
+
+	@Override
+	public String toString() {
+		return "DeviceFoundEvent{" +
+				"port='" + port + '\'' +
+				", deviceConfig=" + deviceConfig +
+				"} " + super.toString();
+	}
 }
