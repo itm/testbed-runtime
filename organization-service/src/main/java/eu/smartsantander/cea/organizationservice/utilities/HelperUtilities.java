@@ -7,10 +7,9 @@
 package eu.smartsantander.cea.organizationservice.utilities;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-import javax.servlet.http.HttpServletRequest;
+
 
 
 
@@ -27,14 +26,6 @@ public class HelperUtilities {
         return props;
       }
      
-      public static String getUserDir(HttpServletRequest request) {
-        String userDir = "";
-        String absuluPath = request.getSession().getServletContext().getRealPath("/");
-        int indexOfTarget = absuluPath.indexOf("target");
-        userDir = absuluPath.substring(0, indexOfTarget-1);
-        return userDir;
-      }
-           
       public static String getProperty(String nameProperty) {
           return getProperties().getProperty(nameProperty);
       }
