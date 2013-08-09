@@ -92,8 +92,8 @@
 		</dependency>
 
         <dependency>
-            <groupId>SmartSantanderClient</groupId>
-            <artifactId>SmartSantanderClient</artifactId>
+            <groupId>eu.smartsantander.eventbroker</groupId>
+            <artifactId>client</artifactId>
         </dependency>
 
 		<dependency>

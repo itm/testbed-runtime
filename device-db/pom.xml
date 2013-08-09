@@ -114,6 +114,15 @@
 		</dependency>
 
 		<dependency>
+			<groupId>eu.smartsantander.rd</groupId>
+			<artifactId>rd3interactorj</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>eu.smartsantander.eventbroker</groupId>
+			<artifactId>client</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
 			<scope>runtime</scope>
@@ -134,16 +143,7 @@
 			<artifactId>mockito-all</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>rd3api</groupId>
-			<artifactId>rd3interactorj</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>SmartSantanderClient</groupId>
-			<artifactId>SmartSantanderClient</artifactId>
-			<version>1.5</version>
-		</dependency>
+
 	</dependencies>
 
 	<build>

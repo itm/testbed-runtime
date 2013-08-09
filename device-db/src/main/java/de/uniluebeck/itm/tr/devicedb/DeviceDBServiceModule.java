@@ -29,6 +29,9 @@ public class DeviceDBServiceModule extends PrivateModule {
 			case REMOTE:
 				install(new RemoteDeviceDBModule(deviceDBConfig));
 				break;
+			case SMARTSANTANDER:
+				install(new DeviceDBRDModule());
+				break;
 			default:
 				throw new IllegalArgumentException(
 						"Unknown DeviceDB type \"" + deviceDBConfig.getDeviceDBType().toString() + "\""
