@@ -236,6 +236,13 @@
 				<version>1.7-SNAPSHOT</version>
 			</dependency>
 
+            <!-- smartsantander projects -->
+            <dependency>
+                <groupId>SmartSantanderClient</groupId>
+                <artifactId>SmartSantanderClient</artifactId>
+                <version>1.5</version>
+            </dependency>
+
 			<!-- 3rd party libraries -->
 			<dependency>
 				<groupId>org.apache.felix</groupId>
@@ -464,6 +471,23 @@
 				<version>1.9.0</version>
 				<scope>test</scope>
 			</dependency>
+
+            <!-- PowerMock is necessary to mock static methods
+                see https://code.google.com/p/powermock/wiki/MockitoUsage13
+                for version dependencies between Mockito and PowerMock
+            -->
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>1.4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>1.4.12</version>
+                <scope>test</scope>
+            </dependency>
 
 			<!-- Apache Shiro dependencies -->
 			<dependency>

@@ -34,6 +34,8 @@ import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.nettyprotocols.NamedChannelHandlerList;
 import de.uniluebeck.itm.nettyprotocols.util.ChannelBufferTools;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
@@ -236,7 +238,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			setDefaultChannelPipeline();
 			nodeApi.start();
 
-			gatewayEventBus.post(new DevicesAttachedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
+			gatewayEventBus.post(new DevicesConnectedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -250,7 +252,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 		try {
 
-			gatewayEventBus.post(new DevicesDetachedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
+			gatewayEventBus.post(new DevicesDisconnectedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
 
 			log.debug("{} => Shutting down {} device connector",
 					deviceConfig.getNodeUrn(),
