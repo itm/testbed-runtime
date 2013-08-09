@@ -3,8 +3,11 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.net.HostAndPort;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.util.propconf.converters.HostAndPortTypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
+import de.uniluebeck.itm.util.propconf.converters.HostAndPortTypeConverter;
+import de.uniluebeck.itm.util.propconf.converters.URITypeConverter;
+
+import java.net.URI;
 
 public class GatewayConfig {
 
@@ -39,6 +42,28 @@ public class GatewayConfig {
 	@Named(REST_API_PORT)
 	private int restAPIPort;
 
+	@PropConf(
+			usage = "If run in the context of the SmartSantander project, this must be set to the URI on which the " +
+					"SmartSantander EventBroker runs ",
+			example = "failover://(tcp://localhost:9009)?startupMaxReconnectAttempts=1&initialReconnectDelay=1",
+			typeConverter = URITypeConverter.class
+	)
+	public static final String SMARTSANTANDER_EVENT_BROKER_URI = "gateway.smartsantander.event_broker.uri";
+
+	@Inject(optional = true)
+	@Named(SMARTSANTANDER_EVENT_BROKER_URI)
+	private URI smartSantanderEventBrokerUri;
+
+	@PropConf(
+			usage = "If run in the context of the SmartSantander project, this must be set to the gateways ID that is "
+					+ "used to identify the gateway machine in the EventBroker messages"
+	)
+	public static final String SMARTSANTANDER_GATEWAY_ID = "gateway.smartsantander.gateway_id";
+
+	@Inject(optional = true)
+	@Named(SMARTSANTANDER_GATEWAY_ID)
+	private String smartSantanderGatewayId;
+
 	public HostAndPort getPortalAddress() {
 		return portalAddress;
 	}
@@ -49,5 +74,13 @@ public class GatewayConfig {
 
 	public int getRestAPIPort() {
 		return restAPIPort;
+	}
+
+	public URI getSmartSantanderEventBrokerUri() {
+		return smartSantanderEventBrokerUri;
+	}
+
+	public String getSmartSantanderGatewayId() {
+		return smartSantanderGatewayId;
 	}
 }

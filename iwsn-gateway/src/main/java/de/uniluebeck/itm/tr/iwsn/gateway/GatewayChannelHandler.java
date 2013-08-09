@@ -2,6 +2,8 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -94,7 +96,7 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 	}
 
 	@Subscribe
-	public void onGatewayDevicesAttachedEvent(DevicesAttachedEvent event) {
+	public void onDevicesConnectedEvent(DevicesConnectedEvent event) {
 
 		final de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent dae =
 				de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent
@@ -107,7 +109,7 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 	}
 
 	@Subscribe
-	public void onGatewayDevicesDetachedEvent(DevicesDetachedEvent event) {
+	public void onDevicesDisconnectedEvent(DevicesDisconnectedEvent event) {
 
 		final de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent dde =
 				de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent

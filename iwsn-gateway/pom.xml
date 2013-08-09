@@ -91,6 +91,11 @@
 			<artifactId>propconf</artifactId>
 		</dependency>
 
+        <dependency>
+            <groupId>SmartSantanderClient</groupId>
+            <artifactId>SmartSantanderClient</artifactId>
+        </dependency>
+
 		<dependency>
 			<groupId>args4j</groupId>
 			<artifactId>args4j</artifactId>
@@ -142,6 +147,16 @@
 			<artifactId>mockito-all</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <scope>test</scope>
+        </dependency>
 
 	</dependencies>
 

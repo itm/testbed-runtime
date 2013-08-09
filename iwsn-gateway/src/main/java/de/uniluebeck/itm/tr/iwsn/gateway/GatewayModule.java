@@ -18,6 +18,8 @@ import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 
 import javax.inject.Singleton;
 
+import java.net.URI;
+
 import static com.google.inject.util.Providers.of;
 
 public class GatewayModule extends AbstractModule {
@@ -61,6 +63,11 @@ public class GatewayModule extends AbstractModule {
 		install(new ScheduledExecutorServiceModule("GatewayScheduler"));
 		install(new NettyProtocolsModule());
 		install(new ServicePublisherCxfModule());
+
+		final URI smartSantanderEventBrokerUri = gatewayConfig.getSmartSantanderEventBrokerUri();
+		if (smartSantanderEventBrokerUri != null) {
+			install(new SmartSantanderEventBrokerObserverModule(gatewayConfig));
+		}
 	}
 
 	@Provides

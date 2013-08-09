@@ -6,12 +6,15 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.wsn.deviceutils.DeviceUtilsModule;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceEvent;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceInfo;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserver;
 import de.uniluebeck.itm.wsn.deviceutils.observer.DeviceObserverListener;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
+import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,24 +24,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
+import static com.google.inject.internal.util.$Sets.newHashSet;
 import static de.uniluebeck.itm.util.concurrent.ExecutorUtils.shutdown;
 
 public class DeviceObserverWrapper extends AbstractService implements DeviceObserverListener {
 
 	private static final Logger log = LoggerFactory.getLogger(DeviceObserverWrapper.class);
 
-	private final Map<String, DeviceAdapter> connectedDevices = newHashMap();
-
-	private final Set<DeviceInfo> detectedButNotConnectedDevices = newHashSet();
-
 	private final DeviceDBService deviceDBService;
 
-	private final Set<DeviceAdapterFactory> deviceAdapterFactories;
+	private final GatewayEventBus gatewayEventBus;
+
+	private final Set<DeviceInfo> detectedButUnknownDevices = newHashSet();
+
+	private final Map<DeviceInfo, NodeUrn> deviceInfoNodeUrnMap = newHashMap();
 
 	private DeviceObserver deviceObserver;
 
@@ -50,29 +51,30 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 	private ExecutorService deviceDriverExecutorService;
 
+
 	private Runnable tryToConnectToDetectedButUnconnectedDevicesRunnable = new Runnable() {
 		@Override
 		public void run() {
-			synchronized (detectedButNotConnectedDevices) {
+			synchronized (detectedButUnknownDevices) {
 
-				log.trace("Before retrying to connect: detectedButNotConnectedDevices: {}",
-						detectedButNotConnectedDevices
+				log.trace("Before retrying to connect: detectedButUnknownDevices: {}",
+						detectedButUnknownDevices
 				);
 
-				for (Iterator<DeviceInfo> iterator = detectedButNotConnectedDevices.iterator(); iterator.hasNext(); ) {
+				for (Iterator<DeviceInfo> iterator = detectedButUnknownDevices.iterator(); iterator.hasNext(); ) {
 					final DeviceInfo deviceInfo = iterator.next();
-					if (tryToConnectToDevice(deviceInfo)) {
+					if (fetchAndPostDeviceConfig(deviceInfo)) {
 						iterator.remove();
 					}
 				}
 
-				log.trace("After retrying to connect: detectedButNotConnectedDevices: {}",
-						detectedButNotConnectedDevices
+				log.trace("After retrying to connect: detectedButUnknownDevices: {}",
+						detectedButUnknownDevices
 				);
 
 				synchronized (tryToConnectToDetectedButUnconnectedDevicesScheduleLock) {
 
-					if (detectedButNotConnectedDevices.isEmpty() &&
+					if (detectedButUnknownDevices.isEmpty() &&
 							tryToConnectToDetectedButUnconnectedDevicesSchedule != null) {
 						tryToConnectToDetectedButUnconnectedDevicesSchedule.cancel(false);
 					}
@@ -86,12 +88,12 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 	@Nullable
 	private ScheduledFuture<?> tryToConnectToDetectedButUnconnectedDevicesSchedule;
 
+
+
 	@Inject
-	public DeviceObserverWrapper(final DeviceDBService deviceDBService,
-								 final Set<DeviceAdapterFactory> deviceAdapterFactories) {
-		checkArgument(deviceAdapterFactories != null && !deviceAdapterFactories.isEmpty());
-		this.deviceAdapterFactories = deviceAdapterFactories;
+	public DeviceObserverWrapper(final DeviceDBService deviceDBService, final GatewayEventBus gatewayEventBus) {
 		this.deviceDBService = checkNotNull(deviceDBService);
+		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 	}
 
 	@Override
@@ -151,85 +153,70 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 
 	@Override
 	public void deviceEvent(final DeviceEvent event) {
+		final DeviceInfo deviceInfo = event.getDeviceInfo();
 		switch (event.getType()) {
 			case ATTACHED:
-				if (!tryToConnectToDevice(event.getDeviceInfo())) {
-					scheduleToRetryConnectionToDevice(event.getDeviceInfo());
+				if (!fetchAndPostDeviceConfig(deviceInfo)){
+					scheduleRetryFetchingAndPostingDeviceConfig(deviceInfo);
 				}
 				break;
 			case REMOVED:
-				onDeviceDetachedFromDeviceObserver(event.getDeviceInfo());
+				onDeviceDetached(deviceInfo);
 				break;
 		}
 	}
 
-	private boolean tryToConnectToDevice(final DeviceInfo deviceInfo) {
+	/**
+	 * Fetches a device configuration for a device from the device data base and posts a
+	 * {@link DeviceFoundEvent} on the {@link GatewayEventBus} if the device was not attached previously.<br/>
+	 * The device configuration will only be posted once, even if this method is called multiple times.
+	 *
+	 * @param deviceInfo
+	 * 		Information identifying a device
+	 * @return <code>true</code> if the device information were found and posted on the event bus,
+	 *              <code>false</code> otherwise.
+	 */
+	private boolean fetchAndPostDeviceConfig(final DeviceInfo deviceInfo) {
 
-		log.trace("DeviceObserverWrapper.tryToConnectToDevice({})", deviceInfo);
+		log.trace("DeviceObserverWrapper.fetchAndPostDeviceConfig({})", deviceInfo);
 
 		final boolean deviceAlreadyConnected;
-		synchronized (connectedDevices) {
-			deviceAlreadyConnected = connectedDevices.containsKey(deviceInfo.getPort());
+
+		synchronized (deviceInfoNodeUrnMap) {
+			deviceAlreadyConnected = deviceInfoNodeUrnMap.containsKey(deviceInfo);
 		}
 
-		if (deviceAlreadyConnected) {
-			return true;
-		}
+		if (!deviceAlreadyConnected) {
 
-		final DeviceConfig deviceConfig;
-		try {
-			deviceConfig = getDeviceConfigFromDeviceDB(deviceInfo);
-		} catch (Exception e) {
-			log.error("Exception while fetching device configuration from DeviceDB: ", e);
-			return false;
-		}
-
-		if (deviceConfig == null) {
-			log.warn("Ignoring device unknown to DeviceDB: {}", deviceInfo);
-			return false;
-		}
-
-		try {
-
-			for (DeviceAdapterFactory deviceAdapterFactory : deviceAdapterFactories) {
-
-				if (deviceAdapterFactory.canHandle(deviceConfig)) {
-
-					final DeviceAdapter deviceAdapter = deviceAdapterFactory.create(
-							deviceInfo.getPort(),
-							deviceConfig
-					);
-
-					deviceAdapter.startAndWait();
-
-					synchronized (connectedDevices) {
-						connectedDevices.put(deviceInfo.getPort(), deviceAdapter);
-					}
-
-					return true;
-				}
+			final DeviceConfig deviceConfig;
+			try {
+				deviceConfig = getDeviceConfigFromDeviceDB(deviceInfo);
+			} catch (Exception e) {
+				log.error("Exception while fetching device configuration from DeviceDB: ", e);
+				return false;
 			}
 
-			return false;
-
-		} catch (Exception e) {
-			if (log.isErrorEnabled()) {
-				log.error("{} => Could not connect to {} device at {}: {}",
-						deviceConfig.getNodeUrn(),
-						deviceConfig.getNodeType(),
-						deviceInfo.getPort(),
-						getStackTraceAsString(e)
-				);
+			if (deviceConfig == null) {
+				log.warn("Ignoring device unknown to DeviceDB: {}", deviceInfo);
+				return false;
 			}
-			return false;
+
+			synchronized (deviceInfoNodeUrnMap) {
+				deviceInfoNodeUrnMap.put(deviceInfo, deviceConfig.getNodeUrn());
+				final String port = deviceInfo.getPort() != null ? deviceInfo.getPort() : deviceConfig.getNodePort();
+				gatewayEventBus.post(new DeviceFoundEvent(port, deviceConfig));
+			}
 		}
+
+		return true;
 	}
 
-	private void scheduleToRetryConnectionToDevice(final DeviceInfo deviceInfo) {
 
-		synchronized (detectedButNotConnectedDevices) {
+	private void scheduleRetryFetchingAndPostingDeviceConfig(final DeviceInfo deviceInfo) {
 
-			detectedButNotConnectedDevices.add(deviceInfo);
+		synchronized (detectedButUnknownDevices) {
+
+			detectedButUnknownDevices.add(deviceInfo);
 
 			synchronized (tryToConnectToDetectedButUnconnectedDevicesScheduleLock) {
 				if (tryToConnectToDetectedButUnconnectedDevicesSchedule == null) {
@@ -242,27 +229,28 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 		}
 	}
 
-	private void onDeviceDetachedFromDeviceObserver(final DeviceInfo deviceInfo) {
 
-		log.trace("DeviceObserverWrapper.onDeviceDetachedFromDeviceObserver({})", deviceInfo);
+	/**
+	 * Posts a {@link de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent} on the {@link GatewayEventBus} if a device was connected previously.
+	 *
+	 * @param deviceInfo
+	 * 		Information about the device to be detached.
+	 */
+	private void onDeviceDetached(final DeviceInfo deviceInfo) {
 
-		synchronized (connectedDevices) {
-			final DeviceAdapter deviceAdapter = connectedDevices.get(deviceInfo.getPort());
+		log.trace("DeviceObserverWrapper.onDeviceDetached({})", deviceInfo);
 
-			if (deviceAdapter != null) {
-				deviceAdapter.stopAndWait();
-				synchronized (connectedDevices) {
-					connectedDevices.remove(deviceInfo.getPort());
-				}
+		synchronized (deviceInfoNodeUrnMap) {
+			final NodeUrn nodeUrn = deviceInfoNodeUrnMap.remove(deviceInfo);
+			if (nodeUrn != null) {
+				gatewayEventBus.post(new DeviceLostEvent(deviceInfo.getPort(), nodeUrn));
+			} else {
+				log.warn("The device ({}) to be disconnected was not connected previously.", deviceInfo);
 			}
 		}
 
-		synchronized (detectedButNotConnectedDevices) {
-			if (detectedButNotConnectedDevices.contains(deviceInfo)) {
-				detectedButNotConnectedDevices.remove(deviceInfo);
-			}
-		}
 	}
+
 
 	/**
 	 * Returns all information about the device from the DeviceDB or {@code null} if no information is found.
