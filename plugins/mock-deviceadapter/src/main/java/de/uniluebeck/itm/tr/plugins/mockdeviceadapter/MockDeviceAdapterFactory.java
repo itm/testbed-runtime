@@ -15,8 +15,7 @@ public class MockDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	@Override
 	public boolean canHandle(final DeviceConfig deviceConfig) {
-		return "isense".equals(deviceConfig.getNodeType()) || "isense39"
-				.equals(deviceConfig.getNodeType()) || "isense48".equals(deviceConfig.getNodeType());
+		return true;
 	}
 
 	@Override
