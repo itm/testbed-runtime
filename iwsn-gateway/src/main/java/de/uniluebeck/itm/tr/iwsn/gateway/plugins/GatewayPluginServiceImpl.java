@@ -10,9 +10,6 @@ import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapterRegistry;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayScheduler;
-import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.sm.SessionManagement;
-import eu.wisebed.api.v3.snaa.SNAA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +29,6 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 
 	private final GatewayConfig gatewayConfig;
 
-	private final RS rs;
-
-	private final SNAA snaa;
-
-	private final SessionManagement sessionManagement;
-
 	private final GatewayEventBus gatewayEventBus;
 
 	private final DeviceDBService deviceDBService;
@@ -51,9 +42,6 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 	@Inject
 	public GatewayPluginServiceImpl(final PluginContainerFactory pluginContainerFactory,
 									final GatewayConfig gatewayConfig,
-									final RS rs,
-									final SNAA snaa,
-									final SessionManagement sessionManagement,
 									final DeviceDBService deviceDBService,
 									final GatewayEventBus gatewayEventBus,
 									final DeviceAdapterRegistry deviceAdapterRegistry,
@@ -62,9 +50,6 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 		this.pluginContainerFactory = checkNotNull(pluginContainerFactory);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
 
-		this.rs = checkNotNull(rs);
-		this.snaa = checkNotNull(snaa);
-		this.sessionManagement = checkNotNull(sessionManagement);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 		this.deviceAdapterRegistry = checkNotNull(deviceAdapterRegistry);
@@ -98,9 +83,6 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 				pluginContainer.startAndWait();
 
 				pluginContainer.registerService(PluginContainer.class, pluginContainer);
-				pluginContainer.registerService(RS.class, rs);
-				pluginContainer.registerService(SNAA.class, snaa);
-				pluginContainer.registerService(SessionManagement.class, sessionManagement);
 				pluginContainer.registerService(GatewayEventBus.class, gatewayEventBus);
 				pluginContainer.registerService(DeviceDBService.class, deviceDBService);
 				pluginContainer.registerService(DeviceAdapterRegistry.class, deviceAdapterRegistry);

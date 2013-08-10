@@ -49,6 +49,7 @@ public class GatewayModule extends AbstractModule {
 		bind(EventIdProvider.class).to(IncrementalEventIdProvider.class).in(Scopes.SINGLETON);
 		bind(RequestHandler.class).to(RequestHandlerImpl.class).in(Scopes.SINGLETON);
 		bind(GatewayScheduler.class).to(GatewaySchedulerImpl.class).in(Scopes.SINGLETON);
+		bind(DeviceAdapterRegistry.class).to(DeviceAdapterRegistryImpl.class).in(Scopes.SINGLETON);
 
 		install(new NettyClientModule());
 		install(new DeviceFactoryModule());
@@ -61,7 +62,7 @@ public class GatewayModule extends AbstractModule {
 		install(new GatewayPluginModule());
 
 		final URI smartSantanderEventBrokerUri = gatewayConfig.getSmartSantanderEventBrokerUri();
-		if (smartSantanderEventBrokerUri != null) {
+		if (smartSantanderEventBrokerUri != null && !"".equals(smartSantanderEventBrokerUri.toString())) {
 			install(new SmartSantanderEventBrokerObserverModule());
 		} else {
 			bind(SmartSantanderEventBrokerObserver.class).toProvider(of((SmartSantanderEventBrokerObserver) null));

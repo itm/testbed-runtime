@@ -9,9 +9,6 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapterRegistry;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayScheduler;
-import eu.wisebed.api.v3.rs.RS;
-import eu.wisebed.api.v3.sm.SessionManagement;
-import eu.wisebed.api.v3.snaa.SNAA;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -25,18 +22,6 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 	protected ServiceReference<GatewayEventBus> gatewayEventBusServiceReference;
 
 	protected GatewayEventBus gatewayEventBus;
-
-	protected ServiceReference<SessionManagement> sessionManagementServiceReference;
-
-	protected SessionManagement sessionManagement;
-
-	protected ServiceReference<SNAA> snaaServiceReference;
-
-	protected SNAA snaa;
-
-	protected ServiceReference<RS> rsServiceReference;
-
-	protected RS rs;
 
 	protected ServiceReference<PluginContainer> pluginContainerServiceReference;
 
@@ -71,15 +56,6 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 		gatewayEventBusServiceReference = bundleContext.getServiceReference(GatewayEventBus.class);
 		gatewayEventBus = bundleContext.getService(gatewayEventBusServiceReference);
 
-		sessionManagementServiceReference = bundleContext.getServiceReference(SessionManagement.class);
-		sessionManagement = bundleContext.getService(sessionManagementServiceReference);
-
-		snaaServiceReference = bundleContext.getServiceReference(SNAA.class);
-		snaa = bundleContext.getService(snaaServiceReference);
-
-		rsServiceReference = bundleContext.getServiceReference(RS.class);
-		rs = bundleContext.getService(rsServiceReference);
-
 		pluginContainerServiceReference = bundleContext.getServiceReference(PluginContainer.class);
 		pluginContainer = bundleContext.getService(pluginContainerServiceReference);
 
@@ -100,18 +76,6 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 		gatewayEventBus = null;
 		bundleContext.ungetService(gatewayEventBusServiceReference);
 		gatewayEventBusServiceReference = null;
-
-		sessionManagement = null;
-		bundleContext.ungetService(sessionManagementServiceReference);
-		sessionManagementServiceReference = null;
-
-		snaa = null;
-		bundleContext.ungetService(snaaServiceReference);
-		snaaServiceReference = null;
-
-		rs = null;
-		bundleContext.ungetService(rsServiceReference);
-		rsServiceReference = null;
 
 		deviceDBService = null;
 		bundleContext.ungetService(deviceDBServiceReference);
@@ -138,9 +102,6 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 				bind(PluginContainer.class).toProvider(of(pluginContainer));
 
 				bind(GatewayEventBus.class).toProvider(of(gatewayEventBus));
-				bind(SessionManagement.class).toProvider(of(sessionManagement));
-				bind(SNAA.class).toProvider(of(snaa));
-				bind(RS.class).toProvider(of(rs));
 				bind(DeviceDBService.class).toProvider(of(deviceDBService));
 				bind(DeviceAdapterRegistry.class).toProvider(of(deviceAdapterRegistry));
 				bind(GatewayScheduler.class).toProvider(of(gatewayScheduler));

@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
@@ -38,13 +37,13 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	private static final Logger log = LoggerFactory.getLogger(DeviceManager.class);
 
-	private final Set<DeviceAdapterFactory> deviceAdapterFactories;
-
 	private final Map<String, DeviceConfig> detectedButNotConnectedDevices = newHashMap();
 
 	private final Map<NodeUrn, DeviceAdapter> connectedDevices = newHashMap();
 
 	private final GatewayEventBus gatewayEventBus;
+
+	private final DeviceAdapterRegistry deviceAdapterRegistry;
 
 	private ScheduledExecutorService scheduler;
 
@@ -91,10 +90,8 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	@Inject
 	public DeviceManagerImpl(final GatewayEventBus gatewayEventBus,
-							 final Set<DeviceAdapterFactory> deviceAdapterFactories) {
-
-		checkArgument(deviceAdapterFactories != null && !deviceAdapterFactories.isEmpty());
-		this.deviceAdapterFactories = deviceAdapterFactories;
+							 final DeviceAdapterRegistry deviceAdapterRegistry) {
+		this.deviceAdapterRegistry = checkNotNull(deviceAdapterRegistry);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 	}
 
@@ -259,6 +256,19 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 		}
 	}
 
+	@Subscribe
+	public void onDeviceAdapterFactoryRemovedEvent(final DeviceAdapterFactoryRemovedEvent event) {
+		log.trace("DeviceManagerImpl.onDeviceAdapterFactoryRemovedEvent({})", event);
+		synchronized (connectedDevices) {
+			for (DeviceAdapter deviceAdapter : connectedDevices.values()) {
+				if (deviceAdapter.getClass().equals(event.getDeviceAdapterClass())) {
+					log.trace("Stopping DeviceAdapter of type {}", deviceAdapter.getClass());
+					deviceAdapter.stop();
+				}
+			}
+		}
+	}
+
 
 	@Nullable
 	@Override
@@ -317,7 +327,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 		if (!deviceAlreadyConnected) {
 
 			try {
-				for (DeviceAdapterFactory deviceAdapterFactory : deviceAdapterFactories) {
+				for (DeviceAdapterFactory deviceAdapterFactory : deviceAdapterRegistry.getDeviceAdapterFactories()) {
 
 					if (deviceAdapterFactory.canHandle(deviceConfig)) {
 
