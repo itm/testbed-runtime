@@ -11,7 +11,6 @@ import java.util.Set;
 
 public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 
-	private final GatewayEventBus gatewayEventBus;
 
 	private final NodeApiFactory nodeApiFactory;
 
@@ -21,11 +20,9 @@ public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	@Inject
 	public SingleDeviceAdapterFactory(final DeviceFactory deviceFactory,
-									  final GatewayEventBus gatewayEventBus,
 									  final NodeApiFactory nodeApiFactory,
 									  final Set<HandlerFactory> handlerFactories) {
 		this.deviceFactory = deviceFactory;
-		this.gatewayEventBus = gatewayEventBus;
 		this.nodeApiFactory = nodeApiFactory;
 		this.handlerFactories = handlerFactories;
 	}
@@ -45,6 +42,6 @@ public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	@Override
 	public DeviceAdapter create(final String port, final DeviceConfig deviceConfig) {
-		return new SingleDeviceAdapter(port, deviceConfig, deviceFactory, nodeApiFactory, gatewayEventBus, handlerFactories);
+		return new SingleDeviceAdapter(port, deviceConfig, deviceFactory, nodeApiFactory, handlerFactories);
 	}
 }

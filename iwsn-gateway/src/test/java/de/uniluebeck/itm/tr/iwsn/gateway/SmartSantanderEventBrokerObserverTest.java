@@ -2,6 +2,8 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
 import eu.smartsantander.eventbroker.client.*;
@@ -10,10 +12,10 @@ import eu.smartsantander.eventbroker.events.IEventFactory;
 import eu.smartsantander.eventbroker.events.NodeOperationsEvents;
 import eu.smartsantander.eventbroker.events.RegistrationEvents;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
@@ -22,15 +24,36 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.net.URI;
 
+import static de.uniluebeck.itm.tr.iwsn.gateway.SmartSantanderEventBrokerObserverHelper.convert;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(SmartSantanderEventBrokerObserverHelper.class)
 public class SmartSantanderEventBrokerObserverTest {
+
+	private static final String NODE_URN_STRING = "urn:smartsantander:testbed:70";
+
+	private static final NodeUrn NODE_URN = new NodeUrn(NODE_URN_STRING);
+
+	private static final String NODE_URN_PREFIX_STRING = "urn:smartsantander:testbed:";
+
+	private static final String NODE_PORT = "/dev/ttyTestbedRuntime";
+
+	private static final String NODE_TYPE = "waspmote";
+
+	private static final DeviceConfig NODE_DEVICE_CONFIG = new DeviceConfig(
+			NODE_URN,
+			NODE_TYPE,
+			true,
+			NODE_PORT,
+			null, null, null, null, null, null, null, null, null, null);
+
+	private static final String GATEWAY_ID = "testbed-test-gw.smartsantander.eu";
+
+	private static final String INCORRECT_GATEWAY_ID = "testbed-test-gw2.smartsantander.eu";
 
 	@MockitoAnnotations.Mock
 	private IEventReceiver eventReceiver;
@@ -40,8 +63,6 @@ public class SmartSantanderEventBrokerObserverTest {
 
 	@MockitoAnnotations.Mock
 	private GatewayEventBus gatewayEventBus;
-
-	private static final String GATEWAY_ID = "testbed-test-gw.smartsantander.eu";
 
 	private SmartSantanderEventBrokerObserver smartSantanderEventBrokerObserver;
 
@@ -58,9 +79,7 @@ public class SmartSantanderEventBrokerObserverTest {
 	public void setUp() throws EventBrokerException {
 
 		PowerMockito.mockStatic(SmartSantanderEventBrokerObserverHelper.class);
-		PowerMockito
-				.when(SmartSantanderEventBrokerObserverHelper.convert(any(NodeOperationsEvents.AddSensorNode.class)))
-				.thenReturn(new DeviceConfig());
+		PowerMockito.when(convert(any(NodeOperationsEvents.AddSensorNode.class))).thenReturn(NODE_DEVICE_CONFIG);
 
 		when(gatewayConfig.getSmartSantanderEventBrokerUri()).thenReturn(URI.create(""));
 		when(gatewayConfig.getSmartSantanderGatewayId()).thenReturn(GATEWAY_ID);
@@ -77,45 +96,47 @@ public class SmartSantanderEventBrokerObserverTest {
 	}
 
 	@Test
-	public void testAddSensorNodeForCorrectGatewayIdentifier() {
+	public void testAddSensorNodeForCorrectGatewayId() {
 
-		final EventObject event = createAndGetAddSensorNodeEvent(GATEWAY_ID,
-				"urn:smartsantander:testbed:70",
-				new NodeUrnPrefix("urn:smartsantander:testbed:").toString(),
-				"/dev/ttyTestbedRuntime"
+		final EventObject event = createAndGetAddSensorNodeEvent(
+				GATEWAY_ID,
+				NODE_URN_STRING,
+				NODE_URN_PREFIX_STRING,
+				NODE_PORT
 		);
 
 		smartSantanderEventBrokerObserver.handleEvent(event);
-		verify(gatewayEventBus, times(1)).post(any(DeviceConfig.class));
-
+		verify(gatewayEventBus).post(any(DeviceFoundEvent.class));
 	}
 
 	@Test
-	public void testAddSensorNodeForIncorrectIdentifier() {
-		final EventObject event = createAndGetAddSensorNodeEvent("abc",
-				"urn:smartsantander:testbed:70",
-				new NodeUrnPrefix("urn:smartsantander:testbed:").toString(),
-				"/dev/ttyTestbedRuntime"
+	public void testAddSensorNodeForIncorrectGatewayId() {
+
+		final EventObject event = createAndGetAddSensorNodeEvent(
+				INCORRECT_GATEWAY_ID,
+				NODE_URN_STRING,
+				NODE_URN_PREFIX_STRING,
+				NODE_PORT
 		);
 
 		smartSantanderEventBrokerObserver.handleEvent(event);
-		verify(gatewayEventBus, never()).post(any(DeviceConfig.class));
+		verify(gatewayEventBus, never()).post(any(DeviceFoundEvent.class));
 	}
 
 	@Test
 	public void testAddSensorNodeWithoutDeviceConfig() {
 
-		final EventObject event = createAndGetAddSensorNodeEvent(GATEWAY_ID,
-				"urn:smartsantander:testbed:70",
+		final EventObject event = createAndGetAddSensorNodeEvent(
+				GATEWAY_ID,
+				NODE_URN_STRING,
 				"",
-				"/dev/ttyTestbedRuntime"
+				NODE_PORT
 		);
-		PowerMockito
-				.when(SmartSantanderEventBrokerObserverHelper.convert(any(NodeOperationsEvents.AddSensorNode.class)))
-				.thenReturn(null);
+
+		PowerMockito.when(convert(any(NodeOperationsEvents.AddSensorNode.class))).thenReturn(null);
 
 		smartSantanderEventBrokerObserver.handleEvent(event);
-		verify(gatewayEventBus, never()).post(any(DeviceConfig.class));
+		verify(gatewayEventBus, never()).post(any(DeviceFoundEvent.class));
 
 	}
 
@@ -123,16 +144,25 @@ public class SmartSantanderEventBrokerObserverTest {
 	public void testHandleEventWhenEventObjectIsNULL() {
 
 		smartSantanderEventBrokerObserver.handleEvent(null);
-		verify(gatewayEventBus, never()).post(any(DeviceConfig.class));
+		verify(gatewayEventBus, never()).post(any(DeviceFoundEvent.class));
 
 	}
 
 	@Test
 	public void testDeleteSensorNodeForCorrectGatewayIdentifier() {
-		final EventObject event = createAndGetDelSensorNodeEvent(GATEWAY_ID, "urn:smartsantander:testbed:0815");
 
-		smartSantanderEventBrokerObserver.handleEvent(event);
-		verify(gatewayEventBus, times(1)).post(any(DeviceConfig.class));
+		final EventObject delEvent = createAndGetDelSensorNodeEvent(GATEWAY_ID, NODE_URN_STRING);
+		final EventObject addEvent = createAndGetAddSensorNodeEvent(GATEWAY_ID, NODE_URN_STRING,
+				NODE_URN_PREFIX_STRING, NODE_PORT
+		);
+
+		final InOrder inOrder = inOrder(gatewayEventBus);
+
+		smartSantanderEventBrokerObserver.handleEvent(addEvent);
+		inOrder.verify(gatewayEventBus).post(any(DeviceFoundEvent.class));
+
+		smartSantanderEventBrokerObserver.handleEvent(delEvent);
+		inOrder.verify(gatewayEventBus).post(any(DeviceLostEvent.class));
 	}
 
 	@Test
@@ -140,7 +170,7 @@ public class SmartSantanderEventBrokerObserverTest {
 		final EventObject event = createAndGetDelSensorNodeEvent(GATEWAY_ID, "");
 
 		smartSantanderEventBrokerObserver.handleEvent(event);
-		verify(gatewayEventBus, never()).post(any(DeviceConfig.class));
+		verify(gatewayEventBus, never()).post(anyObject());
 	}
 
 	@Test
@@ -148,44 +178,20 @@ public class SmartSantanderEventBrokerObserverTest {
 		final EventObject event = createAndGetDelSensorNodeEventWithWrongEventType(GATEWAY_ID);
 
 		smartSantanderEventBrokerObserver.handleEvent(event);
-		verify(gatewayEventBus, never()).post(any(DeviceConfig.class));
-	}
-
-	@Test
-	public void testDoNotForwardEventIfEventTypeIsWrong() {
-		final EventObject event = createAndGetAddSensorNodeEvent("abc",
-				"urn:smartsantander:testbed:70",
-				new NodeUrnPrefix("urn:smartsantander:testbed:").toString(),
-				"/dev/ttyTestbedRuntime"
-		);
-
-		smartSantanderEventBrokerObserver.handleEvent(event);
-		verify(gatewayEventBus, never()).post(any(DeviceConfig.class));
+		verify(gatewayEventBus, never()).post(anyObject());
 	}
 
 	@Test
 	public void testPostAddSensorNodeReplyOnReceivingADevicesAttachedEvent() {
+
 		DevicesConnectedEvent devicesConnectedEvent = new DevicesConnectedEvent(
-				null, Sets.newHashSet(new NodeUrn("urn:smartsantander:testbed:0815"))
+				null, Sets.newHashSet(NODE_URN)
 		);
 
-		RegistrationEvents.EventHeader header = RegistrationEvents.EventHeader.newBuilder()
-				.setEventTypeId(IEventFactory.EventType.ADD_SENSOR_NODE_REPLY.id())
-				.setRequestId(0)
-				.build();
-
-		NodeOperationsEvents.AddSensorNodeReply reply = NodeOperationsEvents.AddSensorNodeReply.newBuilder()
-				.setHeader(header)
-				.setIotNodeType(RegistrationEvents.RegRequestHeader.IoTNodeType.SENSOR_NODE)
-				.setNodeId("urn:smartsantander:testbed:0815")
-				.setResponse(true)
-				.build();
-
 		smartSantanderEventBrokerObserver.onDevicesAttachedEvent(devicesConnectedEvent);
-		try {
 
-			verify(eventPublisher, times(1)).send(any(EventObject.class));
-//			verify(eventPublisher, times(1)).send(eq(eventObject));
+		try {
+			verify(eventPublisher).send(any(EventObject.class));
 		} catch (EventBrokerException e) {
 			e.printStackTrace();
 		}
@@ -196,26 +202,14 @@ public class SmartSantanderEventBrokerObserverTest {
 	public void testPostDelSensorNodeReplyOnReceivingADevicesDetachedEvent() {
 
 		DevicesDisconnectedEvent devicesDisconnectedEvent = new DevicesDisconnectedEvent(
-				null, Sets.newHashSet(new NodeUrn("urn:smartsantander:testbed:0815"))
+				null,
+				Sets.newHashSet(NODE_URN)
 		);
 
-		RegistrationEvents.EventHeader header = RegistrationEvents.EventHeader.newBuilder()
-				.setEventTypeId(IEventFactory.EventType.DEL_SENSOR_NODE_REPLY.id())
-				.setRequestId(1)
-				.build();
-
-		NodeOperationsEvents.DelSensorNodeReply reply = NodeOperationsEvents.DelSensorNodeReply.newBuilder()
-				.setHeader(header)
-				.setIotNodeType(RegistrationEvents.RegRequestHeader.IoTNodeType.SENSOR_NODE)
-				.setNodeId("urn:smartsantander:testbed:0815")
-				.setResponse(true)
-				.build();
-
 		smartSantanderEventBrokerObserver.onDevicesDetachedEvent(devicesDisconnectedEvent);
-		try {
 
-			verify(eventPublisher, times(1)).send(any(EventObject.class));
-//			verify(eventPublisher, times(1)).send(eq(eventObject));
+		try {
+			verify(eventPublisher).send(any(EventObject.class));
 		} catch (EventBrokerException e) {
 			e.printStackTrace();
 		}
@@ -246,7 +240,6 @@ public class SmartSantanderEventBrokerObserverTest {
 				.setZcoor(56)
 				.build();
 
-
 		RegistrationEvents.KeyValue digi_mac = RegistrationEvents.KeyValue.newBuilder()
 				.setKey("DigiMacAddress")
 				.setValue("00:00:00:00:00:00:00:00")
@@ -262,9 +255,8 @@ public class SmartSantanderEventBrokerObserverTest {
 				.setValue(urnPrefixString)
 				.build();
 
-
 		RegistrationEvents.NodeTRConfig tr_config = RegistrationEvents.NodeTRConfig.newBuilder()
-				.setNodeType("waspmote")
+				.setNodeType(NODE_TYPE)
 				.setNodePort(nodePort)
 				.addNodeConfig(digi_mac)
 				.addNodeConfig(exp_mac)
@@ -312,7 +304,7 @@ public class SmartSantanderEventBrokerObserverTest {
 				.setHeader(header)
 				.setParentId(gatewayID)
 				.setIotNodeType(RegistrationEvents.RegRequestHeader.IoTNodeType.SENSOR_NODE)
-				.setNodeId("urn:smartsantander:testbed:0815")
+				.setNodeId(NODE_URN_STRING)
 				.build();
 
 		return new EventObject(IEventFactory.EventType.DEL_SENSOR_NODE_REPLY, del_sensor.toByteArray());

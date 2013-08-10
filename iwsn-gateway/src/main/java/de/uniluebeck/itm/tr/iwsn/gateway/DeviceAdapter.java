@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
+import de.uniluebeck.itm.util.Listenable;
 import de.uniluebeck.itm.util.concurrent.ListenableFutureMap;
 import de.uniluebeck.itm.util.concurrent.ProgressListenableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -39,7 +40,7 @@ import java.util.Set;
  * currently in communication range). The set of devices may vary over time (cf. {@link
  * de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapter#getNodeUrns()}).
  */
-public interface DeviceAdapter extends Service {
+public interface DeviceAdapter extends Listenable<DeviceAdapterListener>, Service {
 
 	/**
 	 * Returns the set of currently "connected" nodes. The returned set is a snapshot of the current state when being

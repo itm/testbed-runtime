@@ -658,4 +658,14 @@ public abstract class MessagesHelper {
 				)
 		);
 	}
+
+	public static UpstreamMessageEvent newUpstreamMessageEvent(final NodeUrn nodeUrn, final byte[] bytes,
+															   final DateTime timestamp) {
+		return UpstreamMessageEvent
+				.newBuilder()
+				.setMessageBytes(ByteString.copyFrom(bytes))
+				.setSourceNodeUrn(nodeUrn.toString())
+				.setTimestamp(timestamp.getMillis())
+				.build();
+	}
 }

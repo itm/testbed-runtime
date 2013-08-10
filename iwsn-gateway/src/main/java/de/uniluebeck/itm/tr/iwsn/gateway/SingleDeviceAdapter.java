@@ -27,15 +27,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.*;
 import com.google.inject.Inject;
-import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.nettyprotocols.NamedChannelHandlerList;
 import de.uniluebeck.itm.nettyprotocols.util.ChannelBufferTools;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
-import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
@@ -56,7 +53,6 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.iostream.IOStreamAddress;
 import org.jboss.netty.channel.iostream.IOStreamChannelFactory;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +68,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newNotificationEvent;
 import static de.uniluebeck.itm.tr.iwsn.pipeline.PipelineHelper.setPipeline;
 import static de.uniluebeck.itm.util.StringUtils.toPrintableString;
 import static de.uniluebeck.itm.util.concurrent.ExecutorUtils.shutdown;
@@ -145,8 +139,6 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	private final BelowPipelineLogger belowPipelineLogger;
 
-	private final GatewayEventBus gatewayEventBus;
-
 	private NodeApi nodeApi;
 
 	private Device device;
@@ -160,7 +152,6 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 							   final DeviceConfig deviceConfig,
 							   final DeviceFactory deviceFactory,
 							   final NodeApiFactory nodeApiFactory,
-							   final GatewayEventBus gatewayEventBus,
 							   final Set<HandlerFactory> handlerFactories) {
 
 		super(deviceConfig.getNodeUrn());
@@ -169,7 +160,6 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		this.deviceFactory = checkNotNull(deviceFactory);
 		this.nodeApiFactory = checkNotNull(nodeApiFactory);
 		this.deviceConfig = checkNotNull(deviceConfig);
-		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 
 		final ImmutableMap.Builder<String, HandlerFactory> handlerFactoriesBuilder = ImmutableMap.builder();
 		for (HandlerFactory handlerFactory : checkNotNull(handlerFactories)) {
@@ -238,7 +228,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			setDefaultChannelPipeline();
 			nodeApi.start();
 
-			gatewayEventBus.post(new DevicesConnectedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
+			fireDevicesConnected(deviceConfig.getNodeUrn());
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -252,7 +242,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 		try {
 
-			gatewayEventBus.post(new DevicesDisconnectedEvent(this, newHashSet(deviceConfig.getNodeUrn())));
+			fireDevicesDisconnected(deviceConfig.getNodeUrn());
 
 			log.debug("{} => Shutting down {} device connector",
 					deviceConfig.getNodeUrn(),
@@ -687,14 +677,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		byte[] bytes = new byte[buffer.readableBytes()];
 		buffer.getBytes(0, bytes);
 
-		final de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent event =
-				de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.newBuilder()
-						.setMessageBytes(ByteString.copyFrom(bytes))
-						.setSourceNodeUrn(deviceConfig.getNodeUrn().toString())
-						.setTimestamp(new DateTime().getMillis())
-						.build();
-
-		gatewayEventBus.post(event);
+		fireBytesReceivedFromDevice(deviceConfig.getNodeUrn(), bytes);
 
 		// additionally pass to Node API in case it awaits a response
 		boolean isWiselibUpstream =
@@ -726,7 +709,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	private void sendPipelineMisconfigurationIfNotificationRateAllows(String notification) {
 		if (pipelineMisconfigurationTimeDiff.isTimeout()) {
-			gatewayEventBus.post(newNotificationEvent(deviceConfig.getNodeUrn(), notification));
+			fireNotification(deviceConfig.getNodeUrn(), notification);
 			pipelineMisconfigurationTimeDiff.touch();
 		}
 	}

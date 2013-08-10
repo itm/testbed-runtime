@@ -53,6 +53,7 @@
 		<module>plugins/default-image</module>
 		<module>plugins/framework-extender-portal</module>
 		<module>plugins/framework-extender-gateway</module>
+		<module>plugins/mock-deviceadapter</module>
 	</modules>
 
 	<dependencyManagement>

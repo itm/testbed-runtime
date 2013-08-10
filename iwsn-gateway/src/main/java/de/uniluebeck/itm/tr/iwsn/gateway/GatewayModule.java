@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
+import com.google.inject.multibindings.Multibinder;
 import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
@@ -17,7 +18,6 @@ import de.uniluebeck.itm.wsn.deviceutils.ScheduledExecutorServiceModule;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 
 import javax.inject.Singleton;
-
 import java.net.URI;
 
 import static com.google.inject.util.Providers.of;
@@ -50,6 +50,11 @@ public class GatewayModule extends AbstractModule {
 		bind(RequestHandler.class).to(RequestHandlerImpl.class).in(Scopes.SINGLETON);
 		bind(GatewayScheduler.class).to(GatewaySchedulerImpl.class).in(Scopes.SINGLETON);
 		bind(DeviceAdapterRegistry.class).to(DeviceAdapterRegistryImpl.class).in(Scopes.SINGLETON);
+
+		Multibinder<DeviceAdapterFactory> gatewayDeviceAdapterFactoryMultibinder =
+				Multibinder.newSetBinder(binder(), DeviceAdapterFactory.class);
+
+		gatewayDeviceAdapterFactoryMultibinder.addBinding().to(SingleDeviceAdapterFactory.class);
 
 		install(new NettyClientModule());
 		install(new DeviceFactoryModule());

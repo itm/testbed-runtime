@@ -25,7 +25,6 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ListenableFuture;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
@@ -41,7 +40,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.contains;
 import static com.google.common.collect.Iterables.size;
 
-public abstract class SingleDeviceAdapterBase extends AbstractService implements DeviceAdapter {
+public abstract class SingleDeviceAdapterBase extends ListenableDeviceAdapter {
 
 	protected final NodeUrn nodeUrn;
 
