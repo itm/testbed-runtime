@@ -20,11 +20,11 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.net.URI;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 
@@ -62,6 +62,7 @@ public class SmartSantanderEventBrokerObserverTest {
 				.when(SmartSantanderEventBrokerObserverHelper.convert(any(NodeOperationsEvents.AddSensorNode.class)))
 				.thenReturn(new DeviceConfig());
 
+		when(gatewayConfig.getSmartSantanderEventBrokerUri()).thenReturn(URI.create(""));
 		when(gatewayConfig.getSmartSantanderGatewayId()).thenReturn(GATEWAY_ID);
 		when(eventPublisherFactory.create(anyString())).thenReturn(eventPublisher);
 		when(eventReceiverFactory.create(anyString())).thenReturn(eventReceiver);
@@ -72,6 +73,7 @@ public class SmartSantanderEventBrokerObserverTest {
 				eventPublisherFactory,
 				gatewayEventBus
 		);
+		smartSantanderEventBrokerObserver.startAndWait();
 	}
 
 	@Test
