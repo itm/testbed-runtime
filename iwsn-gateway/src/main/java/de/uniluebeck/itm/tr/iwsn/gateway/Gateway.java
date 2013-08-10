@@ -19,6 +19,8 @@ import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
@@ -52,6 +54,9 @@ public class Gateway extends AbstractService {
 
 	private final GatewayPluginService gatewayPluginService;
 
+	@Nullable
+	private final SmartSantanderEventBrokerObserver smartSantanderEventBrokerObserver;
+
 	private ServicePublisher servicePublisher;
 
 	@Inject
@@ -64,7 +69,8 @@ public class Gateway extends AbstractService {
 				   final RequestHandler requestHandler,
 				   final ServicePublisherConfig servicePublisherConfig,
 				   final ServicePublisherFactory servicePublisherFactory,
-				   final GatewayPluginService gatewayPluginService) {
+				   final GatewayPluginService gatewayPluginService,
+				   @Nullable final SmartSantanderEventBrokerObserver smartSantanderEventBrokerObserver) {
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
@@ -75,6 +81,7 @@ public class Gateway extends AbstractService {
 		this.servicePublisherConfig = checkNotNull(servicePublisherConfig);
 		this.servicePublisherFactory = checkNotNull(servicePublisherFactory);
 		this.gatewayPluginService = checkNotNull(gatewayPluginService);
+		this.smartSantanderEventBrokerObserver = smartSantanderEventBrokerObserver;
 	}
 
 	@Override
@@ -98,6 +105,10 @@ public class Gateway extends AbstractService {
 				servicePublisher.startAndWait();
 			}
 
+			if (smartSantanderEventBrokerObserver != null) {
+				smartSantanderEventBrokerObserver.startAndWait();
+			}
+
 			notifyStarted();
 
 		} catch (Exception e) {
@@ -113,6 +124,10 @@ public class Gateway extends AbstractService {
 		try {
 
 			gatewayPluginService.stopAndWait();
+
+			if (smartSantanderEventBrokerObserver != null && smartSantanderEventBrokerObserver.isRunning()) {
+				smartSantanderEventBrokerObserver.stopAndWait();
+			}
 
 			if (gatewayConfig.isRestAPI() && servicePublisher != null) {
 				servicePublisher.stopAndWait();

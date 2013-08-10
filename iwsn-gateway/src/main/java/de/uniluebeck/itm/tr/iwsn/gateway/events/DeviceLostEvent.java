@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.iwsn.gateway.events;
 
-import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import javax.annotation.Nullable;
@@ -29,5 +28,13 @@ public class DeviceLostEvent {
 
 	public NodeUrn getNodeUrn() {
 		return nodeUrn;
+	}
+
+	@Override
+	public String toString() {
+		return "DeviceLostEvent{" +
+				"port='" + port + '\'' +
+				", nodeUrn=" + nodeUrn +
+				"} " + super.toString();
 	}
 }

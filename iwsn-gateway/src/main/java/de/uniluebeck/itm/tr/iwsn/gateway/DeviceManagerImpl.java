@@ -151,6 +151,8 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 	@Subscribe
 	public void onDeviceFoundEvent(final DeviceFoundEvent deviceFoundEvent) {
 
+		log.trace("DeviceManagerImpl.onDeviceFoundEvent({})", deviceFoundEvent);
+
 		if (!tryToConnectToDevice(deviceFoundEvent.getPort(), deviceFoundEvent.getDeviceConfig())) {
 			scheduleToRetryConnectionToDevice(deviceFoundEvent.getPort(), deviceFoundEvent.getDeviceConfig());
 		}

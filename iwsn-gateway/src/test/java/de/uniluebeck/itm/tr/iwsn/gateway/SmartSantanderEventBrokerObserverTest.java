@@ -4,27 +4,29 @@ import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
-import eu.smartsantander.testbed.eventbroker.EventObject;
-import eu.smartsantander.testbed.eventbroker.IEventPublisher;
-import eu.smartsantander.testbed.eventbroker.IEventReceiver;
-import eu.smartsantander.testbed.eventbroker.exceptions.EventBrokerException;
-import eu.smartsantander.testbed.events.IEventFactory;
-import eu.smartsantander.testbed.events.NodeOperationsEvents;
-import eu.smartsantander.testbed.events.RegistrationEvents;
+import eu.smartsantander.eventbroker.client.*;
+import eu.smartsantander.eventbroker.client.exceptions.EventBrokerException;
+import eu.smartsantander.eventbroker.events.IEventFactory;
+import eu.smartsantander.eventbroker.events.NodeOperationsEvents;
+import eu.smartsantander.eventbroker.events.RegistrationEvents;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
+
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(SmartSantanderEventBrokerObserverHelper.class)
@@ -43,17 +45,33 @@ public class SmartSantanderEventBrokerObserverTest {
 
 	private SmartSantanderEventBrokerObserver smartSantanderEventBrokerObserver;
 
-	private DeviceConfig deviceConfig;
+	@Mock
+	private GatewayConfig gatewayConfig;
+
+	@Mock
+	private IEventPublisherFactory eventPublisherFactory;
+
+	@Mock
+	private IEventReceiverFactory eventReceiverFactory;
 
 	@Before
-	public void setUp() {
-		deviceConfig = new DeviceConfig();
+	public void setUp() throws EventBrokerException {
+
 		PowerMockito.mockStatic(SmartSantanderEventBrokerObserverHelper.class);
 		PowerMockito
 				.when(SmartSantanderEventBrokerObserverHelper.convert(any(NodeOperationsEvents.AddSensorNode.class)))
-				.thenReturn(deviceConfig);
-		smartSantanderEventBrokerObserver =
-				new SmartSantanderEventBrokerObserverImpl(GATEWAY_ID, eventReceiver, eventPublisher, gatewayEventBus);
+				.thenReturn(new DeviceConfig());
+
+		when(gatewayConfig.getSmartSantanderGatewayId()).thenReturn(GATEWAY_ID);
+		when(eventPublisherFactory.create(anyString())).thenReturn(eventPublisher);
+		when(eventReceiverFactory.create(anyString())).thenReturn(eventReceiver);
+
+		smartSantanderEventBrokerObserver = new SmartSantanderEventBrokerObserverImpl(
+				gatewayConfig,
+				eventReceiverFactory,
+				eventPublisherFactory,
+				gatewayEventBus
+		);
 	}
 
 	@Test
@@ -100,7 +118,7 @@ public class SmartSantanderEventBrokerObserverTest {
 	}
 
 	@Test
-	public void testhandleEventWhenEventObjectIsNULL() {
+	public void testHandleEventWhenEventObjectIsNULL() {
 
 		smartSantanderEventBrokerObserver.handleEvent(null);
 		verify(gatewayEventBus, never()).post(any(DeviceConfig.class));
@@ -161,10 +179,6 @@ public class SmartSantanderEventBrokerObserverTest {
 				.setResponse(true)
 				.build();
 
-
-		final EventObject eventObject =
-				new EventObject(IEventFactory.EventType.ADD_SENSOR_NODE_REPLY, reply.toByteArray());
-
 		smartSantanderEventBrokerObserver.onDevicesAttachedEvent(devicesConnectedEvent);
 		try {
 
@@ -194,9 +208,6 @@ public class SmartSantanderEventBrokerObserverTest {
 				.setNodeId("urn:smartsantander:testbed:0815")
 				.setResponse(true)
 				.build();
-
-		EventObject eventObject = new EventObject(IEventFactory.EventType.ADD_SENSOR_NODE_REPLY, reply.toByteArray());
-
 
 		smartSantanderEventBrokerObserver.onDevicesDetachedEvent(devicesDisconnectedEvent);
 		try {
@@ -304,12 +315,4 @@ public class SmartSantanderEventBrokerObserverTest {
 
 		return new EventObject(IEventFactory.EventType.DEL_SENSOR_NODE_REPLY, del_sensor.toByteArray());
 	}
-
-	private DevicesConnectedEvent getDevicesAttachedEvent() {
-		DevicesConnectedEvent devicesConnectedEvent = new DevicesConnectedEvent(
-				null, Sets.newHashSet(new NodeUrn("urn:smartsantander:testbed:0815"))
-		);
-		return devicesConnectedEvent;
-	}
-
 }

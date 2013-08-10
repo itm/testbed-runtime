@@ -114,6 +114,15 @@
 		</dependency>
 
 		<dependency>
+			<groupId>eu.smartsantander.rd</groupId>
+			<artifactId>rd3interactorj</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>eu.smartsantander.eventbroker</groupId>
+			<artifactId>client</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
 			<scope>runtime</scope>
