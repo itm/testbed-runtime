@@ -9,6 +9,7 @@ import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.joda.time.DateTime;
@@ -16,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
@@ -32,16 +35,22 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	private final RequestIdProvider requestIdProvider;
 
+	private final SchedulerService schedulerService;
+
 	private final String remoteAddress;
 
 	private Connection connection;
 
+	private ScheduledFuture<?> keepAliveSchedule;
+
 	@Inject
 	public WsnWebSocket(final RequestIdProvider requestIdProvider,
 						final ReservationManager reservationManager,
+						final SchedulerService schedulerService,
 						@Assisted("secretReservationKeyBase64") final String secretReservationKeyBase64,
 						@Assisted("remoteAddress") final String remoteAddress) {
 		this.requestIdProvider = requestIdProvider;
+		this.schedulerService = schedulerService;
 		this.remoteAddress = remoteAddress;
 		try {
 			this.reservation = reservationManager.getReservation(secretReservationKeyBase64);
@@ -121,10 +130,19 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		} else if (start.isBeforeNow()) {
 			sendMessage(toJSON(new ReservationStartedMessage(start)));
 		}
+
+		keepAliveSchedule = schedulerService.scheduleAtFixedRate(
+				new KeepAliveRunnable(connection), 60, 60, TimeUnit.SECONDS
+		);
 	}
 
 	@Override
 	public void onClose(final int closeCode, final String message) {
+
+		if (keepAliveSchedule != null) {
+			keepAliveSchedule.cancel(false);
+			keepAliveSchedule = null;
+		}
 
 		if (log.isTraceEnabled()) {
 			log.trace("Websocket connection closed with code {} and message \"{}\": {}", closeCode, message, connection

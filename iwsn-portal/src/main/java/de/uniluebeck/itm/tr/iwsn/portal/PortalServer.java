@@ -20,6 +20,7 @@ import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,8 +60,11 @@ public class PortalServer extends AbstractService {
 
 	private final PortalPluginService portalPluginService;
 
+	private final SchedulerService schedulerService;
+
 	@Inject
-	public PortalServer(final ServicePublisher servicePublisher,
+	public PortalServer(final SchedulerService schedulerService,
+						final ServicePublisher servicePublisher,
 						final DeviceDBService deviceDBService,
 						final RSService rsService,
 						final SNAAService snaaService,
@@ -72,6 +76,7 @@ public class PortalServer extends AbstractService {
 						final WiseGuiService wiseGuiService,
 						final PortalPluginService portalPluginService) {
 
+		this.schedulerService = checkNotNull(schedulerService);
 		this.servicePublisher = checkNotNull(servicePublisher);
 
 		this.rsService = checkNotNull(rsService);
@@ -92,6 +97,8 @@ public class PortalServer extends AbstractService {
 	@Override
 	protected void doStart() {
 		try {
+
+			schedulerService.startAndWait();
 
 			// the web server
 			servicePublisher.startAndWait();
@@ -143,6 +150,8 @@ public class PortalServer extends AbstractService {
 
 			// the web server
 			servicePublisher.stopAndWait();
+
+			schedulerService.stopAndWait();
 
 			notifyStopped();
 

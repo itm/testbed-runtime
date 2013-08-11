@@ -19,9 +19,11 @@ import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfigServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.devicedb.*;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBRestServiceModule;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBServedNodeUrnsProvider;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
-import de.uniluebeck.itm.util.scheduler.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
@@ -30,6 +32,9 @@ import de.uniluebeck.itm.tr.rs.RSServiceConfig;
 import de.uniluebeck.itm.tr.rs.RSServiceModule;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceModule;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
+import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
+import de.uniluebeck.itm.util.scheduler.SchedulerServiceModule;
 
 import java.net.URI;
 import java.util.concurrent.ThreadFactory;
@@ -122,6 +127,12 @@ public class PortalModule extends AbstractModule {
 		install(new WiseGuiServiceModule());
 
 		install(new PortalPluginModule());
+	}
+
+	@Provides
+	@Singleton
+	SchedulerService provideSchedulerService(SchedulerServiceFactory factory) {
+		return factory.create(-1, "PortalScheduler");
 	}
 
 	@Provides
