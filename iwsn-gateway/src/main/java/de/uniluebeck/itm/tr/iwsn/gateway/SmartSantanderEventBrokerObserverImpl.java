@@ -6,6 +6,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
@@ -53,6 +54,8 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 	 */
 	private final GatewayEventBus gatewayEventBus;
 
+	private final DeviceDBService deviceDBService;
+
 	private final Map<NodeUrn, DeviceConfig> nodeUrnDeviceConfigMap = newHashMap();
 
 	private int numPublishedEvents;
@@ -68,11 +71,13 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 	public SmartSantanderEventBrokerObserverImpl(final GatewayConfig gatewayConfig,
 												 final IEventReceiverFactory eventReceiverFactory,
 												 final IEventPublisherFactory eventPublisherFactory,
-												 final GatewayEventBus gatewayEventBus) {
-		this.gatewayConfig = gatewayConfig;
-		this.eventReceiverFactory = eventReceiverFactory;
-		this.eventPublisherFactory = eventPublisherFactory;
-		this.gatewayEventBus = gatewayEventBus;
+												 final GatewayEventBus gatewayEventBus,
+												 final DeviceDBService deviceDBService) {
+		this.gatewayConfig = checkNotNull(gatewayConfig);
+		this.eventReceiverFactory = checkNotNull(eventReceiverFactory);
+		this.eventPublisherFactory = checkNotNull(eventPublisherFactory);
+		this.gatewayEventBus = checkNotNull(gatewayEventBus);
+		this.deviceDBService = checkNotNull(deviceDBService);
 		this.numPublishedEvents = 0;
 	}
 
@@ -85,6 +90,7 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 			connectToEventBroker();
 			gatewayEventBus.register(this);
 			notifyStarted();
+			fireEventsForDevicesAlreadyExistingInRD();
 		} catch (EventBrokerException e) {
 			log.error("An error occurred while tyring to connect to the SmartSantander EventBroker component {}." +
 					"The service could not be started.", e.getMessage(), e
@@ -117,13 +123,10 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 			checkNotNull(event);
 
 			switch (event.eventType) {
-
 				case ADD_SENSOR_NODE:
 					return onAddSensorNodeEvent(AddSensorNode.parseFrom(event.eventBytes));
-
 				case DEL_SENSOR_NODE:
 					return onDelSensorNodeEvent(DelSensorNode.parseFrom(event.eventBytes));
-
 				default:
 					log.warn("Events of type {} are not handled.", event.eventType);
 					return false;
@@ -135,6 +138,20 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 		} catch (Exception e) {
 			log.error("Error while evaluating event {}: ", event, e);
 			return false;
+		}
+	}
+
+	private void fireEventsForDevicesAlreadyExistingInRD() {
+		for (DeviceConfig deviceConfig : deviceDBService.getAll()) {
+
+			final Map<String, String> nodeConfiguration = deviceConfig.getNodeConfiguration();
+			boolean sameGatewayId = nodeConfiguration != null &&
+					nodeConfiguration.containsKey("gateway_id") &&
+					gatewayConfig.getSmartSantanderGatewayId().equals(nodeConfiguration.get("gateway_id"));
+
+			if (sameGatewayId) {
+				fireDeviceFoundEvent(deviceConfig);
+			}
 		}
 	}
 
@@ -159,6 +176,11 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 			nodeUrnDeviceConfigMap.put(deviceConfig.getNodeUrn(), deviceConfig);
 		}
 
+		fireDeviceFoundEvent(deviceConfig);
+		return true;
+	}
+
+	private void fireDeviceFoundEvent(final DeviceConfig deviceConfig) {
 		final DeviceFoundEvent deviceFoundEvent = new DeviceFoundEvent(
 				deviceConfig.getNodeType(),
 				deviceConfig.getNodePort(),
@@ -169,7 +191,6 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 
 		log.trace("Posting DeviceFoundEvent on the gateway event bus: {}", deviceFoundEvent);
 		gatewayEventBus.post(deviceFoundEvent);
-		return true;
 	}
 
 	private boolean onDelSensorNodeEvent(final DelSensorNode delSensorNode) throws InvalidProtocolBufferException {
@@ -194,6 +215,11 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 			return false;
 		}
 
+		fireDeviceLostEvent(deviceConfig);
+		return true;
+	}
+
+	private void fireDeviceLostEvent(final DeviceConfig deviceConfig) {
 		final DeviceLostEvent deviceLostEvent = new DeviceLostEvent(
 				deviceConfig.getNodeType(),
 				deviceConfig.getNodePort(),
@@ -204,7 +230,6 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 
 		log.trace("Posting DeviceLostEvent on the gateway event bus: {}", deviceLostEvent);
 		gatewayEventBus.post(deviceLostEvent);
-		return true;
 	}
 
 	/**

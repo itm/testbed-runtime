@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
@@ -75,6 +76,9 @@ public class SmartSantanderEventBrokerObserverTest {
 	@Mock
 	private IEventReceiverFactory eventReceiverFactory;
 
+	@Mock
+	private DeviceDBService deviceDBService;
+
 	@Before
 	public void setUp() throws EventBrokerException {
 
@@ -90,8 +94,10 @@ public class SmartSantanderEventBrokerObserverTest {
 				gatewayConfig,
 				eventReceiverFactory,
 				eventPublisherFactory,
-				gatewayEventBus
+				gatewayEventBus,
+				deviceDBService
 		);
+
 		smartSantanderEventBrokerObserver.startAndWait();
 	}
 

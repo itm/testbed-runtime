@@ -128,6 +128,8 @@ public abstract class DeviceDBRDHelper {
 		Coordinate coordinate = getCoordinates(rdResource);
 		Map<String, String> keyValues = getKeyValueConfig(rdResource);
 
+		keyValues.put("gateway_id", rdResource.getParentId());
+
 		return new DeviceConfig(
 				urn,
 				type.toString(),
