@@ -13,6 +13,7 @@ import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	private final Set<DeviceAdapterFactory> builtInDeviceAdapterFactories;
 
-	private final GatewayScheduler gatewayScheduler;
+	private final SchedulerService schedulerService;
 
 	private final DeviceDBService deviceDBService;
 
@@ -187,12 +188,12 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	@Inject
 	public DeviceManagerImpl(final GatewayEventBus gatewayEventBus,
-							 final GatewayScheduler gatewayScheduler,
+							 final SchedulerService schedulerService,
 							 final Set<DeviceAdapterFactory> builtInDeviceAdapterFactories,
 							 final DeviceAdapterRegistry deviceAdapterRegistry,
 							 final DeviceDBService deviceDBService) {
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
-		this.gatewayScheduler = checkNotNull(gatewayScheduler);
+		this.schedulerService = checkNotNull(schedulerService);
 		this.builtInDeviceAdapterFactories = checkNotNull(builtInDeviceAdapterFactories);
 		this.deviceAdapterRegistry = checkNotNull(deviceAdapterRegistry);
 		this.deviceDBService = checkNotNull(deviceDBService);
@@ -494,7 +495,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 			synchronized (tryToConnectToDetectedButUnconnectedDevicesScheduleLock) {
 				if (tryToConnectToDetectedButUnconnectedDevicesSchedule == null) {
-					tryToConnectToDetectedButUnconnectedDevicesSchedule = gatewayScheduler.scheduleAtFixedRate(
+					tryToConnectToDetectedButUnconnectedDevicesSchedule = schedulerService.scheduleAtFixedRate(
 							tryToConnectToDetectedButUnconnectedDevicesRunnable,
 							30, 30, TimeUnit.SECONDS
 					);

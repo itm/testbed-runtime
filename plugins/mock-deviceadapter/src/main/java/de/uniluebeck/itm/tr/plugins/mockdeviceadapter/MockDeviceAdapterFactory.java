@@ -3,14 +3,14 @@ package de.uniluebeck.itm.tr.plugins.mockdeviceadapter;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapter;
 import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapterFactory;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayScheduler;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 
 public class MockDeviceAdapterFactory implements DeviceAdapterFactory {
 
-	private final GatewayScheduler gatewayScheduler;
+	private final SchedulerService schedulerService;
 
-	public MockDeviceAdapterFactory(final GatewayScheduler gatewayScheduler) {
-		this.gatewayScheduler = gatewayScheduler;
+	public MockDeviceAdapterFactory(final SchedulerService schedulerService) {
+		this.schedulerService = schedulerService;
 	}
 
 	@Override
@@ -20,6 +20,6 @@ public class MockDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	@Override
 	public DeviceAdapter create(final String port, final DeviceConfig deviceConfig) {
-		return new MockDeviceAdapter(deviceConfig, gatewayScheduler);
+		return new MockDeviceAdapter(deviceConfig, schedulerService);
 	}
 }

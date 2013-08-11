@@ -14,7 +14,9 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.plugins.GatewayPluginModule;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiModule;
-import de.uniluebeck.itm.wsn.deviceutils.ScheduledExecutorServiceModule;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
+import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
+import de.uniluebeck.itm.util.scheduler.SchedulerServiceModule;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 
 import javax.inject.Singleton;
@@ -48,7 +50,6 @@ public class GatewayModule extends AbstractModule {
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
 		bind(EventIdProvider.class).to(IncrementalEventIdProvider.class).in(Scopes.SINGLETON);
 		bind(RequestHandler.class).to(RequestHandlerImpl.class).in(Scopes.SINGLETON);
-		bind(GatewayScheduler.class).to(GatewaySchedulerImpl.class).in(Scopes.SINGLETON);
 		bind(DeviceAdapterRegistry.class).to(DeviceAdapterRegistryImpl.class).in(Scopes.SINGLETON);
 
 		Multibinder<DeviceAdapterFactory> gatewayDeviceAdapterFactoryMultibinder =
@@ -56,12 +57,13 @@ public class GatewayModule extends AbstractModule {
 
 		gatewayDeviceAdapterFactoryMultibinder.addBinding().to(SingleDeviceAdapterFactory.class);
 
+		install(new SchedulerServiceModule());
+
 		install(new NettyClientModule());
 		install(new DeviceFactoryModule());
 
 		install(new DeviceDBServiceModule(deviceDBConfig));
 		install(new NodeApiModule());
-		install(new ScheduledExecutorServiceModule("GatewayScheduler"));
 		install(new NettyProtocolsModule());
 		install(new ServicePublisherCxfModule());
 		install(new GatewayPluginModule());
@@ -78,6 +80,12 @@ public class GatewayModule extends AbstractModule {
 	@Singleton
 	EventBus provideEventBus() {
 		return new EventBus("GatewayEventBus");
+	}
+
+	@Provides
+	@Singleton
+	SchedulerService provideSchedulerService(final SchedulerServiceFactory factory) {
+		return factory.create(-1, "GatewayScheduler");
 	}
 
 	@Provides

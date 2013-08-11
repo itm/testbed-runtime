@@ -213,6 +213,11 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
+				<artifactId>scheduler</artifactId>
+				<version>0.5-SNAPSHOT</version>
+			</dependency>
+			<dependency>
+				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>util</artifactId>
 				<version>0.5-SNAPSHOT</version>
 			</dependency>

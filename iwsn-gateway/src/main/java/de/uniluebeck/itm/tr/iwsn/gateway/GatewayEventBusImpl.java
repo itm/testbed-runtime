@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClient;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
@@ -27,7 +28,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 	private final GatewayConfig config;
 
-	private final GatewayScheduler gatewayScheduler;
+	private final SchedulerService schedulerService;
 
 	private final EventBus eventBus;
 
@@ -45,12 +46,12 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 	@Inject
 	GatewayEventBusImpl(final GatewayConfig config,
-						final GatewayScheduler gatewayScheduler,
+						final SchedulerService schedulerService,
 						final EventBus eventBus,
 						final NettyClientFactory nettyClientFactory,
 						final GatewayChannelHandler gatewayChannelHandler) {
 		this.config = config;
-		this.gatewayScheduler = gatewayScheduler;
+		this.schedulerService = schedulerService;
 		this.eventBus = eventBus;
 		this.nettyClientFactory = nettyClientFactory;
 		this.gatewayChannelHandler = gatewayChannelHandler;
@@ -78,7 +79,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 		try {
 			try {
-				gatewayScheduler.execute(tryToConnectToPortalRunnable);
+				schedulerService.execute(tryToConnectToPortalRunnable);
 			} catch (Exception e) {
 				// automatically handled
 			}
@@ -147,7 +148,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 			if (!shuttingDown) {
 				connectScheduleLock.lock();
 				try {
-					gatewayScheduler.execute(tryToConnectToPortalRunnable);
+					schedulerService.execute(tryToConnectToPortalRunnable);
 				} finally {
 					connectScheduleLock.unlock();
 				}
@@ -166,7 +167,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 				connectScheduleLock.lock();
 				try {
 					if (connectSchedule == null) {
-						connectSchedule = gatewayScheduler.scheduleWithFixedDelay(
+						connectSchedule = schedulerService.scheduleWithFixedDelay(
 								tryToConnectToPortalRunnable, 10, 10, TimeUnit.SECONDS
 						);
 					}

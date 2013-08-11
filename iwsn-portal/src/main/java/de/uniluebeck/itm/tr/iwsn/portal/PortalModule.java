@@ -21,7 +21,7 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfigServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.devicedb.*;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
-import de.uniluebeck.itm.tr.iwsn.common.SchedulerServiceModule;
+import de.uniluebeck.itm.util.scheduler.SchedulerServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;

@@ -8,7 +8,7 @@ import de.uniluebeck.itm.tr.common.plugins.PluginContainer;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapterRegistry;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayScheduler;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -35,17 +35,17 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 
 	protected DeviceAdapterRegistry deviceAdapterRegistry;
 
-	protected ServiceReference<GatewayScheduler> gatewaySchedulerServiceReference;
+	protected ServiceReference<SchedulerService> schedulerServiceServiceReference;
 
-	protected GatewayScheduler gatewayScheduler;
+	protected SchedulerService schedulerService;
 
 	@Override
 	public final void start(final BundleContext bundleContext) throws Exception {
 
 		this.bundleContext = bundleContext;
 
-		gatewaySchedulerServiceReference = bundleContext.getServiceReference(GatewayScheduler.class);
-		gatewayScheduler = bundleContext.getService(gatewaySchedulerServiceReference);
+		schedulerServiceServiceReference = bundleContext.getServiceReference(SchedulerService.class);
+		schedulerService = bundleContext.getService(schedulerServiceServiceReference);
 
 		deviceAdapterRegistryServiceReference = bundleContext.getServiceReference(DeviceAdapterRegistry.class);
 		deviceAdapterRegistry = bundleContext.getService(deviceAdapterRegistryServiceReference);
@@ -85,9 +85,9 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 		bundleContext.ungetService(deviceAdapterRegistryServiceReference);
 		deviceAdapterRegistryServiceReference = null;
 
-		gatewayScheduler = null;
-		bundleContext.ungetService(gatewaySchedulerServiceReference);
-		gatewaySchedulerServiceReference = null;
+		schedulerService = null;
+		bundleContext.ungetService(schedulerServiceServiceReference);
+		schedulerServiceServiceReference = null;
 
 		this.bundleContext = null;
 	}
@@ -104,7 +104,7 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 				bind(GatewayEventBus.class).toProvider(of(gatewayEventBus));
 				bind(DeviceDBService.class).toProvider(of(deviceDBService));
 				bind(DeviceAdapterRegistry.class).toProvider(of(deviceAdapterRegistry));
-				bind(GatewayScheduler.class).toProvider(of(gatewayScheduler));
+				bind(SchedulerService.class).toProvider(of(schedulerService));
 			}
 		}
 		).createChildInjector(modules);

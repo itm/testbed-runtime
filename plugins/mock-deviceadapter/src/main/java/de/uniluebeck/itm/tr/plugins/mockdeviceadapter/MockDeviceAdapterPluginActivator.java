@@ -15,7 +15,7 @@ public class MockDeviceAdapterPluginActivator extends GatewayPluginBundleActivat
 
 		log.trace("MockDeviceAdapterPluginActivator.doStart()");
 
-		deviceAdapterFactory = new MockDeviceAdapterFactory(gatewayScheduler);
+		deviceAdapterFactory = new MockDeviceAdapterFactory(schedulerService);
 		deviceAdapterRegistry.addDeviceAdapterFactory(deviceAdapterFactory, MockDeviceAdapter.class);
 	}
 

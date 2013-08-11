@@ -16,6 +16,7 @@ import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,10 +58,13 @@ public class Gateway extends AbstractService {
 	@Nullable
 	private final SmartSantanderEventBrokerObserver smartSantanderEventBrokerObserver;
 
+	private final SchedulerService schedulerService;
+
 	private ServicePublisher servicePublisher;
 
 	@Inject
-	public Gateway(final GatewayConfig gatewayConfig,
+	public Gateway(final SchedulerService schedulerService,
+				   final GatewayConfig gatewayConfig,
 				   final GatewayEventBus gatewayEventBus,
 				   final DeviceDBService deviceDBService,
 				   final DeviceManager deviceManager,
@@ -71,6 +75,7 @@ public class Gateway extends AbstractService {
 				   final ServicePublisherFactory servicePublisherFactory,
 				   final GatewayPluginService gatewayPluginService,
 				   @Nullable final SmartSantanderEventBrokerObserver smartSantanderEventBrokerObserver) {
+		this.schedulerService = checkNotNull(schedulerService);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
@@ -91,6 +96,7 @@ public class Gateway extends AbstractService {
 
 		try {
 
+			schedulerService.startAndWait();
 			deviceDBService.startAndWait();
 			gatewayEventBus.startAndWait();
 			requestHandler.startAndWait();
@@ -138,6 +144,7 @@ public class Gateway extends AbstractService {
 			requestHandler.stopAndWait();
 			gatewayEventBus.stopAndWait();
 			deviceDBService.stopAndWait();
+			schedulerService.stopAndWait();
 
 			notifyStopped();
 

@@ -9,7 +9,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapterRegistry;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayScheduler;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 
 	private final DeviceAdapterRegistry deviceAdapterRegistry;
 
-	private final GatewayScheduler gatewayScheduler;
+	private final SchedulerService schedulerService;
 
 	private PluginContainer pluginContainer;
 
@@ -45,7 +45,7 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 									final DeviceDBService deviceDBService,
 									final GatewayEventBus gatewayEventBus,
 									final DeviceAdapterRegistry deviceAdapterRegistry,
-									final GatewayScheduler gatewayScheduler) {
+									final SchedulerService schedulerService) {
 
 		this.pluginContainerFactory = checkNotNull(pluginContainerFactory);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
@@ -53,7 +53,7 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 		this.deviceAdapterRegistry = checkNotNull(deviceAdapterRegistry);
-		this.gatewayScheduler = checkNotNull(gatewayScheduler);
+		this.schedulerService = checkNotNull(schedulerService);
 	}
 
 	@Override
@@ -86,7 +86,7 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 				pluginContainer.registerService(GatewayEventBus.class, gatewayEventBus);
 				pluginContainer.registerService(DeviceDBService.class, deviceDBService);
 				pluginContainer.registerService(DeviceAdapterRegistry.class, deviceAdapterRegistry);
-				pluginContainer.registerService(GatewayScheduler.class, gatewayScheduler);
+				pluginContainer.registerService(SchedulerService.class, schedulerService);
 			}
 
 			notifyStarted();

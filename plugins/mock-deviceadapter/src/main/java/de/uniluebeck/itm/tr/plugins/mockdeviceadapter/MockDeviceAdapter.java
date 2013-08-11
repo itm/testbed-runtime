@@ -2,10 +2,10 @@ package de.uniluebeck.itm.tr.plugins.mockdeviceadapter;
 
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import de.uniluebeck.itm.tr.iwsn.gateway.GatewayScheduler;
 import de.uniluebeck.itm.tr.iwsn.gateway.ListenableDeviceAdapter;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.util.concurrent.*;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,14 +22,14 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 
 	private final DeviceConfig deviceConfig;
 
-	private final GatewayScheduler gatewayScheduler;
+	private final SchedulerService schedulerService;
 
 	private ChannelHandlerConfigList channelHandlerConfigs;
 
 	public MockDeviceAdapter(final DeviceConfig deviceConfig,
-							 final GatewayScheduler gatewayScheduler) {
+							 final SchedulerService schedulerService) {
 		this.deviceConfig = deviceConfig;
-		this.gatewayScheduler = gatewayScheduler;
+		this.schedulerService = schedulerService;
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 		final ProgressSettableFutureMap<NodeUrn, Void> futureMap = ProgressSettableFutureMap.of(nodeUrn, future);
 
 		for (int i = 1; i <10; i++) {
-			gatewayScheduler.schedule(createSetProgressRunnable(future, (float) i / 10f), i, TimeUnit.SECONDS);
+			schedulerService.schedule(createSetProgressRunnable(future, (float) i / 10f), i, TimeUnit.SECONDS);
 		}
 
 		return futureMap;
