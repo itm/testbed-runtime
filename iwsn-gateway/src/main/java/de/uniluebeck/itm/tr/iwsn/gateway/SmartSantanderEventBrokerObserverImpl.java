@@ -11,6 +11,7 @@ import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import eu.smartsantander.eventbroker.client.*;
 import eu.smartsantander.eventbroker.client.exceptions.EventBrokerException;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newHashMap;
@@ -58,6 +60,8 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 
 	private final Map<NodeUrn, DeviceConfig> nodeUrnDeviceConfigMap = newHashMap();
 
+	private final SchedulerService schedulerService;
+
 	private int numPublishedEvents;
 
 	/**
@@ -68,11 +72,13 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 	private IEventPublisher eventPublisher;
 
 	@Inject
-	public SmartSantanderEventBrokerObserverImpl(final GatewayConfig gatewayConfig,
+	public SmartSantanderEventBrokerObserverImpl(final SchedulerService schedulerService,
+												 final GatewayConfig gatewayConfig,
 												 final IEventReceiverFactory eventReceiverFactory,
 												 final IEventPublisherFactory eventPublisherFactory,
 												 final GatewayEventBus gatewayEventBus,
 												 final DeviceDBService deviceDBService) {
+		this.schedulerService = checkNotNull(schedulerService);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
 		this.eventReceiverFactory = checkNotNull(eventReceiverFactory);
 		this.eventPublisherFactory = checkNotNull(eventPublisherFactory);
@@ -142,7 +148,28 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 	}
 
 	private void fireEventsForDevicesAlreadyExistingInRD() {
-		for (DeviceConfig deviceConfig : deviceDBService.getAll()) {
+		try {
+
+			final Iterable<DeviceConfig> deviceConfigs = deviceDBService.getAll();
+			fireEventsForDevicesAlreadyExistingInRD(deviceConfigs);
+
+		} catch (Exception e) {
+			log.warn(
+					"Exception while trying to fetch DeviceConfigs from DeviceDB to fire initial events: {}. Retrying later...",
+					e.getMessage()
+			);
+			schedulerService.schedule(new Runnable() {
+				@Override
+				public void run() {
+					fireEventsForDevicesAlreadyExistingInRD();
+				}
+			}, 30, TimeUnit.SECONDS
+			);
+		}
+	}
+
+	private void fireEventsForDevicesAlreadyExistingInRD(final Iterable<DeviceConfig> deviceConfigs) {
+		for (DeviceConfig deviceConfig : deviceConfigs) {
 
 			final Map<String, String> nodeConfiguration = deviceConfig.getNodeConfiguration();
 			boolean sameGatewayId = nodeConfiguration != null &&

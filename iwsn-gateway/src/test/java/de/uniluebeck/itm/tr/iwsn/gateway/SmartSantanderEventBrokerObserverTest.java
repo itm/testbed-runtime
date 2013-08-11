@@ -7,6 +7,7 @@ import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.smartsantander.eventbroker.client.*;
 import eu.smartsantander.eventbroker.client.exceptions.EventBrokerException;
 import eu.smartsantander.eventbroker.events.IEventFactory;
@@ -79,6 +80,9 @@ public class SmartSantanderEventBrokerObserverTest {
 	@Mock
 	private DeviceDBService deviceDBService;
 
+	@Mock
+	private SchedulerService schedulerService;
+
 	@Before
 	public void setUp() throws EventBrokerException {
 
@@ -91,6 +95,7 @@ public class SmartSantanderEventBrokerObserverTest {
 		when(eventReceiverFactory.create(anyString())).thenReturn(eventReceiver);
 
 		smartSantanderEventBrokerObserver = new SmartSantanderEventBrokerObserverImpl(
+				schedulerService,
 				gatewayConfig,
 				eventReceiverFactory,
 				eventPublisherFactory,

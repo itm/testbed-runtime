@@ -262,7 +262,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 					}
 				}
 			} catch (Exception e) {
-				log.error("Exception while fetching device configuration from DeviceDB: ", e);
+				log.error("Exception while fetching device configuration from DeviceDB: {}", e.getMessage());
 				return;
 			}
 		}

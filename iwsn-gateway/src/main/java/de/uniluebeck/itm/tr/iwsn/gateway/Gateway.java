@@ -30,7 +30,7 @@ import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentation
 public class Gateway extends AbstractService {
 
 	static {
-		Logging.setLoggingDefaults(LogLevel.WARN);
+		Logging.setLoggingDefaults(LogLevel.ERROR);
 	}
 
 	private static final Logger log = LoggerFactory.getLogger(Gateway.class);
