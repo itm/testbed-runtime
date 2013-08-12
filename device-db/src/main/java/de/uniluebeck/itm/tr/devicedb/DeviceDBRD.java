@@ -154,7 +154,5 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 				this.add(deviceConfig);
 			}
 		}
-
-		System.out.println("list count: " + resources.size());
 	}
 }
