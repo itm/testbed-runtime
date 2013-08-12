@@ -20,6 +20,6 @@ public class MockDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	@Override
 	public DeviceAdapter create(final String port, final DeviceConfig deviceConfig) {
-		return new MockDeviceAdapter(deviceConfig, schedulerService);
+		return new MockDeviceAdapter(port, deviceConfig, schedulerService);
 	}
 }

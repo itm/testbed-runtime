@@ -82,6 +82,7 @@
 							de.uniluebeck.itm.nettyprotocols.wisebednodeapi,
 							de.uniluebeck.itm.util.concurrent,
 							de.uniluebeck.itm.util.files,
+							de.uniluebeck.itm.util.scheduler,
 							de.uniluebeck.itm.util.util,
 							de.uniluebeck.itm.tr.common,
 							de.uniluebeck.itm.tr.common.config,

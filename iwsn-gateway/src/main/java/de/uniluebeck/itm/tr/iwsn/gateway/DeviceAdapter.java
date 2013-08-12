@@ -25,6 +25,7 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
+import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.util.Listenable;
 import de.uniluebeck.itm.util.concurrent.ListenableFutureMap;
@@ -41,6 +42,10 @@ import java.util.Set;
  * de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapter#getNodeUrns()}).
  */
 public interface DeviceAdapter extends Listenable<DeviceAdapterListener>, Service {
+
+	String getPort();
+
+	DeviceConfig getDeviceConfig();
 
 	/**
 	 * Returns the set of currently "connected" nodes. The returned set is a snapshot of the current state when being

@@ -20,14 +20,18 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 
 	private static final Logger log = LoggerFactory.getLogger(MockDeviceAdapter.class);
 
+	private final String port;
+
 	private final DeviceConfig deviceConfig;
 
 	private final SchedulerService schedulerService;
 
 	private ChannelHandlerConfigList channelHandlerConfigs;
 
-	public MockDeviceAdapter(final DeviceConfig deviceConfig,
+	public MockDeviceAdapter(final String port,
+							 final DeviceConfig deviceConfig,
 							 final SchedulerService schedulerService) {
+		this.port = port;
 		this.deviceConfig = deviceConfig;
 		this.schedulerService = schedulerService;
 	}
@@ -35,7 +39,7 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 	@Override
 	protected void doStart() {
 		try {
-			log.trace("MockDeviceAdapter.doStarts()");
+			log.trace("MockDeviceAdapter.doStart()");
 			fireDevicesConnected(deviceConfig.getNodeUrn());
 			notifyStarted();
 		} catch (Exception e) {
@@ -46,12 +50,22 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 	@Override
 	protected void doStop() {
 		try {
-			log.trace("MockDeviceAdapter.doStops()");
+			log.trace("MockDeviceAdapter.doStop()");
 			fireDevicesDisconnected(deviceConfig.getNodeUrn());
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
+	}
+
+	@Override
+	public String getPort() {
+		return port;
+	}
+
+	@Override
+	public DeviceConfig getDeviceConfig() {
+		return deviceConfig;
 	}
 
 	@Override
@@ -164,7 +178,12 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 		return new Runnable() {
 			@Override
 			public void run() {
+
 				progressSettableFuture.setProgress(progress);
+
+				if (progress == 1f) {
+					progressSettableFuture.set(null);
+				}
 			}
 		};
 	}

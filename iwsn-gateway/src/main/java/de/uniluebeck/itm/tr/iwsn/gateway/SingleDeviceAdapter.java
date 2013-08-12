@@ -91,11 +91,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	private static final Logger log = LoggerFactory.getLogger(DeviceAdapter.class);
 
-	private final DeviceConfig deviceConfig;
-
 	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
-
-	private final String port;
 
 	private final DeviceFactory deviceFactory;
 
@@ -154,12 +150,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 							   final NodeApiFactory nodeApiFactory,
 							   final Set<HandlerFactory> handlerFactories) {
 
-		super(deviceConfig.getNodeUrn());
+		super(port, deviceConfig);
 
-		this.port = port;
 		this.deviceFactory = checkNotNull(deviceFactory);
 		this.nodeApiFactory = checkNotNull(nodeApiFactory);
-		this.deviceConfig = checkNotNull(deviceConfig);
 
 		final ImmutableMap.Builder<String, HandlerFactory> handlerFactoriesBuilder = ImmutableMap.builder();
 		for (HandlerFactory handlerFactory : checkNotNull(handlerFactories)) {

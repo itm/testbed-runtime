@@ -157,9 +157,22 @@
 									</paths>
 									<mapper>
 										<type>perm</type>
-										<filemode>750</filemode>
+										<filemode>755</filemode>
 										<user>${project.systemUser}</user>
 										<group>${project.systemGroup}</group>
+									</mapper>
+								</data>
+
+								<data>
+									<type>template</type>
+									<paths>
+										<path>usr/share/${project.pathName}/plugins</path>
+									</paths>
+									<mapper>
+										<type>perm</type>
+										<filemode>755</filemode>
+										<user>root</user>
+										<group>root</group>
 									</mapper>
 								</data>
 
