@@ -158,9 +158,17 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
-		
-
-	</dependencies>
+		<dependency>
+                        <groupId>org.opensaml</groupId> 
+                        <artifactId>opensaml</artifactId> 
+                        <version>2.5.1-1</version>
+                 </dependency>
+                <dependency>
+                    <groupId>fr.cea.util</groupId>
+                    <artifactId>client-certificate</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                </dependency>
+           </dependencies>
 
 	<build>
 		<plugins>
