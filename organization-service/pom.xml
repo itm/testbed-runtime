@@ -31,7 +31,7 @@
         <dependency>
         <groupId>org.opensaml</groupId> 
         <artifactId>opensaml</artifactId> 
-        <version>2.5.3</version> 
+        <version>2.5.3</version>
         </dependency> 
     
         <dependency>
@@ -138,6 +138,7 @@
                 <configuration>
                     <url>http://localhost:8080/manager</url>
                     <server>tomcat</server>
+                    <password>admin</password>
                     <path>/organization-service</path>
                 </configuration>
             </plugin>
