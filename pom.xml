@@ -45,8 +45,9 @@
 		<module>iwsn-gateway-deb</module>
 		<module>iwsn-portal</module>
 		<module>iwsn-portal-deb</module>
-		<module>rs-federator</module>
 		<module>rs</module>
+		<module>rs-federator</module>
+		<module>rs-server</module>
 		<module>snaa-common</module>
 		<module>snaa-federator</module>
 		<module>snaa</module>

@@ -34,53 +34,31 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.rs</artifactId>
+	<artifactId>tr.rs-server</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: RS</name>
+	<name>TR :: RS Server</name>
 
 	<dependencies>
 
 		<dependency>
-			<groupId>eu.wisebed</groupId>
-			<artifactId>api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>eu.wisebed</groupId>
-			<artifactId>wiseml</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.federator-utils</artifactId>
+			<artifactId>tr.rs</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.common</artifactId>
 		</dependency>
-
 		<dependency>
-			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
-			<artifactId>service-publisher-api</artifactId>
+			<groupId>de.uniluebeck.itm.util</groupId>
+			<artifactId>logging</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
-			<artifactId>service-publisher-cxf</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
+			<groupId>args4j</groupId>
+			<artifactId>args4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-assistedinject</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-persist</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -90,71 +68,46 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google</groupId>
-			<artifactId>gdata-calendar</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google</groupId>
-			<artifactId>gdata-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google</groupId>
-			<artifactId>gdata-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.transaction</groupId>
-			<artifactId>jta</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>derby</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>**/GCalRSPersistenceOffsetAmountTest.java</exclude>
-						<exclude>**/GCalRSPersistenceTest.java</exclude>
-					</excludes>
-				</configuration>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<shadedClassifierName>server</shadedClassifierName>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+							<transformers>
+								<transformer
+										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>de.uniluebeck.itm.tr.rs.RSServer</mainClass>
+								</transformer>
+								<transformer
+										implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/cxf/bus-extensions.txt</resource>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
