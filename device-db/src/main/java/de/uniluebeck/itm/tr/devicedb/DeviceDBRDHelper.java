@@ -213,7 +213,7 @@ public abstract class DeviceDBRDHelper {
 				timeouts[1],
 				timeouts[2],
 				timeouts[0],
-				null,
+				getCoordinates(eventResource),
 				capabilities
 		);
 	}
