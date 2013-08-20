@@ -48,9 +48,10 @@
 		<module>rs</module>
 		<module>rs-federator</module>
 		<module>rs-server</module>
+		<module>snaa</module>
 		<module>snaa-common</module>
 		<module>snaa-federator</module>
-		<module>snaa</module>
+		<module>snaa-server</module>
 		<module>plugins/default-image</module>
 		<module>plugins/framework-extender-portal</module>
 		<module>plugins/framework-extender-gateway</module>
