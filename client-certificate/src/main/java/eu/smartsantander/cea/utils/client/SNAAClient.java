@@ -4,7 +4,7 @@
 *   ROUX Pierre
 *   Kim Thuat NGUYEN
 *******************************************************************************/
-    package eu.smartsantander.cea.utils.client;
+package eu.smartsantander.cea.utils.client;
 
 import eu.smartsantander.cea.utils.Helper.HelperUtilities;
 import eu.smartsantander.cea.utils.httprequest.HttpRequestUtil;

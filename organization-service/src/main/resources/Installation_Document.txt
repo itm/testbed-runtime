@@ -82,7 +82,7 @@ Besides, this plugin is also useful to deploy, undeploy the application with the
 
 
 To verify that the service is online, enter this url in the browser:
-                http://localhost:8088/organization-service/
+                http://localhost:8080/organization-service/
         
 if you are using tomcat6 (untested with tomcat7), it is also easy to deploy the application with the help of tomcat maven plugin. There are some configurations that you have to do:
 
@@ -91,7 +91,7 @@ if you are using tomcat6 (untested with tomcat7), it is also easy to deploy the 
 	<tomcat-users>
 		<role rolename="manager"/>
 		<role rolename="admin"/>
-		<user username="admin" password="admin" roles="admin,manager"/>
+		<user username="tomcat" password="santander" roles="admin,manager"/>
 	</tomcat-users>
 
 * In Maven side, you need to add the same user authentication information in “%MAVEN_PATH%/conf/settings.xml“:
@@ -99,8 +99,8 @@ if you are using tomcat6 (untested with tomcat7), it is also easy to deploy the 
 	//...
 	<server>
 	        <id>tomcatServer</id>
-	        <username>admin</username>
-	        <password>admin</password>
+	        <username>tomcat</username>
+	        <password>santander</password>
 	</server>
 	//...
 
@@ -112,14 +112,14 @@ if you are using tomcat6 (untested with tomcat7), it is also easy to deploy the 
         	<artifactId>tomcat-maven-plugin</artifactId>
         	<configuration>
                 <url>http://localhost:8080/manager</url>
-                <server>TomcatServer</server>
+                <server>tomcatServer</server>
                 <path>/organization-service</path>
         	</configuration>
 	</plugin>
 
 
 Run mvn tomcat:deploy to package the project in a war file, it is then deployed in the tomcat server. To verify it, re-enter this url in the browser:
-	http://localhost:8088/organization-service/
+	http://localhost:8080/organization-service/
 
 
 * SNAACertificate implementation: This implementation have already added in the code source of testbed-runtime. We can launch this service using the similar way that we use for others SNAA implementations in testbed.
@@ -129,10 +129,10 @@ Indeed, we can use this simple command to launch the SNAACertificate service, in
 The properties file that we use here has the following content:
 
 	urnprefix                                        = urn:wisebed:uzl2:
-	port                                                     = 8890
+	port                                             = 8890
 	snaa.type                                        = CERTIFICATE
-	snaa.context_path                              = /soap/v3/snaa
-	snaa.shiro.jpa.properties_file         = snaa-shiro-mysql.jpa.properties
+	snaa.context_path                                = /soap/v3/snaa
+	snaa.shiro.jpa.properties_file                   = snaa-shiro-mysql.jpa.properties
 
 3.3 Using the SNAAClient
 
@@ -158,7 +158,7 @@ samlMaxSessionTimeout= 10
 # Key store configuration for generating SAML Assertion
 #**********************************************************/
 certificateAliasName=organization-alias
-pathToKeyStoreFile=/home/nguyenkimthuat/Kim/FORK/testbed-runtime/snaa/certs/keystore/keystore.jks # To modify
+pathToKeyStoreFile=/your_path/testbed-runtime/snaa/certs/keystore/keystore.jks # To modify
 keystorePassword=changeit
 
 
@@ -196,7 +196,7 @@ Note that the keystore is now saved in the directory /snaa/certs/keystore/keysto
 * Set the organization-service on line using (make sure that the glassfish server or tomcat6 is started):
 		mvn embedded-glassfish:deploy
 	or 
-		mvn tomcat:deploy
+		mvn tomcat:deploy (or mvn tomcat:redeploy if the application is deployed)
 
 * Launch the SNAACertificate service 
 mvn exec:java -Dexec.mainClass="de.uniluebeck.itm.tr.snaa.SNAAServer" -Dexec.args="--config snaa-certificate-shiro-mysql.properties"

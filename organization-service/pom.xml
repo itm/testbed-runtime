@@ -138,7 +138,6 @@
                 <configuration>
                     <url>http://localhost:8080/manager</url>
                     <server>tomcat</server>
-                    <password>admin</password>
                     <path>/organization-service</path>
                 </configuration>
             </plugin>
