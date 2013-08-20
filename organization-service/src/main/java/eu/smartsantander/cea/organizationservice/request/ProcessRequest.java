@@ -10,7 +10,6 @@ package eu.smartsantander.cea.organizationservice.request;
 
 import eu.smartsantander.cea.organizationservice.dao.ConnnectionBD;
 import eu.smartsantander.cea.organizationservice.utilities.Config;
-import eu.smartsantander.cea.organizationservice.utilities.HelperUtilities;
 import eu.smartsantander.cea.utils.saml.SAMLGenerator;
 import eu.smartsantander.cea.utils.saml.SAMLInput;
 import eu.smartsantander.cea.utils.saml.SignAssertion;
@@ -20,9 +19,6 @@ import java.io.PrintWriter;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
