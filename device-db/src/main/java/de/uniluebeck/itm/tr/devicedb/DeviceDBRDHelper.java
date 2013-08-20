@@ -11,6 +11,8 @@ import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
 import eu.wisebed.wiseml.Dtypes;
 import eu.wisebed.wiseml.Units;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -20,6 +22,8 @@ import static eu.smartsantander.rd.jaxb.IoTNodeType.SENSOR_NODE;
 
 
 public abstract class DeviceDBRDHelper {
+
+	private static final Logger log = LoggerFactory.getLogger(DeviceDBRDHelper.class);
 
 	public static Long[] getTimeouts(ResourceDescription rdResource) {
 		Long[] timeouts = new Long[4];
@@ -55,9 +59,7 @@ public abstract class DeviceDBRDHelper {
 				answer.put(pair.getKey(), pair.getValue());
 			}
 		}
-		if (answer.size() == 0) {
-			return null;
-		}
+
 		return answer;
 	}
 
@@ -95,7 +97,7 @@ public abstract class DeviceDBRDHelper {
 		return answer;
 	}
 
-	public static DeviceConfig deviceConfigFromRDResource(ResourceDescription rdResource) {
+	public static DeviceConfig deviceConfigFromRDResource(ResourceDescription rdResource) throws IllegalArgumentException {
 
 		IoTNodeType type = rdResource.getResourceType();
 
@@ -115,13 +117,23 @@ public abstract class DeviceDBRDHelper {
 				c.setType(Dtypes.DECIMAL.toString());
 			}
 
-			capability.setDatatype(Dtypes.valueOf(c.getType()));
+			try {
+				capability.setDatatype(Dtypes.valueOf(c.getType()));
+			} catch (Exception e) {
+				capability.setDatatype(null);
+				log.error("Unknown data type {}. Setting data type of capability {} to 'null' ", c.getType(), capability.getName());
+			}
 			if (c.getUom().equals("lumen")) {                        //todo extend units
 				c.setUom(Units.LUX.toString());// 1 lx = 1 lm/m2.
 			} else if (c.getUom().equals("celsius")) {
 				c.setUom(Units.KELVIN.toString()); //todo extend units
 			}
-			capability.setUnit(Units.valueOf(c.getUom()));
+			try {
+				capability.setUnit(Units.valueOf(c.getUom()));
+			} catch (Exception e) {
+				capability.setUnit(null);
+				log.error("Unknown unit {}. Setting unit of capability {} to 'null' ", c.getUom(), capability.getName());
+			}
 			capabilities.add(capability);
 		}
 		Long[] timeouts = getTimeouts(rdResource);

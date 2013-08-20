@@ -149,9 +149,14 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 				log.trace("{}", writer.toString());
 			}
 
-			final DeviceConfig deviceConfig = DeviceDBRDHelper.deviceConfigFromRDResource(res);
-			if (deviceConfig != null) {
-				this.add(deviceConfig);
+			try {
+				final DeviceConfig deviceConfig = DeviceDBRDHelper.deviceConfigFromRDResource(res);
+				if (deviceConfig != null) {
+					this.add(deviceConfig);
+				}
+			} catch (Exception e) {
+				log.error("Error while trying to create a device configuration based on" +
+						" information fetched from the RD: ",e);
 			}
 		}
 	}
