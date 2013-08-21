@@ -2,11 +2,11 @@ package eu.smartsantander.cea.certificate;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.persist.jpa.JpaPersistModule;
+import de.uniluebeck.itm.tr.common.jpa.JPAInitializer;
 
 import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import de.uniluebeck.itm.tr.common.jpa.JPAInitializer;
 
 public class JpaModule extends AbstractModule {
 

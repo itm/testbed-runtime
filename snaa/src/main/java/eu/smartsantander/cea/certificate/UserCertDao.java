@@ -9,8 +9,8 @@ import de.uniluebeck.itm.util.jpa.GenericDaoImpl;
 
 
 public class UserCertDao extends GenericDaoImpl<UsersCert, String> {
-    
-    public UserCertDao() {
-        super(UsersCert.class);
-    }
+
+	public UserCertDao() {
+		super(UsersCert.class);
+	}
 }
