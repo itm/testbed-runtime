@@ -13,7 +13,6 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
-import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAATestBase;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -44,11 +43,12 @@ import static org.mockito.Mockito.when;
  *
  */
 public abstract class SNAACertificateTestBase {
+
 	static {
 		Logging.setLoggingDefaults(LogLevel.WARN);
 	}
 
-	protected static final org.slf4j.Logger log = LoggerFactory.getLogger(ShiroSNAATestBase.class);
+	protected static final org.slf4j.Logger log = LoggerFactory.getLogger(SNAACertificateTestBase.class);
 
 	protected static final String SERVICE_PROVIDER1 = "ServiceProvider1";
 
@@ -252,12 +252,12 @@ public abstract class SNAACertificateTestBase {
 	}
 
 	public String createSAMLResponse(String userId, String idpId, String role) {
-		Map attributs = new HashMap();
+		Map<String, String> attributs = new HashMap<String, String>();
 		attributs.put(SNAACertificateConfig.USER_ID_SAML_ATTRIBUTE_NAME, userId);
 		attributs.put(SNAACertificateConfig.ORGANIZATION_ID_ATTRIBUTE_NAME, idpId);
 		attributs.put(SNAACertificateConfig.ROLE_ATTRIBUTE_NAME, role);
 
-		// Create a SAML Reponse composing an assertion and its signature
+		// Create a SAML Response composing an assertion and its signature
 		SAMLInput input = new SAMLInput(idpId, userId, "defautlNameQualifier", "defaultsessionId", 10, attributs);
 		SAMLGenerator generator = new SAMLGenerator();
 		Assertion assertion = generator.createAssertion(input);
@@ -267,8 +267,7 @@ public abstract class SNAACertificateTestBase {
 		String samlResponseInString = HelperUtilities.samlResponseToString(res);
 
 		// Encode SAML Response in Base64
-		String samlRespEncoded = HelperUtilities.encode(samlResponseInString);
-		return samlRespEncoded;
+		return HelperUtilities.encode(samlResponseInString);
 	}
 
 	public List<AuthenticationSAML> getAuthenticationInformation(String userId, String idpId, String role, NodeUrnPrefix nodeUrnPrefix) {
