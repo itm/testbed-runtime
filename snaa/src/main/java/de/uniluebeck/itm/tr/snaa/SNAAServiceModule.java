@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.snaa;
 
 import com.google.inject.PrivateModule;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAAModule;
@@ -28,6 +29,7 @@ public class SNAAServiceModule extends PrivateModule {
 		requireBinding(CommonConfig.class);
 		requireBinding(SNAAServiceConfig.class);
 		requireBinding(ServedNodeUrnPrefixesProvider.class);
+		requireBinding(ServicePublisher.class);
 
 		switch (snaaServiceConfig.getSnaaType()) {
 			case DUMMY:

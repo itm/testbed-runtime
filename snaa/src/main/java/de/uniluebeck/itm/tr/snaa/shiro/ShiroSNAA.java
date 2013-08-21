@@ -33,6 +33,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
+import de.uniluebeck.itm.tr.snaa.shiro.rest.ShiroSNAARestService;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -121,6 +122,8 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 
 	private final SNAAServiceConfig snaaServiceConfig;
 
+	private final ShiroSNAARestService restService;
+
 	private ServicePublisherService jaxWsService;
 
 	@Inject
@@ -129,7 +132,8 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 					 final UrnResourceGroupDao urnResourceGroupsDAO,
 					 final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
 					 final SNAAServiceConfig snaaServiceConfig,
-					 final Provider<Subject> currentUserProvider) {
+					 final Provider<Subject> currentUserProvider,
+					 final ShiroSNAARestService restService) {
 
 		Collection<Realm> realms = ((RealmSecurityManager) securityManager).getRealms();
 		checkArgument(realms.size() == 1, "Exactly one realm must be configured");
@@ -141,6 +145,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
 		this.snaaServiceConfig = snaaServiceConfig;
 		this.urnResourceGroupsDAO = urnResourceGroupsDAO;
+		this.restService = restService;
 	}
 
 	@Override
@@ -149,6 +154,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 			SecurityUtils.setSecurityManager(securityManager);
 			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this);
 			jaxWsService.startAndWait();
+			restService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -158,7 +164,10 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	@Override
 	protected void doStop() {
 		try {
-			if (jaxWsService != null) {
+			if (restService != null && restService.isRunning()) {
+				restService.stopAndWait();
+			}
+			if (jaxWsService != null && jaxWsService.isRunning()) {
 				jaxWsService.stopAndWait();
 			}
 			notifyStopped();

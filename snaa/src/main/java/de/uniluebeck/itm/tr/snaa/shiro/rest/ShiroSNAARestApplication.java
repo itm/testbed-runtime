@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.devicedb;
+package de.uniluebeck.itm.tr.snaa.shiro.rest;
 
 import com.google.inject.Inject;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
@@ -7,18 +7,17 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.ws.rs.core.Application;
 import java.util.HashMap;
-
 import java.util.Set;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
-public class DeviceDBRestApplication extends Application {
+public class ShiroSNAARestApplication extends Application {
 
-	private final DeviceDBRestResourceImpl resource;
+	private final ShiroSNAARestResource resource;
 
 	@Inject
-	public DeviceDBRestApplication(final DeviceDBRestResourceImpl resource) {
+	public ShiroSNAARestApplication(final ShiroSNAARestResource resource) {
 		this.resource = resource;
 	}
 
