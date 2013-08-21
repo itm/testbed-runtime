@@ -27,36 +27,36 @@
             <version>6.0</version>
             <scope>provided</scope>
         </dependency>
-        
-        <dependency>
-        <groupId>org.opensaml</groupId> 
-        <artifactId>opensaml</artifactId> 
-        <version>2.5.3</version>
-        </dependency> 
-    
-        <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.17</version>
-        <type>jar</type>
-        <scope>compile</scope>
-        </dependency>
-    
-         <dependency>
-	<groupId>org.slf4j</groupId>
-	<artifactId>slf4j-api</artifactId>
-	<version>1.7.5</version>
-        </dependency>
-     	
-     <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>1.7.5</version>
-        </dependency> 
-       
-   </dependencies>
 
-    
+        <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml</artifactId>
+            <version>2.5.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.17</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+
+    </dependencies>
+
+
     <build>
         <pluginManagement>
             <plugins>
@@ -67,9 +67,9 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-    
+
         <plugins>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -117,33 +117,33 @@
                     </execution>
                 </executions>
             </plugin>
-        
-                     <!-- Embedded glassfish maven plugin -->
-            <plugin>    
-                <groupId>org.glassfish</groupId> 
-                <artifactId>maven-embedded-glassfish-plugin</artifactId> 
-                <configuration> 
-                 <goalPrefix>embedded-glassfish</goalPrefix> 
-                 <app>target/${project.artifactId}-${project.version}</app>
-                 <autoDelete>true</autoDelete> 
-                 <port>8088</port>
-                 <contextRoot>${project.artifactId}</contextRoot>
-                </configuration> 
-            </plugin>        
-              
-                     <!-- Tomcat maven plugin -->
+
+            <!-- Embedded glassfish maven plugin -->
             <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>tomcat-maven-plugin</artifactId>
+                <groupId>org.glassfish</groupId>
+                <artifactId>maven-embedded-glassfish-plugin</artifactId>
+                <configuration>
+                    <goalPrefix>embedded-glassfish</goalPrefix>
+                    <app>target/${project.artifactId}-${project.version}</app>
+                    <autoDelete>true</autoDelete>
+                    <port>8088</port>
+                    <contextRoot>${project.artifactId}</contextRoot>
+                </configuration>
+            </plugin>
+
+            <!-- Tomcat maven plugin -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>tomcat-maven-plugin</artifactId>
                 <configuration>
                     <url>http://localhost:8080/manager</url>
                     <server>tomcat</server>
                     <path>/organization-service</path>
                 </configuration>
             </plugin>
-        
+
         </plugins>
 
     </build>
-      
+
 </project>
