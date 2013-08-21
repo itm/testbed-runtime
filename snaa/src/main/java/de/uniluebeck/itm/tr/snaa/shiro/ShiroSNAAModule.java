@@ -4,11 +4,11 @@ import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.name.Names;
-import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
+import de.uniluebeck.itm.tr.snaa.shiro.rest.ShiroSNAARestModule;
 import eu.wisebed.api.v3.snaa.SNAA;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.credential.CredentialsMatcher;
@@ -37,7 +37,6 @@ public class ShiroSNAAModule extends ShiroModule {
 			requireBinding(CommonConfig.class);
 			requireBinding(SNAAServiceConfig.class);
 			requireBinding(EntityManager.class);
-			requireBinding(ServicePublisher.class);
 			requireBinding(ServedNodeUrnPrefixesProvider.class);
 
 			bind(CredentialsMatcher.class).to(HashedCredentialsMatcher.class);
@@ -52,6 +51,8 @@ public class ShiroSNAAModule extends ShiroModule {
 			bind(ShiroSNAA.class).in(Scopes.SINGLETON);
 			bind(SNAA.class).to(ShiroSNAA.class);
 			bind(SNAAService.class).to(ShiroSNAA.class);
+
+			install(new ShiroSNAARestModule());
 
 			expose(ShiroSNAA.class);
 			expose(SNAA.class);

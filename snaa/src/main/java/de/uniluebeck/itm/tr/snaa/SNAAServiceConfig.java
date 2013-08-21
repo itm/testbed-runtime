@@ -185,6 +185,36 @@ public class SNAAServiceConfig {
 	@Named(SHIRO_HASH_ALGORITHM_ITERATIONS)
 	private int shiroHashAlgorithmIterations;
 
+	@PropConf(
+			usage = "The context path of the ShiroSNAA admin frontend REST API",
+			example = "/rest/v1/shirosnaa/admin",
+			defaultValue = "/rest/v1/shirosnaa/admin"
+	)
+	public static final String SHIRO_ADMIN_REST_API_CONTEXTPATH = "snaa.shiro.admin.rest_api.contextpath";
+
+	@Inject
+	@Named(SHIRO_ADMIN_REST_API_CONTEXTPATH)
+	private String shiroAdminRestApiContextPath;
+
+	@PropConf(
+			usage = "The context path of the ShiroSNAA admin frontend webapp",
+			example = "/shirosnaa",
+			defaultValue = "/shirosnaa"
+	)
+	public static final String SHIRO_ADMIN_WEBAPP_CONTEXTPATH = "snaa.shiro.admin.webapp.contextpath";
+
+	@Inject
+	@Named(SHIRO_ADMIN_WEBAPP_CONTEXTPATH)
+	private String shiroAdminWebappContextPath;
+
+	public String getShiroAdminWebappContextPath() {
+		return shiroAdminWebappContextPath;
+	}
+
+	public String getShiroAdminRestApiContextPath() {
+		return shiroAdminRestApiContextPath;
+	}
+
 	public String getShiroHashAlgorithmName() {
 		return shiroHashAlgorithmName;
 	}
