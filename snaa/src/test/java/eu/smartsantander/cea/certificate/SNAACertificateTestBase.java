@@ -24,6 +24,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.AuthenticationSAML;
+import org.junit.After;
 import org.mockito.Mock;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Response;
@@ -118,8 +119,13 @@ public abstract class SNAACertificateTestBase {
 		snaaCertificate.startAndWait();
 	}
 
+	@After
+	 public void tearDown(){
+		snaaCertificate.doStop();
+	}
+
         
-        /* ------------------------------ Helpers ----------------------------------- */
+     /* ------------------------------ Helpers ----------------------------------- */
 
 	protected List<UsernameNodeUrnsMap> createUsernameNodeUrnsMapList(String username, NodeUrnPrefix nodeUrnPrefix,
 	                                                                  String... nodeUrnStrings) {

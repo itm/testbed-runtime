@@ -49,6 +49,7 @@ import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,6 +163,9 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 			if (jaxWsService != null) {
 				jaxWsService.stopAndWait();
 			}
+
+			// releases all objects bound in Apache Shiro's ThreadContext
+			ThreadContext.remove();
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);

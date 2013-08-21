@@ -22,6 +22,7 @@ import eu.wisebed.api.v3.snaa.AuthenticationFault;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import org.apache.shiro.crypto.hash.Sha512Hash;
+import org.junit.After;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.slf4j.LoggerFactory;
@@ -125,6 +126,11 @@ public abstract class ShiroSNAATestBase {
 
 		shiroSNAA = injector.getInstance(ShiroSNAA.class);
 		shiroSNAA.startAndWait();
+	}
+
+	@After
+	public void tearDown(){
+		shiroSNAA.doStop();
 	}
 
 	@Test

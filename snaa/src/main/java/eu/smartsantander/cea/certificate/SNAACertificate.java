@@ -40,6 +40,7 @@ import org.apache.shiro.realm.Realm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.joda.time.DateTime;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.AuthnStatement;
@@ -154,6 +155,9 @@ public class SNAACertificate extends AbstractService implements SNAAService {
 			if (jaxWsService != null) {
 				jaxWsService.stopAndWait();
 			}
+
+			// releases all objects bound in Apache Shiro's ThreadContext
+			ThreadContext.remove();
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
