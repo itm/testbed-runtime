@@ -44,6 +44,12 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml</artifactId>
             <version>2.5.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
