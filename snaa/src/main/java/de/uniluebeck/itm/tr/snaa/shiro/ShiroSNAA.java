@@ -42,6 +42,7 @@ import eu.wisebed.api.v3.snaa.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authc.pam.UnsupportedTokenException;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
@@ -193,6 +194,10 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 			currentUser.login(token);
 			currentUser.logout();
 
+		} catch (UnsupportedTokenException e){
+			throw createSNAAFault(
+					"The user could not be authenticated due to an configuration error: ", e
+			);
 		} catch (AuthenticationException e) {
 			throw createAuthenticationFault(
 					"The user could not be authenticated: Wrong username and/or password."
