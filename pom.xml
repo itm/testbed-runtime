@@ -186,42 +186,42 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>args4j</artifactId>
-				<version>0.5</version>
+				<version>${itm-utils.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>concurrent</artifactId>
-				<version>0.5</version>
+				<version>${itm-utils.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>files</artifactId>
-				<version>0.5</version>
+				<version>${itm-utils.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>jpa</artifactId>
-				<version>0.5</version>
+				<version>${itm-utils.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>logging</artifactId>
-				<version>0.5</version>
+				<version>${itm-utils.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>propconf</artifactId>
-				<version>0.5</version>
+				<version>${itm-utils.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>scheduler</artifactId>
-				<version>0.5</version>
+				<version>${itm-utils.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>util</artifactId>
-				<version>0.5</version>
+				<version>${itm-utils.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
@@ -630,6 +630,7 @@
 		<dep.jaxb.version>2.2.5</dep.jaxb.version>
 		<dep.jaxws.version>2.2.8</dep.jaxws.version>
 		<dep.servlet.version>3.0</dep.servlet.version>
+		<itm-utils.version>0.6-SNAPSHOT</itm-utils.version>
 	</properties>
 
 	<scm>
