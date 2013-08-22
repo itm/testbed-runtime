@@ -70,8 +70,8 @@
 			<artifactId>tr.device-db</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>wsn-device-drivers-factories</artifactId>
+			<groupId>de.uniluebeck.itm.wsn-device-drivers</groupId>
+			<artifactId>factories</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>

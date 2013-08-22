@@ -186,42 +186,42 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>args4j</artifactId>
-				<version>0.5-SNAPSHOT</version>
+				<version>0.5</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>concurrent</artifactId>
-				<version>0.5-SNAPSHOT</version>
+				<version>0.5</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>files</artifactId>
-				<version>0.5-SNAPSHOT</version>
+				<version>0.5</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>jpa</artifactId>
-				<version>0.5-SNAPSHOT</version>
+				<version>0.5</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>logging</artifactId>
-				<version>0.5-SNAPSHOT</version>
+				<version>0.5</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>propconf</artifactId>
-				<version>0.5-SNAPSHOT</version>
+				<version>0.5</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>scheduler</artifactId>
-				<version>0.5-SNAPSHOT</version>
+				<version>0.5</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>util</artifactId>
-				<version>0.5-SNAPSHOT</version>
+				<version>0.5</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
@@ -229,8 +229,8 @@
 				<version>1.1.4-SNAPSHOT</version>
 			</dependency>
 			<dependency>
-				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>wsn-device-drivers-factories</artifactId>
+				<groupId>de.uniluebeck.itm.wsn-device-drivers</groupId>
+				<artifactId>factories</artifactId>
 				<version>1.1.3-SNAPSHOT</version>
 			</dependency>
 			<dependency>
