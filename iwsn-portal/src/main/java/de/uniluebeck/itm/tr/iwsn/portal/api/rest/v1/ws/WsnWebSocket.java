@@ -132,7 +132,7 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		}
 
 		keepAliveSchedule = schedulerService.scheduleAtFixedRate(
-				new KeepAliveRunnable(connection), 60, 60, TimeUnit.SECONDS
+				new WebSocketKeepAliveRunnable(connection), 60, 60, TimeUnit.SECONDS
 		);
 	}
 
