@@ -639,6 +639,10 @@ public abstract class MessagesHelper {
 		}
 	}
 
+	public static boolean isErrorStatusCode(final Request request, final SingleNodeResponse response) {
+		return response.getStatusCode() == getUnconnectedStatusCode(request) || response.getStatusCode() < 0;
+	}
+
 	public static int getUnconnectedStatusCode(final Request request) {
 		switch (request.getType()) {
 			case ARE_NODES_ALIVE:

@@ -525,9 +525,9 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				if (responseTracker.get(nodeUrn).isDone()) {
 					try {
 						final SingleNodeResponse response = responseTracker.get(nodeUrn).get();
+						final Request request = responseTracker.getRequest();
 						status = new JobNodeStatus(
-								response.getStatusCode() == getUnconnectedStatusCode(responseTracker.getRequest()) ?
-										JobState.FAILED : JobState.SUCCESS,
+								isErrorStatusCode(request, response) ? JobState.FAILED : JobState.SUCCESS,
 								response.getStatusCode(),
 								response.getErrorMessage()
 						);
