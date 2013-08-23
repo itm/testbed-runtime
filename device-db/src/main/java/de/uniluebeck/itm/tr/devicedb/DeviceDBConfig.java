@@ -46,7 +46,7 @@ public class DeviceDBConfig {
 
 	@PropConf(
 			usage = "The type of DeviceDB backend",
-			example = "IN_MEMORY/JPA",
+			example = "IN_MEMORY/JPA/REMOTE/SMARTSANTANDER",
 			defaultValue = "IN_MEMORY"
 	)
 	public static final String DEVICEDB_TYPE = "devicedb.type";
