@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.inject.Guice.createInjector;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.printHelpAndExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
@@ -179,6 +180,10 @@ public class PortalServer extends AbstractService {
 					SNAAServiceConfig.class,
 					WiseGuiServiceConfig.class
 			);
+		}
+
+		if (config.config == null) {
+			printHelpAndExit(config, PortalServer.class);
 		}
 
 		final Injector confInjector = createInjector(
