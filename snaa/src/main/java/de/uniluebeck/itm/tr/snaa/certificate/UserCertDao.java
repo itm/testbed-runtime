@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.smartsantander.cea.certificate;
+package de.uniluebeck.itm.tr.snaa.certificate;
 
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UsersCert;
 import de.uniluebeck.itm.util.jpa.GenericDaoImpl;

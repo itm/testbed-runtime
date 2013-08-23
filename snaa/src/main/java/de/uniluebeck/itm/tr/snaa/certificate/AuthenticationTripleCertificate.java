@@ -7,7 +7,7 @@
  * Java class for authenticating user based on the use of certificate
  *******************************************************************************/
 
-package eu.smartsantander.cea.certificate;
+package de.uniluebeck.itm.tr.snaa.certificate;
 
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 

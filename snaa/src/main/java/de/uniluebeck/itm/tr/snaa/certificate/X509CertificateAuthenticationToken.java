@@ -5,7 +5,7 @@
  *   Kim Thuat NGUYEN
  *******************************************************************************/
 
-package eu.smartsantander.cea.certificate;
+package de.uniluebeck.itm.tr.snaa.certificate;
 
 import org.apache.shiro.authc.AuthenticationToken;
 

@@ -6,7 +6,7 @@
  *******************************************************************************/
 
 
-package eu.smartsantander.cea.certificate;
+package de.uniluebeck.itm.tr.snaa.certificate;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
