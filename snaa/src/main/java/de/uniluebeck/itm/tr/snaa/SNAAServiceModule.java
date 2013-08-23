@@ -9,8 +9,8 @@ import de.uniluebeck.itm.tr.snaa.remote.RemoteSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shiro.JpaModule;
 import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAModule;
-import eu.wisebed.api.v3.snaa.SNAA;
 import eu.smartsantander.cea.certificate.SNAACertificateModule;
+import eu.wisebed.api.v3.snaa.SNAA;
 
 public class SNAAServiceModule extends PrivateModule {
 
@@ -25,40 +25,40 @@ public class SNAAServiceModule extends PrivateModule {
 
 	@Override
 	protected void configure() {
-            try {
-		requireBinding(CommonConfig.class);
-		requireBinding(SNAAServiceConfig.class);
-		requireBinding(ServedNodeUrnPrefixesProvider.class);
+		try {
+			requireBinding(CommonConfig.class);
+			requireBinding(SNAAServiceConfig.class);
+			requireBinding(ServedNodeUrnPrefixesProvider.class);
 
-		switch (snaaServiceConfig.getSnaaType()) {
-			case DUMMY:
-				install(new DummySNAAModule(snaaServiceConfig));
-				break;
-			case JAAS:
-				install(new JAASSNAAModule(commonConfig, snaaServiceConfig));
-				break;
-			case SHIBBOLETH:
-				install(new ShibbolethSNAAModule(snaaServiceConfig));
-				break;
-			case SHIRO:
-				install(new JpaModule("ShiroSNAA", snaaServiceConfig.getShiroJpaProperties()));
-				install(new ShiroSNAAModule(snaaServiceConfig));
-				break;
-                        case CERTIFICATE:
-                                install(new eu.smartsantander.cea.certificate.JpaModule("ShiroSNAA", snaaServiceConfig.getShiroJpaProperties()));
-                                install(new SNAACertificateModule());
-                                break;
-                        case REMOTE:
-				install(new RemoteSNAAModule());
-				break;
-			default:
-				throw new IllegalArgumentException("Unknown authentication type " + snaaServiceConfig.getSnaaType());
+			switch (snaaServiceConfig.getSnaaType()) {
+				case DUMMY:
+					install(new DummySNAAModule(snaaServiceConfig));
+					break;
+				case JAAS:
+					install(new JAASSNAAModule(commonConfig, snaaServiceConfig));
+					break;
+				case SHIBBOLETH:
+					install(new ShibbolethSNAAModule(snaaServiceConfig));
+					break;
+				case SHIRO:
+					install(new JpaModule("ShiroSNAA", snaaServiceConfig.getShiroJpaProperties()));
+					install(new ShiroSNAAModule(snaaServiceConfig));
+					break;
+				case CERTIFICATE:
+					install(new eu.smartsantander.cea.certificate.JpaModule("ShiroSNAA", snaaServiceConfig.getShiroJpaProperties()));
+					install(new SNAACertificateModule());
+					break;
+				case REMOTE:
+					install(new RemoteSNAAModule());
+					break;
+				default:
+					throw new IllegalArgumentException("Unknown authentication type " + snaaServiceConfig.getSnaaType());
+			}
+
+			expose(SNAA.class);
+			expose(SNAAService.class);
+		} catch (Exception e) {
+			addError(e);
 		}
-
-		expose(SNAA.class);
-		expose(SNAAService.class);
-            } catch (Exception e) {
-                addError(e);
-            }
 	}
 }

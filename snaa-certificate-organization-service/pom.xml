@@ -12,7 +12,7 @@
     <groupId>com.nguyenkim.cea</groupId>
     <artifactId>tr.snaa-certificate-organization-service</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <name>TR :: SNAA Certificate Organization Service</name>
 
     <properties>

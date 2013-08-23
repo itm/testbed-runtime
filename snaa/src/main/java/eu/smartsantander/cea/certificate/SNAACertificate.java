@@ -98,8 +98,6 @@ public class SNAACertificate extends AbstractService implements SNAAService {
 
 	private final org.apache.shiro.mgt.SecurityManager securityManager;
 
-	private final Provider<Subject> currentUserProvider;
-
 	private final SNAAServiceConfig snaaServiceConfig;
 
 	private ServicePublisherService jaxWsService;
@@ -120,13 +118,11 @@ public class SNAACertificate extends AbstractService implements SNAAService {
 	                       final SNAAServiceConfig snaaServiceConfig,
 	                       final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
 	                       final UserCertDao userCertDao,
-	                       final UrnResourceGroupDao urnResourceGroupDao,
-	                       final Provider<Subject> currentUserProvider) {
+	                       final UrnResourceGroupDao urnResourceGroupDao) {
 
 		Collection<Realm> realms = ((RealmSecurityManager) securityManager).getRealms();
 		checkArgument(realms.size() == 1, "Exactly one realm must be configured");
 
-		this.currentUserProvider = currentUserProvider;
 		this.realm = realms.iterator().next();
 		this.servicePublisher = servicePublisher;
 		this.securityManager = securityManager;
