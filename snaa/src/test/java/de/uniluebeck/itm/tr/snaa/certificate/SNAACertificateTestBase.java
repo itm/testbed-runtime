@@ -100,6 +100,9 @@ public abstract class SNAACertificateTestBase {
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX_1);
 		when(servedNodeUrnPrefixesProvider.get()).thenReturn(newHashSet(NODE_URN_PREFIX_1, NODE_URN_PREFIX_2));
 		when(snaaServiceConfig.getShiroJpaProperties()).thenReturn(new Properties());
+		when(snaaServiceConfig.getCertificateRootDirectory()).thenReturn("certs");
+		when(snaaServiceConfig.getCertificateTrustStoreFile()).thenReturn("certs/truststore/cacerts.jks");
+		when(snaaServiceConfig.getCertificateTrustStorePassword()).thenReturn("changeit");
 
 		final AbstractModule mocksModule = new AbstractModule() {
 			@Override

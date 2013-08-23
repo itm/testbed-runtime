@@ -10,23 +10,26 @@ package eu.smartsantander.cea.organizationservice.request;
 
 import eu.smartsantander.cea.organizationservice.dao.ConnnectionBD;
 import eu.smartsantander.cea.organizationservice.utilities.Config;
+import eu.smartsantander.cea.utils.helper.HelperUtilities;
 import eu.smartsantander.cea.utils.saml.SAMLGenerator;
 import eu.smartsantander.cea.utils.saml.SAMLInput;
 import eu.smartsantander.cea.utils.saml.SignAssertion;
 import eu.smartsantander.cea.utils.signature.VerifyData;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Response;
+import org.opensaml.xml.security.credential.Credential;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.opensaml.saml2.core.Assertion;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.xml.security.credential.Credential;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 
 
 
@@ -47,7 +50,7 @@ public class ProcessRequest extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String userDir = System.getProperty("user.dir");
+        String userDir = ProcessRequest.class.getClassLoader().getResource(".").getPath();
         
         String userId = request.getParameter("userId");
         String idpId = request.getParameter("idpId");
@@ -63,14 +66,18 @@ public class ProcessRequest extends HttpServlet {
             
             
             System.out.println("IDP SIDE: VERIFYING THE SIGNED CHALLENGE USING CLIENT PUBLIC KEY");
-            boolean isValide;
-            if (eu.smartsantander.cea.utils.helper.HelperUtilities.isWindows()) {
-                    isValide = VerifyData.verifySignature(challengeBytes, eu.smartsantander.cea.utils.helper.HelperUtilities.getPublicKeyFromFile(userDir+"\\"+Config.CLIENT_PUBKEY_DIRECTORY+"\\"+userId), signedData);
-            } else {
-                    isValide = VerifyData.verifySignature(challengeBytes, eu.smartsantander.cea.utils.helper.HelperUtilities.getPublicKeyFromFile(userDir+"/"+Config.CLIENT_PUBKEY_DIRECTORY+"/"+userId), signedData);
-            }
-            
-            if (isValide) {
+            boolean isValid = VerifyData.verifySignature(
+		            challengeBytes,
+		            HelperUtilities.getPublicKeyFromFile(
+				            userDir +
+				            File.pathSeparator +
+				            Config.CLIENT_PUBKEY_DIRECTORY +
+				            File.pathSeparator +
+				            userId),
+		            signedData);
+
+
+            if (isValid) {
                 System.out.println("IDP SIDE: SINGED CHALLENGE IS VERIFIED SUCCESSFULLY. GENERATING SAMLRESPONSE TO CLIENT.......");
                 try {
                     ConnnectionBD dao = new ConnnectionBD();

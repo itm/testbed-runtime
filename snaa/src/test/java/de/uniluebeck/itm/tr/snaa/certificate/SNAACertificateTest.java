@@ -83,6 +83,7 @@ public class SNAACertificateTest extends SNAACertificateTestBase {
 			assertFalse(snaaCertificate.isAuthorized(usernameNodeUrnsMaps, Action.WSN_DESTROY_VIRTUAL_LINKS).isAuthorized());
 		} catch (SNAAFault_Exception ex) {
 			Logger.getLogger(SNAACertificateTest.class.getName()).log(Level.SEVERE, null, ex);
+			fail();
 		}
 	}
 
@@ -95,6 +96,7 @@ public class SNAACertificateTest extends SNAACertificateTestBase {
 			assertTrue(snaaCertificate.isAuthorized(usernameNodeUrnsMaps, WSN_FLASH_PROGRAMS).isAuthorized());
 		} catch (SNAAFault_Exception ex) {
 			Logger.getLogger(SNAACertificateTest.class.getName()).log(Level.SEVERE, null, ex);
+			fail();
 		}
 	}
 
@@ -113,8 +115,10 @@ public class SNAACertificateTest extends SNAACertificateTestBase {
 
 		} catch (AuthenticationFault ex) {
 			Logger.getLogger(SNAACertificateTest.class.getName()).log(Level.SEVERE, null, ex);
+			fail();
 		} catch (SNAAFault_Exception ex) {
 			Logger.getLogger(SNAACertificateTest.class.getName()).log(Level.SEVERE, null, ex);
+			fail();
 		}
 	}
 }

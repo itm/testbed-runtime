@@ -29,7 +29,7 @@ public class SNAAServiceConfig {
 
 	@PropConf(
 			usage = "The authentication backend of the SNAA service",
-			example = "DUMMY/JAAS/SHIBBOLETH/SHIRO/REMOTE"
+			example = "DUMMY/JAAS/SHIBBOLETH/SHIRO/CERTIFICATE/REMOTE"
 	)
 	public static final String SNAA_TYPE = "snaa.type";
 
@@ -187,8 +187,7 @@ public class SNAAServiceConfig {
 
 	@PropConf(
 			usage = "The root directory of certificates and *.jks files for the certificate based Shiro SNAA server",
-			example = "certs",
-			defaultValue = "certs"
+			example = "/etc/certs"
 	)
 	public static final String CERTIFICATE_ROOT_DIRECTORY = "certificate.root.directory";
 
@@ -199,8 +198,7 @@ public class SNAAServiceConfig {
 
 	@PropConf(
 			usage = "The path to the trust store file",
-			example = "certs/truststore/cacerts.jks",
-			defaultValue = "certs/truststore/cacerts.jks"
+			example = "/etc/certs/truststore/cacerts.jks"
 	)
 	public static final String CERTIFICATE_TRUST_STORE_FILE = "certificate.trust.store.file";
 
