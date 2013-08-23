@@ -47,7 +47,6 @@ import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import javax.persistence.RollbackException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.List;
 import java.util.TimeZone;
@@ -74,6 +73,7 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
 	@Override
+	@Transactional
 	public ConfidentialReservationData addReservation(final List<NodeUrn> nodeUrns,
 													  final DateTime from,
 													  final DateTime to,
@@ -82,35 +82,16 @@ public class RSPersistenceJPA implements RSPersistence {
 													  final String description,
 													  final List<KeyValuePair> options) throws RSFault_Exception {
 
-		SecretReservationKeyInternal secretReservationKeyInternal = null;
-		String generatedSecretReservationKey = null;
+		SecretReservationKeyInternal secretReservationKeyInternal;
+		String generatedSecretReservationKey;
 
-		boolean created = false;
-		while (!created) {
+		generatedSecretReservationKey = secureIdGenerator.getNextId();
 
-			generatedSecretReservationKey = secureIdGenerator.getNextId();
+		secretReservationKeyInternal = new SecretReservationKeyInternal();
+		secretReservationKeyInternal.setSecretReservationKey(generatedSecretReservationKey);
+		secretReservationKeyInternal.setUrnPrefix(urnPrefix.toString());
 
-			secretReservationKeyInternal = new SecretReservationKeyInternal();
-			secretReservationKeyInternal.setSecretReservationKey(generatedSecretReservationKey);
-			secretReservationKeyInternal.setUrnPrefix(urnPrefix.toString());
-
-			try {
-
-				em.get().getTransaction().begin();
-				em.get().persist(secretReservationKeyInternal);
-				em.get().getTransaction().commit();
-
-				created = true;
-
-			} catch (RollbackException e) {
-
-				em.get().clear();
-
-			} catch (Exception e) {
-				log.error("Could not add SecretReservationKeyInternal because of: {}", e.getMessage());
-				return null;
-			}
-		}
+		em.get().persist(secretReservationKeyInternal);
 
 		final SecretReservationKey secretReservationKey = new SecretReservationKey();
 		secretReservationKey.setUrnPrefix(urnPrefix);
@@ -131,26 +112,16 @@ public class RSPersistenceJPA implements RSPersistence {
 				urnPrefix.toString()
 		);
 
+		em.get().persist(reservationData);
+
 		try {
-
-			em.get().getTransaction().begin();
-			em.get().persist(reservationData);
-			em.get().getTransaction().commit();
-
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), localTimeZone);
-
-		} catch (Exception e) {
-
-			em.get().getTransaction().begin();
-			em.get().remove(secretReservationKeyInternal);
-			em.get().getTransaction().commit();
-
+		} catch (DatatypeConfigurationException e) {
 			String msg = "Could not add Reservation because of: " + e.getMessage();
 			log.error(msg);
 			RSFault exception = new RSFault();
 			exception.setMessage(msg);
 			throw new RSFault_Exception(msg, exception, e);
-
 		}
 	}
 
@@ -174,8 +145,10 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
 	@Override
+	@Transactional
 	public ConfidentialReservationData deleteReservation(SecretReservationKey srk)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception {
+
 		Query query = em.get().createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, srk.getKey());
 		ReservationDataInternal reservationData;
@@ -185,9 +158,7 @@ public class RSPersistenceJPA implements RSPersistence {
 			throw createRSUnknownSecretReservationKeyFault("Reservation not found", srk);
 		}
 		reservationData.delete();
-		em.get().getTransaction().begin();
 		em.get().persist(reservationData);
-		em.get().getTransaction().commit();
 
 		try {
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
