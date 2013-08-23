@@ -8,14 +8,16 @@ package eu.smartsantander.cea.organizationservice.dao;
 
 
 import eu.smartsantander.cea.organizationservice.utilities.HelperUtilities;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.*;
 
 
 public class ConnnectionBD {
+
+	private static final Logger log = LoggerFactory.getLogger(ConnnectionBD.class);
+
     private String dbClass = "com.mysql.jdbc.Driver";
     private String dbUrl = HelperUtilities.getProperty("organizationDbUrl");
     private String username = HelperUtilities.getProperty("organizationDB_username");
@@ -26,10 +28,10 @@ public class ConnnectionBD {
         try {
             Class.forName(dbClass);
             conn = DriverManager.getConnection(dbUrl, username, password);
-        } catch (ClassNotFoundException ce) {
-            ce.printStackTrace();
-        } catch (SQLException se) {
-            se.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            log.error(e.getMessage(),e);
+        } catch (SQLException e) {
+	        log.error(e.getMessage(),e);
         }
       return conn;
        
@@ -44,10 +46,10 @@ public class ConnnectionBD {
                 String userId = results.getString(1);
                 String userRole = results.getString(2);
                 String pubKey = results.getString(3);
-                System.out.println("UserID:"+userId+"   Role:"+userRole+"   pubKey:"+pubKey);
+                log.debug("UserID:"+userId+"   Role:"+userRole+"   pubKey:"+pubKey);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+	        log.error(e.getMessage(),e);
         }
     }
     
@@ -65,9 +67,9 @@ public class ConnnectionBD {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
+	        log.error(e.getMessage(),e);
         }
-        System.out.println("Userid: "+userId+ "  doesnt exist");
+        log.debug("Userid: "+userId+ "  doesnt exist");
         return false;
     }
     
@@ -86,7 +88,7 @@ public class ConnnectionBD {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
+	        log.error(e.getMessage(),e);
         }
         
         return null;

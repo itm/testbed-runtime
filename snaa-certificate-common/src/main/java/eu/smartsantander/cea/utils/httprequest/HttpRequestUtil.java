@@ -6,12 +6,10 @@
 *******************************************************************************/
 package eu.smartsantander.cea.utils.httprequest;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -23,9 +21,12 @@ import java.util.Map;
 
 
 public class HttpRequestUtil {
-    
+
+	private static final Logger log = LoggerFactory.getLogger(HttpRequestUtil.class);
     
     public static String[] sendHttpRequest(String requestUrl, String method, Map<String, String> params, String encoding) {
+
+
         List<String> response = new ArrayList<>();
         try {
             StringBuilder requestParams = new StringBuilder();
@@ -67,12 +68,12 @@ public class HttpRequestUtil {
                 }
             }
             
-        } catch (UnsupportedEncodingException ue) {
-            ue.printStackTrace();
-        } catch (MalformedURLException me) {
-            me.printStackTrace();
-        } catch (IOException ie) {
-            ie.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+	        log.error(e.getMessage(),e);
+        } catch (MalformedURLException e) {
+	        log.error(e.getMessage(),e);
+        } catch (IOException e) {
+	        log.error(e.getMessage(),e);
         }
         return response.toArray(new String[0]);
     }

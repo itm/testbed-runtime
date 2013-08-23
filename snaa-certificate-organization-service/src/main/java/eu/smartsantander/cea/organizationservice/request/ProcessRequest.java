@@ -18,6 +18,8 @@ import eu.smartsantander.cea.utils.signature.VerifyData;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.xml.security.credential.Credential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -35,6 +37,8 @@ import java.util.Map;
 
 @WebServlet(name = "ProcessRequest", urlPatterns = {"/ProcessRequest"})
 public class ProcessRequest extends HttpServlet {
+
+	private static final Logger log = LoggerFactory.getLogger(ProcessRequest.class);
 
     /**
      * Processes requests for both HTTP
@@ -62,10 +66,10 @@ public class ProcessRequest extends HttpServlet {
             byte[] signedData = eu.smartsantander.cea.utils.helper.HelperUtilities.decodeToByte(challengeSigned);
             byte[] challengeBytes = eu.smartsantander.cea.utils.helper.HelperUtilities.decodeToByte(challenge);
             
-            System.out.println("Challenge received in client request: "+eu.smartsantander.cea.utils.helper.HelperUtilities.decode(challenge));
+            log.debug("Challenge received in client request: "+eu.smartsantander.cea.utils.helper.HelperUtilities.decode(challenge));
             
             
-            System.out.println("IDP SIDE: VERIFYING THE SIGNED CHALLENGE USING CLIENT PUBLIC KEY");
+            log.debug("IDP SIDE: VERIFYING THE SIGNED CHALLENGE USING CLIENT PUBLIC KEY");
             boolean isValid = VerifyData.verifySignature(
 		            challengeBytes,
 		            HelperUtilities.getPublicKeyFromFile(
@@ -78,7 +82,7 @@ public class ProcessRequest extends HttpServlet {
 
 
             if (isValid) {
-                System.out.println("IDP SIDE: SINGED CHALLENGE IS VERIFIED SUCCESSFULLY. GENERATING SAMLRESPONSE TO CLIENT.......");
+                log.debug("IDP SIDE: SINGED CHALLENGE IS VERIFIED SUCCESSFULLY. GENERATING SAMLRESPONSE TO CLIENT.......");
                 try {
                     ConnnectionBD dao = new ConnnectionBD();
                     String role = dao.getUserRole(userId);
@@ -98,11 +102,11 @@ public class ProcessRequest extends HttpServlet {
                     String responseEncoded = eu.smartsantander.cea.utils.helper.HelperUtilities.encode(responseToSend);
                     Map params = new HashMap();
                     params.put("SAMLResponse", responseEncoded);
-                    System.out.println("IDP SIDE: SENT SAMLRESPONSE TO CLIENT");
+                    log.debug("IDP SIDE: SENT SAMLRESPONSE TO CLIENT");
                     
                     out.println(responseEncoded);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error(e.getMessage(),e);
                 }
             }
         } else {
@@ -115,7 +119,7 @@ public class ProcessRequest extends HttpServlet {
             } else {
                                 
                 challenge = getSecureNumber();
-                System.out.println("IN IDP SIDE: Challenge generated: "+challenge);
+                log.debug("IN IDP SIDE: Challenge generated: "+challenge);
                 
                 String challengeBytes = eu.smartsantander.cea.utils.helper.HelperUtilities.encode(challenge);
                 

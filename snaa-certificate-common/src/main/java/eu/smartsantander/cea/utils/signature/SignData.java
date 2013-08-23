@@ -6,14 +6,15 @@
 *******************************************************************************/
 package eu.smartsantander.cea.utils.signature;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.SignatureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.security.*;
 
 
 public class SignData {
+
+	private static final Logger log = LoggerFactory.getLogger(SignData.class);
     
     private static final String ALGORITHM = "MD5withRSA"; 
     
@@ -24,12 +25,12 @@ public class SignData {
              signature.initSign(pkey);
              signature.update(data);
              signedData = signature.sign();
-         } catch (NoSuchAlgorithmException ne) {
-             ne.printStackTrace();
-         } catch (InvalidKeyException ie) {
-             ie.printStackTrace();
-         } catch (SignatureException se) {
-             se.printStackTrace();
+         } catch (NoSuchAlgorithmException e) {
+	         log.error(e.getMessage(),e);
+         } catch (InvalidKeyException e) {
+	         log.error(e.getMessage(),e);
+         } catch (SignatureException e) {
+	         log.error(e.getMessage(),e);
          }
          
          return signedData;
