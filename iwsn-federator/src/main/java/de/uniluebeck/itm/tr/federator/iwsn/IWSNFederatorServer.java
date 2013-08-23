@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.inject.Guice.createInjector;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.printHelpAndExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
@@ -65,6 +66,10 @@ public class IWSNFederatorServer extends AbstractService {
 
 		if (config.helpConfig) {
 			printDocumentationAndExit(System.out, IWSNFederatorServerConfig.class, IWSNFederatorServiceConfig.class);
+		}
+
+		if (config.config == null) {
+			printHelpAndExit(config, IWSNFederatorServer.class);
 		}
 
 		final IWSNFederatorServerConfig serverConfig = buildConfig(IWSNFederatorServerConfig.class, config.config);
