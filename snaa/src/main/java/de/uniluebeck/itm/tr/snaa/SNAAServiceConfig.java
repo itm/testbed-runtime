@@ -185,6 +185,40 @@ public class SNAAServiceConfig {
 	@Named(SHIRO_HASH_ALGORITHM_ITERATIONS)
 	private int shiroHashAlgorithmIterations;
 
+	@PropConf(
+			usage = "The root directory of certificates and *.jks files for the certificate based Shiro SNAA server",
+			example = "certs",
+			defaultValue = "certs"
+	)
+	public static final String CERTIFICATE_ROOT_DIRECTORY = "certificate.root.directory";
+
+	@Inject(optional=true)
+	@Named(CERTIFICATE_ROOT_DIRECTORY)
+	private String certificateRootDirectory;
+
+
+	@PropConf(
+			usage = "The path to the trust store file",
+			example = "certs/truststore/cacerts.jks",
+			defaultValue = "certs/truststore/cacerts.jks"
+	)
+	public static final String CERTIFICATE_TRUST_STORE_FILE = "certificate.trust.store.file";
+
+	@Inject(optional=true)
+	@Named(CERTIFICATE_TRUST_STORE_FILE)
+	private String certificateTrustStoreFile;
+
+
+	@PropConf(
+			usage = "The password to access the trust store",
+			example = "mysecretpassword"
+	)
+	public static final String CERTIFICATE_TRUST_STORE_PASSWORD = "certificate.trust.store.password";
+
+	@Inject(optional=true)
+	@Named(CERTIFICATE_TRUST_STORE_PASSWORD)
+	private String certificateTrustStorePassword;
+
 	public String getShiroHashAlgorithmName() {
 		return shiroHashAlgorithmName;
 	}
@@ -248,5 +282,17 @@ public class SNAAServiceConfig {
 
 	public URI getSnaaRemoteUri() {
 		return snaaRemoteUri;
+	}
+
+	public String getCertificateRootDirectory(){
+		return certificateRootDirectory;
+	}
+
+	public String getCertificateTrustStoreFile() {
+		return certificateTrustStoreFile;
+	}
+
+	public String getCertificateTrustStorePassword() {
+		return certificateTrustStorePassword;
 	}
 }

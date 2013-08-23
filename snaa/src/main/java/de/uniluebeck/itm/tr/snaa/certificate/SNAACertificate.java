@@ -363,7 +363,7 @@ public class SNAACertificate extends AbstractService implements SNAAService {
 		authenticationTripleCertificate.setUsername(userId);
 		authenticationTripleCertificate.setUrnPrefix(new NodeUrnPrefix(urnPrefix));
 		String userDir = System.getProperty("user.dir");
-		X509Certificate cert = CertificateUtilies.getCertificate(userDir + File.separator + SNAACertificateConfig.CERTIFICATE_DIRECTORY_NAME + File.separator+ organizationId);;
+		X509Certificate cert = CertificateUtilies.getCertificate(userDir + File.separator + snaaServiceConfig.getCertificateRootDirectory() + File.separator+ organizationId);;
 		authenticationTripleCertificate.setCertificate(cert);
 		lists.add(authenticationTripleCertificate);
 

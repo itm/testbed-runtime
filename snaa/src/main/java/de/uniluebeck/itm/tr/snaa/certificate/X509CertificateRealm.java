@@ -9,10 +9,10 @@ package de.uniluebeck.itm.tr.snaa.certificate;
 
 
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Permission;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UsersCert;
-import eu.smartsantander.cea.utils.helper.HelperUtilities;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
@@ -41,6 +41,9 @@ public class X509CertificateRealm extends AuthorizingRealm implements Realm {
 
 	@Inject
 	UserCertDao userCertDao;
+
+	@Inject
+	SNAAServiceConfig snaaServiceConfig;
 
 	@Override
 	protected SimpleAuthenticationInfo doGetAuthenticationInfo(AuthenticationToken at) throws AuthenticationException {
@@ -92,14 +95,9 @@ public class X509CertificateRealm extends AuthorizingRealm implements Realm {
 			return false;
 		}
 		try {
-			FileInputStream in;
-			if (HelperUtilities.isWindows()) {
-				in = new FileInputStream(SNAACertificateConfig.PATH_TO_TRUST_STORE_WINDOWS);
-			} else {
-				in = new FileInputStream(SNAACertificateConfig.PATH_TO_TRUST_STORE_LINUX);
-			}
+			FileInputStream in = new FileInputStream(snaaServiceConfig.getCertificateTrustStoreFile());
 			KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-			keyStore.load(in, SNAACertificateConfig.TRUST_STORE_PW.toCharArray());
+			keyStore.load(in, snaaServiceConfig.getCertificateTrustStorePassword().toCharArray());
 
 			X509CertSelector target = new X509CertSelector();
 			target.setCertificate(certificate);
