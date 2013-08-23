@@ -47,10 +47,14 @@ public class SnaaResourceImpl implements SnaaResource {
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
-		for (ValidationResult validationResult : snaa.isValid(secretAuthenticationKeys)) {
-			if (!validationResult.isValid()) {
-				return Response.status(Status.FORBIDDEN).build();
+		try {
+			for (ValidationResult validationResult : snaa.isValid(secretAuthenticationKeys)) {
+				if (!validationResult.isValid()) {
+					return Response.status(Status.FORBIDDEN).build();
+				}
 			}
+		} catch (SNAAFault_Exception e) {
+			return Response.status(Status.FORBIDDEN).build();
 		}
 
 		return Response.ok().build();
