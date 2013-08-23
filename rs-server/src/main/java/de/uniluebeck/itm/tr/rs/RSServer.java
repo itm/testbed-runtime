@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.printHelpAndExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
@@ -99,6 +100,10 @@ public class RSServer extends AbstractService {
 					RSServiceConfig.class,
 					RSServerConfig.class
 			);
+		}
+
+		if (config.config == null) {
+			printHelpAndExit(config, RSServer.class);
 		}
 
 		final PropConfModule propConfModule = new PropConfModule(

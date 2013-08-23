@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.inject.Guice.createInjector;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.printHelpAndExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
@@ -81,6 +82,10 @@ public class FederatorServer extends AbstractService {
 					RSFederatorServiceConfig.class,
 					SNAAFederatorServiceConfig.class
 			);
+		}
+
+		if (config.config == null) {
+			printHelpAndExit(config, FederatorServer.class);
 		}
 
 		final PropConfModule propConfModule = new PropConfModule(
