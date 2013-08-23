@@ -63,11 +63,11 @@ public abstract class SNAACertificateTestBase {
 
 	protected static final NodeUrnPrefix NODE_URN_PREFIX_2 = new NodeUrnPrefix("urn:wisebed:uzl1:");
 
-	protected static final String currentUserDir = System.getProperty("user.dir");
+	protected static final String certificateRootDir = SNAACertificateTestBase.class.getClassLoader().getResource("certs").getPath();
 
 	// Additional information to create a signed saml assertion
 
-	protected static final String pathToKeystoreFile = currentUserDir + "/certs/keystore/keystore.jks";
+	protected static final String pathToKeystoreFile = certificateRootDir + "/keystore/keystore.jks";
 
 	protected static final String keystorePassword = "changeit";
 
@@ -100,8 +100,8 @@ public abstract class SNAACertificateTestBase {
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX_1);
 		when(servedNodeUrnPrefixesProvider.get()).thenReturn(newHashSet(NODE_URN_PREFIX_1, NODE_URN_PREFIX_2));
 		when(snaaServiceConfig.getShiroJpaProperties()).thenReturn(new Properties());
-		when(snaaServiceConfig.getCertificateRootDirectory()).thenReturn("certs");
-		when(snaaServiceConfig.getCertificateTrustStoreFile()).thenReturn("certs/truststore/cacerts.jks");
+		when(snaaServiceConfig.getCertificateRootDirectory()).thenReturn(certificateRootDir);
+		when(snaaServiceConfig.getCertificateTrustStoreFile()).thenReturn(certificateRootDir+"/truststore/cacerts.jks");
 		when(snaaServiceConfig.getCertificateTrustStorePassword()).thenReturn("changeit");
 
 		final AbstractModule mocksModule = new AbstractModule() {
@@ -180,7 +180,7 @@ public abstract class SNAACertificateTestBase {
 	}
 
 	/**
-	 * Mocks returning a user which has the role "SERVICE_PROVIDER" from the data base.
+	 * Mocks returning a user which has the role "SERVICE_PROVIDER" from the data base.String s
 	 *
 	 * @return a user which has the role "Experimenter" from the data base.
 	 */
