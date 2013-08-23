@@ -16,7 +16,7 @@ import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
-import eu.smartsantander.cea.utils.Helper.HelperUtilities;
+import eu.smartsantander.cea.utils.helper.HelperUtilities;
 import eu.smartsantander.cea.utils.saml.SAMLGenerator;
 import eu.smartsantander.cea.utils.saml.SAMLInput;
 import eu.smartsantander.cea.utils.saml.SignAssertion;

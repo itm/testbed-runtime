@@ -13,7 +13,7 @@ import eu.smartsantander.cea.organizationservice.utilities.Config;
 import eu.smartsantander.cea.utils.saml.SAMLGenerator;
 import eu.smartsantander.cea.utils.saml.SAMLInput;
 import eu.smartsantander.cea.utils.saml.SignAssertion;
-import eu.smartsantander.cea.utils.singature.VerifyData;
+import eu.smartsantander.cea.utils.signature.VerifyData;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.SecureRandom;
@@ -56,18 +56,18 @@ public class ProcessRequest extends HttpServlet {
         
         if (challenge!=null && challengeSigned!=null) {
             
-            byte[] signedData = eu.smartsantander.cea.utils.Helper.HelperUtilities.decodeToByte(challengeSigned);
-            byte[] challengeBytes = eu.smartsantander.cea.utils.Helper.HelperUtilities.decodeToByte(challenge);
+            byte[] signedData = eu.smartsantander.cea.utils.helper.HelperUtilities.decodeToByte(challengeSigned);
+            byte[] challengeBytes = eu.smartsantander.cea.utils.helper.HelperUtilities.decodeToByte(challenge);
             
-            System.out.println("Challenge received in client request: "+eu.smartsantander.cea.utils.Helper.HelperUtilities.decode(challenge));
+            System.out.println("Challenge received in client request: "+eu.smartsantander.cea.utils.helper.HelperUtilities.decode(challenge));
             
             
             System.out.println("IDP SIDE: VERIFYING THE SIGNED CHALLENGE USING CLIENT PUBLIC KEY");
             boolean isValide;
-            if (eu.smartsantander.cea.utils.Helper.HelperUtilities.isWindows()) {
-                    isValide = VerifyData.verifySignature(challengeBytes, eu.smartsantander.cea.utils.Helper.HelperUtilities.getPublicKeyFromFile(userDir+"\\"+Config.CLIENT_PUBKEY_DIRECTORY+"\\"+userId), signedData);
+            if (eu.smartsantander.cea.utils.helper.HelperUtilities.isWindows()) {
+                    isValide = VerifyData.verifySignature(challengeBytes, eu.smartsantander.cea.utils.helper.HelperUtilities.getPublicKeyFromFile(userDir+"\\"+Config.CLIENT_PUBKEY_DIRECTORY+"\\"+userId), signedData);
             } else {
-                    isValide = VerifyData.verifySignature(challengeBytes, eu.smartsantander.cea.utils.Helper.HelperUtilities.getPublicKeyFromFile(userDir+"/"+Config.CLIENT_PUBKEY_DIRECTORY+"/"+userId), signedData);
+                    isValide = VerifyData.verifySignature(challengeBytes, eu.smartsantander.cea.utils.helper.HelperUtilities.getPublicKeyFromFile(userDir+"/"+Config.CLIENT_PUBKEY_DIRECTORY+"/"+userId), signedData);
             }
             
             if (isValide) {
@@ -87,8 +87,8 @@ public class ProcessRequest extends HttpServlet {
                     SignAssertion signer = new SignAssertion(assertion, Config.pathToKeyStoreFile, Config.keystorePassword, Config.certificateAllias);
                     Credential credential = signer.getSignningCredentialFromKeyStore();
                     Response res = signer.singnAssertion(credential);
-                    String responseToSend = eu.smartsantander.cea.utils.Helper.HelperUtilities.samlResponseToString(res);
-                    String responseEncoded = eu.smartsantander.cea.utils.Helper.HelperUtilities.encode(responseToSend);
+                    String responseToSend = eu.smartsantander.cea.utils.helper.HelperUtilities.samlResponseToString(res);
+                    String responseEncoded = eu.smartsantander.cea.utils.helper.HelperUtilities.encode(responseToSend);
                     Map params = new HashMap();
                     params.put("SAMLResponse", responseEncoded);
                     System.out.println("IDP SIDE: SENT SAMLRESPONSE TO CLIENT");
@@ -110,7 +110,7 @@ public class ProcessRequest extends HttpServlet {
                 challenge = getSecureNumber();
                 System.out.println("IN IDP SIDE: Challenge generated: "+challenge);
                 
-                String challengeBytes = eu.smartsantander.cea.utils.Helper.HelperUtilities.encode(challenge);
+                String challengeBytes = eu.smartsantander.cea.utils.helper.HelperUtilities.encode(challenge);
                 
                 out.println("challenge="+challengeBytes);
             }

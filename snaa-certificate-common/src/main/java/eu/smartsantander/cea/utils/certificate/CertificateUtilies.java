@@ -6,7 +6,7 @@
 *******************************************************************************/
 package eu.smartsantander.cea.utils.certificate;
 
-import eu.smartsantander.cea.utils.Helper.HelperUtilities;
+import eu.smartsantander.cea.utils.helper.HelperUtilities;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

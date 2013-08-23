@@ -4,7 +4,7 @@
 *   ROUX Pierre
 *   Kim Thuat NGUYEN
 *******************************************************************************/
-package eu.smartsantander.cea.utils.singature;
+package eu.smartsantander.cea.utils.signature;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

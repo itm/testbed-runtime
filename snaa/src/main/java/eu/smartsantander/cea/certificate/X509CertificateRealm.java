@@ -12,7 +12,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Permission;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UsersCert;
-import eu.smartsantander.cea.utils.Helper.HelperUtilities;
+import eu.smartsantander.cea.utils.helper.HelperUtilities;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;

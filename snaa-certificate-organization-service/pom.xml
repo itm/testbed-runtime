@@ -3,11 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.nguyenkim.cea</groupId>
-    <artifactId>organization-service</artifactId>
+    <artifactId>tr.snaa-certificate-organization-service</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
-
-    <name>organization-service</name>
+    <packaging>jar</packaging>
+    <name>TR :: SNAA Certificate Organization Service</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
@@ -18,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>fr.cea.util</groupId>
-            <artifactId>client-certificate</artifactId>
+            <artifactId>tr.snaa-certificate-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

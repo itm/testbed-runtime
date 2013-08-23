@@ -4,13 +4,16 @@
 *   ROUX Pierre
 *   Kim Thuat NGUYEN
 *******************************************************************************/
-package eu.smartsantander.cea.utils.Helper;
+package eu.smartsantander.cea.utils.helper;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.apache.commons.codec.binary.Base64;
+import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.impl.ResponseMarshaller;
+import org.opensaml.xml.io.MarshallingException;
+import org.opensaml.xml.util.XMLHelper;
+import org.w3c.dom.Element;
+
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -18,12 +21,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Properties;
-import org.apache.commons.codec.binary.Base64;
-import org.opensaml.saml2.core.Response;
-import org.opensaml.saml2.core.impl.ResponseMarshaller;
-import org.opensaml.xml.io.MarshallingException;
-import org.opensaml.xml.util.XMLHelper;
-import org.w3c.dom.Element;
 
 public class HelperUtilities {
         

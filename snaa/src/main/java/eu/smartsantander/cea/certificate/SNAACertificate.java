@@ -24,7 +24,7 @@ import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UsersCert;
 import de.uniluebeck.itm.util.TimedCache;
-import eu.smartsantander.cea.utils.Helper.HelperUtilities;
+import eu.smartsantander.cea.utils.helper.HelperUtilities;
 import eu.smartsantander.cea.utils.certificate.CertificateUtilies;
 import eu.smartsantander.cea.utils.saml.SAMLUtilities;
 import eu.wisebed.api.v3.common.NodeUrn;

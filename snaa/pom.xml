@@ -155,7 +155,7 @@
         </dependency>
         <dependency>
             <groupId>fr.cea.util</groupId>
-            <artifactId>client-certificate</artifactId>
+            <artifactId>tr.snaa-certificate-common</artifactId>
         </dependency>
     </dependencies>
     <build>

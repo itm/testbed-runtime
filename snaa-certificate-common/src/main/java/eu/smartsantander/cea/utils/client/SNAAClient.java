@@ -6,9 +6,9 @@
 *******************************************************************************/
 package eu.smartsantander.cea.utils.client;
 
-import eu.smartsantander.cea.utils.Helper.HelperUtilities;
+import eu.smartsantander.cea.utils.helper.HelperUtilities;
 import eu.smartsantander.cea.utils.httprequest.HttpRequestUtil;
-import eu.smartsantander.cea.utils.singature.SignData;
+import eu.smartsantander.cea.utils.signature.SignData;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
