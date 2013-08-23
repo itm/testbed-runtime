@@ -6,11 +6,14 @@
 *******************************************************************************/
 package eu.smartsantander.cea.utils.helper;
 
+import eu.smartsantander.cea.utils.certificate.CertificateUtilies;
 import org.apache.commons.codec.binary.Base64;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.impl.ResponseMarshaller;
 import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.util.XMLHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import java.io.*;
@@ -23,6 +26,11 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Properties;
 
 public class HelperUtilities {
+
+	/**
+	 * Logs messages
+	 */
+	private static final Logger log = LoggerFactory.getLogger(CertificateUtilies.class);
         
     
     public static String stringArrayToString(String[] arrays) {
@@ -77,25 +85,25 @@ public class HelperUtilities {
             pkey = (PrivateKey) keyFactory.generatePrivate(privatekeySpec);
     
             return pkey;
-        } catch (NoSuchAlgorithmException ne) {
-            ne.printStackTrace();
-        } catch (InvalidKeySpecException is) {
-            is.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            log.error(e.getMessage(),e);
+        } catch (InvalidKeySpecException e) {
+            log.error(e.getMessage(),e);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage(),e);
         }
         return pkey;
     }
     
     public static PublicKey getPublicKeyFromFile(String pathToFileFolder) {
-        PublicKey pb = null;
+        PublicKey publicKey = null;
         File userFolder = new File(pathToFileFolder);
-        System.out.println("Path to user public key folder: "+ pathToFileFolder);
+        log.debug("Path to user public key folder: "+ pathToFileFolder);
         File[] listFiles = userFolder.listFiles();
         if (listFiles.length == 0) {
-            System.out.println("Folder empty. Public key for user does not exist");
+           log.error("Folder empty. Public key for user does not exist");
         } else if (listFiles.length>1) {
-            System.out.println("ERROR. Should have only one public key for user ");
+           log.error("ERROR. Should have only one public key for user ");
         } else {
             String pubKeyFileName = listFiles[0].getName();
             try {
@@ -106,19 +114,19 @@ public class HelperUtilities {
                 fis.close();
               java.security.KeyFactory keyFactory = java.security.KeyFactory.getInstance("RSA");
                 X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(encodePublicKey);
-                pb = keyFactory.generatePublic(pubKeySpec);
-            } catch (IOException ie) {
-                ie.printStackTrace();
-            } catch (NoSuchAlgorithmException ne) {
-                ne.printStackTrace();
-            } catch (InvalidKeySpecException is) {
-                is.printStackTrace();
+                publicKey = keyFactory.generatePublic(pubKeySpec);
+            } catch (IOException e) {
+	            log.error(e.getMessage(),e);
+            } catch (NoSuchAlgorithmException e) {
+	            log.error(e.getMessage(),e);
+            } catch (InvalidKeySpecException e) {
+	            log.error(e.getMessage(),e);
             } catch (Exception e) {
-                e.printStackTrace();
+	            log.error(e.getMessage(),e);
             }
             
         }
-        return pb;
+        return publicKey;
     }
     
     
@@ -127,27 +135,19 @@ public class HelperUtilities {
         Properties props = new Properties();
         try {
             props.load(HelperUtilities.class.getClassLoader().getResourceAsStream(fileName));
-        } catch (IOException ie) {
-            ie.printStackTrace();
+        } catch (IOException e) {
+	        log.error(e.getMessage(),e);
         }
         return props;
       }
-    
-    
-    public static boolean isWindows() {
-        if (System.getProperty("os.name").contains("Windows")) {
-            return true;
-        }
-        return false;
-    }
     
     public static void writeToFile(String infoToWrite, String fileName) {
         try { 
             try (BufferedWriter writer1 = new BufferedWriter(new FileWriter(fileName))) {
                 writer1.write(infoToWrite);
             }
-        } catch (IOException io) {
-            
+        } catch (IOException e) {
+	        log.error(e.getMessage(),e);
         }
     }
     
@@ -157,8 +157,8 @@ public class HelperUtilities {
               ResponseMarshaller marshaller = new ResponseMarshaller();
               Element plainText = marshaller.marshall(res);
               result = XMLHelper.nodeToString(plainText);
-          } catch (MarshallingException me) {
-              me.printStackTrace();
+          } catch (MarshallingException e) {
+	          log.error(e.getMessage(),e);
           }
           return result;
       }

@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import java.io.File;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.*;
@@ -362,12 +363,7 @@ public class SNAACertificate extends AbstractService implements SNAAService {
 		authenticationTripleCertificate.setUsername(userId);
 		authenticationTripleCertificate.setUrnPrefix(new NodeUrnPrefix(urnPrefix));
 		String userDir = System.getProperty("user.dir");
-		X509Certificate cert = null;
-		if (!HelperUtilities.isWindows()) {
-			cert = CertificateUtilies.getCertificate(userDir + "/" + SNAACertificateConfig.CERTIFICATE_DIRECTORY_NAME + "/" + organizationId);
-		} else {
-			cert = CertificateUtilies.getCertificate(userDir + "\\" + SNAACertificateConfig.CERTIFICATE_DIRECTORY_NAME + "\\" + organizationId);
-		}
+		X509Certificate cert = CertificateUtilies.getCertificate(userDir + File.separator + SNAACertificateConfig.CERTIFICATE_DIRECTORY_NAME + File.separator+ organizationId);;
 		authenticationTripleCertificate.setCertificate(cert);
 		lists.add(authenticationTripleCertificate);
 

@@ -6,23 +6,27 @@
 *******************************************************************************/
 package eu.smartsantander.cea.utils.certificate;
 
-import eu.smartsantander.cea.utils.helper.HelperUtilities;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.logging.Level;
 
 
 public class CertificateUtilies {
-    
+
+
+	/**
+	 * Logs messages
+	 */
+	private static final Logger log = LoggerFactory.getLogger(CertificateUtilies.class);
+
     public static X509Certificate getCertificate(String pathToFolder) {
+
         
-        System.out.println("DEBUG: "+pathToFolder);
+        log.debug(pathToFolder);
         String fileName=null;
         File folder = new File(pathToFolder);
         File[] listFiles = folder.listFiles();
@@ -32,25 +36,20 @@ public class CertificateUtilies {
         
         InputStream in = null;
         try {
-            String path = "";
-            if (HelperUtilities.isWindows()) {
-                path = pathToFolder+"\\"+fileName;
-            } else {
-                path = pathToFolder+"/"+fileName;
-            }
+            String path = pathToFolder+File.separator+fileName;
             in = new FileInputStream(path);
             CertificateFactory cf = CertificateFactory.getInstance("X509");
             X509Certificate cert = (X509Certificate) cf.generateCertificate(in);
             return cert;
         } catch (FileNotFoundException ex) {
-            java.util.logging.Logger.getLogger(CertificateUtilies.class.getName()).log(Level.SEVERE, "File "+ pathToFolder+ " not found", ex);
+            log.error("File "+ pathToFolder+ " not found", ex);
         } catch (CertificateException ex) {
-            java.util.logging.Logger.getLogger(CertificateUtilies.class.getName()).log(Level.SEVERE, "Certificate exception", ex);
+	        log.error("Certificate exception", ex);
         } finally {
             try {
                 in.close();
             } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(CertificateUtilies.class.getName()).log(Level.SEVERE, "IOE exception", ex);
+	            log.error("IOE exception", ex);
             }
         }
         return null;
