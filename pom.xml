@@ -36,6 +36,7 @@
 	<modules>
 		<module>common</module>
 		<module>device-db</module>
+		<module>device-db-server</module>
 		<module>federator</module>
 		<module>federator-deb</module>
 		<module>federator-server</module>

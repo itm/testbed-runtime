@@ -34,36 +34,20 @@
 		<relativePath>../</relativePath>
 	</parent>
 
-	<artifactId>tr.device-db</artifactId>
+	<artifactId>tr.device-db-server</artifactId>
 	<packaging>jar</packaging>
-	<name>TR :: Device DB</name>
+	<name>TR :: Device DB Server</name>
 
 	<dependencies>
 
 		<dependency>
-			<groupId>eu.wisebed</groupId>
-			<artifactId>api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>eu.wisebed</groupId>
-			<artifactId>wiseml</artifactId>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.device-db</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.common</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.netty-protocols</groupId>
-			<artifactId>netty-protocols</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>de.uniluebeck.itm.util</groupId>
 			<artifactId>logging</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>de.uniluebeck.itm.util</groupId>
-			<artifactId>util</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm.util</groupId>
@@ -84,8 +68,16 @@
 		</dependency>
 
 		<dependency>
+			<groupId>args4j</groupId>
+			<artifactId>args4j</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -95,51 +87,47 @@
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.google.inject.extensions</groupId>
-			<artifactId>guice-assistedinject</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate.javax.persistence</groupId>
-			<artifactId>hibernate-jpa-2.0-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>eu.smartsantander.rd</groupId>
-			<artifactId>rd3interactorj</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>eu.smartsantander.eventbroker</groupId>
-			<artifactId>client</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.derby</groupId>
-			<artifactId>derby</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<scope>test</scope>
-		</dependency>
 
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>
+							<transformers>
+								<transformer
+										implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>de.uniluebeck.itm.tr.devicedb.DeviceDBServer</mainClass>
+								</transformer>
+								<transformer
+										implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>META-INF/cxf/bus-extensions.txt</resource>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
