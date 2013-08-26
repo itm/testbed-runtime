@@ -189,7 +189,7 @@ public class SNAAServiceConfig {
 			usage = "The root directory of certificates and *.jks files for the certificate based Shiro SNAA server",
 			example = "/etc/certs"
 	)
-	public static final String CERTIFICATE_ROOT_DIRECTORY = "certificate.root.directory";
+	public static final String CERTIFICATE_ROOT_DIRECTORY = "snaa.certificate.root.directory";
 
 	@Inject(optional=true)
 	@Named(CERTIFICATE_ROOT_DIRECTORY)
@@ -200,7 +200,7 @@ public class SNAAServiceConfig {
 			usage = "The path to the trust store file",
 			example = "/etc/certs/truststore/cacerts.jks"
 	)
-	public static final String CERTIFICATE_TRUST_STORE_FILE = "certificate.trust.store.file";
+	public static final String CERTIFICATE_TRUST_STORE_FILE = "snaa.certificate.trust.store.file";
 
 	@Inject(optional=true)
 	@Named(CERTIFICATE_TRUST_STORE_FILE)
@@ -211,7 +211,7 @@ public class SNAAServiceConfig {
 			usage = "The password to access the trust store",
 			example = "mysecretpassword"
 	)
-	public static final String CERTIFICATE_TRUST_STORE_PASSWORD = "certificate.trust.store.password";
+	public static final String CERTIFICATE_TRUST_STORE_PASSWORD = "snaa.certificate.trust.store.password";
 
 	@Inject(optional=true)
 	@Named(CERTIFICATE_TRUST_STORE_PASSWORD)
