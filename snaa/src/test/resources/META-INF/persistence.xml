@@ -16,6 +16,8 @@
 		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.Role</class>
 		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup</class>
 		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.User</class>
+        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.Organization</class>
+        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.UsersCert</class>
 
 		<properties>
 			<!-- vendor-specific properties go here -->
