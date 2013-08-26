@@ -38,6 +38,7 @@
 		<module>device-db</module>
 		<module>federator</module>
 		<module>federator-deb</module>
+		<module>federator-server</module>
 		<module>federator-utils</module>
 		<module>iwsn-common</module>
 		<module>iwsn-federator</module>
@@ -121,8 +122,7 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm</groupId>
-				<artifactId>tr.federator</artifactId>
-				<classifier>server</classifier>
+				<artifactId>tr.federator-server</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

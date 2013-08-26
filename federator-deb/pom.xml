@@ -47,8 +47,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
-			<artifactId>tr.federator</artifactId>
-			<classifier>server</classifier>
+			<artifactId>tr.federator-server</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -70,8 +69,7 @@
 							<artifactItems>
 								<artifactItem>
 									<groupId>de.uniluebeck.itm</groupId>
-									<artifactId>tr.federator</artifactId>
-									<classifier>server</classifier>
+									<artifactId>tr.federator-server</artifactId>
 									<type>jar</type>
 									<overWrite>true</overWrite>
 								</artifactItem>
@@ -99,7 +97,7 @@
 							<dataSet>
 
 								<data>
-									<src>${project.build.directory}/dependency/${project.dependencies[0].artifactId}-${project.dependencies[0].version}-${project.dependencies[0].classifier}.jar</src>
+									<src>${project.build.directory}/dependency/${project.dependencies[0].artifactId}-${project.dependencies[0].version}.jar</src>
 									<type>file</type>
 									<mapper>
 										<type>perm</type>
@@ -125,7 +123,7 @@
 									<type>link</type>
 									<symlink>true</symlink>
 									<linkName>/usr/share/${project.pathName}/${project.pathName}.jar</linkName>
-									<linkTarget>/usr/share/${project.pathName}/${project.dependencies[0].artifactId}-${project.dependencies[0].version}-${project.dependencies[0].classifier}.jar</linkTarget>
+									<linkTarget>/usr/share/${project.pathName}/${project.dependencies[0].artifactId}-${project.dependencies[0].version}.jar</linkTarget>
 								</data>
 
 								<data>
