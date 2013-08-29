@@ -74,9 +74,9 @@ public class ProcessRequest extends HttpServlet {
 		            challengeBytes,
 		            HelperUtilities.getPublicKeyFromFile(
 				            userDir +
-				            File.pathSeparator +
+				            File.separator +
 				            Config.CLIENT_PUBKEY_DIRECTORY +
-				            File.pathSeparator +
+				            File.separator +
 				            userId),
 		            signedData);
 
