@@ -26,15 +26,15 @@ public class DeviceDBWisemlProvider implements WisemlProvider {
 
 	@Override
 	public Wiseml get() {
-		return getInternal(deviceDBService.getAll());
+		return convertDeviceConfigToWiseml(deviceDBService.getAll());
 	}
 
 	@Override
 	public Wiseml get(final Iterable<NodeUrn> nodeUrns) {
-		return getInternal(deviceDBService.getConfigsByNodeUrns(nodeUrns).values());
+		return convertDeviceConfigToWiseml(deviceDBService.getConfigsByNodeUrns(nodeUrns).values());
 	}
 
-	private Wiseml getInternal(final Iterable<DeviceConfig> configs) {
+	private Wiseml convertDeviceConfigToWiseml(final Iterable<DeviceConfig> configs) {
 
 		final Setup setup = new Setup();
 		final List<Setup.Node> nodes = setup.getNode();
