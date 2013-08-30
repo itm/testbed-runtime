@@ -26,7 +26,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.SecureRandom;
@@ -54,7 +53,6 @@ public class ProcessRequest extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        String userDir = ProcessRequest.class.getClassLoader().getResource(".").getPath();
         
         String userId = request.getParameter("userId");
         String idpId = request.getParameter("idpId");
@@ -72,12 +70,7 @@ public class ProcessRequest extends HttpServlet {
             log.debug("IDP SIDE: VERIFYING THE SIGNED CHALLENGE USING CLIENT PUBLIC KEY");
             boolean isValid = VerifyData.verifySignature(
 		            challengeBytes,
-		            HelperUtilities.getPublicKeyFromFile(
-				            userDir +
-				            File.separator +
-				            Config.CLIENT_PUBKEY_DIRECTORY +
-				            File.separator +
-				            userId),
+		            HelperUtilities.getPublicKeyFromFile(Config.CLIENT_PUBKEY_DIRECTORY+userId),
 		            signedData);
 
 
