@@ -100,7 +100,9 @@ class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginS
 	protected void doStop() {
 		try {
 			log.trace("GatewayPluginServiceImpl.doStop()");
-			pluginContainer.stopAndWait();
+			if (pluginContainer != null && pluginContainer.isRunning()) {
+				pluginContainer.stopAndWait();
+			}
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
