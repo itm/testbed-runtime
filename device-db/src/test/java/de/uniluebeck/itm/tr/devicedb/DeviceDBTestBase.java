@@ -13,8 +13,6 @@ import de.uniluebeck.itm.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
-import eu.wisebed.wiseml.Dtypes;
-import eu.wisebed.wiseml.Units;
 
 import org.junit.After;
 import org.junit.Test;
@@ -84,7 +82,7 @@ public abstract class DeviceDBTestBase {
 		
 		Capability cap1 = new Capability()
 				.withName("urn:wisebed:node:capability:light")
-				.withDatatype(Dtypes.INTEGER).withUnit(Units.LUX)
+				.withDatatype("integer").withUnit("lux")
 				.withDefault("0");
 		Set<Capability> capabilities1 = ImmutableSet.of(cap1);
 		

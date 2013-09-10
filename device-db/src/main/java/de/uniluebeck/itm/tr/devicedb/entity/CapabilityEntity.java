@@ -3,8 +3,6 @@ package de.uniluebeck.itm.tr.devicedb.entity;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import eu.wisebed.wiseml.Capability;
-import eu.wisebed.wiseml.Dtypes;
-import eu.wisebed.wiseml.Units;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -33,12 +31,10 @@ public class CapabilityEntity {
 	private String defaultValue;
 	
 	@Column(nullable=false)
-	@Enumerated(EnumType.STRING)
-	private Dtypes datatype;
+	private String datatype;
 	
 	@Column(nullable=false)
-	@Enumerated(EnumType.STRING)
-	private Units unit;
+	private String unit;
 	
 	public CapabilityEntity() { }
 	
@@ -65,19 +61,19 @@ public class CapabilityEntity {
 		this.defaultValue = defaultValue;
 	}
 
-	public Dtypes getDatatype() {
+	public String getDatatype() {
 		return datatype;
 	}
 
-	public void setDatatype(Dtypes datatype) {
+	public void setDatatype(String datatype) {
 		this.datatype = datatype;
 	}
 
-	public Units getUnit() {
+	public String getUnit() {
 		return unit;
 	}
 
-	public void setUnit(Units unit) {
+	public void setUnit(String unit) {
 		this.unit = unit;
 	}
 

@@ -9,21 +9,14 @@ import eu.smartsantander.rd.jaxb.ResourceDescription;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
-import eu.wisebed.wiseml.Dtypes;
-import eu.wisebed.wiseml.Units;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static eu.smartsantander.rd.jaxb.IoTNodeType.MOBILE_SENSOR_NODE;
 import static eu.smartsantander.rd.jaxb.IoTNodeType.SENSOR_NODE;
 
 
 public abstract class DeviceDBRDHelper {
-
-	private static final Logger log = LoggerFactory.getLogger(DeviceDBRDHelper.class);
 
 	public static Long[] getTimeouts(ResourceDescription rdResource) {
 		Long[] timeouts = new Long[4];
@@ -108,34 +101,7 @@ public abstract class DeviceDBRDHelper {
 		NodeUrn urn = new NodeUrn();
 		urn.setNodeUrn(rdResource.getUid());
 
-		List<CapabilityType> caps = rdResource.getCapabilities().getCapability();
-		Set<Capability> capabilities = new HashSet<Capability>();
-		for (CapabilityType c : caps) {
-			Capability capability = new Capability();
-			capability.setName(c.getPhenomenon());
-			if (c.getType().equals("float")) {   //todo extend types
-				c.setType(Dtypes.DECIMAL.toString());
-			}
-
-			try {
-				capability.setDatatype(Dtypes.valueOf(c.getType()));
-			} catch (Exception e) {
-				capability.setDatatype(null);
-				log.error("Unknown data type {}. Setting data type of capability {} to 'null' ", c.getType(), capability.getName());
-			}
-			if (c.getUom().equals("lumen")) {                        //todo extend units
-				c.setUom(Units.LUX.toString());// 1 lx = 1 lm/m2.
-			} else if (c.getUom().equals("celsius")) {
-				c.setUom(Units.KELVIN.toString()); //todo extend units
-			}
-			try {
-				capability.setUnit(Units.valueOf(c.getUom()));
-			} catch (Exception e) {
-				capability.setUnit(null);
-				log.error("Unknown unit {}. Setting unit of capability {} to 'null' ", c.getUom(), capability.getName());
-			}
-			capabilities.add(capability);
-		}
+		Set<Capability> capabilities = convertCapabilitiesFromRDToWiseML(rdResource.getCapabilities().getCapability());
 		Long[] timeouts = getTimeouts(rdResource);
 		Coordinate coordinate = getCoordinates(rdResource);
 		Map<String, String> keyValues = getKeyValueConfig(rdResource);
@@ -160,6 +126,18 @@ public abstract class DeviceDBRDHelper {
 		);
 	}
 
+	private static Set<Capability> convertCapabilitiesFromRDToWiseML(final List<CapabilityType> caps) {
+		Set<Capability> capabilities = new HashSet<Capability>();
+		for (CapabilityType c : caps) {
+			Capability capability = new Capability();
+			capability.setName(c.getPhenomenon());
+			capability.setDatatype(c.getType());
+			capability.setUnit(c.getUom());
+			capabilities.add(capability);
+		}
+		return capabilities;
+	}
+
 	public static DeviceConfig deviceConfigFromRDResource(NodeOperationsEvents.AddSensorNode eventResource) {
 
 		final String type = eventResource.getIotNodeType().toString();
@@ -174,39 +152,10 @@ public abstract class DeviceDBRDHelper {
 		List<RegistrationEvents.Capability> caps = eventResource.getSensorCapabilityList();
 		Set<Capability> capabilities = new HashSet<Capability>();
 		for (RegistrationEvents.Capability c : caps) {
-
 			Capability capability = new Capability();
 			capability.setName(c.getName());
-
-			final Map<String, String> datatypeMapping = newHashMap();
-			datatypeMapping.put("float", "decimal");
-			datatypeMapping.put("decimal", "decimal");
-			datatypeMapping.put("integer", "integer");
-
-			for (Dtypes dtypes : Dtypes.values()) {
-				if (dtypes.value().equals(datatypeMapping.get(c.getDatatype()))) {
-					capability.setDatatype(dtypes);
-				}
-			}
-
-			if (c.getDatatype() != null && !"".equals(c.getDatatype()) && capability.getDatatype() == null) {
-				throw new RuntimeException("Could not convert datatype \"" + c
-						.getDatatype() + "\" from AddSensorNode message to the DeviceConfig equivalent."
-				);
-			}
-
-			for (Units units : Units.values()) {
-				if (units.value().equals(c.getUnit())) {
-					capability.setUnit(units);
-				}
-			}
-
-			if (c.getUnit() != null && !"".equals(c.getUnit()) && capability.getUnit() == null) {
-				throw new RuntimeException("Could not convert unit \"" + c
-						.getUnit() + "\" from AddSensorNode message to the DeviceConfig equivalent."
-				);
-			}
-
+			capability.setDatatype(c.getDatatype());
+			capability.setUnit(c.getUnit());
 			capabilities.add(capability);
 		}
 		Long[] timeouts = getTimeouts(eventResource);
