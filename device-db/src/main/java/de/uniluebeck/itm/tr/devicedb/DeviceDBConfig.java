@@ -66,6 +66,15 @@ public class DeviceDBConfig {
 	private URI deviceDBRemoteUri;
 
 	@PropConf(
+			usage = "If used in the SmartSantander context: the URI of the Resource Directory (RD)"
+	)
+	public static final String SMARTSANTANDER_RD_URI = "devicedb.smartsantander.rd.uri";
+
+	@Inject(optional = true)
+	@Named(SMARTSANTANDER_RD_URI)
+	private URI smartSantanderRDUri;
+
+	@PropConf(
 			usage = "If used in the SmartSantander context: the ID of the TR portal server in the Resource Directory (RD)"
 	)
 	public static final String SMARTSANTANDER_RD_PORTAL_ID = "devicedb.smartsantander.rd.portal_id";
@@ -84,6 +93,10 @@ public class DeviceDBConfig {
 	@Inject(optional = true)
 	@Named(SMARTSANTANDER_EVENTBROKER_URI)
 	private URI smartSantanderEventBrokerUri;
+
+	public URI getSmartSantanderRDUri() {
+		return smartSantanderRDUri;
+	}
 
 	public String getDeviceDBWebappContextPath() {
 		return deviceDBWebappContextPath;

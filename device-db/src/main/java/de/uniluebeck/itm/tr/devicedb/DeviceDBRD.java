@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.DecoratedImpl;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.smartsantander.rd.jaxb.ResourceDescription;
 import eu.smartsantander.rd.rd3api.IRD3API;
 import eu.smartsantander.rd.rd3api.QueryOptions;
@@ -22,6 +23,10 @@ import javax.xml.namespace.QName;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -36,12 +41,49 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 
 	private final DeviceDBRDEventBrokerClient eventBrokerClient;
 
+	private final SchedulerService schedulerService;
+
+	private final Lock bootstrapScheduleLock = new ReentrantLock();
+
+	private ScheduledFuture<?> bootstrapSchedule;
+
+	private final Runnable bootstrapRunnable = new Runnable() {
+		@Override
+		public void run() {
+
+			try {
+
+				bootstrapResourcesFromRD();
+				bootstrapScheduleLock.lock();
+				try {
+					bootstrapSchedule = null;
+				} finally {
+					bootstrapScheduleLock.unlock();
+				}
+
+			} catch (Exception e) {
+				log.warn("Exception while bootstrapping DeviceDB resources from RD (trying again in 30 seconds): ", e);
+				bootstrapScheduleLock.lock();
+				try {
+					bootstrapSchedule = schedulerService.schedule(this, 30, TimeUnit.SECONDS);
+				} finally {
+					bootstrapScheduleLock.unlock();
+				}
+				return;
+			}
+
+			eventBrokerClient.startAndWait();
+		}
+	};
+
 	@Inject
 	public DeviceDBRD(final DeviceDBConfig deviceDBConfig, @DecoratedImpl final DeviceDBService deviceDBService,
-					  final DeviceDBRDEventBrokerClient eventBrokerClient) {
+					  final DeviceDBRDEventBrokerClient eventBrokerClient,
+					  final SchedulerService schedulerService) {
 		this.deviceDBConfig = checkNotNull(deviceDBConfig);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.eventBrokerClient = checkNotNull(eventBrokerClient);
+		this.schedulerService = checkNotNull(schedulerService);
 	}
 
 	@Override
@@ -99,8 +141,7 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 		try {
 
 			deviceDBService.startAndWait();
-			bootstrapResourcesFromRD();
-			eventBrokerClient.startAndWait();
+			schedulerService.execute(bootstrapRunnable);
 			notifyStarted();
 
 		} catch (Exception e) {
@@ -112,6 +153,16 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 	protected void doStop() {
 
 		try {
+
+			bootstrapScheduleLock.lock();
+			try {
+				if (bootstrapSchedule != null) {
+					bootstrapSchedule.cancel(true);
+					bootstrapSchedule = null;
+				}
+			} finally {
+				bootstrapScheduleLock.unlock();
+			}
 
 			eventBrokerClient.stopAndWait();
 			deviceDBService.stopAndWait();
@@ -125,7 +176,8 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 	@SuppressWarnings("unchecked")
 	private void bootstrapResourcesFromRD() throws RDAPIException, JAXBException {
 
-		final IRD3API rd = RD3InteractorJ.getInstance();
+		final String rdURL = deviceDBConfig.getSmartSantanderRDUri().toString();
+		final IRD3API rd = RD3InteractorJ.getInstance(rdURL.endsWith("/") ? rdURL : rdURL + "/");
 		final Optional<QueryOptions> options = Optional.absent();
 		final List<ResourceDescription> resources = rd.getTestbedResourcesURN(
 				deviceDBConfig.getSmartSantanderRDPortalId(),
@@ -156,7 +208,8 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 				}
 			} catch (Exception e) {
 				log.error("Error while trying to create a device configuration based on" +
-						" information fetched from the RD: ",e);
+						" information fetched from the RD: ", e
+				);
 			}
 		}
 	}
