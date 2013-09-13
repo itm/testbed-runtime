@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity(name="Capability")
+@Cacheable
 public class CapabilityEntity {
 	
 	private static final Function<Capability,CapabilityEntity> CAP_TO_ENTITY_FUNCTION =

@@ -275,6 +275,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.google.inject.extensions</groupId>
+				<artifactId>guice-grapher</artifactId>
+				<version>3.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.inject.extensions</groupId>
 				<artifactId>guice-persist</artifactId>
 				<version>3.0</version>
 			</dependency>
@@ -411,6 +416,16 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-entitymanager</artifactId>
+				<version>4.2.4.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-c3p0</artifactId>
+				<version>4.2.4.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-ehcache</artifactId>
 				<version>4.2.4.Final</version>
 			</dependency>
 			<dependency>

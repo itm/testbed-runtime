@@ -25,7 +25,8 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.uniqueIndex;
 
-public class DeviceDBJpa extends AbstractService implements DeviceDBService {
+public class DeviceDBJpa extends AbstractService implements
+		DeviceDBService {
 
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(DeviceDBJpa.class);
@@ -66,6 +67,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 	}
 
 	@Override
+	@Transactional
 	public Map<NodeUrn, DeviceConfig> getConfigsByNodeUrns(Iterable<NodeUrn> nodeUrns) {
 		log.trace("DeviceDBJpa.getConfigsByNodeUrns({})", nodeUrns);
 		checkState(isRunning());
@@ -81,6 +83,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 
 	@Override
 	@Nullable
+	@Transactional
 	public DeviceConfig getConfigByUsbChipId(String usbChipId) {
 		log.trace("DeviceDBJpa.getConfigByUsbChipId({})", usbChipId);
 		checkState(isRunning());
@@ -98,6 +101,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 
 	@Override
 	@Nullable
+	@Transactional
 	public DeviceConfig getConfigByNodeUrn(NodeUrn nodeUrn) {
 		log.trace("DeviceDBJpa.getConfigByNodeUrn({})", nodeUrn);
 		checkState(isRunning());
@@ -113,6 +117,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 
 	@Override
 	@Nullable
+	@Transactional
 	public DeviceConfig getConfigByMacAddress(long macAddress) {
 		log.trace("DeviceDBJpa.getConfigByMacAddress({})", Long.toHexString(macAddress));
 		checkState(isRunning());
@@ -132,6 +137,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 	}
 
 	@Override
+	@Transactional
 	public Iterable<DeviceConfig> getAll() {
 		log.trace("DeviceDBJpa.getAll()");
 		checkState(isRunning());

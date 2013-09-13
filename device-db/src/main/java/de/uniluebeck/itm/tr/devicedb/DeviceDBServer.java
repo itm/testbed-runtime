@@ -1,8 +1,13 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.grapher.GrapherModule;
+import com.google.inject.grapher.InjectorGrapher;
+import com.google.inject.grapher.graphviz.GraphvizModule;
+import com.google.inject.grapher.graphviz.GraphvizRenderer;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
@@ -12,11 +17,13 @@ import de.uniluebeck.itm.util.propconf.PropConfModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintWriter;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.inject.Guice.createInjector;
-import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
-import static de.uniluebeck.itm.tr.common.config.ConfigHelper.printHelpAndExit;
-import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.*;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
 public class DeviceDBServer extends AbstractService {
@@ -102,7 +109,8 @@ public class DeviceDBServer extends AbstractService {
 		final WisemlProviderConfig wisemlProviderConfig = confInjector.getInstance(WisemlProviderConfig.class);
 
 		final DeviceDBServerModule module = new DeviceDBServerModule(commonConfig, deviceDBConfig, wisemlProviderConfig);
-		final DeviceDBServer deviceDBServer = createInjector(module).getInstance(DeviceDBServer.class);
+		final Injector deviceDBInjector = createInjector(module);
+		final DeviceDBServer deviceDBServer = deviceDBInjector.getInstance(DeviceDBServer.class);
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -113,6 +121,30 @@ public class DeviceDBServer extends AbstractService {
 			}
 		}
 		);
+
+		try {
+
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			PrintWriter out = new PrintWriter(baos);
+
+			Injector injector = Guice.createInjector(new GrapherModule(), new GraphvizModule());
+			GraphvizRenderer renderer = injector.getInstance(GraphvizRenderer.class);
+			renderer.setOut(out);
+
+			injector.getInstance(InjectorGrapher.class)
+					.of(deviceDBInjector)
+					.graph();
+
+			out = new PrintWriter(new File("/Users/bimschas/Desktop/devicedb.dot"), "UTF-8");
+			String s = baos.toString("UTF-8");
+			s = fixGrapherBug(s);
+			s = hideClassPaths(s);
+			out.write(s);
+			out.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();  // TODO implement
+		}
 
 		try {
 			deviceDBServer.start().get();
@@ -128,4 +160,15 @@ public class DeviceDBServer extends AbstractService {
 		);
 	}
 
+	public static String hideClassPaths(String s) {
+		s = s.replaceAll("\\w[a-z\\d_\\.]+\\.([A-Z][A-Za-z\\d_]*)", "");
+		s = s.replaceAll("value=[\\w-]+", "random");
+		return s;
+	}
+
+	public static String fixGrapherBug(String s) {
+		s = s.replaceAll("style=invis", "style=solid");
+		s = s.replaceAll(" margin=(\\S+), ", " margin=\"$1\", ");
+		return s;
+	}
 }

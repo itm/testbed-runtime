@@ -12,6 +12,7 @@ import java.util.*;
 
 
 @Entity(name="ChannelHandlerConfig")
+@Cacheable
 public class ChannelHandlerConfigEntity {
 	
 	private static final Function<ChannelHandlerConfig,ChannelHandlerConfigEntity> CHC_TO_ENTITY_FUNCTION =
