@@ -140,6 +140,7 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 
 		try {
 
+			schedulerService.startAndWait();
 			deviceDBService.startAndWait();
 			schedulerService.execute(bootstrapRunnable);
 			notifyStarted();
@@ -166,6 +167,7 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 
 			eventBrokerClient.stopAndWait();
 			deviceDBService.stopAndWait();
+			schedulerService.stopAndWait();
 			notifyStopped();
 
 		} catch (Exception e) {
