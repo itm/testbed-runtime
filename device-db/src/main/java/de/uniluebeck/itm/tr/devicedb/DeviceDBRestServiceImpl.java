@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +23,18 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 
 	private final ServicePublisher servicePublisher;
 
+	private final CommonConfig commonConfig;
+
 	private ServicePublisherService webApp;
 
 	private ServicePublisherService jaxRsService;
 
 	@Inject
-	public DeviceDBRestServiceImpl(final DeviceDBConfig config,
+	public DeviceDBRestServiceImpl(final CommonConfig commonConfig,
+								   final DeviceDBConfig config,
 								   final ServicePublisher servicePublisher,
 								   final DeviceDBRestApplication restApplication) {
+		this.commonConfig = commonConfig;
 		this.config = checkNotNull(config);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.restApplication = checkNotNull(restApplication);
@@ -48,6 +53,7 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 			String webAppResourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/devicedb/webapp").toString();
 
 			final Map<String, String> webAppInitParams = newHashMap();
+			webAppInitParams.put(CommonConfig.URN_PREFIX, commonConfig.getUrnPrefix().toString());
 			webAppInitParams.put(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH, config.getDeviceDBRestApiContextPath());
 			webAppInitParams.put(DeviceDBConfig.DEVICEDB_WEBAPP_CONTEXT_PATH, config.getDeviceDBWebappContextPath());
 
