@@ -1,13 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.util.concurrent.AbstractService;
-import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.grapher.GrapherModule;
-import com.google.inject.grapher.InjectorGrapher;
-import com.google.inject.grapher.graphviz.GraphvizModule;
-import com.google.inject.grapher.graphviz.GraphvizRenderer;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
@@ -28,8 +23,6 @@ import de.uniluebeck.itm.util.propconf.PropConfModule;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.inject.Guice.createInjector;
@@ -225,6 +218,7 @@ public class PortalServer extends AbstractService {
 		final Injector portalInjector = createInjector(portalModule);
 		final PortalServer portalServer = portalInjector.getInstance(PortalServer.class);
 
+		/*
 		try {
 
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -248,6 +242,7 @@ public class PortalServer extends AbstractService {
 		} catch (Exception e) {
 			e.printStackTrace();  // TODO implement
 		}
+		*/
 
 		try {
 			portalServer.start().get();
@@ -268,7 +263,7 @@ public class PortalServer extends AbstractService {
 
 		log.info("iWSN Portal started!");
 	}
-
+	/*
 	public static String hideClassPaths(String s) {
 		s = s.replaceAll("\\w[a-z\\d_\\.]+\\.([A-Z][A-Za-z\\d_]*)", "");
 		s = s.replaceAll("value=[\\w-]+", "random");
@@ -279,5 +274,5 @@ public class PortalServer extends AbstractService {
 		s = s.replaceAll("style=invis", "style=solid");
 		s = s.replaceAll(" margin=(\\S+), ", " margin=\"$1\", ");
 		return s;
-	}
+	}*/
 }
