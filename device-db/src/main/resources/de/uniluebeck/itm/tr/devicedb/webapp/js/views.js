@@ -104,6 +104,11 @@ $(function () {
             };
             // serialize form
             var data = form2js('modal-form','.',true,nodeCallback,true);
+            // init arrays if they are empty
+            data.defaultChannelPipeline = data.defaultChannelPipeline || [];
+            data.capabilities = data.capabilities || [];
+            data.nodeConfiguration = data.nodeConfiguration || [];
+
             var isNew = this.model.id === this.model.defaults.nodeUrn;
             // directly set URN if new
             if ( isNew ) {
