@@ -254,7 +254,7 @@
 			<dependency>
 				<groupId>eu.smartsantander.rd</groupId>
 				<artifactId>rd3interactorj</artifactId>
-				<version>1.6-SNAPSHOT</version>
+				<version>1.6</version>
 			</dependency>
 
 			<!-- 3rd party libraries -->
