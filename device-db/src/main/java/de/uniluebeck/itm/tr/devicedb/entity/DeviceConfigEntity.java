@@ -17,6 +17,7 @@ import java.util.Set;
 import static com.google.common.collect.Lists.transform;
 
 @Entity(name="DeviceConfig")
+@Cacheable
 public class DeviceConfigEntity {
 	
 	@Transient

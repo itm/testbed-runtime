@@ -25,7 +25,8 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.uniqueIndex;
 
-public class DeviceDBJpa extends AbstractService implements DeviceDBService {
+public class DeviceDBJpa extends AbstractService implements
+		DeviceDBService {
 
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(DeviceDBJpa.class);
@@ -124,12 +125,11 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 		try {
 
 			String macHex = "0x" + Strings.padStart(Long.toHexString(macAddress), 4, '0');
-			DeviceConfig config = entityManager.get()
+			return entityManager.get()
 					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress",
 							DeviceConfigEntity.class
 					)
 					.setParameter("macAddress", "%" + macHex).getSingleResult().toDeviceConfig();
-			return config;
 
 		} catch (NoResultException e) {
 			return null;

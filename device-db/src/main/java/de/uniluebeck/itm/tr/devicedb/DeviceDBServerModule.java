@@ -10,6 +10,9 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
+import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
+import de.uniluebeck.itm.util.scheduler.SchedulerServiceModule;
 
 public class DeviceDBServerModule extends AbstractModule {
 
@@ -34,9 +37,16 @@ public class DeviceDBServerModule extends AbstractModule {
 		bind(DeviceDBConfig.class).toProvider(Providers.of(deviceDBConfig));
 		bind(WisemlProviderConfig.class).toProvider(Providers.of(wisemlProviderConfig));
 
+		install(new SchedulerServiceModule());
 		install(new ServicePublisherCxfModule());
 		install(new DeviceDBServiceModule(deviceDBConfig));
 		install(new DeviceDBRestServiceModule());
+	}
+
+	@Provides
+	@Singleton
+	SchedulerService provideSchedulerService(SchedulerServiceFactory factory) {
+		return factory.create(-1, "DeviceDBServer");
 	}
 
 	@Provides

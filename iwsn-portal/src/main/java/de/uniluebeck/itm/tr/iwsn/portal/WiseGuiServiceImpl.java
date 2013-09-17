@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 
+import java.io.File;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -32,8 +33,34 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 	protected void doStart() {
 		try {
 
-			final String resourceBaseDir = "/de/uniluebeck/itm/tr/iwsn/portal/wisegui";
-			final String resourceBase = this.getClass().getResource(resourceBaseDir).toString();
+			final String resourceBase;
+			final File wiseGuiSourceDir = wiseGuiServiceConfig.getWiseGuiSourceDir();
+			if (wiseGuiSourceDir != null && !"".equals(wiseGuiSourceDir.toString())) {
+
+				if (!wiseGuiSourceDir.exists()) {
+					throw new IllegalArgumentException(
+							"WiseGui source directory \"" + wiseGuiSourceDir + "\" does not exist"
+					);
+				}
+
+				if (!wiseGuiSourceDir.isDirectory()) {
+					throw new IllegalArgumentException(
+							"WiseGui source directory \"" + wiseGuiSourceDir + "\" is not a directory"
+					);
+				}
+
+				if (!wiseGuiSourceDir.canRead()) {
+					throw new IllegalArgumentException(
+							"WiseGui source directory \"" + wiseGuiSourceDir + "\" can't be read"
+					);
+				}
+
+				resourceBase = wiseGuiSourceDir.toString();
+
+			} else {
+
+				resourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/iwsn/portal/wisegui").toString();
+			}
 
 			final Map<String, String> initParams = newHashMap();
 			initParams.put(WiseGuiServiceConfig.WISEGUI_CONTEXT_PATH, wiseGuiServiceConfig.getWiseGuiContextPath());

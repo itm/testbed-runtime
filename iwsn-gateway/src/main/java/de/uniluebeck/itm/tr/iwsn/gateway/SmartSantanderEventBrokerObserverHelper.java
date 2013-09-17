@@ -7,8 +7,6 @@ import eu.smartsantander.eventbroker.events.RegistrationEvents;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
-import eu.wisebed.wiseml.Dtypes;
-import eu.wisebed.wiseml.Units;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,18 +56,9 @@ public class SmartSantanderEventBrokerObserverHelper {
 			final List<RegistrationEvents.Capability> sensorCapabilityList = addSensorNode.getSensorCapabilityList();
 			for (RegistrationEvents.Capability sensorCapability : sensorCapabilityList) {
 				Capability capability = new Capability();
-				try {
-					capability.setDatatype(convertToDtypes(sensorCapability));
-				} catch (RuntimeException e) {
-					log.error("The data type of a  device configuration's capability could not be set.");
-				}
 				capability.setName(sensorCapability.getName());
-				try {
-					capability.setUnit(Units.fromValue(sensorCapability.getUnit()));
-				} catch (Exception e) {
-					log.error("The unit of a  device configuration's capability could not be set: " + e.getCause());
-				}
-				//			capability.setDefault(sensorCapability.get);
+				capability.setDatatype(sensorCapability.getDatatype());
+				capability.setUnit(sensorCapability.getUnit());
 			}
 
 			final Map<String, String> nodeConfiguration = new HashMap<String, String>();
@@ -104,30 +93,6 @@ public class SmartSantanderEventBrokerObserverHelper {
 					e
 			);
 			return null;
-		}
-	}
-
-	/**
-	 * Converts and returns the data Type of a {@link RegistrationEvents.Capability} data type to {@link
-	 * eu.wisebed.wiseml.Dtypes}.
-	 *
-	 * @param sensorCapability
-	 * 		a {@link RegistrationEvents.Capability} data type
-	 *
-	 * @return a {@link eu.wisebed.wiseml.Dtypes} which corresponds to the provided {@link RegistrationEvents.Capability}
-	 *
-	 * @throws RuntimeException
-	 * 		thrown if the provided data type cannot be converted
-	 */
-	private static Dtypes convertToDtypes(final RegistrationEvents.Capability sensorCapability)
-			throws RuntimeException {
-		final String datatype = sensorCapability.getDatatype();
-		if (datatype.equals("float") || datatype.equals("double")) {
-			return Dtypes.DECIMAL;
-		} else if (datatype.equals("integer") || datatype.equals("int") || datatype.equals("long")) {
-			return Dtypes.INTEGER;
-		} else {
-			throw new RuntimeException("The type " + datatype + " could not be handled.");
 		}
 	}
 }
