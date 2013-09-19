@@ -7,14 +7,12 @@ import eu.smartsantander.rd.jaxb.IoTNodeType;
 import eu.smartsantander.rd.jaxb.KeyValuePair;
 import eu.smartsantander.rd.jaxb.ResourceDescription;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.wiseml.Capability;
-import eu.wisebed.wiseml.Coordinate;
+import eu.wisebed.wiseml.*;
 
 import java.util.*;
 
 import static eu.smartsantander.rd.jaxb.IoTNodeType.MOBILE_SENSOR_NODE;
 import static eu.smartsantander.rd.jaxb.IoTNodeType.SENSOR_NODE;
-
 
 public abstract class DeviceDBRDHelper {
 
@@ -37,11 +35,45 @@ public abstract class DeviceDBRDHelper {
 
 
 	public static Coordinate getCoordinates(ResourceDescription rdResource) {
-		Coordinate coordinate = new Coordinate();
-		if (rdResource.getPosition() != null && rdResource.getPosition().getOutdoorCoordinates() != null) {
-			coordinate.setX(rdResource.getPosition().getOutdoorCoordinates().getLongitude());
-			coordinate.setY(rdResource.getPosition().getOutdoorCoordinates().getLatitude());
+
+		Coordinate coordinate = null;
+		final eu.smartsantander.rd.jaxb.OutdoorCoordinatesType rdOC = rdResource
+				.getPosition()
+				.getOutdoorCoordinates();
+		final eu.smartsantander.rd.jaxb.IndoorCoordinatesType rdIC = rdResource
+				.getPosition()
+				.getIndoorCoordinates();
+
+		if (rdOC != null) {
+
+			final OutdoorCoordinatesType wiseMLOC = new OutdoorCoordinatesType();
+			wiseMLOC.setLatitude(rdOC.getLatitude());
+			wiseMLOC.setLongitude(rdOC.getLongitude());
+			wiseMLOC.setX(rdOC.getXcoor());
+			wiseMLOC.setY(rdOC.getYcoor());
+			wiseMLOC.setZ(rdOC.getZcoor());
+
+			coordinate = new Coordinate();
+			coordinate.setType(CoordinateType.OUTDOOR);
+			coordinate.setOutdoorCoordinates(wiseMLOC);
 		}
+
+		if (rdIC != null) {
+
+			final IndoorCoordinatesType wiseMLIC = new IndoorCoordinatesType();
+			wiseMLIC.setBackgroundimage(rdIC.getBackgroundimage());
+			wiseMLIC.setBuilding(rdIC.getBuilding());
+			wiseMLIC.setFloor(rdIC.getFloor());
+			wiseMLIC.setRoom(rdIC.getRoom());
+			wiseMLIC.setX(rdIC.getXcoor());
+			wiseMLIC.setY(rdIC.getYcoor());
+			wiseMLIC.setZ(rdIC.getZcoor());
+
+			coordinate = new Coordinate();
+			coordinate.setType(CoordinateType.INDOOR);
+			coordinate.setIndoorCoordinates(wiseMLIC);
+		}
+
 		return coordinate;
 	}
 
@@ -68,10 +100,20 @@ public abstract class DeviceDBRDHelper {
 	}
 
 	public static Coordinate getCoordinates(NodeOperationsEvents.AddSensorNode eventResource) {
-		Coordinate coordinate = new Coordinate();
+
+		Coordinate coordinate = null;
 		if (eventResource.getPosition() != null) {
-			coordinate.setX(eventResource.getPosition().getLongitude());
-			coordinate.setY(eventResource.getPosition().getLatitude());
+
+			final OutdoorCoordinatesType outdoorCoordinates = new OutdoorCoordinatesType();
+			outdoorCoordinates.setLatitude(eventResource.getPosition().getLatitude());
+			outdoorCoordinates.setLongitude(eventResource.getPosition().getLongitude());
+			outdoorCoordinates.setX(eventResource.getPosition().getXcoor());
+			outdoorCoordinates.setY(eventResource.getPosition().getYcoor());
+			outdoorCoordinates.setZ(eventResource.getPosition().getZcoor());
+
+			coordinate = new Coordinate();
+			coordinate.setType(CoordinateType.OUTDOOR);
+			coordinate.setOutdoorCoordinates(outdoorCoordinates);
 		}
 		return coordinate;
 	}

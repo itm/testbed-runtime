@@ -1,19 +1,14 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Multimap;
-
+import com.google.common.collect.*;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
-
+import eu.wisebed.wiseml.CoordinateType;
+import eu.wisebed.wiseml.OutdoorCoordinatesType;
 import org.junit.After;
 import org.junit.Test;
 
@@ -70,22 +65,22 @@ public abstract class DeviceDBTestBase {
 	public void setUp(DeviceDBService db) throws Exception {
 
 		this.db = db;
-		
+
 		Map<String, String> nodeConfig1 = new ImmutableMap.Builder<String, String>()
 				.put("a", "b")
 				.build();
-		
-		
+
+
 		Multimap<String, String> handlerProps = ImmutableMultimap.of("Key1", "Val1", "Key1", "Val2", "Key2", "Val3");
-		ChannelHandlerConfig handler1 = new ChannelHandlerConfig("testHandler", "myTestInstance", handlerProps );
+		ChannelHandlerConfig handler1 = new ChannelHandlerConfig("testHandler", "myTestInstance", handlerProps);
 		ChannelHandlerConfigList defaultChannelPipeline1 = new ChannelHandlerConfigList(ImmutableList.of(handler1));
-		
+
 		Capability cap1 = new Capability()
 				.withName("urn:wisebed:node:capability:light")
 				.withDatatype("integer").withUnit("lux")
 				.withDefault("0");
 		Set<Capability> capabilities1 = ImmutableSet.of(cap1);
-		
+
 		config1 = new DeviceConfig(
 				NODE_URN1,
 				"isense48",
@@ -116,7 +111,9 @@ public abstract class DeviceDBTestBase {
 				TimeUnit.MINUTES.toMillis(2),
 				TimeUnit.SECONDS.toMillis(5),
 				TimeUnit.SECONDS.toMillis(2),
-				new Coordinate().withX(10).withY(3).withZ(5.0),
+				new Coordinate().withType(CoordinateType.OUTDOOR).withOutdoorCoordinates(
+						new OutdoorCoordinatesType().withX(10f).withY(3f).withZ(5.0f)
+				),
 				capabilities1
 		);
 

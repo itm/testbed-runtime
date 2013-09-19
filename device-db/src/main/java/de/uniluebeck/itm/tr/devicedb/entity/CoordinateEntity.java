@@ -1,54 +1,47 @@
 package de.uniluebeck.itm.tr.devicedb.entity;
 
-import eu.wisebed.wiseml.Coordinate;
-
+import javax.annotation.Nullable;
 import javax.persistence.*;
 
-@Entity(name="Coordinate")
 @Cacheable
+@Entity(name = "Coordinate")
 public class CoordinateEntity {
-	
+
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
 
-	private double x;
+	@Nullable
+	@OneToOne(cascade = CascadeType.ALL)
+	private OutdoorCoordinatesEntity outdoorCoordinates;
 
-	private double y;
+	@Nullable
+	@OneToOne(cascade = CascadeType.ALL)
+	private IndoorCoordinatesEntity indoorCoordinates;
 
-	private Double z;
-
-	private Double phi;
-
-	private Double theta;
-	
-	public CoordinateEntity() {
-		
-	}
-	
-	public static CoordinateEntity fromCoordinate(final Coordinate position) {
-		if ( position == null) return null;
-		
-		final CoordinateEntity entity = new CoordinateEntity();
-		entity.x = position.getX();
-		entity.y = position.getY();
-		entity.z = position.getZ();
-		entity.phi = position.getPhi();
-		entity.theta = position.getTheta();
-		return entity;
-	}
-
-	public Coordinate toCoordinate() {
-		final Coordinate coordinate = new Coordinate();
-		coordinate.setX(x);
-		coordinate.setY(y);
-		coordinate.setZ(z);
-		coordinate.setPhi(phi);
-		coordinate.setTheta(theta);
-		return coordinate;
-	}
-	
 	public long getId() {
 		return id;
+	}
+
+	public void setId(final Long id) {
+		this.id = id;
+	}
+
+	@Nullable
+	public IndoorCoordinatesEntity getIndoorCoordinates() {
+		return indoorCoordinates;
+	}
+
+	public void setIndoorCoordinates(@Nullable final IndoorCoordinatesEntity indoorCoordinates) {
+		this.indoorCoordinates = indoorCoordinates;
+	}
+
+	@Nullable
+	public OutdoorCoordinatesEntity getOutdoorCoordinates() {
+		return outdoorCoordinates;
+	}
+
+	public void setOutdoorCoordinates(@Nullable final OutdoorCoordinatesEntity outdoorCoordinates) {
+		this.outdoorCoordinates = outdoorCoordinates;
 	}
 }

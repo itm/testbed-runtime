@@ -1,55 +1,30 @@
 package de.uniluebeck.itm.tr.common.dto;
 
+import javax.annotation.Nullable;
+
 public class CoordinateDto {
 
-	private double x;
+	@Nullable
+	private IndoorCoordinatesDto indoorCoordinate;
 
-	private double y;
+	@Nullable
+	private OutdoorCoordinatesDto outdoorCoordinate;
 
-	private Double z;
-
-	private Double phi;
-
-	private Double theta;
-
-	public double getX() {
-		return x;
+	@Nullable
+	public IndoorCoordinatesDto getIndoorCoordinate() {
+		return indoorCoordinate;
 	}
 
-	public void setX(double x) {
-		this.x = x;
+	public void setIndoorCoordinate(@Nullable final IndoorCoordinatesDto indoorCoordinate) {
+		this.indoorCoordinate = indoorCoordinate;
 	}
 
-	public double getY() {
-		return y;
+	@Nullable
+	public OutdoorCoordinatesDto getOutdoorCoordinate() {
+		return outdoorCoordinate;
 	}
 
-	public void setY(double y) {
-		this.y = y;
+	public void setOutdoorCoordinate(@Nullable final OutdoorCoordinatesDto outdoorCoordinate) {
+		this.outdoorCoordinate = outdoorCoordinate;
 	}
-
-	public Double getZ() {
-		return z;
-	}
-
-	public void setZ(Double z) {
-		this.z = z;
-	}
-
-	public Double getPhi() {
-		return phi;
-	}
-
-	public void setPhi(Double phi) {
-		this.phi = phi;
-	}
-
-	public Double getTheta() {
-		return theta;
-	}
-
-	public void setTheta(Double theta) {
-		this.theta = theta;
-	}
-	
-}	
+}
