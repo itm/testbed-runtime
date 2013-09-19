@@ -188,7 +188,7 @@ public abstract class DeviceConfigHelper {
 		return new ChannelHandlerConfigList(transform(pipeline, ENTITY_TO_CHC_FUNCTION));
 	}
 
-	public static DeviceConfig fromEntity(final DeviceConfigDto dto) {
+	public static DeviceConfig fromDto(final DeviceConfigDto dto) {
 
 		Map<String, String> nodeConfigurationMap = null;
 		if (dto.getNodeConfiguration() != null) {
@@ -284,16 +284,16 @@ public abstract class DeviceConfigHelper {
 
 	public static Coordinate fromDto(final CoordinateDto dto) {
 		Coordinate coordinate = null;
-		if (dto.getIndoorCoordinate() != null && dto.getOutdoorCoordinate() != null) {
+		if (dto.getIndoorCoordinates() != null && dto.getOutdoorCoordinates() != null) {
 			throw new IllegalArgumentException("CoordinateDto must either have indoor or outdoor coordinates!");
-		} else if (dto.getIndoorCoordinate() != null) {
+		} else if (dto.getIndoorCoordinates() != null) {
 			coordinate = new Coordinate();
 			coordinate.setType(CoordinateType.INDOOR);
-			coordinate.setIndoorCoordinates(fromDto(dto.getIndoorCoordinate()));
-		} else if (dto.getOutdoorCoordinate() != null) {
+			coordinate.setIndoorCoordinates(fromDto(dto.getIndoorCoordinates()));
+		} else if (dto.getOutdoorCoordinates() != null) {
 			coordinate = new Coordinate();
 			coordinate.setType(CoordinateType.OUTDOOR);
-			coordinate.setOutdoorCoordinates(fromDto(dto.getOutdoorCoordinate()));
+			coordinate.setOutdoorCoordinates(fromDto(dto.getOutdoorCoordinates()));
 		}
 		return coordinate;
 	}
@@ -339,10 +339,10 @@ public abstract class DeviceConfigHelper {
 		final CoordinateDto dto = new CoordinateDto();
 		switch (coordinate.getType()) {
 			case INDOOR:
-				dto.setIndoorCoordinate(toDto(coordinate.getIndoorCoordinates()));
+				dto.setIndoorCoordinates(toDto(coordinate.getIndoorCoordinates()));
 				break;
 			case OUTDOOR:
-				dto.setOutdoorCoordinate(toDto(coordinate.getOutdoorCoordinates()));
+				dto.setOutdoorCoordinates(toDto(coordinate.getOutdoorCoordinates()));
 				break;
 		}
 		return dto;

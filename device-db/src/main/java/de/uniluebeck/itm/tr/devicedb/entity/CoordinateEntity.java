@@ -12,11 +12,11 @@ public class CoordinateEntity {
 	private Long id;
 
 	@Nullable
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL, optional = true)
 	private OutdoorCoordinatesEntity outdoorCoordinates;
 
 	@Nullable
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL, optional = true)
 	private IndoorCoordinatesEntity indoorCoordinates;
 
 	public long getId() {

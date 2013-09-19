@@ -17,7 +17,6 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static de.uniluebeck.itm.tr.devicedb.DeviceConfigHelper.toDto;
-import static de.uniluebeck.itm.tr.devicedb.DeviceConfigHelper.fromEntity;
 
 public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
@@ -108,7 +107,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 		}
 
 		try {
-			deviceDBService.add(fromEntity(deviceConfig));
+			deviceDBService.add(DeviceConfigHelper.fromDto(deviceConfig));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.serverError().entity(e.getMessage()).build();
@@ -126,7 +125,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
 		// check if Entity to update already exists
 		if (deviceDBService.getConfigByNodeUrn(new NodeUrn(deviceConfig.getNodeUrn())) != null) {
-			deviceDBService.update(fromEntity(deviceConfig));
+			deviceDBService.update(DeviceConfigHelper.fromDto(deviceConfig));
 		} else {
 			return Response.notModified().build();
 		}

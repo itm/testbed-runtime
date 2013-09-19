@@ -33,7 +33,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 			new Function<DeviceConfigDto, DeviceConfig>() {
 				@Override
 				public DeviceConfig apply(final DeviceConfigDto input) {
-					return fromEntity(input);
+					return DeviceConfigHelper.fromDto(input);
 				}
 			};
 
@@ -71,7 +71,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 		final Map<NodeUrn, DeviceConfig> map = newHashMap();
 
 		for (DeviceConfigDto config : configs) {
-			map.put(new NodeUrn(config.getNodeUrn()), fromEntity(config));
+			map.put(new NodeUrn(config.getNodeUrn()), DeviceConfigHelper.fromDto(config));
 		}
 
 		return map;
@@ -89,7 +89,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 			if (Response.Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
 				return null;
 			}
-			return fromEntity(response.readEntity(DeviceConfigDto.class));
+			return DeviceConfigHelper.fromDto(response.readEntity(DeviceConfigDto.class));
 
 		} catch (Exception e) {
 			throw propagate(e);
@@ -103,7 +103,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 		checkState(isRunning());
 
 		final List<DeviceConfigDto> configs = getDeviceConfigDtos(newArrayList(nodeUrn));
- 		return configs.isEmpty() ? null : fromEntity(configs.get(0));
+ 		return configs.isEmpty() ? null : DeviceConfigHelper.fromDto(configs.get(0));
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 			final Response response = client().getByMacAddress(macAddress);
 			final Response.Status status = Response.Status.fromStatusCode(response.getStatus());
 			if (status == Response.Status.OK) {
-				return fromEntity(response.readEntity(DeviceConfigDto.class));
+				return DeviceConfigHelper.fromDto(response.readEntity(DeviceConfigDto.class));
 			} else if (status == Response.Status.NOT_FOUND) {
 				return null;
 			} else {

@@ -5,26 +5,26 @@ import javax.annotation.Nullable;
 public class CoordinateDto {
 
 	@Nullable
-	private IndoorCoordinatesDto indoorCoordinate;
+	private IndoorCoordinatesDto indoorCoordinates;
 
 	@Nullable
-	private OutdoorCoordinatesDto outdoorCoordinate;
+	private OutdoorCoordinatesDto outdoorCoordinates;
 
 	@Nullable
-	public IndoorCoordinatesDto getIndoorCoordinate() {
-		return indoorCoordinate;
+	public IndoorCoordinatesDto getIndoorCoordinates() {
+		return indoorCoordinates;
 	}
 
-	public void setIndoorCoordinate(@Nullable final IndoorCoordinatesDto indoorCoordinate) {
-		this.indoorCoordinate = indoorCoordinate;
+	public void setIndoorCoordinates(@Nullable final IndoorCoordinatesDto indoorCoordinates) {
+		this.indoorCoordinates = indoorCoordinates;
 	}
 
 	@Nullable
-	public OutdoorCoordinatesDto getOutdoorCoordinate() {
-		return outdoorCoordinate;
+	public OutdoorCoordinatesDto getOutdoorCoordinates() {
+		return outdoorCoordinates;
 	}
 
-	public void setOutdoorCoordinate(@Nullable final OutdoorCoordinatesDto outdoorCoordinate) {
-		this.outdoorCoordinate = outdoorCoordinate;
+	public void setOutdoorCoordinates(@Nullable final OutdoorCoordinatesDto outdoorCoordinates) {
+		this.outdoorCoordinates = outdoorCoordinates;
 	}
 }
