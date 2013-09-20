@@ -66,6 +66,16 @@ public class DeviceDBConfig {
 	private URI deviceDBRemoteUri;
 
 	@PropConf(
+			usage = "Shiro configuration file (for authenticating / authorizing users on DeviceDB frontend, no auth if empty)",
+			defaultValue = ""
+	)
+	public static final String DEVICEDB_AUTH_SHIRO_CONFIG = "devicedb.auth.shiro_config";
+
+	@Inject(optional = true)
+	@Named(DEVICEDB_AUTH_SHIRO_CONFIG)
+	private String deviceDBAuthShiroConfig;
+
+	@PropConf(
 			usage = "If used in the SmartSantander context: the URI of the Resource Directory (RD)"
 	)
 	public static final String SMARTSANTANDER_RD_URI = "devicedb.smartsantander.rd.uri";
@@ -127,5 +137,9 @@ public class DeviceDBConfig {
 	@Nullable
 	public URI getSmartSantanderEventBrokerUri() {
 		return smartSantanderEventBrokerUri;
+	}
+
+	public String getDeviceDBAuthShiroConfig() {
+		return deviceDBAuthShiroConfig;
 	}
 }
