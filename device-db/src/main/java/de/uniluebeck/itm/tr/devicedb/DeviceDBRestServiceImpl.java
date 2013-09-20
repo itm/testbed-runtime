@@ -5,19 +5,13 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import org.apache.shiro.web.env.EnvironmentLoaderListener;
-import org.apache.shiro.web.servlet.ShiroFilter;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.DispatcherType;
-import java.util.EnumSet;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.util.files.FileUtils.assertFileExistsAndIsReadable;
 
 public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDBRestService {
 
@@ -68,21 +62,6 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 					webAppResourceBase,
 					webAppInitParams
 			);
-
-			if (config.getDeviceDBAuthShiroConfig() != null && !"".equals(config.getDeviceDBAuthShiroConfig())) {
-
-				assertFileExistsAndIsReadable(config.getDeviceDBAuthShiroConfig());
-
-				final FilterHolder filterHolder = new FilterHolder();
-				filterHolder.setDisplayName("ShiroFilter");
-				filterHolder.setHeldClass(ShiroFilter.class);
-
-				//noinspection ConstantConditions
-				webApp.getServletContextHandler().addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
-
-				//noinspection ConstantConditions
-				webApp.getServletContextHandler().addEventListener(new EnvironmentLoaderListener());
-			}
 
 			webApp.startAndWait();
 

@@ -91,6 +91,6 @@ public class GatewayModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisherConfig provideServicePublisherConfig(final GatewayConfig config) {
-		return new ServicePublisherConfig(config.getRestAPIPort());
+		return new ServicePublisherConfig(config.getRestAPIPort(), config.getShiroIni());
 	}
 }

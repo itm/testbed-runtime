@@ -158,7 +158,7 @@
 				<version>2.0-SNAPSHOT</version>
 			</dependency>
 
-			<!-- other itm projects -->
+			<!-- other ITM projects -->
 			<dependency>
 				<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 				<artifactId>service-publisher-api</artifactId>

@@ -74,6 +74,16 @@ public class GatewayConfig {
 	@Named(SMARTSANTANDER_GATEWAY_ID)
 	private String smartSantanderGatewayId;
 
+	@PropConf(
+			usage = "Shiro INI file (if given, configures the Apache Shiro framework to do authentication and authorization for all published REST, SOAP & HTML services)",
+			defaultValue = ""
+	)
+	public static final String SHIRO_INI = "shiro.ini";
+
+	@Inject(optional = true)
+	@Named(SHIRO_INI)
+	protected String shiroIni;
+
 	public HostAndPort getPortalAddress() {
 		return portalAddress;
 	}
@@ -97,5 +107,9 @@ public class GatewayConfig {
 
 	public String getSmartSantanderGatewayId() {
 		return smartSantanderGatewayId;
+	}
+
+	public String getShiroIni() {
+		return shiroIni;
 	}
 }

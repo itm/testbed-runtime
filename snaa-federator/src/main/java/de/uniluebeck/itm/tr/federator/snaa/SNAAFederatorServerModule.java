@@ -37,6 +37,6 @@ public class SNAAFederatorServerModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory) {
-		return servicePublisherFactory.create(new ServicePublisherConfig(snaaFederatorServerConfig.getPort()));
+		return servicePublisherFactory.create(new ServicePublisherConfig(snaaFederatorServerConfig.getPort(), snaaFederatorServerConfig.getShiroIni()));
 	}
 }
