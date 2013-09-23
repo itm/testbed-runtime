@@ -112,31 +112,6 @@ public class DeviceDBServer extends AbstractService {
 			}
 		}
 		);
-		/*
-		try {
-
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			PrintWriter out = new PrintWriter(baos);
-
-			Injector injector = Guice.createInjector(new GrapherModule(), new GraphvizModule());
-			GraphvizRenderer renderer = injector.getInstance(GraphvizRenderer.class);
-			renderer.setOut(out);
-
-			injector.getInstance(InjectorGrapher.class)
-					.of(deviceDBInjector)
-					.graph();
-
-			out = new PrintWriter(new File("/Users/bimschas/Desktop/devicedb.dot"), "UTF-8");
-			String s = baos.toString("UTF-8");
-			s = fixGrapherBug(s);
-			s = hideClassPaths(s);
-			out.write(s);
-			out.close();
-
-		} catch (Exception e) {
-			e.printStackTrace();  // TODO implement
-		}
-		*/
 
 		try {
 			deviceDBServer.start().get();
@@ -151,16 +126,4 @@ public class DeviceDBServer extends AbstractService {
 				"http://localhost:" + commonConfig.getPort() + deviceDBConfig.getDeviceDBRestApiContextPath()
 		);
 	}
-	/*
-	public static String hideClassPaths(String s) {
-		s = s.replaceAll("\\w[a-z\\d_\\.]+\\.([A-Z][A-Za-z\\d_]*)", "");
-		s = s.replaceAll("value=[\\w-]+", "random");
-		return s;
-	}
-
-	public static String fixGrapherBug(String s) {
-		s = s.replaceAll("style=invis", "style=solid");
-		s = s.replaceAll(" margin=(\\S+), ", " margin=\"$1\", ");
-		return s;
-	}*/
 }

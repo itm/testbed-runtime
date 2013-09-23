@@ -62,6 +62,7 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 					webAppResourceBase,
 					webAppInitParams
 			);
+
 			webApp.startAndWait();
 
 			notifyStarted();

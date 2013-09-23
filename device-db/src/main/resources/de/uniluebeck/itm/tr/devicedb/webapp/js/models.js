@@ -7,7 +7,7 @@ $(function () {
         idAttribute: 'nodeUrn',
         urlRoot: deviceDBRestApiContextPath + '/deviceConfigs',
         defaults: {
-            "nodeUrn" : urnPrefix
+            "nodeUrn" : nodeUrnPrefix
         }
     });
 

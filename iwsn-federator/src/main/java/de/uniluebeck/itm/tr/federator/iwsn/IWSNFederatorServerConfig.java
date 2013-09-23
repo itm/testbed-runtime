@@ -17,7 +17,17 @@ public class IWSNFederatorServerConfig {
 	@Named(FEDERATOR_PORT)
 	private int port;
 
+	private String shiroIni;
+
 	public int getPort() {
 		return port;
+	}
+
+	public String getShiroIni() {
+		return shiroIni;
+	}
+
+	public void setShiroIni(final String shiroIni) {
+		this.shiroIni = shiroIni;
 	}
 }

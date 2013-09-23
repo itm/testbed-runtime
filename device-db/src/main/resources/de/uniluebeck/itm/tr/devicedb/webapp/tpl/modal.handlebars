@@ -1,29 +1,23 @@
 <div class="modal hide fade">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3>Modal header</h3>
+        <h3>Edit Device Configuration</h3>
     </div>
     <div class="modal-body">
         <form class="form-horizontal" id="modal-form">
         <legend>Generic</legend>
         <div class="control-group">
-            <label class="control-label" for="nodeUrn">Node-URN</label>
+            <label class="control-label" for="nodeUrn">Node URN</label>
             <div class="controls">
-                <input type="text" id="nodeUrn" placeholder="e.g. urn:wisebed:[namespace]:[0xID]" value="{{nodeUrn}}">
+				<input type="text" id="nodeUrn" placeholder="e.g. [testbed-urn-prefix]:[mac]" value="{{nodeUrn}}">
                 <span class="help-inline" title="mandatory field">*</span>
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="nodeType">Node-Type</label>
+            <label class="control-label" for="nodeType">Node Type</label>
             <div class="controls">
                 <input type="text" id="nodeType" placeholder="e.g. isense48" value="{{nodeType}}">
                 <span class="help-inline" title="mandatory field">*</span>
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="gatewayNode">Gateway</label>
-            <div class="controls">
-                <input type="checkbox" id="gatewayNode">
             </div>
         </div>
         <div class="control-group">
@@ -33,35 +27,81 @@
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="description">Description</label>
-            <div class="controls">
-                <textarea id="description" rows="3">{{description}}</textarea>
-            </div>
-        </div>
-        <div class="control-group">
             <label class="control-label" for="nodeUSBChipID">USB Chip ID</label>
             <div class="controls">
                 <input type="text" id="nodeUSBChipID" value="{{nodeUSBChipID}}">
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label">Position</label>
-            <div class="controls inline-controls">
-                <div>
-                    <label for="position.x">x:</label>
-                    <input type="text" id="position.x" value="{{position.x}}">
-                    <label for="position.y">y:</label>
-                    <input type="text" id="position.y" value="{{position.y}}">
-                    <label for="position.z">z:</label>
-                    <input type="text" id="position.z" value="{{position.z}}">
-                </div><div class="top-margin">
-                    <label for="position.phi">phi: </label>
-                    <input type="text" id="position.phi" value="{{position.phi}}">
-                    <label for="position.theta">theta:</label>
-                    <input type="text" id="position.theta" value="{{position.theta}}">
-                </div>
+            <label class="control-label" for="gatewayNode">Gateway</label>
+            <div class="controls">
+                <input type="checkbox" id="gatewayNode">
             </div>
         </div>
+        <div class="control-group">
+            <label class="control-label" for="description">Description</label>
+            <div class="controls">
+                <textarea id="description" rows="3">{{description}}</textarea>
+            </div>
+        </div>
+        <legend>Position</legend>
+        <div class="control-group">
+			<label class="control-label" for="position.outdoorCoordinates.latitude">Latitude</label>
+			<div class="controls">
+				<input type="text" id="position.outdoorCoordinates.latitude" value="{{position.outdoorCoordinates.latitude}}">
+			</div>
+		</div>
+        <div class="control-group">
+			<label class="control-label" for="position.outdoorCoordinates.longitude">Longitude</label>
+			<div class="controls">
+				<input type="text" id="position.outdoorCoordinates.longitude" value="{{position.outdoorCoordinates.longitude}}">
+			</div>
+		</div>
+        <div class="control-group">
+			<label class="control-label" for="position.outdoorCoordinates.x">X</label>
+			<div class="controls">
+				<div class="input-append">
+					<input type="text" id="position.outdoorCoordinates.x" value="{{position.outdoorCoordinates.x}}">
+					<span class="add-on">m</span>
+				</div>
+			</div>
+		</div>
+        <div class="control-group">
+			<label class="control-label" for="position.outdoorCoordinates.y">Y</label>
+			<div class="controls">
+				<div class="input-append">
+					<input type="text" id="position.outdoorCoordinates.y" value="{{position.outdoorCoordinates.y}}">
+					<span class="add-on">m</span>
+				</div>
+			</div>
+		</div>
+        <div class="control-group">
+			<label class="control-label" for="position.outdoorCoordinates.z">Z</label>
+			<div class="controls">
+				<div class="input-append">
+					<input type="text" id="position.outdoorCoordinates.z" value="{{position.outdoorCoordinates.z}}">
+					<span class="add-on">m</span>
+				</div>
+			</div>
+		</div>
+        <div class="control-group">
+			<label class="control-label" for="position.outdoorCoordinates.phi">Phi</label>
+			<div class="controls">
+				<input type="text" id="position.outdoorCoordinates.phi" value="{{position.outdoorCoordinates.phi}}">
+			</div>
+		</div>
+        <div class="control-group">
+			<label class="control-label" for="position.outdoorCoordinates.z">Theta</label>
+			<div class="controls">
+				<input type="text" id="position.outdoorCoordinates.theta" value="{{position.outdoorCoordinates.theta}}">
+			</div>
+		</div>
+        <div class="control-group">
+			<label class="control-label" for="position.outdoorCoordinates.rho">Rho</label>
+			<div class="controls">
+				<input type="text" id="position.outdoorCoordinates.rho" value="{{position.outdoorCoordinates.rho}}">
+			</div>
+		</div>
         <legend>Timeouts</legend>
         <div class="control-group">
             <label class="control-label" for="timeoutNodeApiMillis">Timeout Node-API</label>

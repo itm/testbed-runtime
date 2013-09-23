@@ -58,6 +58,6 @@ public class FederatorServerModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory) {
-		return factory.create(new ServicePublisherConfig(federatorServerConfig.getPort()));
+		return factory.create(new ServicePublisherConfig(federatorServerConfig.getPort(), federatorServerConfig.getShiroIni()));
 	}
 }

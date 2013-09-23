@@ -122,6 +122,9 @@ $(function () {
                     self.close(e);
                 },
                 error: function(model, xhr, options) {
+					console.log(model);
+					console.log(xhr);
+					console.log(options);
                     alert(xhr.responseText);
                 },
                 type: isNew ? 'post' : 'put'

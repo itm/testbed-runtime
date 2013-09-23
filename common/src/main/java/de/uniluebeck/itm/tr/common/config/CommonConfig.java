@@ -20,6 +20,16 @@ public class CommonConfig {
 	protected int port;
 
 	@PropConf(
+			usage = "Shiro INI file (if given, configures the Apache Shiro framework to do authentication and authorization for all published REST, SOAP & HTML services)",
+			defaultValue = ""
+	)
+	public static final String SHIRO_INI = "shiro.ini";
+
+	@Inject(optional = true)
+	@Named(SHIRO_INI)
+	protected String shiroIni;
+
+	@PropConf(
 			usage = "The URN prefix of this testbed (e.g. \"urn:wisebed:uzl1:\")",
 			typeConverter = NodeUrnPrefixTypeConverter.class
 	)
@@ -49,5 +59,9 @@ public class CommonConfig {
 
 	public NodeUrnPrefix getUrnPrefix() {
 		return urnPrefix;
+	}
+
+	public String getShiroIni() {
+		return shiroIni;
 	}
 }

@@ -20,7 +20,7 @@
     <script src="js/templates.js"></script>   
     <script>
 
-		var urnPrefix = "<%= getServletConfig().getInitParameter(CommonConfig.URN_PREFIX) %>";
+		var nodeUrnPrefix = "<%= getServletConfig().getInitParameter(CommonConfig.URN_PREFIX) %>";
 		var deviceDBRestApiContextPath = "<%= getServletConfig().getInitParameter(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH) %>";
 		var deviceDBWebappContextPath = "<%= getServletConfig().getInitParameter(DeviceDBConfig.DEVICEDB_WEBAPP_CONTEXT_PATH) %>";
 

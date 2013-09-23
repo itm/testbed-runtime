@@ -160,7 +160,7 @@
 				<version>2.0-SNAPSHOT</version>
 			</dependency>
 
-			<!-- other itm projects -->
+			<!-- other ITM projects -->
 			<dependency>
 				<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
 				<artifactId>service-publisher-api</artifactId>
@@ -278,11 +278,6 @@
 			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
-				<version>3.0</version>
-			</dependency>
-			<dependency>
-				<groupId>com.google.inject.extensions</groupId>
-				<artifactId>guice-grapher</artifactId>
 				<version>3.0</version>
 			</dependency>
 			<dependency>
@@ -545,12 +540,17 @@
 			<dependency>
 				<groupId>org.apache.shiro</groupId>
 				<artifactId>shiro-core</artifactId>
-				<version>1.2.1</version>
+				<version>1.2.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.shiro</groupId>
 				<artifactId>shiro-guice</artifactId>
-				<version>1.2.1</version>
+				<version>1.2.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.shiro</groupId>
+				<artifactId>shiro-web</artifactId>
+				<version>1.2.2</version>
 			</dependency>
 
 		</dependencies>

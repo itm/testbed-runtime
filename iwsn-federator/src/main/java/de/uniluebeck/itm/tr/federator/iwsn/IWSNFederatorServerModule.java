@@ -35,6 +35,6 @@ public class IWSNFederatorServerModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory) {
-		return factory.create(new ServicePublisherConfig(iwsnFederatorServerConfig.getPort()));
+		return factory.create(new ServicePublisherConfig(iwsnFederatorServerConfig.getPort(), iwsnFederatorServerConfig.getShiroIni()));
 	}
 }

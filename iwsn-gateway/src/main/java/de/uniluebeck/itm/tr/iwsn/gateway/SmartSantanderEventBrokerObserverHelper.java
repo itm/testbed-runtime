@@ -7,6 +7,8 @@ import eu.smartsantander.eventbroker.events.RegistrationEvents;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
+import eu.wisebed.wiseml.CoordinateType;
+import eu.wisebed.wiseml.OutdoorCoordinatesType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,11 +50,15 @@ public class SmartSantanderEventBrokerObserverHelper {
 
 			final RegistrationEvents.Position position = addSensorNode.getPosition();
 			final Coordinate coordinate = new Coordinate();
-			coordinate.setX(position.getXcoor());
-			coordinate.setY(position.getYcoor());
-			coordinate.setZ((double) position.getZcoor());
-
-			Set<Capability> capabilities = newHashSet();
+			coordinate.setType(CoordinateType.OUTDOOR);
+			coordinate.setOutdoorCoordinates(new OutdoorCoordinatesType()
+					.withLatitude(position.getLatitude())
+					.withLongitude(position.getLongitude())
+					.withX(position.getXcoor())
+					.withY(position.getYcoor())
+					.withZ(position.getZcoor())
+			);
+			final Set<Capability> capabilities = newHashSet();
 			final List<RegistrationEvents.Capability> sensorCapabilityList = addSensorNode.getSensorCapabilityList();
 			for (RegistrationEvents.Capability sensorCapability : sensorCapabilityList) {
 				Capability capability = new Capability();
