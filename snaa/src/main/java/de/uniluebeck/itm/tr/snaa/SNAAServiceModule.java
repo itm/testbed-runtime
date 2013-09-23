@@ -45,7 +45,7 @@ public class SNAAServiceModule extends PrivateModule {
 					install(new ShiroSNAAModule(snaaServiceConfig));
 					break;
 				case CERTIFICATE:
-					install(new de.uniluebeck.itm.tr.snaa.certificate.JpaModule("ShiroSNAA", snaaServiceConfig.getShiroJpaProperties()));
+					install(new JpaModule("ShiroSNAA", snaaServiceConfig.getCertificateJpaPropertiesFile()));
 					install(new SNAACertificateModule());
 					break;
 				case REMOTE:

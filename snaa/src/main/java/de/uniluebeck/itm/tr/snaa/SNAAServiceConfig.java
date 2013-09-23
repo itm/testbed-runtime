@@ -217,6 +217,16 @@ public class SNAAServiceConfig {
 	@Named(CERTIFICATE_TRUST_STORE_PASSWORD)
 	private String certificateTrustStorePassword;
 
+	@PropConf(
+			usage = "The JPA (Hibernate) .properties file for the CERTIFICATE authorization backend (Shiro-based, only if CERTIFICATE is used)",
+			typeConverter = PropertiesTypeConverter.class
+	)
+	public static final String CERTIFICATE_JPA_PROPERTIES_FILE = "snaa.certificate.jpa.properties_file";
+
+	@Inject(optional=true)
+	@Named(CERTIFICATE_JPA_PROPERTIES_FILE)
+	private Properties certificateJpaPropertiesFile;
+
 	public String getShiroHashAlgorithmName() {
 		return shiroHashAlgorithmName;
 	}
@@ -292,5 +302,9 @@ public class SNAAServiceConfig {
 
 	public String getCertificateTrustStorePassword() {
 		return certificateTrustStorePassword;
+	}
+
+	public Properties getCertificateJpaPropertiesFile() {
+		return certificateJpaPropertiesFile;
 	}
 }
