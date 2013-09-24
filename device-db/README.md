@@ -21,11 +21,12 @@ There is a RESTful HTTP Webservice which consumes/produces JSON
 			"nodeType": "isense39",
             "nodeUrn": "urn:wisebed:uzl1:0x2038",
             "position": {
-                "phi": 12,
-                "theta": 23,
-                "x": 123,
-                "y": 234,
-                "z": 345
+                 "outdoorCoordinates": {
+                    "x" : 123,
+                    "y" : 234,
+                    "z" : 345,
+                    "theta" : 23
+                }
             },
             "description": "this is the device description",
             "gatewayNode": false,
