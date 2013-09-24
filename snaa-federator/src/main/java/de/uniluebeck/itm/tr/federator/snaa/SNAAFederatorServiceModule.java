@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.AbstractModule;
+import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.name.Named;
@@ -33,7 +33,7 @@ import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutor
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
-public class SNAAFederatorServiceModule extends AbstractModule {
+public class SNAAFederatorServiceModule extends PrivateModule {
 
 	private final SNAAFederatorServiceConfig snaaFederatorServiceConfig;
 
@@ -51,27 +51,36 @@ public class SNAAFederatorServiceModule extends AbstractModule {
 		switch (snaaFederatorServiceConfig.getSnaaFederatorType()) {
 
 			case API:
-				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
+				bind(SNAA.class).to(SNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
+				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
 				break;
+
 			case SHIBBOLETH:
-				final SNAAServiceConfig snaaServiceConfig =
-						buildConfig(SNAAServiceConfig.class, snaaFederatorServiceConfig.getSnaaFederatorProperties());
+				final SNAAServiceConfig snaaServiceConfig = buildConfig(
+						SNAAServiceConfig.class,
+						snaaFederatorServiceConfig.getSnaaFederatorProperties()
+				);
 				install(new ShibbolethSNAAModule(snaaServiceConfig));
-				bind(SNAAFederatorService.class)
-						.to(DelegatingSNAAFederatorServiceImpl.class)
-						.in(Scopes.SINGLETON);
+
+				bind(SNAA.class).to(DelegatingSNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
+				bind(SNAAFederatorService.class).to(DelegatingSNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
 				bind(SNAAService.class)
 						.annotatedWith(Names.named("authorizationSnaa"))
 						.to(SNAAFederatorServiceImpl.class);
 				bind(SNAAService.class)
 						.annotatedWith(Names.named("authenticationSnaa"))
 						.to(ShibbolethSNAA.class);
+
 				break;
+
 			default:
 				throw new RuntimeException(
 						"Unknown SNAA federator type: " + snaaFederatorServiceConfig.getSnaaFederatorType()
 				);
 		}
+
+		expose(SNAAFederatorService.class);
+		expose(SNAA.class);
 	}
 
 	@Provides

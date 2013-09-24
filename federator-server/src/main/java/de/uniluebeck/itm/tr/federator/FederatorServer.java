@@ -8,6 +8,7 @@ import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.tr.federator.iwsn.IWSNFederatorServiceConfig;
 import de.uniluebeck.itm.tr.federator.rs.RSFederatorServiceConfig;
 import de.uniluebeck.itm.tr.federator.snaa.SNAAFederatorServiceConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.WiseGuiServiceConfig;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
@@ -93,22 +94,23 @@ public class FederatorServer extends AbstractService {
 				FederatorServerConfig.class,
 				IWSNFederatorServiceConfig.class,
 				RSFederatorServiceConfig.class,
-				SNAAFederatorServiceConfig.class
+				SNAAFederatorServiceConfig.class,
+				WiseGuiServiceConfig.class
 		);
 
 		final Injector conf = createInjector(propConfModule);
 		final FederatorServerConfig federatorServerConfig = conf.getInstance(FederatorServerConfig.class);
-		final IWSNFederatorServiceConfig iwsnFederatorServiceConfig =
-				conf.getInstance(IWSNFederatorServiceConfig.class);
+		final IWSNFederatorServiceConfig iwsnFederatorServiceConfig = conf.getInstance(IWSNFederatorServiceConfig.class);
 		final RSFederatorServiceConfig rsFederatorServiceConfig = conf.getInstance(RSFederatorServiceConfig.class);
-		final SNAAFederatorServiceConfig snaaFederatorServiceConfig =
-				conf.getInstance(SNAAFederatorServiceConfig.class);
+		final SNAAFederatorServiceConfig snaaFederatorServiceConfig = conf.getInstance(SNAAFederatorServiceConfig.class);
+		final WiseGuiServiceConfig wiseGuiServiceConfig = conf.getInstance(WiseGuiServiceConfig.class);
 
 		final FederatorServerModule serverModule = new FederatorServerModule(
 				federatorServerConfig,
 				iwsnFederatorServiceConfig,
 				rsFederatorServiceConfig,
-				snaaFederatorServiceConfig
+				snaaFederatorServiceConfig,
+				wiseGuiServiceConfig
 		);
 		final FederatorServer federatorServer = createInjector(serverModule).getInstance(FederatorServer.class);
 

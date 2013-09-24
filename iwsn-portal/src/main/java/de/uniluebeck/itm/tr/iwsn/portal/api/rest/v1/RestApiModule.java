@@ -7,7 +7,6 @@ import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.*;
@@ -22,7 +21,6 @@ public class RestApiModule extends AbstractModule {
 	protected void configure() {
 
 		requireBinding(CommonConfig.class);
-		requireBinding(PortalServerConfig.class);
 		requireBinding(RS.class);
 		requireBinding(SNAA.class);
 		requireBinding(ResponseTrackerFactory.class);

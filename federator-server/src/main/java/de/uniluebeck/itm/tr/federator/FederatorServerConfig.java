@@ -11,10 +11,10 @@ public class FederatorServerConfig {
 			example = "8880",
 			defaultValue = "8880"
 	)
-	public static final String FEDERATOR_PORT = "federator.port";
+	public static final String PORT = "port";
 
 	@Inject
-	@Named(FEDERATOR_PORT)
+	@Named(PORT)
 	private int port;
 
 	@PropConf(

@@ -62,16 +62,16 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 				resourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/iwsn/portal/wisegui").toString();
 			}
 
-			final Map<String, String> initParams = newHashMap();
-			initParams.put(WiseGuiServiceConfig.WISEGUI_CONTEXT_PATH, wiseGuiServiceConfig.getWiseGuiContextPath());
-			initParams.put(PortalServerConfig.WISEGUI_TESTBED_NAME, portalServerConfig.getWiseguiTestbedName());
-			initParams.put(PortalServerConfig.REST_API_CONTEXT_PATH, portalServerConfig.getRestApiContextPath());
-			initParams.put(PortalServerConfig.WEBSOCKET_CONTEXT_PATH, portalServerConfig.getWebsocketContextPath());
+			final Map<String, String> params = newHashMap();
+			params.put(WiseGuiServiceConfig.WISEGUI_CONTEXT_PATH, wiseGuiServiceConfig.getWiseGuiContextPath());
+			params.put(WiseGuiServiceConfig.WISEGUI_TESTBED_NAME, wiseGuiServiceConfig.getWiseguiTestbedName());
+			params.put(WiseGuiServiceConfig.WISEGUI_REST_API_BASE_URI, wiseGuiServiceConfig.getWiseGuiRestApiBaseUri());
+			params.put(WiseGuiServiceConfig.WISEGUI_WEBSOCKET_URI, wiseGuiServiceConfig.getWiseGuiWebSocketUri());
 
 			webapp = servicePublisher.createServletService(
 					wiseGuiServiceConfig.getWiseGuiContextPath(),
 					resourceBase,
-					initParams
+					params
 			);
 
 			webapp.startAndWait();

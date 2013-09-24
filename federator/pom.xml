@@ -52,6 +52,10 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.snaa-federator</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.iwsn-portal</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
