@@ -5,11 +5,12 @@
 			"description" : "this is the device description",
 			"nodeUSBChipID" : "0123456789",
 			"position" : {
-				"x" : 123,
-				"y" : 234,
-				"z" : 345,
-				"phi" : 12,
-				"theta" : 23
+                "indoorCoordinates": {
+                    "x" : 123,
+                    "y" : 234,
+                    "z" : 345,
+                    "room" : "lab"
+                }
 			},
 			"nodeConfiguration" : [
 				{
