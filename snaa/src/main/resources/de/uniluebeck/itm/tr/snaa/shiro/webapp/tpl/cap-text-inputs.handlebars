@@ -1,0 +1,44 @@
+<div class="parent">
+	<div class="control-group">
+		<label class="control-label">Name</label>
+	    <div class="controls">
+	    	<input type="text" value="{{name}}" name="capabilities[{{@index}}].name">
+	    </div>
+	</div>
+	<div class="control-group">
+		<label class="control-label">Default Value</label>
+	    <div class="controls">
+	    	<input type="text" value="{{defaultValue}}" name="capabilities[{{@index}}].defaultValue">
+	    </div>
+	</div>
+	<div class="control-group">
+		<label class="control-label">Unit</label>
+	    <div class="controls">
+	    	<select name="capabilities[{{@index}}].unit">
+				<option{{selected unit "CENTIMETERS"}}>CENTIMETERS</option>
+				<option{{selected unit "D_BM"}}>D_BM</option>
+				<option{{selected unit "DEGREES"}}>DEGREES</option>
+				<option{{selected unit "KELVIN"}}>KELVIN</option>
+				<option{{selected unit "LUX"}}>LUX</option>
+				<option{{selected unit "METERS"}}>METERS</option>
+				<option{{selected unit "MILLISECONDS"}}>MILLISECONDS</option>
+				<option{{selected unit "PERCENTAGE"}}>PERCENTAGE</option>
+				<option{{selected unit "RADIANS"}}>RADIANS</option>
+				<option{{selected unit "RAW"}}>RAW</option>
+				<option{{selected unit "SECONDS"}}>SECONDS</option>
+			</select>
+	    </div>
+	</div>
+	<div class="control-group">
+		<label class="control-label">Datatype</label>
+	    <div class="controls">
+	    	<select name="capabilities[{{@index}}].datatype">
+				<option{{selected datatype "INTEGER"}}>INTEGER</option>
+				<option{{selected datatype "DECIMAL"}}>DECIMAL</option>
+			</select>
+	    </div>
+	</div>
+	<a class="btn btn-mini pull-right rm-cap" href="#" title="remove item">
+		<i class="icon-remove"></i>
+	</a>
+</div>
