@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
+import com.google.common.collect.Lists;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.filter.authz.RolesAuthorizationFilter;
 
@@ -52,7 +53,7 @@ public class HttpMethodRolesAuthorizationFilter extends RolesAuthorizationFilter
 
 			final String[] kv = rolesEntry.split("=");
 			final HttpMethod httpMethod = HttpMethod.parse(kv[0]);
-			final String[] roles = kv[1].split("&");
+			final String[] roles = kv[1].split("|");
 			final HashSet<String> rolesSet = new HashSet<String>(roles.length);
 			addAll(rolesSet, roles);
 
@@ -61,6 +62,18 @@ public class HttpMethodRolesAuthorizationFilter extends RolesAuthorizationFilter
 
 		final HttpMethod requestMethod = HttpMethod.parse(((HttpServletRequest) request).getMethod());
 		final Set<String> roleIdentifiers = methodToRolesMapping.get(requestMethod);
-		return roleIdentifiers == null || subject.hasAllRoles(roleIdentifiers);
+
+		if (roleIdentifiers == null) {
+			return true;
+		}
+
+		final boolean[] hasRoles = subject.hasRoles(Lists.newArrayList(roleIdentifiers));
+		for (boolean hasRole : hasRoles) {
+			if (hasRole) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
