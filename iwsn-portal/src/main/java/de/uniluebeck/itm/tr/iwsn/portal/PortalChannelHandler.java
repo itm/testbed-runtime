@@ -341,6 +341,9 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 			case EVENT:
 				final Event event = message.getEvent();
+				// send event over event bus for potential plugins
+				portalEventBus.post(event);
+				// send event content over event bus for internal components
 				log.trace("PortalChannelHandler.messageReceived(event={})", event);
 				switch (event.getType()) {
 					case DEVICES_ATTACHED:
@@ -429,6 +432,9 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		final EventAck.Builder eventAck = EventAck.newBuilder().setEventId(event.getEventId());
 		final DefaultChannelFuture channelFuture = new DefaultChannelFuture(ctx.getChannel(), true);
 		final Message message = Message.newBuilder().setType(Message.Type.EVENT_ACK).setEventAck(eventAck).build();
+
+		// send ACK over event bus for potential plugins
+		portalEventBus.post(eventAck);
 
 		write(ctx, channelFuture, message);
 	}

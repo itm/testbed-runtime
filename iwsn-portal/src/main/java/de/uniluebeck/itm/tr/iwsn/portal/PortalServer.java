@@ -12,6 +12,8 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBRestService;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
+import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginService;
+import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginServiceConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginService;
 import de.uniluebeck.itm.tr.rs.RSService;
 import de.uniluebeck.itm.tr.rs.RSServiceConfig;
@@ -61,6 +63,8 @@ public class PortalServer extends AbstractService {
 
 	private final SchedulerService schedulerService;
 
+	private final ExternalPluginService externalPluginService;
+
 	@Inject
 	public PortalServer(final SchedulerService schedulerService,
 						final ServicePublisher servicePublisher,
@@ -73,7 +77,8 @@ public class PortalServer extends AbstractService {
 						final SoapApiService soapApiService,
 						final RestApiService restApiService,
 						final WiseGuiService wiseGuiService,
-						final PortalPluginService portalPluginService) {
+						final PortalPluginService portalPluginService,
+						final ExternalPluginService externalPluginService) {
 
 		this.schedulerService = checkNotNull(schedulerService);
 		this.servicePublisher = checkNotNull(servicePublisher);
@@ -91,6 +96,7 @@ public class PortalServer extends AbstractService {
 		this.wiseGuiService = checkNotNull(wiseGuiService);
 
 		this.portalPluginService = checkNotNull(portalPluginService);
+		this.externalPluginService = checkNotNull(externalPluginService);
 	}
 
 	@Override
@@ -118,6 +124,7 @@ public class PortalServer extends AbstractService {
 			wiseGuiService.startAndWait();
 
 			portalPluginService.startAndWait();
+			externalPluginService.startAndWait();
 
 			notifyStarted();
 
@@ -130,6 +137,7 @@ public class PortalServer extends AbstractService {
 	protected void doStop() {
 		try {
 
+			externalPluginService.stopAndWait();
 			portalPluginService.stopAndWait();
 
 			// services that the portal server exposes to clients
@@ -193,7 +201,8 @@ public class PortalServer extends AbstractService {
 						PortalServerConfig.class,
 						SNAAServiceConfig.class,
 						WiseGuiServiceConfig.class,
-						WisemlProviderConfig.class
+						WisemlProviderConfig.class,
+						ExternalPluginServiceConfig.class
 				)
 		);
 
@@ -204,6 +213,8 @@ public class PortalServer extends AbstractService {
 		final SNAAServiceConfig snaaServiceConfig = confInjector.getInstance(SNAAServiceConfig.class);
 		final WiseGuiServiceConfig wiseGuiServiceConfig = confInjector.getInstance(WiseGuiServiceConfig.class);
 		final WisemlProviderConfig wisemlProviderConfig = confInjector.getInstance(WisemlProviderConfig.class);
+		final ExternalPluginServiceConfig externalPluginServiceConfig =
+				confInjector.getInstance(ExternalPluginServiceConfig.class);
 
 		final PortalModule portalModule = new PortalModule(
 				commonConfig,
@@ -212,7 +223,8 @@ public class PortalServer extends AbstractService {
 				rsServiceConfig,
 				snaaServiceConfig,
 				wiseGuiServiceConfig,
-				wisemlProviderConfig
+				wisemlProviderConfig,
+				externalPluginServiceConfig
 		);
 
 		final Injector portalInjector = createInjector(portalModule);
