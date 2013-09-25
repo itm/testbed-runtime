@@ -9,7 +9,6 @@ public class WiseGuiServiceModule extends PrivateModule {
 	protected void configure() {
 
 		requireBinding(ServicePublisher.class);
-		requireBinding(PortalServerConfig.class);
 		requireBinding(WiseGuiServiceConfig.class);
 
 		bind(WiseGuiService.class).to(WiseGuiServiceImpl.class);

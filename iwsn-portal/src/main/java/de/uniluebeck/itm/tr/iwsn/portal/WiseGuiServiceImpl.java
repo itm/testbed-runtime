@@ -16,17 +16,13 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 
 	private final WiseGuiServiceConfig wiseGuiServiceConfig;
 
-	private final PortalServerConfig portalServerConfig;
-
 	private ServicePublisherService webapp;
 
 	@Inject
 	public WiseGuiServiceImpl(final ServicePublisher servicePublisher,
-							  final WiseGuiServiceConfig wiseGuiServiceConfig,
-							  final PortalServerConfig portalServerConfig) {
+							  final WiseGuiServiceConfig wiseGuiServiceConfig) {
 		this.servicePublisher = servicePublisher;
 		this.wiseGuiServiceConfig = wiseGuiServiceConfig;
-		this.portalServerConfig = portalServerConfig;
 	}
 
 	@Override

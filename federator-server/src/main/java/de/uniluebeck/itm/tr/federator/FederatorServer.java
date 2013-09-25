@@ -8,7 +8,9 @@ import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.tr.federator.iwsn.IWSNFederatorServiceConfig;
 import de.uniluebeck.itm.tr.federator.rs.RSFederatorServiceConfig;
 import de.uniluebeck.itm.tr.federator.snaa.SNAAFederatorServiceConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.WiseGuiService;
 import de.uniluebeck.itm.tr.iwsn.portal.WiseGuiServiceConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.propconf.PropConfModule;
@@ -16,9 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.google.inject.Guice.createInjector;
-import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
-import static de.uniluebeck.itm.tr.common.config.ConfigHelper.printHelpAndExit;
-import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.*;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
 public class FederatorServer extends AbstractService {
@@ -33,11 +33,19 @@ public class FederatorServer extends AbstractService {
 
 	private final ServicePublisher servicePublisher;
 
+	private final RestApiService restApiService;
+
+	private final WiseGuiService wiseGuiService;
+
 	@Inject
 	public FederatorServer(final FederatorService federatorService,
-						   final ServicePublisher servicePublisher) {
+						   final ServicePublisher servicePublisher,
+						   final RestApiService restApiService,
+						   final WiseGuiService wiseGuiService) {
 		this.federatorService = federatorService;
 		this.servicePublisher = servicePublisher;
+		this.restApiService = restApiService;
+		this.wiseGuiService = wiseGuiService;
 	}
 
 	@Override
@@ -45,6 +53,8 @@ public class FederatorServer extends AbstractService {
 		try {
 			servicePublisher.startAndWait();
 			federatorService.startAndWait();
+			restApiService.startAndWait();
+			wiseGuiService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -54,6 +64,12 @@ public class FederatorServer extends AbstractService {
 	@Override
 	protected void doStop() {
 		try {
+			if (wiseGuiService.isRunning()) {
+				wiseGuiService.stopAndWait();
+			}
+			if (restApiService.isRunning()) {
+				restApiService.stopAndWait();
+			}
 			if (federatorService.isRunning()) {
 				federatorService.stopAndWait();
 			}

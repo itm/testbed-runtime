@@ -78,6 +78,7 @@ public class FederatorServerModule extends AbstractModule {
 		bind(RequestIdProvider.class).to(RandomRequestIdProvider.class);
 		bind(WisemlProvider.class).to(FederatorWiseMLProvider.class);
 
+		install(new WiseGuiServiceModule());
 		install(new SchedulerServiceModule());
 		install(new ResponseTrackerModule());
 		install(new RestApiModule());
@@ -92,7 +93,10 @@ public class FederatorServerModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory) {
-		return factory.create(new ServicePublisherConfig(federatorServerConfig.getPort(), federatorServerConfig.getShiroIni()));
+		return factory.create(new ServicePublisherConfig(
+				federatorServerConfig.getFederatorPort(),
+				federatorServerConfig.getFederatorShiroIni()
+		));
 	}
 
 	@Provides
@@ -147,8 +151,8 @@ public class FederatorServerModule extends AbstractModule {
 	@Singleton
 	CommonConfig provideCommonConfig(final FederatorServerConfig config) {
 		final CommonConfig commonConfig = new CommonConfig();
-		commonConfig.setPort(config.getPort());
-		commonConfig.setShiroIni(config.getShiroIni());
+		commonConfig.setPort(config.getFederatorPort());
+		commonConfig.setShiroIni(config.getFederatorShiroIni());
 		return commonConfig;
 	}
 }
