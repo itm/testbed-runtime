@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.snaa.shiro;
+package de.uniluebeck.itm.tr.snaa.shiro.dao;
 
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroupId;

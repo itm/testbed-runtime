@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
 import com.google.inject.AbstractModule;
+import de.uniluebeck.itm.tr.snaa.shiro.dao.UrnResourceGroupDao;
+import de.uniluebeck.itm.tr.snaa.shiro.dao.UserDao;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;

@@ -14,10 +14,10 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class ShiroSNAARestApplication extends Application {
 
-	private final ShiroSNAARestResource resource;
+	private final ShiroSNAARestResourceImpl resource;
 
 	@Inject
-	public ShiroSNAARestApplication(final ShiroSNAARestResource resource) {
+	public ShiroSNAARestApplication(final ShiroSNAARestResourceImpl resource) {
 		this.resource = resource;
 	}
 

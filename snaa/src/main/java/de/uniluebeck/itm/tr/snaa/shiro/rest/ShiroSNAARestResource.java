@@ -1,27 +1,38 @@
 package de.uniluebeck.itm.tr.snaa.shiro.rest;
 
-import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Action;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
 
-import javax.persistence.EntityManager;
-import javax.ws.rs.GET;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
-public class ShiroSNAARestResource {
-
-	private final EntityManager entityManager;
-
-	@Inject
-	public ShiroSNAARestResource(final EntityManager entityManager) {
-		this.entityManager = entityManager;
-	}
-
-	@Context
-	private UriInfo uriInfo;
+public interface ShiroSNAARestResource {
 
 	@GET
-	public String get() {
-		return "hello from " + uriInfo.getRequestUri();
-	}
+	@Path("users")
+	@Produces(MediaType.APPLICATION_JSON)
+	List<User> listUsers();
+	
+	@GET
+	@Path("roles")
+	@Produces(MediaType.APPLICATION_JSON)
+	List<Role> listRoles();
+	
+	@GET
+	@Path("actions")
+	@Produces(MediaType.APPLICATION_JSON)
+	List<Action> listActions();
+	
+	@GET
+	@Path("users/test")
+	Response test();
+	
+	@POST
+	@Path("users")
+	@Consumes(MediaType.APPLICATION_JSON)
+	Response addUser(String name, String password, String salt);
 
 }

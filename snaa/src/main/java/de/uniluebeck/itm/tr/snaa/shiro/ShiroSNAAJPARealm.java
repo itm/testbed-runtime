@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.snaa.shiro.dao.UserDao;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Permission;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
