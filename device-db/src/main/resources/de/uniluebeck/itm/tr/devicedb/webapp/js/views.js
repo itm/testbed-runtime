@@ -265,6 +265,7 @@ $(function () {
             app.routes.navigate('home',{trigger:true});
         },
         show: function() {
+            this.delegateEvents();
             this.$el.find('.modal').modal('show');
         }
     });
