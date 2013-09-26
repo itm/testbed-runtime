@@ -57,6 +57,7 @@ import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.util.concurrent.Futures.addCallback;
+import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 
 
 @WebService(
@@ -254,7 +255,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			);
 		}
 
-		return FederatorWiseMLMerger.merge(endpointUrlToCallableMap, executorService);
+		return serialize(FederatorWiseMLMerger.merge(endpointUrlToCallableMap, executorService));
 	}
 
 	@Override

@@ -28,11 +28,11 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
-import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.federator.utils.FederationManager;
 import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -62,6 +62,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
+import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 
 @WebService(
 		name = "SessionManagement",
@@ -415,7 +416,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 			}
 			);
 		}
-		return FederatorWiseMLMerger.merge(endpointUrlToCallableMap, executorService);
+		return serialize(FederatorWiseMLMerger.merge(endpointUrlToCallableMap, executorService));
 
 	}
 }
