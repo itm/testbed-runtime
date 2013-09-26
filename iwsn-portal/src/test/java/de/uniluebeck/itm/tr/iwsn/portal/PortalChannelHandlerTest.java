@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
+import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginService;
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
@@ -134,12 +135,15 @@ public class PortalChannelHandlerTest {
 	@Mock
 	private ChannelHandlerContext portalContext;
 
+	@Mock
+	private ExternalPluginService externalPluginService;
+
 	@Before
 	public void setUp() throws Exception {
 
 		setUpGatewayAndChannelMockBehavior();
 
-		portalChannelHandler = new PortalChannelHandler(portalEventBus);
+		portalChannelHandler = new PortalChannelHandler(portalEventBus, externalPluginService);
 		portalChannelHandler.channelConnected(
 				gateway1Context,
 				new UpstreamChannelStateEvent(gateway1Channel, ChannelState.CONNECTED, true)

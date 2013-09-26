@@ -8,10 +8,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
+import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.group.ChannelGroup;
-import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,27 +32,33 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	private final PortalEventBus portalEventBus;
 
+	private final ExternalPluginService externalPluginService;
+
 	private final Multimap<ChannelHandlerContext, NodeUrn> contextToNodeUrnsMap = HashMultimap.create();
 
-	private final ChannelGroup allChannels = new DefaultChannelGroup();
-
 	@Inject
-	public PortalChannelHandler(final PortalEventBus portalEventBus) {
+	public PortalChannelHandler(final PortalEventBus portalEventBus,
+								final ExternalPluginService externalPluginService) {
 		this.portalEventBus = portalEventBus;
+		this.externalPluginService = externalPluginService;
 	}
 
-	public void registerOnEventBus() {
+	public void doStart() {
 		log.debug("Subscribing to the event bus.");
 		portalEventBus.register(this);
+		externalPluginService.startAndWait();
 	}
 
-	public void unregisterFromEventBus() {
+	public void doStop() {
+		externalPluginService.stopAndWait();
 		log.debug("Unsubscribing from the event bus.");
 		portalEventBus.unregister(this);
 	}
 
 	@Subscribe
 	public void onRequest(final Request request) {
+
+		sendToExternalPlugins(request);
 
 		final String reservationId = request.hasReservationId() ? request.getReservationId() : null;
 		final long requestId = request.getRequestId();
@@ -286,10 +291,19 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	private void sendUnconnectedResponses(final String reservationId, final long requestId, final int statusCode,
 										  final Set<NodeUrn> unconnectedNodeUrns) {
+
 		for (NodeUrn nodeUrn : unconnectedNodeUrns) {
-			portalEventBus.post(
-					newSingleNodeResponse(reservationId, requestId, nodeUrn, statusCode, "Node is not connected")
+
+			final SingleNodeResponse response = newSingleNodeResponse(
+					reservationId,
+					requestId,
+					nodeUrn,
+					statusCode,
+					"Node is not connected"
 			);
+
+			portalEventBus.post(response);
+			sendToExternalPlugins(response);
 		}
 	}
 
@@ -341,9 +355,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 			case EVENT:
 				final Event event = message.getEvent();
-				// send event over event bus for potential plugins
-				portalEventBus.post(event);
-				// send event content over event bus for internal components
+				sendToExternalPlugins(event);
 				log.trace("PortalChannelHandler.messageReceived(event={})", event);
 				switch (event.getType()) {
 					case DEVICES_ATTACHED:
@@ -367,12 +379,14 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				final SingleNodeProgress progress = message.getProgress();
 				log.trace("PortalChannelHandler.messageReceived(progress={})", progress);
 				portalEventBus.post(progress);
+				sendToExternalPlugins(progress);
 				break;
 
 			case RESPONSE:
 				final SingleNodeResponse response = message.getResponse();
 				log.trace("PortalChannelHandler.messageReceived({})", response);
 				portalEventBus.post(response);
+				sendToExternalPlugins(response);
 				break;
 
 			case GET_CHANNELPIPELINES_RESPONSE:
@@ -380,6 +394,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 						message.getGetChannelPipelinesResponse();
 				log.trace("PortalChannelHandler.messageReceived({})", getChannelPipelinesResponse);
 				portalEventBus.post(getChannelPipelinesResponse);
+				sendToExternalPlugins(getChannelPipelinesResponse);
 				break;
 
 			default:
@@ -409,14 +424,12 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	@Override
 	public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 		log.trace("PortalChannelHandler.channelConnected(ctx={}, event={})", ctx, e);
-		allChannels.add(e.getChannel());
 		super.channelConnected(ctx, e);
 	}
 
 	@Override
 	public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 		log.trace("PortalChannelHandler.channelDisconnected(ctx={}, event={})", ctx, e);
-		allChannels.remove(e.getChannel());
 		synchronized (contextToNodeUrnsMap) {
 			final Collection<NodeUrn> nodeUrns = contextToNodeUrnsMap.get(ctx);
 			if (!nodeUrns.isEmpty()) {
@@ -429,12 +442,11 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	private void sendEventAck(final ChannelHandlerContext ctx, final Event event) {
 
-		final EventAck.Builder eventAck = EventAck.newBuilder().setEventId(event.getEventId());
+		final EventAck eventAck = EventAck.newBuilder().setEventId(event.getEventId()).build();
 		final DefaultChannelFuture channelFuture = new DefaultChannelFuture(ctx.getChannel(), true);
 		final Message message = Message.newBuilder().setType(Message.Type.EVENT_ACK).setEventAck(eventAck).build();
 
-		// send ACK over event bus for potential plugins
-		portalEventBus.post(eventAck);
+		sendToExternalPlugins(eventAck);
 
 		write(ctx, channelFuture, message);
 	}
@@ -442,5 +454,29 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	@Override
 	public String toString() {
 		return "PortalChannelHandler";
+	}
+
+	private void sendToExternalPlugins(final Request request) {
+		externalPluginService.onRequest(request);
+	}
+
+	private void sendToExternalPlugins(final SingleNodeProgress progress) {
+		externalPluginService.onSingleNodeProgress(progress);
+	}
+
+	private void sendToExternalPlugins(final SingleNodeResponse response) {
+		externalPluginService.onSingleNodeResponse(response);
+	}
+
+	private void sendToExternalPlugins(final GetChannelPipelinesResponse getChannelPipelinesResponse) {
+		externalPluginService.onGetChannelPipelinesResponse(getChannelPipelinesResponse);
+	}
+
+	private void sendToExternalPlugins(final Event event) {
+		externalPluginService.onEvent(event);
+	}
+
+	private void sendToExternalPlugins(final EventAck eventAck) {
+		externalPluginService.onEventAck(eventAck);
 	}
 }

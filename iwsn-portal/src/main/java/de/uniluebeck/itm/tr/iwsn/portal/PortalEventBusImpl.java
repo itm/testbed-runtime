@@ -62,7 +62,7 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 		try {
 
-			portalChannelHandler.registerOnEventBus();
+			portalChannelHandler.doStart();
 			nettyServer = nettyServerFactory.create(
 					new InetSocketAddress(config.getOverlayPort()),
 					new ProtobufVarint32FrameDecoder(),
@@ -90,7 +90,7 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 		try {
 			nettyServer.stopAndWait();
 			eventBus.unregister(this);
-			portalChannelHandler.unregisterFromEventBus();
+			portalChannelHandler.doStop();
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);

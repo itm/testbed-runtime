@@ -7,6 +7,7 @@ import de.uniluebeck.itm.util.propconf.PropConf;
 import javax.annotation.Nullable;
 
 public class ExternalPluginServiceConfig {
+
 	@PropConf(
 			usage = "Port to listen on for external plugins to connect to",
 			example = "8882"
