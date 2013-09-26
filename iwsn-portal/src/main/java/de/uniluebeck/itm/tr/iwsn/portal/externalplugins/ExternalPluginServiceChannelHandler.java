@@ -141,13 +141,14 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 		final ExternalPluginMessage externalPluginMessage = ExternalPluginMessage.newBuilder()
 				.setType(ExternalPluginMessage.Type.INTERNAL_MESSAGE)
 				.setInternalMessage(InternalMessage.newBuilder()
+						.setType(InternalMessage.Type.RESERVATION_EVENT)
 						.setReservationEvent(ReservationEvent.newBuilder()
-								.setIntervalEnd(reservation.getInterval().getEnd().toString())
-								.setIntervalStart(reservation.getInterval().getStart().toString())
-								.setKey(reservation.getKey())
 								.setType(ReservationEvent.Type.STARTED)
+								.setKey(reservation.getKey())
 								.setUsername(reservation.getUsername())
 								.addAllNodeUrns(transform(reservation.getNodeUrns(), NODE_URN_TO_STRING))
+								.setIntervalStart(reservation.getInterval().getStart().toString())
+								.setIntervalEnd(reservation.getInterval().getEnd().toString())
 						)
 				).build();
 		allChannels.write(externalPluginMessage);
@@ -156,7 +157,9 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 	public void onReservationEndedEvent(final ReservationEndedEvent event) {
 		final Reservation reservation = event.getReservation();
 		final ExternalPluginMessage externalPluginMessage = ExternalPluginMessage.newBuilder()
+				.setType(ExternalPluginMessage.Type.INTERNAL_MESSAGE)
 				.setInternalMessage(InternalMessage.newBuilder()
+						.setType(InternalMessage.Type.RESERVATION_EVENT)
 						.setReservationEvent(ReservationEvent.newBuilder()
 								.setType(ReservationEvent.Type.ENDED)
 								.setKey(reservation.getKey())
