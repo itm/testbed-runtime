@@ -68,7 +68,7 @@ public class EventWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		this.portalEventBus.register(this);
 
 		keepAliveSchedule = schedulerService.scheduleAtFixedRate(
-				new KeepAliveRunnable(connection), 60, 60, TimeUnit.SECONDS
+				new WebSocketKeepAliveRunnable(connection), 60, 60, TimeUnit.SECONDS
 		);
 	}
 

@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.inject.Guice.createInjector;
-import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
-import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.*;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
 public class DeviceDBServer extends AbstractService {
@@ -89,6 +88,10 @@ public class DeviceDBServer extends AbstractService {
 			printDocumentationAndExit(System.out, CommonConfig.class, DeviceDBConfig.class);
 		}
 
+		if (config.config == null) {
+			printHelpAndExit(config, DeviceDBServer.class);
+		}
+
 		final Injector confInjector = createInjector(
 				new PropConfModule(config.config, CommonConfig.class, DeviceDBConfig.class, WisemlProviderConfig.class)
 		);
@@ -97,7 +100,8 @@ public class DeviceDBServer extends AbstractService {
 		final WisemlProviderConfig wisemlProviderConfig = confInjector.getInstance(WisemlProviderConfig.class);
 
 		final DeviceDBServerModule module = new DeviceDBServerModule(commonConfig, deviceDBConfig, wisemlProviderConfig);
-		final DeviceDBServer deviceDBServer = createInjector(module).getInstance(DeviceDBServer.class);
+		final Injector deviceDBInjector = createInjector(module);
+		final DeviceDBServer deviceDBServer = deviceDBInjector.getInstance(DeviceDBServer.class);
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -112,7 +116,7 @@ public class DeviceDBServer extends AbstractService {
 		try {
 			deviceDBServer.start().get();
 		} catch (Exception e) {
-			log.error("Could not start DeviceDB: {}", e.getMessage());
+			log.error("Could not start DeviceDB: {}", e);
 			System.exit(1);
 		}
 
@@ -122,5 +126,4 @@ public class DeviceDBServer extends AbstractService {
 				"http://localhost:" + commonConfig.getPort() + deviceDBConfig.getDeviceDBRestApiContextPath()
 		);
 	}
-
 }

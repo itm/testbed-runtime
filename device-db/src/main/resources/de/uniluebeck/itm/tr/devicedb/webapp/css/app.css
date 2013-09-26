@@ -25,3 +25,9 @@
 .pipeline-params .control-group {
 	margin-bottom: 0;
 }
+
+.modal {
+	width       : 600px;
+	height      : 500px;
+	margin-left : -300px;
+}

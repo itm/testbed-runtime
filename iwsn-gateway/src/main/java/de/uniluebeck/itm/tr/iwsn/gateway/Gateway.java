@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.printHelpAndExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
@@ -169,6 +170,10 @@ public class Gateway extends AbstractService {
 					GatewayConfig.class,
 					DeviceDBConfig.class
 			);
+		}
+
+		if (config.config == null) {
+			printHelpAndExit(config, Gateway.class);
 		}
 
 		final PropConfModule propConfModule = new PropConfModule(

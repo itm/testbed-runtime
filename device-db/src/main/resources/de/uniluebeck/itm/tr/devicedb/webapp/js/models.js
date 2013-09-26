@@ -7,8 +7,7 @@ $(function () {
         idAttribute: 'nodeUrn',
         urlRoot: deviceDBRestApiContextPath + '/deviceConfigs',
         defaults: {
-            "nodeUrn" : "urn:wisebed:uzl1:"
-            // TODO add sensible defaults
+            "nodeUrn" : nodeUrnPrefix
         }
     });
 

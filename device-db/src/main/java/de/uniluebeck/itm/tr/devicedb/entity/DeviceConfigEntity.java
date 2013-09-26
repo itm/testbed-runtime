@@ -1,32 +1,14 @@
 package de.uniluebeck.itm.tr.devicedb.entity;
 
-import com.google.common.base.Function;
-import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
-import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
-import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.wiseml.Capability;
-
 import javax.annotation.Nullable;
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.google.common.collect.Lists.transform;
-
+@Cacheable
 @Entity(name="DeviceConfig")
 public class DeviceConfigEntity {
-	
-	@Transient
-	private static final Function<ChannelHandlerConfigEntity, ChannelHandlerConfig> ENTITY_TO_CHC_FUNCTION =
-			new Function<ChannelHandlerConfigEntity, ChannelHandlerConfig>() {
-				@Override
-				public ChannelHandlerConfig apply(ChannelHandlerConfigEntity config) {
-					return config.toChannelHandlerConfig();
-				}
-			};
 	
 	@Id
 	private String nodeUrn;
@@ -72,25 +54,6 @@ public class DeviceConfigEntity {
 	@Nullable
 	@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
 	private Set<CapabilityEntity> capabilities;
-	
-	public DeviceConfigEntity() {	}
-	
-	public DeviceConfigEntity(DeviceConfig config) {
-		this.nodeUrn = config.getNodeUrn().toString();
-		this.nodeType = config.getNodeType();
-		this.gatewayNode = config.isGatewayNode();
-		this.nodePort = config.getNodePort();
-		this.description = config.getDescription();
-		this.nodeUSBChipID = config.getNodeUSBChipID();
-		this.position = CoordinateEntity.fromCoordinate(config.getPosition());
-		this.nodeConfiguration = config.getNodeConfiguration();
-		this.defaultChannelPipeline = ChannelHandlerConfigEntity.fromChannelhandlerConfig(config.getDefaultChannelPipeline());
-		this.capabilities = CapabilityEntity.fromCapabilitySet(config.getCapabilities());
-		this.timeoutNodeApiMillis = config.getTimeoutNodeApiMillis();
-		this.timeoutResetMillis = config.getTimeoutResetMillis();
-		this.timeoutFlashMillis = config.getTimeoutFlashMillis();
-		this.timeoutCheckAliveMillis = config.getTimeoutCheckAliveMillis();
-	}
 
 	@Nullable
 	public List<ChannelHandlerConfigEntity> getDefaultChannelPipeline() {
@@ -214,42 +177,4 @@ public class DeviceConfigEntity {
 	public void setCapabilities(@Nullable Set<CapabilityEntity> capabilities) {
 		this.capabilities = capabilities;
 	}
-
-	public DeviceConfig toDeviceConfig() {
-		return new DeviceConfig(
-				new NodeUrn(nodeUrn),
-				nodeType,
-				gatewayNode,
-				nodePort,
-				description,
-				nodeUSBChipID,
-				nodeConfiguration,
-				defaultChannelPipeline == null ? null : convertDefaultPipeline(),
-				timeoutCheckAliveMillis,
-				timeoutFlashMillis,
-				timeoutNodeApiMillis,
-				timeoutResetMillis,
-				position == null ? null : position.toCoordinate(),
-				convertCapabilities());
-				
-	}
-
-	private ChannelHandlerConfigList convertDefaultPipeline() {
-		if (defaultChannelPipeline == null || defaultChannelPipeline.size() == 0) {
-			return null;
-		}
-		return new ChannelHandlerConfigList(transform(defaultChannelPipeline, ENTITY_TO_CHC_FUNCTION));
-	}
-	
-	private Set<Capability> convertCapabilities() {
-		if (capabilities == null || capabilities.size() == 0) {
-			return null;
-		}
-		Set<Capability> caps = new HashSet<Capability>();
-		for (CapabilityEntity cap : capabilities) {
-			caps.add(cap.toCapability());
-		}
-		return caps;
-	}
-	
 }

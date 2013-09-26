@@ -26,8 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.inject.Guice.createInjector;
-import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
-import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.*;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
 public class PortalServer extends AbstractService {
@@ -181,6 +180,10 @@ public class PortalServer extends AbstractService {
 			);
 		}
 
+		if (config.config == null) {
+			printHelpAndExit(config, PortalServer.class);
+		}
+
 		final Injector confInjector = createInjector(
 				new PropConfModule(
 						config.config,
@@ -212,7 +215,8 @@ public class PortalServer extends AbstractService {
 				wisemlProviderConfig
 		);
 
-		final PortalServer portalServer = createInjector(portalModule).getInstance(PortalServer.class);
+		final Injector portalInjector = createInjector(portalModule);
+		final PortalServer portalServer = portalInjector.getInstance(PortalServer.class);
 
 		try {
 			portalServer.start().get();

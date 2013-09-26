@@ -38,6 +38,6 @@ public class SNAAServerModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisher provideServicePublisher(final CommonConfig config, final ServicePublisherFactory factory) {
-		return factory.create(new ServicePublisherConfig(config.getPort()));
+		return factory.create(new ServicePublisherConfig(config.getPort(), config.getShiroIni()));
 	}
 }

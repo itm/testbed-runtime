@@ -57,7 +57,7 @@ public class RSServerModule extends RSServiceModule {
 	@Provides
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory,
 											 final CommonConfig config) {
-		return servicePublisherFactory.create(new ServicePublisherConfig(config.getPort()));
+		return servicePublisherFactory.create(new ServicePublisherConfig(config.getPort(), config.getShiroIni()));
 	}
 
 	@Provides

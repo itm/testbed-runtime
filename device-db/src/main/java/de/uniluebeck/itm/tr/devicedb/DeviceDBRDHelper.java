@@ -7,17 +7,12 @@ import eu.smartsantander.rd.jaxb.IoTNodeType;
 import eu.smartsantander.rd.jaxb.KeyValuePair;
 import eu.smartsantander.rd.jaxb.ResourceDescription;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.wiseml.Capability;
-import eu.wisebed.wiseml.Coordinate;
-import eu.wisebed.wiseml.Dtypes;
-import eu.wisebed.wiseml.Units;
+import eu.wisebed.wiseml.*;
 
 import java.util.*;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static eu.smartsantander.rd.jaxb.IoTNodeType.MOBILE_SENSOR_NODE;
 import static eu.smartsantander.rd.jaxb.IoTNodeType.SENSOR_NODE;
-
 
 public abstract class DeviceDBRDHelper {
 
@@ -40,11 +35,45 @@ public abstract class DeviceDBRDHelper {
 
 
 	public static Coordinate getCoordinates(ResourceDescription rdResource) {
-		Coordinate coordinate = new Coordinate();
-		if (rdResource.getPosition() != null && rdResource.getPosition().getOutdoorCoordinates() != null) {
-			coordinate.setX(rdResource.getPosition().getOutdoorCoordinates().getLongitude());
-			coordinate.setY(rdResource.getPosition().getOutdoorCoordinates().getLatitude());
+
+		Coordinate coordinate = null;
+		final eu.smartsantander.rd.jaxb.OutdoorCoordinatesType rdOC = rdResource
+				.getPosition()
+				.getOutdoorCoordinates();
+		final eu.smartsantander.rd.jaxb.IndoorCoordinatesType rdIC = rdResource
+				.getPosition()
+				.getIndoorCoordinates();
+
+		if (rdOC != null) {
+
+			final OutdoorCoordinatesType wiseMLOC = new OutdoorCoordinatesType();
+			wiseMLOC.setLatitude(rdOC.getLatitude());
+			wiseMLOC.setLongitude(rdOC.getLongitude());
+			wiseMLOC.setX(rdOC.getXcoor());
+			wiseMLOC.setY(rdOC.getYcoor());
+			wiseMLOC.setZ(rdOC.getZcoor());
+
+			coordinate = new Coordinate();
+			coordinate.setType(CoordinateType.OUTDOOR);
+			coordinate.setOutdoorCoordinates(wiseMLOC);
 		}
+
+		if (rdIC != null) {
+
+			final IndoorCoordinatesType wiseMLIC = new IndoorCoordinatesType();
+			wiseMLIC.setBackgroundimage(rdIC.getBackgroundimage());
+			wiseMLIC.setBuilding(rdIC.getBuilding());
+			wiseMLIC.setFloor(rdIC.getFloor());
+			wiseMLIC.setRoom(rdIC.getRoom());
+			wiseMLIC.setX(rdIC.getXcoor());
+			wiseMLIC.setY(rdIC.getYcoor());
+			wiseMLIC.setZ(rdIC.getZcoor());
+
+			coordinate = new Coordinate();
+			coordinate.setType(CoordinateType.INDOOR);
+			coordinate.setIndoorCoordinates(wiseMLIC);
+		}
+
 		return coordinate;
 	}
 
@@ -55,9 +84,7 @@ public abstract class DeviceDBRDHelper {
 				answer.put(pair.getKey(), pair.getValue());
 			}
 		}
-		if (answer.size() == 0) {
-			return null;
-		}
+
 		return answer;
 	}
 
@@ -73,10 +100,20 @@ public abstract class DeviceDBRDHelper {
 	}
 
 	public static Coordinate getCoordinates(NodeOperationsEvents.AddSensorNode eventResource) {
-		Coordinate coordinate = new Coordinate();
+
+		Coordinate coordinate = null;
 		if (eventResource.getPosition() != null) {
-			coordinate.setX(eventResource.getPosition().getLongitude());
-			coordinate.setY(eventResource.getPosition().getLatitude());
+
+			final OutdoorCoordinatesType outdoorCoordinates = new OutdoorCoordinatesType();
+			outdoorCoordinates.setLatitude(eventResource.getPosition().getLatitude());
+			outdoorCoordinates.setLongitude(eventResource.getPosition().getLongitude());
+			outdoorCoordinates.setX(eventResource.getPosition().getXcoor());
+			outdoorCoordinates.setY(eventResource.getPosition().getYcoor());
+			outdoorCoordinates.setZ(eventResource.getPosition().getZcoor());
+
+			coordinate = new Coordinate();
+			coordinate.setType(CoordinateType.OUTDOOR);
+			coordinate.setOutdoorCoordinates(outdoorCoordinates);
 		}
 		return coordinate;
 	}
@@ -95,7 +132,7 @@ public abstract class DeviceDBRDHelper {
 		return answer;
 	}
 
-	public static DeviceConfig deviceConfigFromRDResource(ResourceDescription rdResource) {
+	public static DeviceConfig deviceConfigFromRDResource(ResourceDescription rdResource) throws IllegalArgumentException {
 
 		IoTNodeType type = rdResource.getResourceType();
 
@@ -106,24 +143,7 @@ public abstract class DeviceDBRDHelper {
 		NodeUrn urn = new NodeUrn();
 		urn.setNodeUrn(rdResource.getUid());
 
-		List<CapabilityType> caps = rdResource.getCapabilities().getCapability();
-		Set<Capability> capabilities = new HashSet<Capability>();
-		for (CapabilityType c : caps) {
-			Capability capability = new Capability();
-			capability.setName(c.getPhenomenon());
-			if (c.getType().equals("float")) {   //todo extend types
-				c.setType(Dtypes.DECIMAL.toString());
-			}
-
-			capability.setDatatype(Dtypes.valueOf(c.getType()));
-			if (c.getUom().equals("lumen")) {                        //todo extend units
-				c.setUom(Units.LUX.toString());// 1 lx = 1 lm/m2.
-			} else if (c.getUom().equals("celsius")) {
-				c.setUom(Units.KELVIN.toString()); //todo extend units
-			}
-			capability.setUnit(Units.valueOf(c.getUom()));
-			capabilities.add(capability);
-		}
+		Set<Capability> capabilities = convertCapabilitiesFromRDToWiseML(rdResource.getCapabilities().getCapability());
 		Long[] timeouts = getTimeouts(rdResource);
 		Coordinate coordinate = getCoordinates(rdResource);
 		Map<String, String> keyValues = getKeyValueConfig(rdResource);
@@ -148,6 +168,18 @@ public abstract class DeviceDBRDHelper {
 		);
 	}
 
+	private static Set<Capability> convertCapabilitiesFromRDToWiseML(final List<CapabilityType> caps) {
+		Set<Capability> capabilities = new HashSet<Capability>();
+		for (CapabilityType c : caps) {
+			Capability capability = new Capability();
+			capability.setName(c.getPhenomenon());
+			capability.setDatatype(c.getType());
+			capability.setUnit(c.getUom());
+			capabilities.add(capability);
+		}
+		return capabilities;
+	}
+
 	public static DeviceConfig deviceConfigFromRDResource(NodeOperationsEvents.AddSensorNode eventResource) {
 
 		final String type = eventResource.getIotNodeType().toString();
@@ -162,39 +194,10 @@ public abstract class DeviceDBRDHelper {
 		List<RegistrationEvents.Capability> caps = eventResource.getSensorCapabilityList();
 		Set<Capability> capabilities = new HashSet<Capability>();
 		for (RegistrationEvents.Capability c : caps) {
-
 			Capability capability = new Capability();
 			capability.setName(c.getName());
-
-			final Map<String, String> datatypeMapping = newHashMap();
-			datatypeMapping.put("float", "decimal");
-			datatypeMapping.put("decimal", "decimal");
-			datatypeMapping.put("integer", "integer");
-
-			for (Dtypes dtypes : Dtypes.values()) {
-				if (dtypes.value().equals(datatypeMapping.get(c.getDatatype()))) {
-					capability.setDatatype(dtypes);
-				}
-			}
-
-			if (c.getDatatype() != null && !"".equals(c.getDatatype()) && capability.getDatatype() == null) {
-				throw new RuntimeException("Could not convert datatype \"" + c
-						.getDatatype() + "\" from AddSensorNode message to the DeviceConfig equivalent."
-				);
-			}
-
-			for (Units units : Units.values()) {
-				if (units.value().equals(c.getUnit())) {
-					capability.setUnit(units);
-				}
-			}
-
-			if (c.getUnit() != null && !"".equals(c.getUnit()) && capability.getUnit() == null) {
-				throw new RuntimeException("Could not convert unit \"" + c
-						.getUnit() + "\" from AddSensorNode message to the DeviceConfig equivalent."
-				);
-			}
-
+			capability.setDatatype(c.getDatatype());
+			capability.setUnit(c.getUnit());
 			capabilities.add(capability);
 		}
 		Long[] timeouts = getTimeouts(eventResource);

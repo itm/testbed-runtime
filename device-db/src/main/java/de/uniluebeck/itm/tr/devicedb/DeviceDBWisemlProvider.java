@@ -4,10 +4,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.wiseml.Coordinate;
-import eu.wisebed.wiseml.Interpolation;
-import eu.wisebed.wiseml.Setup;
-import eu.wisebed.wiseml.Wiseml;
+import eu.wisebed.wiseml.*;
 
 import java.util.List;
 
@@ -26,15 +23,15 @@ public class DeviceDBWisemlProvider implements WisemlProvider {
 
 	@Override
 	public Wiseml get() {
-		return getInternal(deviceDBService.getAll());
+		return convertDeviceConfigToWiseml(deviceDBService.getAll());
 	}
 
 	@Override
 	public Wiseml get(final Iterable<NodeUrn> nodeUrns) {
-		return getInternal(deviceDBService.getConfigsByNodeUrns(nodeUrns).values());
+		return convertDeviceConfigToWiseml(deviceDBService.getConfigsByNodeUrns(nodeUrns).values());
 	}
 
-	private Wiseml getInternal(final Iterable<DeviceConfig> configs) {
+	private Wiseml convertDeviceConfigToWiseml(final Iterable<DeviceConfig> configs) {
 
 		final Setup setup = new Setup();
 		final List<Setup.Node> nodes = setup.getNode();
@@ -63,25 +60,20 @@ public class DeviceDBWisemlProvider implements WisemlProvider {
 			setup.setInterpolation(Interpolation.fromValue(config.getInterpolation()));
 		}
 
-		final Coordinate origin = new Coordinate();
+		final OutdoorCoordinatesType origin = new OutdoorCoordinatesType();
+		origin.setLatitude(config.getOriginLatitude());
+		origin.setLongitude(config.getOriginLongitude());
+		origin.setPhi(config.getOriginPhi());
+		origin.setTheta(config.getOriginTheta());
+		origin.setRho(config.getOriginRho());
+		origin.setX(config.getOriginX());
+		origin.setY(config.getOriginY());
+		origin.setZ(config.getOriginZ());
 
-		if (config.getOriginPhi() != null) {
-			origin.setPhi(config.getOriginPhi());
-		}
-		if (config.getOriginTheta() != null) {
-			origin.setTheta(config.getOriginTheta());
-		}
-		if (config.getOriginX() != null) {
-			origin.setX(config.getOriginX());
-		}
-		if (config.getOriginZ() != null) {
-			origin.setY(config.getOriginY());
-		}
-		if (config.getOriginZ() != null) {
-			origin.setZ(config.getOriginZ());
-		}
-
-		setup.setOrigin(origin);
+		final Coordinate originCoordinate = new Coordinate();
+		originCoordinate.setType(CoordinateType.OUTDOOR);
+		originCoordinate.setOutdoorCoordinates(origin);
+		setup.setOrigin(originCoordinate);
 
 		final Wiseml wiseml = new Wiseml();
 		wiseml.setSetup(setup);

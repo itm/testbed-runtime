@@ -117,7 +117,9 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 	protected void doStop() {
 		try {
 			log.trace("PortalPluginServiceImpl.doStop()");
-			pluginContainer.stopAndWait();
+			if (pluginContainer != null && pluginContainer.isRunning()) {
+				pluginContainer.stopAndWait();
+			}
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);

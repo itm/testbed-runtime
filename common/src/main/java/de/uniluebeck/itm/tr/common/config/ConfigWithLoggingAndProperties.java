@@ -9,8 +9,7 @@ public class ConfigWithLoggingAndProperties extends ConfigWithLogging {
 
 	@Option(name = "--config",
 			usage = "The configuration .properties file",
-			handler = PropertiesOptionHandler.class,
-			required = true
+			handler = PropertiesOptionHandler.class
 	)
 	public Properties config = null;
 

@@ -24,6 +24,8 @@
 package de.uniluebeck.itm.tr.rs.persistence.jpa;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
@@ -45,7 +47,6 @@ import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import javax.persistence.RollbackException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.List;
 import java.util.TimeZone;
@@ -59,19 +60,20 @@ public class RSPersistenceJPA implements RSPersistence {
 
 	private static final Logger log = LoggerFactory.getLogger(RSPersistence.class);
 
-	private final EntityManager em;
+	private final Provider<EntityManager> em;
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
 	private final TimeZone localTimeZone;
 
 	@Inject
-	public RSPersistenceJPA(final EntityManager em, final TimeZone timeZone) {
+	public RSPersistenceJPA(final Provider<EntityManager> em, final TimeZone timeZone) {
 		this.em = checkNotNull(em);
 		this.localTimeZone = checkNotNull(timeZone);
 	}
 
 	@Override
+	@Transactional
 	public ConfidentialReservationData addReservation(final List<NodeUrn> nodeUrns,
 													  final DateTime from,
 													  final DateTime to,
@@ -80,35 +82,16 @@ public class RSPersistenceJPA implements RSPersistence {
 													  final String description,
 													  final List<KeyValuePair> options) throws RSFault_Exception {
 
-		SecretReservationKeyInternal secretReservationKeyInternal = null;
-		String generatedSecretReservationKey = null;
+		SecretReservationKeyInternal secretReservationKeyInternal;
+		String generatedSecretReservationKey;
 
-		boolean created = false;
-		while (!created) {
+		generatedSecretReservationKey = secureIdGenerator.getNextId();
 
-			generatedSecretReservationKey = secureIdGenerator.getNextId();
+		secretReservationKeyInternal = new SecretReservationKeyInternal();
+		secretReservationKeyInternal.setSecretReservationKey(generatedSecretReservationKey);
+		secretReservationKeyInternal.setUrnPrefix(urnPrefix.toString());
 
-			secretReservationKeyInternal = new SecretReservationKeyInternal();
-			secretReservationKeyInternal.setSecretReservationKey(generatedSecretReservationKey);
-			secretReservationKeyInternal.setUrnPrefix(urnPrefix.toString());
-
-			try {
-
-				em.getTransaction().begin();
-				em.persist(secretReservationKeyInternal);
-				em.getTransaction().commit();
-
-				created = true;
-
-			} catch (RollbackException e) {
-
-				em.clear();
-
-			} catch (Exception e) {
-				log.error("Could not add SecretReservationKeyInternal because of: {}", e.getMessage());
-				return null;
-			}
-		}
+		em.get().persist(secretReservationKeyInternal);
 
 		final SecretReservationKey secretReservationKey = new SecretReservationKey();
 		secretReservationKey.setUrnPrefix(urnPrefix);
@@ -129,33 +112,24 @@ public class RSPersistenceJPA implements RSPersistence {
 				urnPrefix.toString()
 		);
 
+		em.get().persist(reservationData);
+
 		try {
-
-			em.getTransaction().begin();
-			em.persist(reservationData);
-			em.getTransaction().commit();
-
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), localTimeZone);
-
-		} catch (Exception e) {
-
-			em.getTransaction().begin();
-			em.remove(secretReservationKeyInternal);
-			em.getTransaction().commit();
-
+		} catch (DatatypeConfigurationException e) {
 			String msg = "Could not add Reservation because of: " + e.getMessage();
 			log.error(msg);
 			RSFault exception = new RSFault();
 			exception.setMessage(msg);
 			throw new RSFault_Exception(msg, exception, e);
-
 		}
 	}
 
 	@Override
+	@Transactional
 	public ConfidentialReservationData getReservation(SecretReservationKey srk)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception {
-		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
+		Query query = em.get().createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, srk.getKey());
 		ReservationDataInternal reservationData;
 		try {
@@ -171,9 +145,11 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
 	@Override
+	@Transactional
 	public ConfidentialReservationData deleteReservation(SecretReservationKey srk)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception {
-		Query query = em.createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
+
+		Query query = em.get().createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
 		query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, srk.getKey());
 		ReservationDataInternal reservationData;
 		try {
@@ -182,9 +158,7 @@ public class RSPersistenceJPA implements RSPersistence {
 			throw createRSUnknownSecretReservationKeyFault("Reservation not found", srk);
 		}
 		reservationData.delete();
-		em.getTransaction().begin();
-		em.persist(reservationData);
-		em.getTransaction().commit();
+		em.get().persist(reservationData);
 
 		try {
 			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
@@ -194,6 +168,7 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
 	@Override
+	@Transactional
 	@SuppressWarnings("unchecked")
 	public List<ConfidentialReservationData> getReservations(final Interval interval,
 															 @Nullable final Integer offset,
@@ -202,7 +177,7 @@ public class RSPersistenceJPA implements RSPersistence {
 		DateTime localFrom = interval.getStart().toDateTime(forTimeZone(localTimeZone));
 		DateTime localTo = interval.getEnd().toDateTime(forTimeZone(localTimeZone));
 
-		Query query = em.createNamedQuery(ReservationDataInternal.QGetByInterval.QUERY_NAME);
+		Query query = em.get().createNamedQuery(ReservationDataInternal.QGetByInterval.QUERY_NAME);
 		query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, localFrom.getMillis());
 		query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, localTo.getMillis());
 

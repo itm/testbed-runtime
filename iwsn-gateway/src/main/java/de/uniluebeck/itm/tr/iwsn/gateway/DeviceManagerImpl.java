@@ -59,9 +59,9 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 		@Override
 		public void run() {
 
-			final Set<DeviceConfig> deviceConfigs;
+			final Multimap<String, DeviceConfig> deviceConfigs;
 			synchronized (detectedButNotConnectedDevices) {
-				deviceConfigs = newHashSet(detectedButNotConnectedDevices.values());
+				deviceConfigs = HashMultimap.create(detectedButNotConnectedDevices);
 			}
 
 			final Function<Map.Entry<String, DeviceConfig>, String> entryToStringFunction =
@@ -78,10 +78,12 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 				);
 			}
 
-			for (DeviceConfig deviceConfig : deviceConfigs) {
-				if (tryToConnect(deviceConfig)) {
-					synchronized (detectedButNotConnectedDevices) {
-						detectedButNotConnectedDevices.remove(deviceConfig.getNodePort(), deviceConfig);
+			for (final String port : deviceConfigs.keys()) {
+				for (final DeviceConfig deviceConfig : deviceConfigs.get(port)) {
+					if (tryToConnect(port, deviceConfig)) {
+						synchronized (detectedButNotConnectedDevices) {
+							detectedButNotConnectedDevices.remove(port, deviceConfig);
+						}
 					}
 				}
 			}
@@ -93,7 +95,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 			}
 		}
 
-		private boolean tryToConnect(final DeviceConfig deviceConfig) {
+		private boolean tryToConnect(final String port, final DeviceConfig deviceConfig) {
 
 			log.trace("DeviceManagerImpl.tryToConnect({})", deviceConfig.getNodeUrn());
 
@@ -108,11 +110,11 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 			// first try to find a suitable DeviceAdapterFactory from plugins using the registry
 			// (allows overriding built-in drivers)
-			boolean connected = tryToConnect(deviceConfig, deviceAdapterRegistry.getDeviceAdapterFactories());
+			boolean connected = tryToConnect(port, deviceConfig, deviceAdapterRegistry.getDeviceAdapterFactories());
 
 			// if failed, try with the built-in DeviceAdapterFactory instances
 			if (!connected) {
-				connected = tryToConnect(deviceConfig, builtInDeviceAdapterFactories);
+				connected = tryToConnect(port, deviceConfig, builtInDeviceAdapterFactories);
 			}
 
 			log.debug("{} to {} device with URN {}",
@@ -123,14 +125,14 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 			return connected;
 		}
 
-		private boolean tryToConnect(final DeviceConfig deviceConfig,
+		private boolean tryToConnect(final String port,
+									 final DeviceConfig deviceConfig,
 									 final Set<DeviceAdapterFactory> deviceAdapterFactories) {
 
 			for (DeviceAdapterFactory deviceAdapterFactory : deviceAdapterFactories) {
 
 				if (deviceAdapterFactory.canHandle(deviceConfig)) {
 
-					final String port = deviceConfig.getNodePort();
 					final DeviceAdapter deviceAdapter = deviceAdapterFactory.create(port, deviceConfig);
 					final DeviceAdapterListener deviceAdapterListener = new ManagerDeviceAdapterListener();
 					final DeviceAdapterServiceListener listener = new DeviceAdapterServiceListener(
@@ -351,7 +353,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 		}
 
 		synchronized (detectedButNotConnectedDevices) {
-			detectedButNotConnectedDevices.put(deviceConfig.getNodePort(), deviceConfig);
+			detectedButNotConnectedDevices.put(deviceFoundEvent.getPort(), deviceConfig);
 		}
 
 		schedulerService.execute(tryToConnectToDetectedButUnconnectedDevicesRunnable);
@@ -392,7 +394,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 		final Set<DeviceAdapter> copy;
 		synchronized (runningDeviceAdapters) {
-			copy = newHashSet();
+			copy = newHashSet(runningDeviceAdapters);
 		}
 
 		for (DeviceAdapter deviceAdapter : copy) {

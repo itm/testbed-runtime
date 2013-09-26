@@ -1,4 +1,5 @@
 <%@ page import="de.uniluebeck.itm.tr.devicedb.DeviceDBConfig" %>
+<%@ page import="de.uniluebeck.itm.tr.common.config.CommonConfig" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,6 +20,7 @@
     <script src="js/templates.js"></script>   
     <script>
 
+		var nodeUrnPrefix = "<%= getServletConfig().getInitParameter(CommonConfig.URN_PREFIX) %>";
 		var deviceDBRestApiContextPath = "<%= getServletConfig().getInitParameter(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH) %>";
 		var deviceDBWebappContextPath = "<%= getServletConfig().getInitParameter(DeviceDBConfig.DEVICEDB_WEBAPP_CONTEXT_PATH) %>";
 

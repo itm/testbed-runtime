@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.parseOrExit;
+import static de.uniluebeck.itm.tr.common.config.ConfigHelper.printHelpAndExit;
 import static de.uniluebeck.itm.tr.common.config.ConfigHelper.setLogLevel;
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentationAndExit;
 
@@ -68,6 +69,10 @@ public class SNAAServer extends AbstractService {
 
 		if (config.helpConfig) {
 			printDocumentationAndExit(System.out, CommonConfig.class, SNAAServiceConfig.class);
+		}
+
+		if (config.config == null) {
+			printHelpAndExit(config, SNAAServer.class);
 		}
 
 		final PropConfModule propConfModule =

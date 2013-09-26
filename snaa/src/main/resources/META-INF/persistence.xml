@@ -1,27 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
         http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd" version="1.0">
 
-        <!-- A JPA Persistence Unit -->
-        <persistence-unit name="ShiroSNAA" transaction-type="RESOURCE_LOCAL">
-                <provider>org.hibernate.ejb.HibernatePersistence</provider>
- 
-                <!-- JPA entities must be registered here -->
-	        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.Action</class>
-	        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.Permission</class>
-	        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.ResourceGroup</class>
-	        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.Role</class>
-	        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup</class>
-	        <class>de.uniluebeck.itm.tr.snaa.shiro.entity.User</class>
+	<persistence-unit name="ShiroSNAA" transaction-type="RESOURCE_LOCAL">
 
-                <properties>
-                        <!-- vendor-specific properties go here -->
-                        <!-- Load these properties from hibernate.properties when
-                        	 setting up the jpa persistence module to prevent inconsistencies -->
-                </properties>
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 
-        </persistence-unit>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.Action</class>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.Permission</class>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.ResourceGroup</class>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.Role</class>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup</class>
+		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.User</class>
+
+	</persistence-unit>
 
 </persistence>

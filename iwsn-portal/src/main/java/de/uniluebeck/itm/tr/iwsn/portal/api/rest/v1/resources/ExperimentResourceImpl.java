@@ -156,16 +156,16 @@ public class ExperimentResourceImpl implements ExperimentResource {
 			sb.append(c.getName()).append(" ");
 		}
 
-		if (c.getDatatype() != null && c.getDatatype().value() != null) {
-			sb.append(c.getDatatype().value()).append(" ");
+		if (c.getDatatype() != null && c.getDatatype() != null) {
+			sb.append(c.getDatatype()).append(" ");
 		}
 
 		if (c.getDefault() != null) {
 			sb.append(c.getDefault()).append(" ");
 		}
 
-		if (c.getUnit() != null && c.getUnit().value() != null) {
-			sb.append(c.getUnit().value()).append(" ");
+		if (c.getUnit() != null && c.getUnit() != null) {
+			sb.append(c.getUnit()).append(" ");
 		}
 
 		return sb.toString();
@@ -525,9 +525,9 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				if (responseTracker.get(nodeUrn).isDone()) {
 					try {
 						final SingleNodeResponse response = responseTracker.get(nodeUrn).get();
+						final Request request = responseTracker.getRequest();
 						status = new JobNodeStatus(
-								response.getStatusCode() == getUnconnectedStatusCode(responseTracker.getRequest()) ?
-										JobState.FAILED : JobState.SUCCESS,
+								isErrorStatusCode(request, response) ? JobState.FAILED : JobState.SUCCESS,
 								response.getStatusCode(),
 								response.getErrorMessage()
 						);

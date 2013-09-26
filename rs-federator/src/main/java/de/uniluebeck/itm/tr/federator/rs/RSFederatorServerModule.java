@@ -37,6 +37,6 @@ public class RSFederatorServerModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory servicePublisherFactory, final RSFederatorServerConfig config) {
-		return servicePublisherFactory.create(new ServicePublisherConfig(config.getPort()));
+		return servicePublisherFactory.create(new ServicePublisherConfig(config.getPort(), config.getShiroIni()));
 	}
 }

@@ -24,8 +24,11 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.uniqueIndex;
+import static de.uniluebeck.itm.tr.devicedb.DeviceConfigHelper.fromEntity;
+import static de.uniluebeck.itm.tr.devicedb.DeviceConfigHelper.toEntity;
 
-public class DeviceDBJpa extends AbstractService implements DeviceDBService {
+public class DeviceDBJpa extends AbstractService implements
+		DeviceDBService {
 
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(DeviceDBJpa.class);
@@ -42,7 +45,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 			new Function<DeviceConfigEntity, DeviceConfig>() {
 				@Override
 				public DeviceConfig apply(DeviceConfigEntity config) {
-					return config.toDeviceConfig();
+					return fromEntity(config);
 				}
 			};
 
@@ -88,11 +91,12 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 		checkState(isRunning());
 
 		try {
-			return entityManager.get()
+			final DeviceConfigEntity deviceConfig = entityManager.get()
 					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUSBChipID = :usbChipId",
 							DeviceConfigEntity.class
 					)
-					.setParameter("usbChipId", usbChipId).getSingleResult().toDeviceConfig();
+					.setParameter("usbChipId", usbChipId).getSingleResult();
+			return fromEntity(deviceConfig);
 		} catch (Exception e) {
 			return null;
 		}
@@ -106,9 +110,10 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 		checkState(isRunning());
 
 		try {
-			return entityManager.get()
+			final DeviceConfigEntity deviceConfig = entityManager.get()
 					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfigEntity.class)
-					.setParameter("nodeUrn", nodeUrn.toString()).getSingleResult().toDeviceConfig();
+					.setParameter("nodeUrn", nodeUrn.toString()).getSingleResult();
+			return fromEntity(deviceConfig);
 		} catch (NoResultException e) {
 			return null;
 		}
@@ -124,12 +129,12 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 		try {
 
 			String macHex = "0x" + Strings.padStart(Long.toHexString(macAddress), 4, '0');
-			DeviceConfig config = entityManager.get()
+			final DeviceConfigEntity deviceConfig = entityManager.get()
 					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn LIKE :macAddress",
 							DeviceConfigEntity.class
 					)
-					.setParameter("macAddress", "%" + macHex).getSingleResult().toDeviceConfig();
-			return config;
+					.setParameter("macAddress", "%" + macHex).getSingleResult();
+			return fromEntity(deviceConfig);
 
 		} catch (NoResultException e) {
 			return null;
@@ -154,7 +159,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 	public void add(final DeviceConfig deviceConfig) {
 		log.trace("DeviceDBJpa.add({})", deviceConfig);
 		checkState(isRunning());
-		entityManager.get().persist(new DeviceConfigEntity(deviceConfig));
+		entityManager.get().persist(toEntity(deviceConfig));
 	}
 
 	@Override
@@ -162,7 +167,7 @@ public class DeviceDBJpa extends AbstractService implements DeviceDBService {
 	public void update(DeviceConfig deviceConfig) {
 		log.trace("DeviceDBJpa.update({})", deviceConfig);
 		checkState(isRunning());
-		entityManager.get().merge(new DeviceConfigEntity(deviceConfig));
+		entityManager.get().merge(toEntity(deviceConfig));
 	}
 
 	@Override

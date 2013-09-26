@@ -28,6 +28,10 @@ public class ConfigHelper {
 		return config;
 	}
 
+	public static <T extends Config> void printHelpAndExit(final T config, final Class<?> mainClass) {
+		printHelpAndExit(new CmdLineParser(config), mainClass);
+	}
+
 	public static void printHelpAndExit(CmdLineParser parser, final Class<?> mainClass) {
 		System.err.print("Usage: java " + mainClass.getCanonicalName());
 		parser.printSingleLineUsage(System.err);
