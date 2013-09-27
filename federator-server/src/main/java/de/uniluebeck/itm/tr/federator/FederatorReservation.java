@@ -23,13 +23,8 @@ public class FederatorReservation extends AbstractService implements Reservation
 	}
 
 	@Override
-	public String getKey() {
-		throw new RuntimeException("Implement me!");
-	}
-
-	@Override
-	public String getUsername() {
-		throw new RuntimeException("Implement me!");
+	public Set<Entry> getEntries() {
+		return null;  // TODO implement
 	}
 
 	@Override

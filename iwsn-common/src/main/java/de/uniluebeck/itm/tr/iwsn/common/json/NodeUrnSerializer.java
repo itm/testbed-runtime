@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.common.rest;
+package de.uniluebeck.itm.tr.iwsn.common.json;
 
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.codehaus.jackson.JsonGenerationException;

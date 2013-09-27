@@ -35,13 +35,17 @@ message ReservationEvent {
 		ENDED   = 2;
 	}
 
-	required Type   type           = 1;
-	required string key            = 2;
-	required string username       = 3;
-	repeated string nodeUrns       = 4;
-	required string interval_start = 5;
-	required string interval_end   = 6;
+	message SecretReservationKey {
+		required string nodeUrnPrefix = 1;
+        required string username      = 2;
+		required string key           = 3;
+	}
 
+	required Type   type                                = 1;
+	repeated SecretReservationKey secretReservationKeys = 2;
+	repeated string nodeUrns                            = 3;
+	required string interval_start                      = 4;
+	required string interval_end                        = 5;
 }
 
 message InternalMessage {

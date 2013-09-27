@@ -17,7 +17,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Iterables.*;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newDevicesAttachedEvent;
@@ -34,6 +34,8 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	private final Reservation reservation;
 
+	private final String reservationId;
+
 	@Inject
 	public ReservationEventBusImpl(final PortalEventBus portalEventBus,
 								   final EventBusFactory eventBusFactory,
@@ -41,28 +43,25 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		this.portalEventBus = portalEventBus;
 		this.eventBus = eventBusFactory.create("ReservationEventBus");
 		this.reservation = reservation;
+		this.reservationId = reservation.getSerializedKey();
 	}
 
 	@Override
 	public void register(final Object object) {
-
-		log.trace("ReservationEventBus[{}].register(object={})", reservation.getKey(), object);
-
+		log.trace("ReservationEventBus[{}].register(object={})", reservationId, object);
 		eventBus.register(object);
 	}
 
 	@Override
 	public void unregister(final Object object) {
-
-		log.trace("ReservationEventBus[{}].unregister(object={})", reservation.getKey(), object);
-
+		log.trace("ReservationEventBus[{}].unregister(object={})", reservationId, object);
 		eventBus.unregister(object);
 	}
 
 	@Override
 	public void post(final Object event) {
 
-		log.trace("ReservationEventBus[{}].post(event={})", reservation.getKey(), event);
+		log.trace("ReservationEventBus[{}].post({})", reservationId, event);
 
 		checkState(isRunning());
 
@@ -75,7 +74,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	@Subscribe
 	public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
 
-		log.trace("ReservationEventBus[{}].onDevicesAttachedEventFromPortalEventBus({})", reservation.getKey(), event);
+		log.trace("ReservationEventBus[{}].onDevicesAttachedEventFromPortalEventBus({})", reservationId, event);
 
 		final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
 		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
@@ -88,7 +87,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	@Subscribe
 	public void onUpstreamMessageEventFromPortalEventBus(final UpstreamMessageEvent event) {
 
-		log.trace("ReservationEventBus[{}].onUpstreamMessageEventFromPortalEventBus({})", reservation.getKey(), event);
+		log.trace("ReservationEventBus[{}].onUpstreamMessageEventFromPortalEventBus({})", reservationId, event);
 
 		final NodeUrn sourceNodeUrn = new NodeUrn(event.getSourceNodeUrn());
 
@@ -100,7 +99,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	@Subscribe
 	public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
 
-		log.trace("ReservationEventBus[{}].onDevicesDetachedEventFromPortalEventBus({})", reservation.getKey(), event);
+		log.trace("ReservationEventBus[{}].onDevicesDetachedEventFromPortalEventBus({})", reservationId, event);
 
 		final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
 		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
@@ -112,7 +111,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onNotificationEventFromPortalEventBus(final NotificationEvent event) {
-		log.trace("ReservationEventBus[{}].onNotificationEventFromPortalEventBus({})", reservation.getKey(), event);
+		log.trace("ReservationEventBus[{}].onNotificationEventFromPortalEventBus({})", reservationId, event);
 		if (!event.hasNodeUrn() || reservation.getNodeUrns().contains(new NodeUrn(event.getNodeUrn()))) {
 			eventBus.post(event);
 		}
@@ -120,23 +119,23 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onSingleNodeProgressFromPortalEventBus(final SingleNodeProgress progress) {
-		log.trace("ReservationEventBus[{}].onSingleNodeProgressFromPortalEventBus({})", reservation.getKey(), progress);
-		if (reservation.getKey().equals(progress.getReservationId())) {
+		log.trace("ReservationEventBus[{}].onSingleNodeProgressFromPortalEventBus({})", reservationId, progress);
+		if (reservationId.equals(progress.getReservationId())) {
 			eventBus.post(progress);
 		}
 	}
 
 	@Subscribe
 	public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
-		log.trace("ReservationEventBus[{}].onSingleNodeResponseFromPortalEventBus({})", reservation.getKey(), response);
-		if (reservation.getKey().equals(response.getReservationId())) {
+		log.trace("ReservationEventBus[{}].onSingleNodeResponseFromPortalEventBus({})", reservationId, response);
+		if (reservationId.equals(response.getReservationId())) {
 			eventBus.post(response);
 		}
 	}
 
 	@Subscribe
 	public void onReservationStartedEventFromPortalEventBus(final ReservationStartedEvent event) {
-		log.trace("ReservationEventBus[{}].onReservationStartedEventFromPortalEventBus({})", reservation.getKey(), event);
+		log.trace("ReservationEventBus[{}].onReservationStartedEventFromPortalEventBus({})", reservationId, event);
 		if (event.getReservation() == reservation) {
 			eventBus.post(event);
 		}
@@ -144,7 +143,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onReservationEndedEventFromPortalEventBus(final ReservationEndedEvent event) {
-		log.trace("ReservationEventBus[{}].onReservationEndedEventFromPortalEventBus({})", reservation.getKey(), event);
+		log.trace("ReservationEventBus[{}].onReservationEndedEventFromPortalEventBus({})", reservationId, event);
 		if (event.getReservation() == reservation) {
 			eventBus.post(event);
 		}
@@ -152,8 +151,8 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Subscribe
 	public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
-		log.trace("ReservationEventBusImpl.onGetChannelPipelinesResponse({})", reservation.getKey(), response);
-		if (reservation.getKey().equals(response.getReservationId())) {
+		log.trace("ReservationEventBusImpl.onGetChannelPipelinesResponse({})", reservationId, response);
+		if (reservationId.equals(response.getReservationId())) {
 			eventBus.post(response);
 		}
 	}
@@ -161,7 +160,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	@Override
 	protected void doStart() {
 
-		log.trace("ReservationEventBus[{}].doStart()", reservation.getKey());
+		log.trace("ReservationEventBus[{}].doStart()", reservationId);
 
 		try {
 			portalEventBus.register(this);
@@ -174,7 +173,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	@Override
 	protected void doStop() {
 
-		log.trace("ReservationEventBus[{}].doStop()", reservation.getKey());
+		log.trace("ReservationEventBus[{}].doStop()", reservationId);
 
 		try {
 			portalEventBus.unregister(this);

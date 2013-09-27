@@ -1,10 +1,8 @@
-package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util;
+package de.uniluebeck.itm.tr.iwsn.common;
 
 
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
-
-import static com.google.common.base.Throwables.propagate;
 
 public class Base64Helper {
 

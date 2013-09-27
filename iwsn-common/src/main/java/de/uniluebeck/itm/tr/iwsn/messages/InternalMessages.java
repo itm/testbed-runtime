@@ -14,11 +14,16 @@ public final class InternalMessages {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_fieldAccessorTable;
   static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_descriptor;
+  static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_fieldAccessorTable;
+  static com.google.protobuf.Descriptors.Descriptor
     internal_static_de_uniluebeck_itm_tr_iwsn_messages_InternalMessage_descriptor;
   static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_de_uniluebeck_itm_tr_iwsn_messages_InternalMessage_fieldAccessorTable;
-  
+
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
     return descriptor;
@@ -29,18 +34,21 @@ public final class InternalMessages {
     java.lang.String[] descriptorData = {
       "\n*src/main/resources/internal-messages.p" +
       "roto\022\"de.uniluebeck.itm.tr.iwsn.messages" +
-      "\"\332\001\n\020ReservationEvent\022G\n\004type\030\001 \002(\01629.de" +
+      "\"\363\002\n\020ReservationEvent\022G\n\004type\030\001 \002(\01629.de" +
       ".uniluebeck.itm.tr.iwsn.messages.Reserva" +
-      "tionEvent.Type\022\013\n\003key\030\002 \002(\t\022\020\n\010username\030" +
-      "\003 \002(\t\022\020\n\010nodeUrns\030\004 \003(\t\022\026\n\016interval_star" +
-      "t\030\005 \002(\t\022\024\n\014interval_end\030\006 \002(\t\"\036\n\004Type\022\013\n" +
-      "\007STARTED\020\001\022\t\n\005ENDED\020\002\"\310\001\n\017InternalMessag" +
-      "e\022F\n\004type\030\001 \002(\01628.de.uniluebeck.itm.tr.i" +
-      "wsn.messages.InternalMessage.Type\022N\n\020res",
-      "ervationEvent\030e \001(\01324.de.uniluebeck.itm." +
-      "tr.iwsn.messages.ReservationEvent\"\035\n\004Typ" +
-      "e\022\025\n\021RESERVATION_EVENT\020\001B\024B\020InternalMess" +
-      "agesP\001"
+      "tionEvent.Type\022h\n\025secretReservationKeys\030" +
+      "\002 \003(\0132I.de.uniluebeck.itm.tr.iwsn.messag" +
+      "es.ReservationEvent.SecretReservationKey" +
+      "\022\020\n\010nodeUrns\030\003 \003(\t\022\026\n\016interval_start\030\004 \002" +
+      "(\t\022\024\n\014interval_end\030\005 \002(\t\032L\n\024SecretReserv" +
+      "ationKey\022\025\n\rnodeUrnPrefix\030\001 \002(\t\022\020\n\010usern",
+      "ame\030\002 \002(\t\022\013\n\003key\030\003 \002(\t\"\036\n\004Type\022\013\n\007STARTE" +
+      "D\020\001\022\t\n\005ENDED\020\002\"\310\001\n\017InternalMessage\022F\n\004ty" +
+      "pe\030\001 \002(\01628.de.uniluebeck.itm.tr.iwsn.mes" +
+      "sages.InternalMessage.Type\022N\n\020reservatio" +
+      "nEvent\030e \001(\01324.de.uniluebeck.itm.tr.iwsn" +
+      ".messages.ReservationEvent\"\035\n\004Type\022\025\n\021RE" +
+      "SERVATION_EVENT\020\001B\024B\020InternalMessagesP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -52,17 +60,19 @@ public final class InternalMessages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_descriptor,
-              new java.lang.String[] { "Type", "Key", "Username", "NodeUrns", "IntervalStart", "IntervalEnd", },
-              de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.class,
-              de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Builder.class);
+              new java.lang.String[] { "Type", "SecretReservationKeys", "NodeUrns", "IntervalStart", "IntervalEnd", });
+          internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_descriptor =
+            internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_descriptor.getNestedTypes().get(0);
+          internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_descriptor,
+              new java.lang.String[] { "NodeUrnPrefix", "Username", "Key", });
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_InternalMessage_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_InternalMessage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_InternalMessage_descriptor,
-              new java.lang.String[] { "Type", "ReservationEvent", },
-              de.uniluebeck.itm.tr.iwsn.messages.InternalMessage.class,
-              de.uniluebeck.itm.tr.iwsn.messages.InternalMessage.Builder.class);
+              new java.lang.String[] { "Type", "ReservationEvent", });
           return null;
         }
       };
@@ -71,6 +81,6 @@ public final class InternalMessages {
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
   }
-  
+
   // @@protoc_insertion_point(outer_class_scope)
 }

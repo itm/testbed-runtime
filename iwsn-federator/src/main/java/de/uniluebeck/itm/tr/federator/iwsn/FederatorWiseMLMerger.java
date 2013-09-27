@@ -68,11 +68,19 @@ public abstract class FederatorWiseMLMerger {
 		}
 
 		// merge WiseML documents (only the relevant parts)
-		final Wiseml target = new Wiseml().withVersion("2.0").withSetup(
-				new Setup().withDescription(
-						"Federated testbed of " + Joiner.on(", ").join(endpointUrlToCallableMap.keySet()) + "."
-				)
-		);
+		final StringBuilder description = new StringBuilder()
+				.append("Federated testbed of ")
+				.append(Joiner.on(", ").join(endpointUrlToCallableMap.keySet()))
+				.append(".\nOriginal descriptions: \n\n");
+
+		for (Wiseml current : wiseMLs) {
+			description.append(current.getSetup().getDescription());
+			description.append("\n\n");
+		}
+
+		final Wiseml target = new Wiseml()
+				.withVersion("2.0")
+				.withSetup(new Setup().withDescription(description.toString()));
 
 		for (Wiseml current : wiseMLs) {
 			for (Setup.Node node : current.getSetup().getNode()) {

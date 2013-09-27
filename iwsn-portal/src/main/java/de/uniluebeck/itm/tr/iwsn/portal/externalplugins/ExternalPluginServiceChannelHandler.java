@@ -137,38 +137,35 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 	}
 
 	public void onReservationStartedEvent(final ReservationStartedEvent event) {
-		final Reservation reservation = event.getReservation();
-		final ExternalPluginMessage externalPluginMessage = ExternalPluginMessage.newBuilder()
-				.setType(ExternalPluginMessage.Type.INTERNAL_MESSAGE)
-				.setInternalMessage(InternalMessage.newBuilder()
-						.setType(InternalMessage.Type.RESERVATION_EVENT)
-						.setReservationEvent(ReservationEvent.newBuilder()
-								.setType(ReservationEvent.Type.STARTED)
-								.setKey(reservation.getKey())
-								.setUsername(reservation.getUsername())
-								.addAllNodeUrns(transform(reservation.getNodeUrns(), NODE_URN_TO_STRING))
-								.setIntervalStart(reservation.getInterval().getStart().toString())
-								.setIntervalEnd(reservation.getInterval().getEnd().toString())
-						)
-				).build();
-		allChannels.write(externalPluginMessage);
+		allChannels.write(createReservationEvent(event.getReservation(), ReservationEvent.Type.STARTED));
 	}
 
 	public void onReservationEndedEvent(final ReservationEndedEvent event) {
-		final Reservation reservation = event.getReservation();
-		final ExternalPluginMessage externalPluginMessage = ExternalPluginMessage.newBuilder()
+		allChannels.write(createReservationEvent(event.getReservation(), ReservationEvent.Type.ENDED));
+	}
+
+	private ExternalPluginMessage createReservationEvent(final Reservation reservation,
+														 final ReservationEvent.Type type) {
+
+		final ReservationEvent.Builder reservationEvent = ReservationEvent
+				.newBuilder()
+				.setType(type)
+				.addAllNodeUrns(transform(reservation.getNodeUrns(), NODE_URN_TO_STRING))
+				.setIntervalStart(reservation.getInterval().getStart().toString())
+				.setIntervalEnd(reservation.getInterval().getEnd().toString());
+
+		for (Reservation.Entry entry : reservation.getEntries()) {
+			ReservationEvent.SecretReservationKey.newBuilder()
+					.setKey(entry.getKey())
+					.setUsername(entry.getUsername())
+					.setNodeUrnPrefix(entry.getNodeUrnPrefix().toString());
+		}
+
+		return ExternalPluginMessage.newBuilder()
 				.setType(ExternalPluginMessage.Type.INTERNAL_MESSAGE)
 				.setInternalMessage(InternalMessage.newBuilder()
 						.setType(InternalMessage.Type.RESERVATION_EVENT)
-						.setReservationEvent(ReservationEvent.newBuilder()
-								.setType(ReservationEvent.Type.ENDED)
-								.setKey(reservation.getKey())
-								.setUsername(reservation.getUsername())
-								.addAllNodeUrns(transform(reservation.getNodeUrns(), NODE_URN_TO_STRING))
-								.setIntervalStart(reservation.getInterval().getStart().toString())
-								.setIntervalEnd(reservation.getInterval().getEnd().toString())
-						)
+						.setReservationEvent(reservationEvent)
 				).build();
-		allChannels.write(externalPluginMessage);
 	}
 }

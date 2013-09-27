@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.util.TimedCache;
@@ -44,12 +45,16 @@ public class ReservationImplTest {
 	@Mock
 	private ResponseTrackerFactory responseTrackerFactory;
 
+	@Mock
+	private CommonConfig commonConfig;
+
 	private ReservationImpl reservation;
 
 	@Before
 	public void setUp() throws Exception {
 		when(reservationEventBusFactory.create(Matchers.<Reservation>any())).thenReturn(reservationEventBus);
 		reservation = new ReservationImpl(
+				commonConfig,
 				reservationEventBusFactory,
 				portalEventBus,
 				responseTrackerTimedCache,

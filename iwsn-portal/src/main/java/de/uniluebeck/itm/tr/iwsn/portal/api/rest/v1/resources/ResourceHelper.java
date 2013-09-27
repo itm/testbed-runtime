@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util;
+package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SnaaSecretAuthenticationKeyList;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.NotLoggedInException;
@@ -8,8 +8,8 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import java.util.List;
 
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.decode;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.fromJSON;
+import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.decode;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.fromJSON;
 
 public class ResourceHelper {
 

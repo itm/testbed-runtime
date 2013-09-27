@@ -7,7 +7,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.encode;
+import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.encode;
 
 @XmlRootElement
 public class WebSocketUpstreamMessage {
