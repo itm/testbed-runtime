@@ -13,7 +13,7 @@ public final class ExternalPluginMessages {
   static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_de_uniluebeck_itm_tr_iwsn_messages_ExternalPluginMessage_fieldAccessorTable;
-
+  
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
     return descriptor;
@@ -46,7 +46,9 @@ public final class ExternalPluginMessages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_ExternalPluginMessage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_ExternalPluginMessage_descriptor,
-              new java.lang.String[] { "Type", "InternalMessage", "IwsnMessage", });
+              new java.lang.String[] { "Type", "InternalMessage", "IwsnMessage", },
+              de.uniluebeck.itm.tr.iwsn.messages.ExternalPluginMessage.class,
+              de.uniluebeck.itm.tr.iwsn.messages.ExternalPluginMessage.Builder.class);
           return null;
         }
       };
@@ -57,6 +59,6 @@ public final class ExternalPluginMessages {
           de.uniluebeck.itm.tr.iwsn.messages.Messages.getDescriptor(),
         }, assigner);
   }
-
+  
   // @@protoc_insertion_point(outer_class_scope)
 }

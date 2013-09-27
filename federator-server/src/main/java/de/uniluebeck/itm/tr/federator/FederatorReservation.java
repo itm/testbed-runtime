@@ -43,6 +43,11 @@ public class FederatorReservation extends AbstractService implements Reservation
 	}
 
 	@Override
+	public String getSerializedKey() {
+		throw new RuntimeException("Implement me!");
+	}
+
+	@Override
 	public ResponseTracker createResponseTracker(final Request request) {
 		throw new RuntimeException("Implement me!");
 	}
