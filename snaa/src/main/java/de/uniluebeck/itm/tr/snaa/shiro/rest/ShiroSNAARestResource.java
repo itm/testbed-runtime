@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.snaa.shiro.rest;
 
-import de.uniluebeck.itm.tr.snaa.shiro.entity.Action;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
+import de.uniluebeck.itm.tr.snaa.shiro.dto.PermissionDto;
+import de.uniluebeck.itm.tr.snaa.shiro.dto.RoleDto;
+import de.uniluebeck.itm.tr.snaa.shiro.dto.UserListDto;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -14,22 +14,8 @@ public interface ShiroSNAARestResource {
 	@GET
 	@Path("users")
 	@Produces(MediaType.APPLICATION_JSON)
-	List<User> listUsers();
-	
-	@GET
-	@Path("roles")
-	@Produces(MediaType.APPLICATION_JSON)
-	List<Role> listRoles();
-	
-	@GET
-	@Path("actions")
-	@Produces(MediaType.APPLICATION_JSON)
-	List<Action> listActions();
-	
-	@GET
-	@Path("users/test")
-	Response test();
-	
+    UserListDto listUsers();
+
 	@POST
 	@Path("users")
 	@Consumes(MediaType.APPLICATION_JSON)
