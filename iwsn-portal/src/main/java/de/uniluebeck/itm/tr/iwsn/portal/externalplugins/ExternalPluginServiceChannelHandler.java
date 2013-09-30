@@ -154,11 +154,12 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 				.setIntervalStart(reservation.getInterval().getStart().toString())
 				.setIntervalEnd(reservation.getInterval().getEnd().toString());
 
+
 		for (Reservation.Entry entry : reservation.getEntries()) {
-			ReservationEvent.SecretReservationKey.newBuilder()
+			reservationEvent.addSecretReservationKeys(ReservationEvent.SecretReservationKey.newBuilder()
 					.setKey(entry.getKey())
 					.setUsername(entry.getUsername())
-					.setNodeUrnPrefix(entry.getNodeUrnPrefix().toString());
+					.setNodeUrnPrefix(entry.getNodeUrnPrefix().toString()));
 		}
 
 		return ExternalPluginMessage.newBuilder()

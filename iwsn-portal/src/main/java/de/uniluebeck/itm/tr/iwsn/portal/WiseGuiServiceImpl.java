@@ -6,6 +6,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -54,8 +55,13 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 				resourceBase = wiseGuiSourceDir.toString();
 
 			} else {
-
-				resourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/iwsn/portal/wisegui").toString();
+				final URL resource = this.getClass().getResource("/de/uniluebeck/itm/tr/iwsn/portal/wisegui");
+				if (resource == null) {
+					throw new IllegalArgumentException("The internal version of WiseGui cannot be started. " +
+							"Did you forget to initialize and update the submodule running " +
+							"'git submodule init' and 'git submodule update'?");
+				}
+				resourceBase = resource.toString();
 			}
 
 			final Map<String, String> params = newHashMap();

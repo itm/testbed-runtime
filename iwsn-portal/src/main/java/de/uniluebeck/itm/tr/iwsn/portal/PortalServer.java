@@ -226,7 +226,7 @@ public class PortalServer extends AbstractService {
 		try {
 			portalServer.start().get();
 		} catch (Exception e) {
-			log.error("Could not start iWSN portal: {}", e.getMessage());
+			log.error("Could not start iWSN portal: {}", e.getMessage(), e);
 			System.exit(1);
 		}
 
