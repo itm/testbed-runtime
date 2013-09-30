@@ -21,33 +21,31 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.federator.iwsn;
+package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import eu.wisebed.api.v3.wsn.AuthorizationFault;
-import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
-import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
-import eu.wisebed.api.v3.wsn.WSN;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.sm.NodeConnectionStatus;
+import eu.wisebed.api.v3.sm.SessionManagement;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
-class FlashProgramsCallable extends AbstractRequestCallable {
+public class SMAreNodesAliveCallable implements Callable<List<NodeConnectionStatus>> {
 
-	private final List<FlashProgramsConfiguration> flashProgramsConfigurations;
+	private final SessionManagement smEndpoint;
 
-	FlashProgramsCallable(final WSNFederatorController federatorController,
-						  final WSN wsnEndpoint,
-						  final long federatedRequestId,
-						  final long federatorRequestId,
-						  final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
+	private final List<NodeUrn> nodes;
 
-		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
-
-		this.flashProgramsConfigurations = flashProgramsConfigurations;
+	public SMAreNodesAliveCallable(final SessionManagement smEndpoint, final List<NodeUrn> nodes) {
+		this.smEndpoint = smEndpoint;
+		this.nodes = nodes;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, AuthorizationFault {
-		wsnEndpoint.flashPrograms(federatedRequestId, flashProgramsConfigurations);
+	public List<NodeConnectionStatus> call() throws Exception {
+		// instance smEndpoint is potentially not thread-safe!!!
+		synchronized (smEndpoint) {
+			return smEndpoint.areNodesConnected(nodes);
+		}
 	}
 }

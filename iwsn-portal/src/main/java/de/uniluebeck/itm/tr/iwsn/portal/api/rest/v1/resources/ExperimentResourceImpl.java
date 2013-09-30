@@ -219,7 +219,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 			}
 
 			reservation.createResponseTracker(request);
-			reservation.getEventBus().post(request);
+			reservation.getReservationEventBus().post(request);
 		}
 
 		// remember response trackers, make them available via URL, redirect callers to this URL
@@ -280,7 +280,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
-		final ReservationEventBus reservationEventBus = reservation.getEventBus();
+		final ReservationEventBus reservationEventBus = reservation.getReservationEventBus();
 		final long requestId = requestIdProvider.get();
 
 		return RequestHelper.getChannelPipelines(nodeUrns, secretReservationKeysBase64, requestId, reservationEventBus);
@@ -546,7 +546,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 														 final TimeUnit timeUnit) {
 
 		final ResponseTracker responseTracker = reservation.createResponseTracker(request);
-		reservation.getEventBus().post(request);
+		reservation.getReservationEventBus().post(request);
 
 		try {
 			responseTracker.get(timeout, timeUnit);

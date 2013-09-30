@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.federator.iwsn;
+package de.uniluebeck.itm.tr.federator.iwsn.async;
 
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.sm.SessionManagement;
@@ -9,7 +9,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-class GetInstanceCallable implements Callable<GetInstanceCallable.Result> {
+public class GetInstanceCallable implements Callable<GetInstanceCallable.Result> {
 
 	private static final Logger log = LoggerFactory.getLogger(GetInstanceCallable.class);
 
@@ -33,7 +33,8 @@ class GetInstanceCallable implements Callable<GetInstanceCallable.Result> {
 
 	private List<SecretReservationKey> secretReservationKeys;
 
-	public GetInstanceCallable(final URI uri, final SessionManagement sm, final List<SecretReservationKey> secretReservationKeys) {
+	public GetInstanceCallable(final URI uri, final SessionManagement sm,
+							   final List<SecretReservationKey> secretReservationKeys) {
 		this.uri = uri;
 		this.sm = sm;
 		this.secretReservationKeys = secretReservationKeys;

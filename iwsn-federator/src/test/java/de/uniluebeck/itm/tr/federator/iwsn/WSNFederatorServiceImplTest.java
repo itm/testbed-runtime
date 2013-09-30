@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.WSNPreconditions;
 import de.uniluebeck.itm.util.SecureIdGenerator;
@@ -85,7 +85,7 @@ public class WSNFederatorServiceImplTest {
 	private WSN testbed3WSN;
 
 	@Mock
-	private FederationManager<WSN> federationManager;
+	private FederatedEndpoints<WSN> federatedEndpoints;
 
 	@Mock
 	private WSNFederatorControllerFactory federatorControllerFactory;
@@ -109,7 +109,10 @@ public class WSNFederatorServiceImplTest {
 	private PreconditionsFactory preconditionsFactory;
 
 	@Mock
-	private FederationManager<WSN> wsnFederationManager;
+	private FederatedEndpoints<WSN> wsnFederatedEndpoints;
+
+	@Mock
+	private WSNFederatorController wsnFederatorController;
 
 	private WSNFederatorServiceImpl wsnFederatorServiceImpl;
 
@@ -124,13 +127,13 @@ public class WSNFederatorServiceImplTest {
 		)
 		).thenReturn(wsnPreconditions);
 		when(federatorControllerFactory.create(
-				Matchers.<FederationManager<WSN>>any(),
+				Matchers.<FederatedEndpoints<WSN>>any(),
 				Matchers.<Set<NodeUrnPrefix>>any(),
 				Matchers.<Set<NodeUrn>>any()
 		)
 		).thenReturn(federatorController);
 		when(config.getFederatorWsnEndpointUriBase()).thenReturn(URI.create("http://localhost/"));
-		when(federationManager.getUrnPrefixes()).thenReturn(
+		when(federatedEndpoints.getUrnPrefixes()).thenReturn(
 				ImmutableSet.of(TESTBED_1_URN_PREFIX, TESTBED_2_URN_PREFIX, TESTBED_3_URN_PREFIX)
 		);
 
@@ -140,10 +143,10 @@ public class WSNFederatorServiceImplTest {
 				servicePublisher,
 				config,
 				secureIdGenerator,
-				preconditionsFactory,
 				executorService,
-				federatorControllerFactory,
-				federationManager,
+				preconditionsFactory,
+				wsnFederatorController,
+				federatedEndpoints,
 				SERVED_NODE_URN_PREFIXES,
 				SERVED_NODE_URNS
 		);
@@ -172,10 +175,10 @@ public class WSNFederatorServiceImplTest {
 
 		final List<FlashProgramsConfiguration> flashProgramsConfigurations = newArrayList(config1, config2);
 
-		when(federationManager.getEndpointToNodeUrnMap(eq(config1.getNodeUrns()))).thenReturn(
+		when(federatedEndpoints.getEndpointToNodeUrnMap(eq(config1.getNodeUrns()))).thenReturn(
 				ImmutableMap.of(testbed1WSN, config1.getNodeUrns())
 		);
-		when(federationManager.getEndpointToNodeUrnMap(eq(config2.getNodeUrns()))).thenReturn(
+		when(federatedEndpoints.getEndpointToNodeUrnMap(eq(config2.getNodeUrns()))).thenReturn(
 				ImmutableMap.of(testbed2WSN, config2.getNodeUrns())
 		);
 
@@ -207,13 +210,13 @@ public class WSNFederatorServiceImplTest {
 
 		final List<FlashProgramsConfiguration> flashProgramsConfigurations = newArrayList(config1, config2);
 
-		when(federationManager.getEndpointToNodeUrnMap(eq(config1.getNodeUrns()))).thenReturn(
+		when(federatedEndpoints.getEndpointToNodeUrnMap(eq(config1.getNodeUrns()))).thenReturn(
 				ImmutableMap.<WSN, List<NodeUrn>>of(
 						testbed1WSN, newArrayList(TESTBED_1_NODE_1),
 						testbed2WSN, newArrayList(TESTBED_2_NODE_1, TESTBED_2_NODE_2)
 				)
 		);
-		when(federationManager.getEndpointToNodeUrnMap(eq(config2.getNodeUrns()))).thenReturn(
+		when(federatedEndpoints.getEndpointToNodeUrnMap(eq(config2.getNodeUrns()))).thenReturn(
 				ImmutableMap.<WSN, List<NodeUrn>>of(
 						testbed1WSN, newArrayList(TESTBED_1_NODE_2),
 						testbed2WSN, newArrayList(TESTBED_2_NODE_3)
@@ -271,15 +274,15 @@ public class WSNFederatorServiceImplTest {
 		);
 		final List<ChannelHandlerConfiguration> channelHandlerConfigurations = buildSomeArbitraryChannelPipeline();
 
-		when(federationManager.getEndpointByNodeUrn(TESTBED_1_NODE_1)).thenReturn(testbed1WSN);
-		when(federationManager.getEndpointByNodeUrn(TESTBED_1_NODE_2)).thenReturn(testbed1WSN);
-		when(federationManager.getEndpointByNodeUrn(TESTBED_3_NODE_1)).thenReturn(testbed3WSN);
+		when(federatedEndpoints.getEndpointByNodeUrn(TESTBED_1_NODE_1)).thenReturn(testbed1WSN);
+		when(federatedEndpoints.getEndpointByNodeUrn(TESTBED_1_NODE_2)).thenReturn(testbed1WSN);
+		when(federatedEndpoints.getEndpointByNodeUrn(TESTBED_3_NODE_1)).thenReturn(testbed3WSN);
 
 		wsnFederatorServiceImpl.setChannelPipeline(requestIdGenerator.nextLong(), nodes, channelHandlerConfigurations);
 
-		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_2_NODE_1);
-		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_2_NODE_2);
-		verify(federationManager, never()).getEndpointByNodeUrn(TESTBED_3_NODE_2);
+		verify(federatedEndpoints, never()).getEndpointByNodeUrn(TESTBED_2_NODE_1);
+		verify(federatedEndpoints, never()).getEndpointByNodeUrn(TESTBED_2_NODE_2);
+		verify(federatedEndpoints, never()).getEndpointByNodeUrn(TESTBED_3_NODE_2);
 
 		verify(testbed1WSN).setChannelPipeline(
 				anyLong(),

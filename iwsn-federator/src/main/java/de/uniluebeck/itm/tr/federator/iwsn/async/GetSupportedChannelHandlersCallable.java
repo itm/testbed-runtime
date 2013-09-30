@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.federator.iwsn;
+package de.uniluebeck.itm.tr.federator.iwsn.async;
 
 import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.SessionManagement;

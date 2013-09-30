@@ -21,33 +21,34 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.federator.iwsn;
+package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import eu.wisebed.api.v3.common.NodeUrn;
+import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
 import eu.wisebed.api.v3.wsn.AuthorizationFault;
+import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
 
-class WSNAreNodesAliveCallable extends AbstractRequestCallable {
+public class FlashProgramsCallable extends AbstractRequestCallable {
 
-	private final List<NodeUrn> nodes;
+	private final List<FlashProgramsConfiguration> flashProgramsConfigurations;
 
-	WSNAreNodesAliveCallable(final WSNFederatorController federatorController,
-							 final WSN wsnEndpoint,
-							 final long federatedRequestId,
-							 final long federatorRequestId,
-							 final List<NodeUrn> nodes) {
+	public FlashProgramsCallable(final WSNFederatorController federatorController,
+								 final WSN wsnEndpoint,
+								 final long federatedRequestId,
+								 final long federatorRequestId,
+								 final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.nodes = nodes;
+		this.flashProgramsConfigurations = flashProgramsConfigurations;
 	}
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
 			throws ReservationNotRunningFault_Exception, AuthorizationFault {
-		wsnEndpoint.areNodesAlive(federatedRequestId, nodes);
+		wsnEndpoint.flashPrograms(federatedRequestId, flashProgramsConfigurations);
 	}
 }

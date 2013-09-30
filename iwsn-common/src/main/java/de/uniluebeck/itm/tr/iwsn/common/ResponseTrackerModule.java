@@ -7,6 +7,7 @@ public class ResponseTrackerModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		bind(ResponseTrackerCache.class).to(ResponseTrackerCacheImpl.class);
 		install(new FactoryModuleBuilder()
 				.implement(ResponseTracker.class, ResponseTrackerImpl.class)
 				.build(ResponseTrackerFactory.class)

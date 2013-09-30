@@ -7,7 +7,7 @@ public class FederationManagerModule extends PrivateModule {
 
 	@Override
 	protected void configure() {
-		bind(FederationManagerFactory.class).to(FederationManagerFactoryImpl.class).in(Scopes.SINGLETON);
-		expose(FederationManagerFactory.class);
+		bind(FederatedEndpointsFactory.class).to(FederatedEndpointsFactoryImpl.class).in(Scopes.SINGLETON);
+		expose(FederatedEndpointsFactory.class);
 	}
 }

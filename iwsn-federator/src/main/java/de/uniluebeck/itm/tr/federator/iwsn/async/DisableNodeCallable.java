@@ -21,37 +21,35 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.federator.iwsn;
+package de.uniluebeck.itm.tr.federator.iwsn.async;
 
+import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
+import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
-import java.util.List;
+import static com.google.common.collect.Lists.newArrayList;
 
-class SendCallable extends AbstractRequestCallable {
+public class DisableNodeCallable extends AbstractRequestCallable {
 
-	private final List<NodeUrn> nodeUrns;
+	private final NodeUrn nodeUrn;
 
-	private final byte[] message;
-
-	SendCallable(final WSNFederatorController federatorController,
-				 final WSN wsnEndpoint,
-				 final long federatedRequestId,
-				 final long federatorRequestId,
-				 final List<NodeUrn> nodeUrns,
-				 final byte[] message) {
+	public DisableNodeCallable(final WSNFederatorController federatorController,
+							   final WSN wsnEndpoint,
+							   final long federatedRequestId,
+							   final long federatorRequestId,
+							   final NodeUrn nodeUrn) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.nodeUrns = nodeUrns;
-		this.message = message;
+		this.nodeUrn = nodeUrn;
 	}
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, AuthorizationFault {
-		wsnEndpoint.send(federatedRequestId, nodeUrns, message);
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
+		wsnEndpoint.disableNodes(federatedRequestId, newArrayList(nodeUrn));
 	}
 }

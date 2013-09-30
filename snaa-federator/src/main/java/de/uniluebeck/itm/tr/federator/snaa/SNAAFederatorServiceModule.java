@@ -11,8 +11,8 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
-import de.uniluebeck.itm.tr.federator.utils.FederationManagerFactory;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpointsFactory;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
@@ -91,8 +91,8 @@ public class SNAAFederatorServiceModule extends PrivateModule {
 	}
 
 	@Provides
-	public FederationManager<SNAA> provideSnaaFederationManager(final SNAAFederatorServiceConfig config,
-																final FederationManagerFactory factory) {
+	public FederatedEndpoints<SNAA> provideSnaaFederationManager(final SNAAFederatorServiceConfig config,
+																final FederatedEndpointsFactory factory) {
 
 		final Function<URI, SNAA> uriToRSEndpointFunction = new Function<URI, SNAA>() {
 			@Override

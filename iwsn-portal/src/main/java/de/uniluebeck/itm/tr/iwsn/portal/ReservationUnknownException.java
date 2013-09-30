@@ -24,4 +24,8 @@ public class ReservationUnknownException extends Exception {
 				Joiner.on(",").join(secretReservationKeys) +
 				"] was not found!";
 	}
+
+	public Set<SecretReservationKey> getSecretReservationKeys() {
+		return secretReservationKeys;
+	}
 }

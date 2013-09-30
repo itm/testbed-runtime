@@ -21,49 +21,39 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.federator.iwsn;
+package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import eu.wisebed.api.v3.wsn.AuthorizationFault;
-import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
-import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
-import eu.wisebed.api.v3.wsn.WSN;
+import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.wsn.*;
 
-import java.util.concurrent.Callable;
+import static com.google.common.collect.Lists.newArrayList;
 
-abstract class AbstractRequestCallable implements Callable<Void> {
+public class DisablePhysicalLinkCallable extends AbstractRequestCallable {
 
-	protected final WSNFederatorController federatorController;
+	private final NodeUrn sourceNodeUrn;
 
-	protected final WSN wsnEndpoint;
+	private final NodeUrn targetNodeUrn;
 
-	protected final long federatedRequestId;
+	public DisablePhysicalLinkCallable(final WSNFederatorController federatorController,
+									   final WSN wsnEndpoint,
+									   final long federatedRequestId,
+									   final long federatorRequestId,
+									   final NodeUrn sourceNodeUrn,
+									   final NodeUrn targetNodeUrn) {
 
-	protected final long federatorRequestId;
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-	protected AbstractRequestCallable(final WSNFederatorController federatorController,
-									  final WSN wsnEndpoint,
-									  final long federatedRequestId,
-									  final long federatorRequestId) {
-
-		this.federatorController = federatorController;
-		this.wsnEndpoint = wsnEndpoint;
-		this.federatedRequestId = federatedRequestId;
-		this.federatorRequestId = federatorRequestId;
+		this.sourceNodeUrn = sourceNodeUrn;
+		this.targetNodeUrn = targetNodeUrn;
 	}
 
 	@Override
-	public Void call() throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
-
-		federatorController.addRequestIdMapping(federatedRequestId, federatorRequestId);
-
-		// instance wsnEndpoint is potentially not thread-safe!!!
-		synchronized (wsnEndpoint) {
-			executeRequestOnFederatedTestbed(federatedRequestId);
-		}
-
-		return null;
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
+		final Link link = new Link();
+		link.setSourceNodeUrn(sourceNodeUrn);
+		link.setTargetNodeUrn(targetNodeUrn);
+		wsnEndpoint.disablePhysicalLinks(federatedRequestId, newArrayList(link));
 	}
-
-	protected abstract void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault;
 }

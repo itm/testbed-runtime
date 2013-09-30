@@ -30,10 +30,13 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.CommonPreconditions;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerController;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerTestbedClientController;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.TimedCache;
+import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -96,7 +99,7 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 
 	private final DeliveryManager deliveryManager;
 
-	private final FederationManager<WSN> wsnFederationManager;
+	private final FederatedEndpoints<WSN> wsnFederatedEndpoints;
 
 	private ServicePublisherService jaxWsService;
 
@@ -106,15 +109,14 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 									  final IWSNFederatorServiceConfig config,
 									  final SecureIdGenerator secureIdGenerator,
 									  final PreconditionsFactory preconditionsFactory,
-									  @Assisted FederationManager<WSN> wsnFederationManager,
-									  @Assisted Set<NodeUrnPrefix> servedNodeUrnPrefixes,
-									  @Assisted Set<NodeUrn> servedNodeUrns) {
+									  @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints,
+									  @Assisted final Set<NodeUrnPrefix> nodeUrnPrefixes,
+									  @Assisted final Set<NodeUrn> nodeUrns) {
 
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.deliveryManager = checkNotNull(deliveryManager);
-		this.wsnFederationManager = checkNotNull(wsnFederationManager);
-
-		this.preconditions = preconditionsFactory.createCommonPreconditions(servedNodeUrnPrefixes, servedNodeUrns);
+		this.wsnFederatedEndpoints = checkNotNull(wsnFederatedEndpoints);
+		this.preconditions = preconditionsFactory.createCommonPreconditions(nodeUrnPrefixes, nodeUrns);
 
 		final String id = secureIdGenerator.getNextId();
 		final String endpointUriBaseString = config.getFederatorControllerEndpointUriBase().toString();
@@ -135,7 +137,7 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 
 			deliveryManager.startAndWait();
 
-			for (Map.Entry<WSN, URI> entry : wsnFederationManager.getEndpointsURIMap().entrySet()) {
+			for (Map.Entry<WSN, URI> entry : wsnFederatedEndpoints.getEndpointsURIMap().entrySet()) {
 				final WSN endpoint = entry.getKey();
 				final URI uri = entry.getValue();
 				try {
@@ -159,7 +161,7 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 
 		try {
 
-			for (Map.Entry<WSN, URI> entry : wsnFederationManager.getEndpointsURIMap().entrySet()) {
+			for (Map.Entry<WSN, URI> entry : wsnFederatedEndpoints.getEndpointsURIMap().entrySet()) {
 				final WSN endpoint = entry.getKey();
 				final URI uri = entry.getValue();
 				try {
@@ -202,6 +204,7 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 			);
 
 			// Dispatch all status updates and remove them from the list
+			//noinspection SynchronizationOnLocalVariableOrMethodParameter
 			synchronized (requestStatusList) {
 				for (RequestStatus status : requestStatusList) {
 					changeIdAndDispatch(federatorRequestId, status);
@@ -211,14 +214,21 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 		}
 	}
 
-	public void addController(String controllerEndpointUrl) {
-		log.trace("WSNFederatorControllerImpl.addController({})", controllerEndpointUrl);
-		deliveryManager.addController(controllerEndpointUrl);
+	public void addController(DeliveryManagerController controller) {
+		log.trace("WSNFederatorControllerImpl.addController({})", controller);
+		deliveryManager.addController(controller);
 	}
 
-	public void removeController(String controllerEndpointUrl) {
-		log.trace("WSNFederatorControllerImpl.removeController({})", controllerEndpointUrl);
-		deliveryManager.removeController(controllerEndpointUrl);
+	public void removeController(DeliveryManagerController controller) {
+		log.trace("WSNFederatorControllerImpl.removeController({})", controller);
+		deliveryManager.removeController(controller);
+	}
+
+	private DeliveryManagerTestbedClientController createController(final String controllerEndpointUrl) {
+		return new DeliveryManagerTestbedClientController(
+				WisebedServiceHelper.getControllerService(controllerEndpointUrl, null),
+				controllerEndpointUrl
+		);
 	}
 
 	private void receive(final Message msg) {

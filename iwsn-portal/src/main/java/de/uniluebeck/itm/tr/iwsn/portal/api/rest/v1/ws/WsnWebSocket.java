@@ -66,7 +66,7 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		try {
 			final WebSocketDownstreamMessage message = fromJSON(data, WebSocketDownstreamMessage.class);
 			byte[] decodedPayload = decodeBytes(message.payloadBase64);
-			reservation.getEventBus().post(newSendDownstreamMessageRequest(
+			reservation.getReservationEventBus().post(newSendDownstreamMessageRequest(
 					secretReservationKeysBase64,
 					requestIdProvider.get(),
 					newArrayList(new NodeUrn(message.targetNodeUrn)),
@@ -121,7 +121,7 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		}
 
 		this.connection = connection;
-		reservation.getEventBus().register(this);
+		reservation.getReservationEventBus().register(this);
 
 		final DateTime start = reservation.getInterval().getStart();
 		final DateTime end = reservation.getInterval().getEnd();
@@ -150,7 +150,7 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 			);
 		}
 
-		reservation.getEventBus().unregister(this);
+		reservation.getReservationEventBus().unregister(this);
 		this.connection = null;
 	}
 

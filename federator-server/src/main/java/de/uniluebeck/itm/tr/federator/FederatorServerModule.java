@@ -12,8 +12,7 @@ import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.PreconditionsModule;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.federator.iwsn.IWSNFederatorServiceConfig;
-import de.uniluebeck.itm.tr.federator.iwsn.IWSNFederatorServiceModule;
+import de.uniluebeck.itm.tr.federator.iwsn.*;
 import de.uniluebeck.itm.tr.federator.rs.RSFederatorServiceConfig;
 import de.uniluebeck.itm.tr.federator.rs.RSFederatorServiceModule;
 import de.uniluebeck.itm.tr.federator.snaa.SNAAFederatorServiceConfig;
@@ -74,7 +73,7 @@ public class FederatorServerModule extends AbstractModule {
 		install(new FederatorServiceModule());
 
 		bind(PortalEventBus.class).to(FederatorPortalEventBus.class).in(Scopes.SINGLETON);
-		bind(ReservationManager.class).to(FederatorReservationManager.class).in(Scopes.SINGLETON);
+		bind(ReservationManager.class).to(FederatedReservationManager.class).in(Scopes.SINGLETON);
 		bind(RequestIdProvider.class).to(RandomRequestIdProvider.class);
 		bind(WisemlProvider.class).to(FederatorWiseMLProvider.class);
 

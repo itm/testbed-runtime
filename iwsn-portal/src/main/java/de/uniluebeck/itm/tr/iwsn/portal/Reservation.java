@@ -5,6 +5,7 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.joda.time.Interval;
 
 import java.util.Set;
@@ -63,13 +64,17 @@ public interface Reservation extends Service {
 	}
 	Set<Reservation.Entry> getEntries();
 
+	Set<NodeUrnPrefix> getNodeUrnPrefixes();
+
 	Set<NodeUrn> getNodeUrns();
 
-	ReservationEventBus getEventBus();
+	ReservationEventBus getReservationEventBus();
 
 	Interval getInterval();
 
 	String getSerializedKey();
+
+	Set<SecretReservationKey> getSecretReservationKeys();
 
 	/**
 	 * Creates a response tracker for the given {@code requestId}. ResponseTracker instances are held in a cache until

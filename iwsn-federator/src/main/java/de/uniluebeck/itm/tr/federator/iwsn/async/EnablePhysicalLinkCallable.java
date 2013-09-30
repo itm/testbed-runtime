@@ -21,25 +21,26 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.federator.iwsn;
+package de.uniluebeck.itm.tr.federator.iwsn.async;
 
+import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-class DisableVirtualLinkCallable extends AbstractRequestCallable {
+public class EnablePhysicalLinkCallable extends AbstractRequestCallable {
 
 	private final NodeUrn sourceNodeUrn;
 
 	private final NodeUrn targetNodeUrn;
 
-	DisableVirtualLinkCallable(final WSNFederatorController federatorController,
-							   final WSN wsnEndpoint,
-							   final long federatedRequestId,
-							   final long federatorRequestId,
-							   final NodeUrn sourceNodeUrn,
-							   final NodeUrn targetNodeUrn) {
+	public EnablePhysicalLinkCallable(final WSNFederatorController federatorController,
+									  final WSN wsnEndpoint,
+									  final long federatedRequestId,
+									  final long federatorRequestId,
+									  final NodeUrn sourceNodeUrn,
+									  final NodeUrn targetNodeUrn) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
@@ -53,6 +54,6 @@ class DisableVirtualLinkCallable extends AbstractRequestCallable {
 		final Link link = new Link();
 		link.setSourceNodeUrn(sourceNodeUrn);
 		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.disableVirtualLinks(federatedRequestId, newArrayList(link));
+		wsnEndpoint.enablePhysicalLinks(federatedRequestId, newArrayList(link));
 	}
 }

@@ -21,38 +21,34 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.federator.iwsn;
+package de.uniluebeck.itm.tr.federator.iwsn.async;
 
+import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.*;
+import eu.wisebed.api.v3.wsn.AuthorizationFault;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
+import eu.wisebed.api.v3.wsn.WSN;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.List;
 
-class EnablePhysicalLinkCallable extends AbstractRequestCallable {
+public class ResetNodesCallable extends AbstractRequestCallable {
 
-	private final NodeUrn sourceNodeUrn;
+	private List<NodeUrn> nodes;
 
-	private final NodeUrn targetNodeUrn;
-
-	public EnablePhysicalLinkCallable(final WSNFederatorController federatorController,
-									  final WSN wsnEndpoint,
-									  final long federatedRequestId,
-									  final long federatorRequestId,
-									  final NodeUrn sourceNodeUrn,
-									  final NodeUrn targetNodeUrn) {
+	public ResetNodesCallable(final WSNFederatorController federatorController,
+							  final WSN wsnEndpoint,
+							  final long federatedRequestId,
+							  final long federatorRequestId,
+							  final List<NodeUrn> nodes) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
-		this.sourceNodeUrn = sourceNodeUrn;
-		this.targetNodeUrn = targetNodeUrn;
+		this.nodes = nodes;
 	}
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
-		final Link link = new Link();
-		link.setSourceNodeUrn(sourceNodeUrn);
-		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.enablePhysicalLinks(federatedRequestId, newArrayList(link));
+			throws ReservationNotRunningFault_Exception, AuthorizationFault {
+		wsnEndpoint.resetNodes(federatedRequestId, nodes);
 	}
 }

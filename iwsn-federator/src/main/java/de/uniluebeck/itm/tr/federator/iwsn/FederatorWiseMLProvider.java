@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.federator;
+package de.uniluebeck.itm.tr.federator.iwsn;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.BiMap;
@@ -6,7 +6,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.sm.SessionManagement;
@@ -28,19 +28,19 @@ public class FederatorWiseMLProvider implements WisemlProvider {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatorWiseMLProvider.class);
 
-	private final FederationManager<SessionManagement> federationManager;
+	private final FederatedEndpoints<SessionManagement> federatedEndpoints;
 
 	@Inject
 	public FederatorWiseMLProvider(
-			final FederationManager<SessionManagement> federationManager) {
-		this.federationManager = federationManager;
+			final FederatedEndpoints<SessionManagement> federatedEndpoints) {
+		this.federatedEndpoints = federatedEndpoints;
 	}
 
 	@Override
 	public Wiseml get() {
 
 		final BiMap<URI, Callable<String>> endpointUrlToCallableMap = HashBiMap.create();
-		for (final FederationManager.Entry<SessionManagement> entry : federationManager.getEntries()) {
+		for (final FederatedEndpoints.Entry<SessionManagement> entry : federatedEndpoints.getEntries()) {
 			endpointUrlToCallableMap.put(entry.endpointUrl, new Callable<String>() {
 				@Override
 				public String call() throws Exception {

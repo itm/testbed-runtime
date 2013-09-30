@@ -21,38 +21,56 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.federator.iwsn;
+package de.uniluebeck.itm.tr.federator.iwsn.async;
 
+import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 
+import java.util.List;
+
 import static com.google.common.collect.Lists.newArrayList;
 
-class DisablePhysicalLinkCallable extends AbstractRequestCallable {
+public class EnableVirtualLinkCallable extends AbstractRequestCallable {
 
 	private final NodeUrn sourceNodeUrn;
 
 	private final NodeUrn targetNodeUrn;
 
-	DisablePhysicalLinkCallable(final WSNFederatorController federatorController,
-								final WSN wsnEndpoint,
-								final long federatedRequestId,
-								final long federatorRequestId,
-								final NodeUrn sourceNodeUrn,
-								final NodeUrn targetNodeUrn) {
+	private final String remoteWSNServiceEndpointUrl;
+
+	private final List<String> parameters;
+
+	private final List<String> filters;
+
+	public EnableVirtualLinkCallable(final WSNFederatorController federatorController,
+									 final WSN wsnEndpoint,
+									 final long federatedRequestId,
+									 final long federatorRequestId,
+									 final NodeUrn sourceNodeUrn,
+									 final NodeUrn targetNodeUrn,
+									 final String remoteWSNServiceEndpointUrl,
+									 final List<String> parameters,
+									 final List<String> filters) {
 
 		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
 
 		this.sourceNodeUrn = sourceNodeUrn;
 		this.targetNodeUrn = targetNodeUrn;
+		this.remoteWSNServiceEndpointUrl = remoteWSNServiceEndpointUrl;
+		this.parameters = parameters;
+		this.filters = filters;
 	}
 
 	@Override
 	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
 			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
-		final Link link = new Link();
-		link.setSourceNodeUrn(sourceNodeUrn);
-		link.setTargetNodeUrn(targetNodeUrn);
-		wsnEndpoint.disablePhysicalLinks(federatedRequestId, newArrayList(link));
+		final VirtualLink virtualLink = new VirtualLink();
+		virtualLink.setRemoteWSNServiceEndpointUrl(remoteWSNServiceEndpointUrl);
+		virtualLink.setSourceNodeUrn(sourceNodeUrn);
+		virtualLink.setTargetNodeUrn(targetNodeUrn);
+		virtualLink.getParameters().addAll(parameters);
+		virtualLink.getFilters().addAll(filters);
+		wsnEndpoint.enableVirtualLinks(federatedRequestId, newArrayList(virtualLink));
 	}
 }

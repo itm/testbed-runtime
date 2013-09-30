@@ -9,19 +9,19 @@ public class IWSNFederatorServiceImpl extends AbstractService implements IWSNFed
 
 	private final SessionManagementFederatorService sessionManagementFederatorService;
 
-	private final WSNFederatorManager wsnFederatorManager;
+	private final FederatedReservationManager federatedReservationManager;
 
 	@Inject
 	public IWSNFederatorServiceImpl(final SessionManagementFederatorService sessionManagementFederatorService,
-									final WSNFederatorManager wsnFederatorManager) {
-		this.wsnFederatorManager = wsnFederatorManager;
+									final FederatedReservationManager federatedReservationManager) {
+		this.federatedReservationManager = federatedReservationManager;
 		this.sessionManagementFederatorService = checkNotNull(sessionManagementFederatorService);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
-			wsnFederatorManager.startAndWait();
+			federatedReservationManager.startAndWait();
 			sessionManagementFederatorService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
@@ -32,13 +32,17 @@ public class IWSNFederatorServiceImpl extends AbstractService implements IWSNFed
 	@Override
 	protected void doStop() {
 		try {
+
 			if (sessionManagementFederatorService.isRunning()) {
 				sessionManagementFederatorService.stopAndWait();
 			}
-			if (wsnFederatorManager.isRunning()) {
-				wsnFederatorManager.stopAndWait();
+
+			if (federatedReservationManager.isRunning()) {
+				federatedReservationManager.stopAndWait();
 			}
+
 			notifyStopped();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

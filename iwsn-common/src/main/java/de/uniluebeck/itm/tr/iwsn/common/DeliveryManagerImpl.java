@@ -28,7 +28,6 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.util.Tuple;
-import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
@@ -76,7 +75,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	 * URL
 	 * to an instantiated endpoint proxy.
 	 */
-	private ImmutableMap<String, DeliveryWorker> controllers = ImmutableMap.of();
+	private ImmutableMap<DeliveryManagerController, DeliveryWorker> controllers = ImmutableMap.of();
 
 	/**
 	 * Used to deliver messages and request status messages in parallel.
@@ -106,19 +105,18 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	/**
 	 * Adds a Controller service endpoint URL to the list of recipients.
 	 *
-	 * @param endpointUrl
-	 * 		the endpoint URL of a {@link Controller} Web Service instance
+	 * @param controller
+	 * 		the Controller to add
 	 */
 	@Override
-	public void addController(String endpointUrl) {
+	public void addController(DeliveryManagerController controller) {
 
-		if (controllers.containsKey(endpointUrl)) {
-			log.debug("Not adding controller endpoint {} as it is already in the set of controllers.", endpointUrl);
+		if (controllers.containsKey(controller)) {
+			log.debug("Not adding controller endpoint {} as it is already in the set of controllers.", controller);
 			return;
 		}
 
-		log.debug("Adding controller endpoint {} to the set of controllers.", endpointUrl);
-		final Controller endpoint = WisebedServiceHelper.getControllerService(endpointUrl, executorService);
+		log.debug("Adding controller endpoint {} to the set of controllers.", controller);
 
 		final Deque<Message> messageQueue = newLinkedList();
 		final Deque<Notification> notificationQueue = newLinkedList();
@@ -128,8 +126,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 		final DeliveryWorker deliveryWorker = new DeliveryWorker(
 				this,
-				endpointUrl,
-				endpoint,
+				controller,
 				messageQueue,
 				statusQueue,
 				notificationQueue,
@@ -140,9 +137,9 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 		executorService.submit(deliveryWorker);
 
-		controllers = ImmutableMap.<String, DeliveryWorker>builder()
+		controllers = ImmutableMap.<DeliveryManagerController, DeliveryWorker>builder()
 				.putAll(controllers)
-				.put(endpointUrl, deliveryWorker)
+				.put(controller, deliveryWorker)
 				.build();
 
 	}
@@ -150,23 +147,24 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	/**
 	 * Removes a Controller service endpoint URL from the list of recipients.
 	 *
-	 * @param endpointUrl
-	 * 		the endpoint URL of a {@link Controller} Web Service instance
+	 * @param controller
+	 * 		the Controller to remove
 	 */
 	@Override
-	public void removeController(String endpointUrl) {
+	public void removeController(DeliveryManagerController controller) {
 
-		final DeliveryWorker deliveryWorker = controllers.get(endpointUrl);
+		final DeliveryWorker deliveryWorker = controllers.get(controller);
 
 		if (deliveryWorker != null) {
 
-			log.debug("{} => Removing controller endpoint from the set of controllers.", endpointUrl);
+			log.debug("{} => Removing controller endpoint from the set of controllers.", controller);
 			deliveryWorker.stopDelivery();
 
-			ImmutableMap.Builder<String, DeliveryWorker> controllerEndpointsBuilder = ImmutableMap.builder();
+			ImmutableMap.Builder<DeliveryManagerController, DeliveryWorker> controllerEndpointsBuilder =
+					ImmutableMap.builder();
 
-			for (Map.Entry<String, DeliveryWorker> entry : controllers.entrySet()) {
-				if (!entry.getKey().equals(endpointUrl)) {
+			for (Map.Entry<DeliveryManagerController, DeliveryWorker> entry : controllers.entrySet()) {
+				if (!entry.getKey().equals(controller)) {
 					controllerEndpointsBuilder.put(entry.getKey(), entry.getValue());
 				}
 			}
@@ -174,7 +172,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 			controllers = controllerEndpointsBuilder.build();
 
 		} else {
-			log.debug("{} => Not removing controller endpoint as it was not in the set of controllers.", endpointUrl);
+			log.debug("{} => Not removing controller endpoint as it was not in the set of controllers.", controller);
 		}
 
 	}
@@ -191,10 +189,10 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	}
 
 	@Override
-	public void reservationStarted(final DateTime timestamp, final String controllerEndpointUrl) {
+	public void reservationStarted(final DateTime timestamp, final DeliveryManagerController controller) {
 
 		if (isRunning()) {
-			controllers.get(controllerEndpointUrl).reservationStarted(timestamp);
+			controllers.get(controller).reservationStarted(timestamp);
 		}
 	}
 
@@ -210,9 +208,9 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	}
 
 	@Override
-	public void reservationEnded(final DateTime timestamp, final String controllerEndpointUrl) {
+	public void reservationEnded(final DateTime timestamp, final DeliveryManagerController controller) {
 		if (isRunning()) {
-			controllers.get(controllerEndpointUrl).reservationEnded(timestamp);
+			controllers.get(controller).reservationEnded(timestamp);
 		}
 	}
 

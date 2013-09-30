@@ -6,9 +6,9 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
 import java.net.URI;
 
-public interface FederationManagerFactory {
+public interface FederatedEndpointsFactory {
 
-	<V> FederationManager<V> create(Function<URI, V> endpointBuilderFunction,
-									Multimap<URI, NodeUrnPrefix> endpointUrlsToUrnPrefixesMap);
+	<V> FederatedEndpoints<V> create(Function<URI, V> endpointBuilderFunction,
+									 Multimap<URI, NodeUrnPrefix> endpointUrlsToUrnPrefixesMap);
 
 }

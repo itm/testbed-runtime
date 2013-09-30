@@ -23,7 +23,11 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn;
 
-import com.google.common.collect.*;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
@@ -32,7 +36,10 @@ import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.iwsn.async.GetSupportedChannelHandlersCallable;
+import de.uniluebeck.itm.tr.federator.iwsn.async.SMAreNodesAliveCallable;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
 import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -71,7 +78,8 @@ import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 		serviceName = "SessionManagementService",
 		targetNamespace = "http://wisebed.eu/api/v3/sm"
 )
-public class SessionManagementFederatorServiceImpl extends AbstractService implements SessionManagementFederatorService {
+public class SessionManagementFederatorServiceImpl extends AbstractService
+		implements SessionManagementFederatorService {
 
 	/**
 	 * The logger instance for this Session Management federator instance.
@@ -92,23 +100,27 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 
 	private final IWSNFederatorServiceConfig config;
 
-	private final FederationManager<SessionManagement> federationManager;
+	private final FederatedEndpoints<SessionManagement> federatedEndpoints;
 
-	private final WSNFederatorManager wsnFederatorManager;
+	private final FederatedReservationManager reservationManager;
+
+	private final SessionManagementWisemlProvider wisemlProvider;
 
 	private ServicePublisherService jaxWsService;
 
 	@Inject
 	public SessionManagementFederatorServiceImpl(
-			final FederationManager<SessionManagement> federationManager,
+			final FederatedEndpoints<SessionManagement> federatedEndpoints,
 			final PreconditionsFactory preconditionsFactory,
 			final IWSNFederatorServiceConfig config,
 			final ServicePublisher servicePublisher,
 			final ExecutorService executorService,
-			final WSNFederatorManager wsnFederatorManager,
+			final FederatedReservationManager reservationManager,
 			final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
-			final ServedNodeUrnsProvider servedNodeUrnsProvider) {
-		this.federationManager = checkNotNull(federationManager);
+			final ServedNodeUrnsProvider servedNodeUrnsProvider,
+			final SessionManagementWisemlProvider wisemlProvider) {
+		this.wisemlProvider = wisemlProvider;
+		this.federatedEndpoints = checkNotNull(federatedEndpoints);
 		this.preconditions = preconditionsFactory.createSessionManagementPreconditions(
 				servedNodeUrnPrefixesProvider.get(),
 				servedNodeUrnsProvider.get()
@@ -116,7 +128,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 		this.config = checkNotNull(config);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.executorService = checkNotNull(executorService);
-		this.wsnFederatorManager = checkNotNull(wsnFederatorManager);
+		this.reservationManager = checkNotNull(reservationManager);
 	}
 
 	@Override
@@ -155,12 +167,12 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 
 		log.debug("getSupportedChannelHandlers() called...");
 
-		final ImmutableSet<FederationManager.Entry<SessionManagement>> entries = federationManager.getEntries();
-		final Map<FederationManager.Entry<SessionManagement>, Future<List<ChannelHandlerDescription>>>
+		final ImmutableSet<FederatedEndpoints.Entry<SessionManagement>> entries = federatedEndpoints.getEntries();
+		final Map<FederatedEndpoints.Entry<SessionManagement>, Future<List<ChannelHandlerDescription>>>
 				entryToResultMapping = Maps.newHashMap();
 
 		// fork calls to endpoints
-		for (final FederationManager.Entry<SessionManagement> entry : entries) {
+		for (final FederatedEndpoints.Entry<SessionManagement> entry : entries) {
 			final Future<List<ChannelHandlerDescription>> future = executorService.submit(
 					new GetSupportedChannelHandlersCallable(entry.endpoint)
 			);
@@ -169,7 +181,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 
 		final Set<ChannelHandlerDescription> commonHandlers = newTreeSet(CHANNEL_HANDLER_DESCRIPTION_COMPARATOR);
 
-		for (Map.Entry<FederationManager.Entry<SessionManagement>, Future<List<ChannelHandlerDescription>>> outerEntry : entryToResultMapping
+		for (Map.Entry<FederatedEndpoints.Entry<SessionManagement>, Future<List<ChannelHandlerDescription>>> outerEntry : entryToResultMapping
 				.entrySet()) {
 
 			try {
@@ -180,7 +192,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 
 					boolean containedInAllOthers = true;
 
-					for (Map.Entry<FederationManager.Entry<SessionManagement>, Future<List<ChannelHandlerDescription>>> innerEntry : entryToResultMapping
+					for (Map.Entry<FederatedEndpoints.Entry<SessionManagement>, Future<List<ChannelHandlerDescription>>> innerEntry : entryToResultMapping
 							.entrySet()) {
 
 						if (innerEntry != outerEntry) {
@@ -222,7 +234,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 
 		checkState(isRunning());
 
-		ImmutableSet<URI> endpointUrls = federationManager.getEndpointUrls();
+		ImmutableSet<URI> endpointUrls = federatedEndpoints.getEndpointUrls();
 		Map<URI, Future<ImmutableSet<String>>> endpointUrlToResultsMapping = Maps.newHashMap();
 
 		// fork calls to endpoints
@@ -231,7 +243,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 			Future<ImmutableSet<String>> future = executorService.submit(new Callable<ImmutableSet<String>>() {
 				@Override
 				public ImmutableSet<String> call() throws Exception {
-					SessionManagement endpoint = federationManager.getEndpointByEndpointUrl(endpointUrl);
+					SessionManagement endpoint = federatedEndpoints.getEndpointByEndpointUrl(endpointUrl);
 					return ImmutableSet.copyOf(endpoint.getSupportedVirtualLinkFilters());
 				}
 			}
@@ -303,7 +315,18 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 			throws UnknownSecretReservationKeyFault {
 		checkState(isRunning());
 		preconditions.checkGetInstanceArguments(srks);
-		return wsnFederatorManager.getWsnFederatorService(srks).getEndpointUri().toString();
+		final FederatedReservation reservation;
+		try {
+			reservation = reservationManager.getFederatedReservation(srks);
+		} catch (ReservationUnknownException e) {
+			final String msg = "Reservation " + Joiner.on(",").join(srks) + " unknown!";
+			final eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault faultInfo =
+					new eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault();
+			faultInfo.setMessage(e.getMessage());
+			faultInfo.setSecretReservationKey(e.getSecretReservationKeys().iterator().next());
+			throw new UnknownSecretReservationKeyFault(msg, faultInfo);
+		}
+		return reservation.getWsnFederatorService().getEndpointUri().toString();
 	}
 
 	@Override
@@ -325,7 +348,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 			final Set<NodeUrn> nodeUrnSubset = entry.getValue();
 
 			final SMAreNodesAliveCallable callable = new SMAreNodesAliveCallable(
-					federationManager.getEndpointByEndpointUrl(nodeUrnSubsetSessionManagementEndpointUrl),
+					federatedEndpoints.getEndpointByEndpointUrl(nodeUrnSubsetSessionManagementEndpointUrl),
 					newArrayList(nodeUrnSubset)
 			);
 
@@ -383,8 +406,8 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 
 		final Map<URI, Set<NodeUrn>> map = Maps.newHashMap();
 
-		final ImmutableSet<FederationManager.Entry<SessionManagement>> entries = federationManager.getEntries();
-		for (FederationManager.Entry<SessionManagement> entry : entries) {
+		final ImmutableSet<FederatedEndpoints.Entry<SessionManagement>> entries = federatedEndpoints.getEntries();
+		for (FederatedEndpoints.Entry<SessionManagement> entry : entries) {
 			for (NodeUrn nodeUrn : nodeUrns) {
 				for (NodeUrnPrefix urnPrefix : entry.urnPrefixes) {
 					if (nodeUrn.belongsTo(urnPrefix)) {
@@ -403,20 +426,8 @@ public class SessionManagementFederatorServiceImpl extends AbstractService imple
 
 	@Override
 	public String getNetwork() {
-
 		checkState(isRunning());
-
-		final BiMap<URI, Callable<String>> endpointUrlToCallableMap = HashBiMap.create();
-		for (final FederationManager.Entry<SessionManagement> entry : federationManager.getEntries()) {
-			endpointUrlToCallableMap.put(entry.endpointUrl, new Callable<String>() {
-				@Override
-				public String call() throws Exception {
-					return entry.endpoint.getNetwork();
-				}
-			}
-			);
-		}
-		return serialize(FederatorWiseMLMerger.merge(endpointUrlToCallableMap, executorService));
+		return serialize(wisemlProvider.get());
 
 	}
 }

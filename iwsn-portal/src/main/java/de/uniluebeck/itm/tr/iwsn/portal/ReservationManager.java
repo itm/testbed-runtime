@@ -21,4 +21,18 @@ public interface ReservationManager extends Service {
 	 */
 	Reservation getReservation(List<SecretReservationKey> secretReservationKeys) throws ReservationUnknownException;
 
+	/**
+	 * Returns a reservation instance belonging to the given {@code jsonSerializedSecretReservationKeys} or {@code null}
+	 * if no reservation with the given key is known. The serialization format follows the one specified in {@link
+	 * de.uniluebeck.itm.tr.iwsn.portal.Reservation#getSerializedKey()}.
+	 *
+	 * @param jsonSerializedSecretReservationKeys
+	 * 		the serialized set of secret reservation keys
+	 *
+	 * @return a reservation instance of {@code null} if not found
+	 *
+	 * @throws ReservationUnknownException
+	 */
+	Reservation getReservation(String jsonSerializedSecretReservationKeys) throws ReservationUnknownException;
+
 }

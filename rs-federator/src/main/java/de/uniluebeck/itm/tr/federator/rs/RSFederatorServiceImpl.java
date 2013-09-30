@@ -32,7 +32,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.*;
@@ -67,7 +67,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 	private final ServicePublisher servicePublisher;
 
-	private final FederationManager<RS> federationManager;
+	private final FederatedEndpoints<RS> federatedEndpoints;
 
 	private final RSFederatorServiceConfig config;
 
@@ -76,11 +76,11 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	@Inject
 	public RSFederatorServiceImpl(@Named(RS_FEDERATOR_EXECUTOR_SERVICE) final ExecutorService executorService,
 								  final ServicePublisher servicePublisher,
-								  final FederationManager<RS> federationManager,
+								  final FederatedEndpoints<RS> federatedEndpoints,
 								  final RSFederatorServiceConfig config) {
 		this.executorService = checkNotNull(executorService);
 		this.servicePublisher = checkNotNull(servicePublisher);
-		this.federationManager = checkNotNull(federationManager);
+		this.federatedEndpoints = checkNotNull(federatedEndpoints);
 		this.config = checkNotNull(config);
 	}
 
@@ -176,11 +176,11 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 		// run a set of parallel jobs to make a reservation on the federated rs services
 
-		BiMap<RS, MakeReservationCallable> map = HashBiMap.create(federationManager.getEndpoints().size());
+		BiMap<RS, MakeReservationCallable> map = HashBiMap.create(federatedEndpoints.getEndpoints().size());
 
 		for (NodeUrn nodeUrn : nodeUrns) {
 
-			RS rs = federationManager.getEndpointByNodeUrn(nodeUrn);
+			RS rs = federatedEndpoints.getEndpointByNodeUrn(nodeUrn);
 
 			final SecretAuthenticationKey sak = getSAKByNodeUrn(secretAuthenticationKeys, nodeUrn);
 			MakeReservationCallable callable = map.get(rs);
@@ -250,7 +250,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 	private SecretAuthenticationKey getSAKByNodeUrn(final List<SecretAuthenticationKey> saks, final NodeUrn nodeUrn) {
 
-		final ImmutableSet<NodeUrnPrefix> urnPrefixes = federationManager.getUrnPrefixesByNodeUrn(nodeUrn);
+		final ImmutableSet<NodeUrnPrefix> urnPrefixes = federatedEndpoints.getUrnPrefixesByNodeUrn(nodeUrn);
 
 		for (SecretAuthenticationKey secretAuthenticationKey : saks) {
 			if (urnPrefixes.contains(secretAuthenticationKey.getUrnPrefix())) {
@@ -272,7 +272,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 		// fork processes to collect reservations from federated services
 		List<Future<List<PublicReservationData>>> futures = newArrayList();
-		for (RS rs : federationManager.getEndpoints()) {
+		for (RS rs : federatedEndpoints.getEndpoints()) {
 			futures.add(executorService.submit(new GetReservationsCallable(rs, from, to, offset, amount)));
 		}
 
@@ -311,11 +311,11 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 		List<Future<List<ConfidentialReservationData>>> futures = newArrayList();
 		Map<RS, List<SecretAuthenticationKey>> endpointToAuthenticationMap = constructEndpointToAuthenticationMap(
-				federationManager,
+				federatedEndpoints,
 				secretAuthenticationKey
 		);
 
-		for (RS rs : federationManager.getEndpoints()) {
+		for (RS rs : federatedEndpoints.getEndpoints()) {
 			GetConfidentialReservationsCallable callable = new GetConfidentialReservationsCallable(
 					rs, endpointToAuthenticationMap.get(rs), from, to, offset, amount
 			);
@@ -428,7 +428,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		List<NodeUrn> notServed = new LinkedList<NodeUrn>();
 
 		for (NodeUrn nodeUrn : nodeUrns) {
-			if (federationManager.getEndpointUrlByNodeUrn(nodeUrn) == null) {
+			if (federatedEndpoints.getEndpointUrlByNodeUrn(nodeUrn) == null) {
 				notServed.add(nodeUrn);
 			}
 		}
@@ -504,14 +504,14 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	}
 
 	private static Map<RS, List<SecretAuthenticationKey>> constructEndpointToAuthenticationMap(
-			final FederationManager<RS> federationManager,
+			final FederatedEndpoints<RS> federatedEndpoints,
 			final List<SecretAuthenticationKey> secretAuthenticationKey) throws RSFault_Exception {
 
 		Map<RS, List<SecretAuthenticationKey>> map = newHashMap();
 
 		for (SecretAuthenticationKey authenticationKey : secretAuthenticationKey) {
 
-			RS rs = federationManager.getEndpointByUrnPrefix(authenticationKey.getUrnPrefix());
+			RS rs = federatedEndpoints.getEndpointByUrnPrefix(authenticationKey.getUrnPrefix());
 
 			if (rs == null) {
 				String msg = "The node URN prefix " +
@@ -542,7 +542,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
 
 			final NodeUrnPrefix urnPrefix = secretAuthenticationKey.getUrnPrefix();
-			final RS rs = assertServed(federationManager.getEndpointByUrnPrefix(urnPrefix), urnPrefix);
+			final RS rs = assertServed(federatedEndpoints.getEndpointByUrnPrefix(urnPrefix), urnPrefix);
 
 			addOrGetDeleteReservationCallable(map, rs).addSecretAuthenticationKey(secretAuthenticationKey);
 		}
@@ -550,7 +550,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		for (SecretReservationKey secretReservationKey : secretReservationKeys) {
 
 			final NodeUrnPrefix urnPrefix = secretReservationKey.getUrnPrefix();
-			final RS rs = assertServed(federationManager.getEndpointByUrnPrefix(urnPrefix), urnPrefix);
+			final RS rs = assertServed(federatedEndpoints.getEndpointByUrnPrefix(urnPrefix), urnPrefix);
 
 			addOrGetDeleteReservationCallable(map, rs).addSecretReservationKey(secretReservationKey);
 		}
@@ -585,7 +585,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 		for (SecretReservationKey reservationKey : secretReservationKey) {
 
-			RS rs = federationManager.getEndpointByUrnPrefix(reservationKey.getUrnPrefix());
+			RS rs = federatedEndpoints.getEndpointByUrnPrefix(reservationKey.getUrnPrefix());
 
 			if (rs == null) {
 				String msg = "The node URN prefix "

@@ -28,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserialize;
 import static org.joda.time.DateTime.now;
 
 public class ReservationManagerImpl extends AbstractService implements ReservationManager {
@@ -146,6 +147,12 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 			return reservation;
 		}
+	}
+
+	@Override
+	public Reservation getReservation(final String jsonSerializedSecretReservationKeys)
+			throws ReservationUnknownException {
+		return getReservation(deserialize(jsonSerializedSecretReservationKeys));
 	}
 
 	private void assertNodesInTestbed(final Set<NodeUrn> reservedNodes) {

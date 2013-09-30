@@ -7,23 +7,20 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.common.Base64Helper;
-import de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.serialize;
 
 public class ReservationImpl extends AbstractService implements Reservation {
 
@@ -106,12 +103,17 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	}
 
 	@Override
+	public Set<NodeUrnPrefix> getNodeUrnPrefixes() {
+		return newHashSet(commonConfig.getUrnPrefix());
+	}
+
+	@Override
 	public Set<NodeUrn> getNodeUrns() {
 		return nodeUrns;
 	}
 
 	@Override
-	public ReservationEventBus getEventBus() {
+	public ReservationEventBus getReservationEventBus() {
 		return reservationEventBus;
 	}
 
@@ -123,27 +125,19 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	@Override
 	public String getSerializedKey() {
 		try {
-			final List<SecretReservationKey> srks = newArrayList(
-					new SecretReservationKey().withKey(key).withUrnPrefix(commonConfig.getUrnPrefix())
-			);
-			return Base64Helper.encode(JSONHelper.toJSON(new SecretReservationKeyListRs(srks)));
+			return serialize(getSecretReservationKey());
 		} catch (Exception e) {
 			throw propagate(e);
 		}
 	}
 
-	@XmlRootElement
-	private class SecretReservationKeyListRs {
+	private SecretReservationKey getSecretReservationKey() {
+		return new SecretReservationKey().withKey(key).withUrnPrefix(commonConfig.getUrnPrefix());
+	}
 
-		public List<SecretReservationKey> reservations;
-
-		public SecretReservationKeyListRs() {
-		}
-
-		public SecretReservationKeyListRs(List<SecretReservationKey> reservations) {
-			this.reservations = reservations;
-		}
-
+	@Override
+	public Set<SecretReservationKey> getSecretReservationKeys() {
+		return newHashSet(getSecretReservationKey());
 	}
 
 	@Override

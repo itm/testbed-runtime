@@ -11,12 +11,14 @@ import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.PreconditionsModule;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.federator.utils.*;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
-import de.uniluebeck.itm.tr.common.PreconditionsModule;
+import de.uniluebeck.itm.tr.iwsn.portal.EventBusFactory;
+import de.uniluebeck.itm.tr.iwsn.portal.EventBusFactoryImpl;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.RS;
@@ -44,8 +46,12 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 
 		install(new PreconditionsModule());
 		install(new FederationManagerModule());
+		install(new FactoryModuleBuilder()
+				.implement(FederatedReservation.class, FederatedReservationImpl.class)
+				.build(FederatedReservationFactory.class));
+		bind(EventBusFactory.class).to(EventBusFactoryImpl.class);
 
-		bind(ServedNodeUrnPrefixesProvider.class).to(FederationManagerServedNodeUrnPrefixesProvider.class);
+				bind(ServedNodeUrnPrefixesProvider.class).to(FederationManagerServedNodeUrnPrefixesProvider.class);
 		bind(ServedNodeUrnsProvider.class).to(FederationManagerServedNodeUrnsProvider.class);
 
 		bind(SessionManagementFederatorService.class)
@@ -56,8 +62,6 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 				.to(IWSNFederatorServiceImpl.class)
 				.in(Scopes.SINGLETON);
 
-		bind(WSNFederatorManager.class).to(WSNFederatorManagerImpl.class).in(Scopes.SINGLETON);
-
 		install(new FactoryModuleBuilder()
 				.implement(WSNFederatorController.class, WSNFederatorControllerImpl.class)
 				.build(WSNFederatorControllerFactory.class)
@@ -67,6 +71,8 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 				.implement(WSNFederatorService.class, WSNFederatorServiceImpl.class)
 				.build(WSNFederatorServiceFactory.class)
 		);
+
+		install(new FactoryModuleBuilder().build(FederatedReservationEventBusFactory.class));
 	}
 
 	@Provides
@@ -95,8 +101,8 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 
 	@Provides
 	@Singleton
-	public FederationManager<SessionManagement> provideFederationManager(final IWSNFederatorServiceConfig config,
-																		 final FederationManagerFactory factory) {
+	public FederatedEndpoints<SessionManagement> provideFederationManager(final IWSNFederatorServiceConfig config,
+																		 final FederatedEndpointsFactory factory) {
 
 		final Multimap<URI, NodeUrnPrefix> map = HashMultimap.create();
 

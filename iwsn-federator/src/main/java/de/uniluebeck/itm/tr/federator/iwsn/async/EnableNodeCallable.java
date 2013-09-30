@@ -21,31 +21,35 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
  **********************************************************************************************************************/
 
-package de.uniluebeck.itm.tr.federator.iwsn;
+package de.uniluebeck.itm.tr.federator.iwsn.async;
 
+import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.sm.NodeConnectionStatus;
-import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.wsn.AuthorizationFault;
+import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
+import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
+import eu.wisebed.api.v3.wsn.WSN;
 
-import java.util.List;
-import java.util.concurrent.Callable;
+import static com.google.common.collect.Lists.newArrayList;
 
-class SMAreNodesAliveCallable implements Callable<List<NodeConnectionStatus>> {
+public class EnableNodeCallable extends AbstractRequestCallable {
 
-	private final SessionManagement smEndpoint;
+	private final NodeUrn nodeUrn;
 
-	private final List<NodeUrn> nodes;
+	public EnableNodeCallable(final WSNFederatorController federatorController,
+							  final WSN wsnEndpoint,
+							  final long federatedRequestId,
+							  final long federatorRequestId,
+							  final NodeUrn nodeUrn) {
 
-	SMAreNodesAliveCallable(final SessionManagement smEndpoint, final List<NodeUrn> nodes) {
-		this.smEndpoint = smEndpoint;
-		this.nodes = nodes;
+		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
+
+		this.nodeUrn = nodeUrn;
 	}
 
 	@Override
-	public List<NodeConnectionStatus> call() throws Exception {
-		// instance smEndpoint is potentially not thread-safe!!!
-		synchronized (smEndpoint) {
-			return smEndpoint.areNodesConnected(nodes);
-		}
+	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
+			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
+		wsnEndpoint.enableNodes(federatedRequestId, newArrayList(nodeUrn));
 	}
 }

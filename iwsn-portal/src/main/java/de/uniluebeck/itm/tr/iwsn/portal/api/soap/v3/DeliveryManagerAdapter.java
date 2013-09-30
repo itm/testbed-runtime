@@ -29,13 +29,13 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 
 	@Override
 	protected void doStart() {
-		reservation.getEventBus().register(this);
+		reservation.getReservationEventBus().register(this);
 		super.doStart();
 	}
 
 	@Override
 	protected void doStop() {
-		reservation.getEventBus().unregister(this);
+		reservation.getReservationEventBus().unregister(this);
 		super.doStop();
 	}
 

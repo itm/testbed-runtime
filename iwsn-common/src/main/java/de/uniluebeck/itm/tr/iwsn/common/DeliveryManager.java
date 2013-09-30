@@ -9,9 +9,9 @@ import org.joda.time.DateTime;
 
 public interface DeliveryManager extends Service {
 
-	void addController(String endpointUrl);
+	void addController(DeliveryManagerController controller);
 
-	void removeController(String endpointUrl);
+	void removeController(DeliveryManagerController controller);
 
 	/**
 	 * Asynchronously notifies all currently registered controllers that the experiment has <emph>started</emph>.
@@ -22,7 +22,7 @@ public interface DeliveryManager extends Service {
 	 * Asynchronously notifies the controller with the endpoint URL {@code controllerEndpointUrl} that the experiment has
 	 * <emph>started</emph>.
 	 */
-	void reservationStarted(DateTime timestamp, String controllerEndpointUrl);
+	void reservationStarted(DateTime timestamp, DeliveryManagerController controller);
 
 	/**
 	 * Asynchronously notifies all currently registered controllers that the experiment has ended.
@@ -33,7 +33,7 @@ public interface DeliveryManager extends Service {
 	 * Asynchronously notifies the controller with the endpoint URL {@code controllerEndpointUrl} that the experiment has
 	 * <emph>ended</emph>.
 	 */
-	void reservationEnded(DateTime timestamp, String controllerEndpointUrl);
+	void reservationEnded(DateTime timestamp, DeliveryManagerController controller);
 
 	void nodesAttached(DateTime timestamp, Iterable<NodeUrn> nodeUrns);
 

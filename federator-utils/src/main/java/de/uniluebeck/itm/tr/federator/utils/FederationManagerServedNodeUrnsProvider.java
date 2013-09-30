@@ -22,17 +22,17 @@ public class FederationManagerServedNodeUrnsProvider implements ServedNodeUrnsPr
 
 	private static final Logger log = LoggerFactory.getLogger(FederationManagerServedNodeUrnsProvider.class);
 
-	private final FederationManager<SessionManagement> federationManager;
+	private final FederatedEndpoints<SessionManagement> federatedEndpoints;
 
 	@Inject
-	public FederationManagerServedNodeUrnsProvider(final FederationManager<SessionManagement> federationManager) {
-		this.federationManager = federationManager;
+	public FederationManagerServedNodeUrnsProvider(final FederatedEndpoints<SessionManagement> federatedEndpoints) {
+		this.federatedEndpoints = federatedEndpoints;
 	}
 
 	@Override
 	public Set<NodeUrn> get() {
 		final Set<NodeUrn> set = newHashSet();
-		for (final Map.Entry<SessionManagement, URI> entry : federationManager.getEndpointsURIMap().entrySet()) {
+		for (final Map.Entry<SessionManagement, URI> entry : federatedEndpoints.getEndpointsURIMap().entrySet()) {
 			try {
 				set.addAll(transform(getNodeUrns(entry.getKey().getNetwork()), STRING_TO_NODE_URN));
 			} catch (Exception e) {

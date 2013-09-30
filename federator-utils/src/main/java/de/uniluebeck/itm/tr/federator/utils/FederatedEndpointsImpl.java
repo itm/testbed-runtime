@@ -46,7 +46,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 
-class FederationManagerImpl<V> implements FederationManager<V> {
+class FederatedEndpointsImpl<V> implements FederatedEndpoints<V> {
 
 	/**
 	 * The function that builds the endpoint from an endpoint URL
@@ -66,8 +66,8 @@ class FederationManagerImpl<V> implements FederationManager<V> {
 	private final Lock endpointUrlToEndpointCacheLock = new ReentrantLock();
 
 	@Inject
-	public FederationManagerImpl(@Assisted final Function<URI, V> endpointBuilderFunction,
-								 @Assisted final Multimap<URI, NodeUrnPrefix> endpointUrlsToUrnPrefixesMap) {
+	public FederatedEndpointsImpl(@Assisted final Function<URI, V> endpointBuilderFunction,
+								  @Assisted final Multimap<URI, NodeUrnPrefix> endpointUrlsToUrnPrefixesMap) {
 
 		this.endpointBuilderFunction = endpointBuilderFunction;
 		this.endpointUrlsToUrnPrefixesMap = endpointUrlsToUrnPrefixesMap;

@@ -37,8 +37,11 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.WSNPreconditions;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.iwsn.async.*;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerTestbedClientController;
 import de.uniluebeck.itm.util.SecureIdGenerator;
+import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.controller.RequestStatus;
@@ -79,7 +82,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 	private final WSNPreconditions wsnPreconditions;
 
-	private final FederationManager<WSN> wsnFederationManager;
+	private final FederatedEndpoints<WSN> wsnFederatedEndpoints;
 
 	private final Random requestIdGenerator = new Random();
 
@@ -91,35 +94,29 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 	public WSNFederatorServiceImpl(final ServicePublisher servicePublisher,
 								   final IWSNFederatorServiceConfig config,
 								   final SecureIdGenerator secureIdGenerator,
-								   final PreconditionsFactory preconditionsFactory,
 								   final ListeningExecutorService executorService,
-								   final WSNFederatorControllerFactory federatorControllerFactory,
-								   @Assisted final FederationManager<WSN> wsnFederationManager,
-								   @Assisted final Set<NodeUrnPrefix> servedNodeUrnPrefixes,
-								   @Assisted final Set<NodeUrn> servedNodeUrns) {
-		this.servicePublisher = servicePublisher;
+								   final PreconditionsFactory preconditionsFactory,
+								   @Assisted final WSNFederatorController federatorController,
+								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints,
+								   @Assisted final Set<NodeUrnPrefix> nodeUrnPrefixes,
+								   @Assisted final Set<NodeUrn> nodeUrns) {
 		checkArgument(
 				config.getFederatorWsnEndpointUriBase() != null && !""
 						.equals(config.getFederatorWsnEndpointUriBase().toString()),
 				"Configuration parameter " + IWSNFederatorServiceConfig.FEDERATOR_WSN_ENDPOINT_URI_BASE + " must be set"
 		);
 		assert config.getFederatorWsnEndpointUriBase() != null;
+
+		this.servicePublisher = servicePublisher;
+		this.federatorController = federatorController;
+		this.wsnPreconditions = preconditionsFactory.createWsnPreconditions(nodeUrnPrefixes, nodeUrns);
 		this.endpointUri = URI.create(config.getFederatorWsnEndpointUriBase().toString() + (
 				config.getFederatorWsnEndpointUriBase().toString().endsWith("/") ?
 						secureIdGenerator.getNextId() :
 						"/" + secureIdGenerator.getNextId()
 		)
 		);
-		this.federatorController = federatorControllerFactory.create(
-				wsnFederationManager,
-				servedNodeUrnPrefixes,
-				servedNodeUrns
-		);
-		this.wsnPreconditions = preconditionsFactory.createWsnPreconditions(
-				servedNodeUrnPrefixes,
-				servedNodeUrns
-		);
-		this.wsnFederationManager = wsnFederationManager;
+		this.wsnFederatedEndpoints = wsnFederatedEndpoints;
 		this.executorService = executorService;
 	}
 
@@ -164,7 +161,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 		if (!"NONE".equals(controllerEndpointUrl)) {
 			log.debug("Adding controller endpoint URL {}", controllerEndpointUrl);
-			federatorController.addController(controllerEndpointUrl);
+			federatorController.addController(createDeliveryManagerController(controllerEndpointUrl));
 		}
 	}
 
@@ -172,7 +169,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 	public void removeController(final String controllerEndpointUrl) {
 
 		log.debug("Removing controller endpoint URL {}", controllerEndpointUrl);
-		federatorController.removeController(controllerEndpointUrl);
+		federatorController.removeController(createDeliveryManagerController(controllerEndpointUrl));
 	}
 
 	@Override
@@ -180,7 +177,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 		wsnPreconditions.checkSendArguments(nodeUrns, messageBytes);
 
-		Map<WSN, List<NodeUrn>> map = wsnFederationManager.getEndpointToNodeUrnMap(nodeUrns);
+		Map<WSN, List<NodeUrn>> map = wsnFederatedEndpoints.getEndpointToNodeUrnMap(nodeUrns);
 
 		log.debug("Invoking send({}, {}) on {}", nodeUrns, messageBytes, map.keySet());
 		for (Map.Entry<WSN, List<NodeUrn>> entry : map.entrySet()) {
@@ -205,13 +202,12 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 	}
 
-
 	@Override
 	public void areNodesAlive(final long federatorRequestId, final List<NodeUrn> nodeUrns) {
 
 		wsnPreconditions.checkAreNodesAliveArguments(nodeUrns);
 
-		final Map<WSN, List<NodeUrn>> map = wsnFederationManager.getEndpointToNodeUrnMap(nodeUrns);
+		final Map<WSN, List<NodeUrn>> map = wsnFederatedEndpoints.getEndpointToNodeUrnMap(nodeUrns);
 
 		log.debug("Invoking areNodesAlive({}) on {}", nodeUrns, map.keySet());
 		for (Map.Entry<WSN, List<NodeUrn>> entry : map.entrySet()) {
@@ -234,6 +230,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 		}
 	}
 
+
 	@Override
 	public List<ChannelPipelinesMap> getChannelPipelines(final List<NodeUrn> nodeUrns) {
 		throw new RuntimeException("Not yet implemented!");
@@ -243,13 +240,13 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 	public String getNetwork() {
 
 		final BiMap<URI, Callable<String>> endpointUrlToCallableMap = HashBiMap.create();
-		final Set<URI> endpointUrls = wsnFederationManager.getEndpointUrls();
+		final Set<URI> endpointUrls = wsnFederatedEndpoints.getEndpointUrls();
 
 		for (final URI endpointUrl : endpointUrls) {
 			endpointUrlToCallableMap.put(endpointUrl, new Callable<String>() {
 				@Override
 				public String call() throws Exception {
-					return wsnFederationManager.getEndpointByEndpointUrl(endpointUrl).getNetwork();
+					return wsnFederatedEndpoints.getEndpointByEndpointUrl(endpointUrl).getNetwork();
 				}
 			}
 			);
@@ -263,7 +260,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 		wsnPreconditions.checkResetNodesArguments(nodeUrns);
 
-		final Map<WSN, List<NodeUrn>> map = wsnFederationManager.getEndpointToNodeUrnMap(nodeUrns);
+		final Map<WSN, List<NodeUrn>> map = wsnFederatedEndpoints.getEndpointToNodeUrnMap(nodeUrns);
 
 		log.debug("Invoking resetNodes({}) on {}", nodeUrns, map.keySet());
 		for (Map.Entry<WSN, List<NodeUrn>> entry : map.entrySet()) {
@@ -285,7 +282,6 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 		}
 	}
 
-
 	@Override
 	public void enableVirtualLinks(final long requestId, final List<VirtualLink> links) {
 
@@ -302,7 +298,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			final List<String> filters = link.getFilters();
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
-			final WSN endpoint = wsnFederationManager.getEndpointByNodeUrn(sourceNodeUrn);
+			final WSN endpoint = wsnFederatedEndpoints.getEndpointByNodeUrn(sourceNodeUrn);
 
 			log.debug("Invoking setVirtualLink({}, {}, {}, {}, {}) on {}",
 					sourceNodeUrn, targetNodeUrn, remoteWSNServiceEndpointUrl, parameters, filters, endpoint
@@ -327,6 +323,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 		}
 	}
 
+
 	@Override
 	public void disableVirtualLinks(final long requestId, final List<Link> links) {
 
@@ -341,7 +338,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
-			final WSN endpoint = wsnFederationManager.getEndpointByNodeUrn(sourceNodeUrn);
+			final WSN endpoint = wsnFederatedEndpoints.getEndpointByNodeUrn(sourceNodeUrn);
 
 			log.debug(
 					"Invoking destroyVirtualLink({}, {}) on {}",
@@ -372,7 +369,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 		for (NodeUrn nodeUrn : nodeUrns) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
-			final WSN endpoint = wsnFederationManager.getEndpointByNodeUrn(nodeUrn);
+			final WSN endpoint = wsnFederatedEndpoints.getEndpointByNodeUrn(nodeUrn);
 
 			log.debug("Invoking disableNode({}) on {}", nodeUrn, endpoint);
 
@@ -402,7 +399,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
-			final WSN endpoint = wsnFederationManager.getEndpointByNodeUrn(sourceNodeUrn);
+			final WSN endpoint = wsnFederatedEndpoints.getEndpointByNodeUrn(sourceNodeUrn);
 
 			log.debug(
 					"Invoking disablePhysicalLink({}, {}) on {}",
@@ -443,7 +440,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 		for (NodeUrn nodeUrn : nodeUrns) {
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
-			final WSN endpoint = wsnFederationManager.getEndpointByNodeUrn(nodeUrn);
+			final WSN endpoint = wsnFederatedEndpoints.getEndpointByNodeUrn(nodeUrn);
 
 			log.debug("Invoking enableNode({}) on {}", new Object[]{nodeUrn, endpoint});
 
@@ -473,7 +470,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			final NodeUrn targetNodeUrn = link.getTargetNodeUrn();
 
 			final long federatedRequestId = requestIdGenerator.nextLong();
-			final WSN endpoint = wsnFederationManager.getEndpointByNodeUrn(sourceNodeUrn);
+			final WSN endpoint = wsnFederatedEndpoints.getEndpointByNodeUrn(sourceNodeUrn);
 
 			log.debug(
 					"Invoking enablePhysicalLink({}, {}) on {}",
@@ -504,7 +501,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 		for (FlashProgramsConfiguration flashProgramsConfiguration : flashProgramsConfigurations) {
 
-			final Map<WSN, List<NodeUrn>> endpointToNodeUrnMap = wsnFederationManager.getEndpointToNodeUrnMap(
+			final Map<WSN, List<NodeUrn>> endpointToNodeUrnMap = wsnFederatedEndpoints.getEndpointToNodeUrnMap(
 					flashProgramsConfiguration.getNodeUrns()
 			);
 
@@ -581,7 +578,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 		for (NodeUrn nodeUrn : nodeUrns) {
 
-			final WSN endpoint = wsnFederationManager.getEndpointByNodeUrn(nodeUrn);
+			final WSN endpoint = wsnFederatedEndpoints.getEndpointByNodeUrn(nodeUrn);
 
 			List<NodeUrn> filteredNodeUrns = mapping.get(endpoint);
 			if (filteredNodeUrns == null) {
@@ -593,7 +590,6 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 		return mapping;
 	}
-
 
 	/**
 	 * Adds a listener to the provided ListenableFuture which will create and forward a status request to the
@@ -640,6 +636,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 		);
 	}
 
+
 	@Override
 	public WSNFederatorController getWsnFederatorController() {
 		return federatorController;
@@ -648,5 +645,12 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 	@Override
 	public URI getEndpointUri() {
 		return endpointUri;
+	}
+
+	private DeliveryManagerTestbedClientController createDeliveryManagerController(final String controllerEndpointUrl) {
+		return new DeliveryManagerTestbedClientController(
+				WisebedServiceHelper.getControllerService(controllerEndpointUrl, null),
+				controllerEndpointUrl
+		);
 	}
 }
