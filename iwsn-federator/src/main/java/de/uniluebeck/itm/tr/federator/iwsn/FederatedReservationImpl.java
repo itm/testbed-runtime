@@ -10,6 +10,7 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBus;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBusFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -31,7 +32,7 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 
 	private final List<ConfidentialReservationData> confidentialReservationDataList;
 
-	private final FederatedReservationEventBus reservationEventBus;
+	private final ReservationEventBus reservationEventBus;
 
 	private final ImmutableSet<NodeUrnPrefix> nodeUrnPrefixes;
 
@@ -46,7 +47,7 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 	private final WSNFederatorController wsnFederatorController;
 
 	@Inject
-	public FederatedReservationImpl(final FederatedReservationEventBusFactory reservationEventBusFactory,
+	public FederatedReservationImpl(final ReservationEventBusFactory reservationEventBusFactory,
 									final ResponseTrackerFactory responseTrackerFactory,
 									final ResponseTrackerCache responseTrackerCache,
 									final WSNFederatorServiceFactory serviceFactory,
@@ -65,7 +66,7 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 
 		this.wsnFederatorController = controllerFactory.create(endpoints, nodeUrnPrefixes, nodeUrns);
 		this.wsnFederatorService = serviceFactory.create(wsnFederatorController, endpoints, nodeUrnPrefixes, nodeUrns);
-		this.reservationEventBus = reservationEventBusFactory.create(wsnFederatorService, wsnFederatorController);
+		this.reservationEventBus = reservationEventBusFactory.create(this);
 	}
 
 	@Override

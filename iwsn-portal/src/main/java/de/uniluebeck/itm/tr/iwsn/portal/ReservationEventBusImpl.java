@@ -41,7 +41,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 								   final EventBusFactory eventBusFactory,
 								   @Assisted final Reservation reservation) {
 		this.portalEventBus = portalEventBus;
-		this.eventBus = eventBusFactory.create("ReservationEventBus");
+		this.eventBus = eventBusFactory.create("ReservationEventBus[" + reservation.getSerializedKey() + "]");
 		this.reservation = reservation;
 		this.reservationId = reservation.getSerializedKey();
 	}

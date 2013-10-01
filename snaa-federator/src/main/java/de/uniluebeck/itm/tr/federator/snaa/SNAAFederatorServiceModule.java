@@ -51,8 +51,9 @@ public class SNAAFederatorServiceModule extends PrivateModule {
 		switch (snaaFederatorServiceConfig.getSnaaFederatorType()) {
 
 			case API:
-				bind(SNAA.class).to(SNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
-				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
+				bind(SNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
+				bind(SNAA.class).to(SNAAFederatorServiceImpl.class);
+				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
 				break;
 
 			case SHIBBOLETH:
@@ -66,11 +67,12 @@ public class SNAAFederatorServiceModule extends PrivateModule {
 				bind(SNAAFederatorService.class).to(DelegatingSNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
 				bind(SNAAService.class)
 						.annotatedWith(Names.named("authorizationSnaa"))
-						.to(SNAAFederatorServiceImpl.class);
+						.to(SNAAFederatorServiceImpl.class)
+						.in(Scopes.SINGLETON);
 				bind(SNAAService.class)
 						.annotatedWith(Names.named("authenticationSnaa"))
-						.to(ShibbolethSNAA.class);
-
+						.to(ShibbolethSNAA.class)
+						.in(Scopes.SINGLETON);
 				break;
 
 			default:
@@ -86,13 +88,14 @@ public class SNAAFederatorServiceModule extends PrivateModule {
 	@Provides
 	@Named(SNAAFederatorService.SNAA_FEDERATOR_EXECUTOR_SERVICE)
 	public ExecutorService provideExecutorService() {
-		final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("SNAAFederatorService-Thread %d").build();
+		final ThreadFactory threadFactory =
+				new ThreadFactoryBuilder().setNameFormat("SNAAFederatorService-Thread %d").build();
 		return getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool(threadFactory));
 	}
 
 	@Provides
 	public FederatedEndpoints<SNAA> provideSnaaFederationManager(final SNAAFederatorServiceConfig config,
-																final FederatedEndpointsFactory factory) {
+																 final FederatedEndpointsFactory factory) {
 
 		final Function<URI, SNAA> uriToRSEndpointFunction = new Function<URI, SNAA>() {
 			@Override

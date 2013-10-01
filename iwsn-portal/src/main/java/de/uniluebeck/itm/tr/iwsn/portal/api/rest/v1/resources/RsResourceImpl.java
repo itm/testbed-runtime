@@ -103,6 +103,11 @@ public class RsResourceImpl implements RsResource {
 			final Interval interval, final Integer offset, final Integer amount)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
+		log.trace(
+				"RsResourceImpl.getConfidentialReservations(snaaSecretAuthenticationKeys={}, interval={}, offset={}, amount={})",
+				snaaSecretAuthenticationKeys, interval, offset, amount
+		);
+
 		return new ConfidentialReservationDataList(
 				rs.getConfidentialReservations(
 						snaaSecretAuthenticationKeys,

@@ -73,8 +73,6 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 			);
 			nettyServer.startAndWait();
 
-			eventBus.register(this);
-
 			notifyStarted();
 
 		} catch (Exception e) {
@@ -88,10 +86,12 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 		log.trace("PortalEventBusImpl.doStop()");
 
 		try {
+
 			nettyServer.stopAndWait();
-			eventBus.unregister(this);
 			portalChannelHandler.doStop();
+
 			notifyStopped();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

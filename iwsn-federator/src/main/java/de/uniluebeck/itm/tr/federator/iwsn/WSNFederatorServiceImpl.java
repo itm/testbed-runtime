@@ -45,7 +45,7 @@ import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.controller.RequestStatus;
-import eu.wisebed.api.v3.controller.Status;
+import eu.wisebed.api.v3.controller.SingleNodeRequestStatus;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -622,12 +622,14 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 				RequestStatus requestStatus = new RequestStatus();
 				requestStatus.setRequestId(requestId);
-				final List<Status> statusList = requestStatus.getStatus();
+				final List<SingleNodeRequestStatus> statusList = requestStatus.getSingleNodeRequestStatus();
 				for (NodeUrn nodeUrn : nodeUrns) {
-					Status status = new Status();
+					SingleNodeRequestStatus status = new SingleNodeRequestStatus();
 					status.setMsg(sb.toString());
 					status.setValue(-1);
 					status.setNodeUrn(nodeUrn);
+					status.setCompleted(true);
+					status.setSuccess(false);
 					statusList.add(status);
 				}
 				federatorController.receiveStatus(newArrayList(requestStatus));

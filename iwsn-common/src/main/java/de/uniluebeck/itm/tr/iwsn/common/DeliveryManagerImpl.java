@@ -33,7 +33,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
-import eu.wisebed.api.v3.controller.Status;
+import eu.wisebed.api.v3.controller.SingleNodeRequestStatus;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -367,11 +367,13 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 			requestStatus.setRequestId(requestId);
 
 			for (NodeUrn nodeUrn : nodeUrns) {
-				Status status = new Status();
+				SingleNodeRequestStatus status = new SingleNodeRequestStatus();
 				status.setNodeUrn(nodeUrn);
 				status.setValue(statusValue);
 				status.setMsg(e.getMessage());
-				requestStatus.getStatus().add(status);
+				status.setCompleted(true);
+				status.setSuccess(false);
+				requestStatus.getSingleNodeRequestStatus().add(status);
 			}
 
 			receiveStatus(Lists.<RequestStatus>newArrayList(requestStatus));
@@ -400,12 +402,14 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 			for (NodeUrn nodeUrn : nodeUrns) {
 
-				Status status = new Status();
+				SingleNodeRequestStatus status = new SingleNodeRequestStatus();
 				status.setMsg(msg);
 				status.setNodeUrn(nodeUrn);
 				status.setValue(-1);
+				status.setCompleted(true);
+				status.setSuccess(false);
 
-				requestStatus.getStatus().add(status);
+				requestStatus.getSingleNodeRequestStatus().add(status);
 
 			}
 

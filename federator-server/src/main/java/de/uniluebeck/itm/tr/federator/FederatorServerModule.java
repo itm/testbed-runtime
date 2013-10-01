@@ -2,7 +2,6 @@ package de.uniluebeck.itm.tr.federator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
@@ -10,15 +9,16 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
 import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.PreconditionsModule;
-import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.federator.iwsn.*;
+import de.uniluebeck.itm.tr.federator.iwsn.IWSNFederatorServiceConfig;
+import de.uniluebeck.itm.tr.federator.iwsn.IWSNFederatorServiceModule;
 import de.uniluebeck.itm.tr.federator.rs.RSFederatorServiceConfig;
 import de.uniluebeck.itm.tr.federator.rs.RSFederatorServiceModule;
 import de.uniluebeck.itm.tr.federator.snaa.SNAAFederatorServiceConfig;
 import de.uniluebeck.itm.tr.federator.snaa.SNAAFederatorServiceModule;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
-import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.WiseGuiServiceConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.WiseGuiServiceModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
@@ -65,18 +65,10 @@ public class FederatorServerModule extends AbstractModule {
 
 		install(new PreconditionsModule());
 		install(new ServicePublisherCxfModule());
-
 		install(new IWSNFederatorServiceModule());
 		install(new RSFederatorServiceModule());
 		install(new SNAAFederatorServiceModule(snaaFederatorServiceConfig));
-
 		install(new FederatorServiceModule());
-
-		bind(PortalEventBus.class).to(FederatorPortalEventBus.class).in(Scopes.SINGLETON);
-		bind(ReservationManager.class).to(FederatedReservationManager.class).in(Scopes.SINGLETON);
-		bind(RequestIdProvider.class).to(RandomRequestIdProvider.class);
-		bind(WisemlProvider.class).to(FederatorWiseMLProvider.class);
-
 		install(new WiseGuiServiceModule());
 		install(new SchedulerServiceModule());
 		install(new ResponseTrackerModule());

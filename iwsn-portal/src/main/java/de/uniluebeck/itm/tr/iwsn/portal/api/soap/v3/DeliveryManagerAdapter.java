@@ -12,7 +12,7 @@ import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
-import eu.wisebed.api.v3.controller.Status;
+import eu.wisebed.api.v3.controller.SingleNodeRequestStatus;
 import org.joda.time.DateTime;
 
 import static com.google.common.collect.Iterables.transform;
@@ -89,29 +89,33 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 
 	private RequestStatus convert(final SingleNodeProgress progress) {
 
-		final Status status = new Status();
+		final SingleNodeRequestStatus status = new SingleNodeRequestStatus();
 		status.setNodeUrn(new NodeUrn(progress.getNodeUrn()));
 		status.setValue(progress.getProgressInPercent());
+		status.setCompleted(false);
+		status.setSuccess(false);
 
 		final RequestStatus requestStatus = new RequestStatus();
 		requestStatus.setRequestId(progress.getRequestId());
-		requestStatus.getStatus().add(status);
+		requestStatus.getSingleNodeRequestStatus().add(status);
 
 		return requestStatus;
 	}
 
 	private RequestStatus convert(final SingleNodeResponse response) {
 
-		final Status status = new Status();
+		final SingleNodeRequestStatus status = new SingleNodeRequestStatus();
 		status.setNodeUrn(new NodeUrn(response.getNodeUrn()));
 		status.setValue(response.getStatusCode());
+		status.setCompleted(true);
+		status.setSuccess(!response.hasErrorMessage());
 		if (response.hasErrorMessage()) {
 			status.setMsg(response.getErrorMessage());
 		}
 
 		final RequestStatus requestStatus = new RequestStatus();
 		requestStatus.setRequestId(response.getRequestId());
-		requestStatus.getStatus().add(status);
+		requestStatus.getSingleNodeRequestStatus().add(status);
 
 		return requestStatus;
 	}
