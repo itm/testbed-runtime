@@ -67,8 +67,8 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 		this.interval = extractInterval(confidentialReservationDataList);
 		this.entries = createEntries();
 
-		this.federatorController = controllerFactory.create(this, endpoints, nodeUrnPrefixes, nodeUrns);
-		this.wsnFederatorService = serviceFactory.create(this, federatorController, endpoints, nodeUrnPrefixes, nodeUrns);
+		this.federatorController = controllerFactory.create(endpoints, nodeUrnPrefixes, nodeUrns);
+		this.wsnFederatorService = serviceFactory.create(federatorController, endpoints, nodeUrnPrefixes, nodeUrns);
 		this.reservationEventBus = reservationEventBusFactory.create(this);
 		this.reservationEventBusAdapter = reservationEventBusAdapterFactory.create(
 				this,

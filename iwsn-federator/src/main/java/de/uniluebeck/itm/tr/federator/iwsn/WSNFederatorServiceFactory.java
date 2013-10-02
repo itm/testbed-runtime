@@ -9,8 +9,7 @@ import java.util.Set;
 
 public interface WSNFederatorServiceFactory {
 
-	WSNFederatorService create(FederatedReservation federatedReservation,
-							   FederatorController federatorController,
+	WSNFederatorService create(FederatorController federatorController,
 							   FederatedEndpoints<WSN> federatedEndpoints,
 							   Set<NodeUrnPrefix> nodeUrnPrefixes,
 							   Set<NodeUrn> nodeUrns);

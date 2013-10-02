@@ -40,6 +40,7 @@ import de.uniluebeck.itm.tr.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.federator.iwsn.async.*;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerTestbedClientController;
+import de.uniluebeck.itm.util.SecureIdGenerator;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -55,15 +56,12 @@ import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.Callable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Throwables.getStackTraceAsString;
-import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.util.concurrent.Futures.addCallback;
@@ -104,7 +102,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 								   final IWSNFederatorServiceConfig config,
 								   final ListeningExecutorService executorService,
 								   final PreconditionsFactory preconditionsFactory,
-								   @Assisted final FederatedReservation federatedReservation,
+								   final SecureIdGenerator secureIdGenerator,
 								   @Assisted final FederatorController federatorController,
 								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints,
 								   @Assisted final Set<NodeUrnPrefix> nodeUrnPrefixes,
@@ -120,15 +118,11 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 		this.federatorController = federatorController;
 		this.wsnPreconditions = preconditionsFactory.createWsnPreconditions(nodeUrnPrefixes, nodeUrns);
 
-		try {
-			String uriString;
-			uriString = config.getFederatorWsnEndpointUriBase().toString();
-			uriString += uriString.endsWith("/") ? "" : "/";
-			uriString += URLEncoder.encode(federatedReservation.getSerializedKey(), UTF_8);
-			this.endpointUri = URI.create(uriString);
-		} catch (UnsupportedEncodingException e) {
-			throw propagate(e);
-		}
+		String uriString;
+		uriString = config.getFederatorWsnEndpointUriBase().toString();
+		uriString += uriString.endsWith("/") ? "" : "/";
+		uriString += secureIdGenerator.getNextId();
+		this.endpointUri = URI.create(uriString);
 
 		this.wsnFederatedEndpoints = wsnFederatedEndpoints;
 		this.executorService = executorService;
@@ -138,7 +132,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 	protected void doStart() {
 		log.trace("WSNFederatorServiceImpl.doStart()");
 		try {
-			jaxWsService = servicePublisher.createJaxWsService("/test2", this);
+			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

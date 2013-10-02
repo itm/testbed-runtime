@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn;
 
+import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -33,6 +34,7 @@ import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerController;
+import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.TimedCache;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.Message;
@@ -50,9 +52,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.RequestWrapper;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +60,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Throwables.propagate;
 
 @WebService(
 		name = "Controller",
@@ -111,7 +110,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	private final Runnable addToFederatedEndpointsRunnable = new Runnable() {
 		@Override
 		public void run() {
-			/*for (Map.Entry<WSN, URI> entry : wsnFederatedEndpoints.getEndpointsURIMap().entrySet()) {
+			for (Map.Entry<WSN, URI> entry : wsnFederatedEndpoints.getEndpointsURIMap().entrySet()) {
 				final WSN endpoint = entry.getKey();
 				final URI uri = entry.getValue();
 				try {
@@ -126,7 +125,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 					}
 					notifyFailed(e);
 				}
-			}*/
+			}
 		}
 	};
 
@@ -138,7 +137,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 								   final IWSNFederatorServiceConfig config,
 								   final PreconditionsFactory preconditionsFactory,
 								   final SchedulerService schedulerService,
-								   @Assisted final FederatedReservation federatedReservation,
+								   final SecureIdGenerator secureIdGenerator,
 								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints,
 								   @Assisted final Set<NodeUrnPrefix> nodeUrnPrefixes,
 								   @Assisted final Set<NodeUrn> nodeUrns) {
@@ -149,15 +148,11 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		this.preconditions = preconditionsFactory.createCommonPreconditions(nodeUrnPrefixes, nodeUrns);
 		this.schedulerService = checkNotNull(schedulerService);
 
-		try {
-			String uriString;
-			uriString = config.getFederatorControllerEndpointUriBase().toString();
-			uriString += uriString.endsWith("/") ? "" : "/";
-			uriString += URLEncoder.encode(federatedReservation.getSerializedKey(), UTF_8);
-			this.endpointUri = URI.create(uriString);
-		} catch (UnsupportedEncodingException e) {
-			throw propagate(e);
-		}
+		String uriString;
+		uriString = config.getFederatorControllerEndpointUriBase().toString();
+		uriString += uriString.endsWith("/") ? "" : "/";
+		uriString += secureIdGenerator.getNextId();
+		this.endpointUri = URI.create(uriString);
 	}
 
 	@Override
@@ -167,7 +162,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 			log.debug("Starting federator controller using endpoint URI {}...", endpointUri);
 
-			jaxWsService = servicePublisher.createJaxWsService("/test", this);
+			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this);
 			jaxWsService.startAndWait();
 
 			deliveryManager.startAndWait();
