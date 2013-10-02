@@ -7,7 +7,7 @@ import java.net.URI;
 
 public interface WSNFederatorService extends Service, WSN {
 
-	WSNFederatorController getWsnFederatorController();
+	FederatorController getWsnFederatorController();
 
 	URI getEndpointUri();
 

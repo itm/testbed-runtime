@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
+import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
@@ -35,7 +35,7 @@ public class WSNAreNodesAliveCallable extends AbstractRequestCallable {
 
 	private final List<NodeUrn> nodes;
 
-	public WSNAreNodesAliveCallable(final WSNFederatorController federatorController,
+	public WSNAreNodesAliveCallable(final FederatorController federatorController,
 									final WSN wsnEndpoint,
 									final long federatedRequestId,
 									final long federatorRequestId,

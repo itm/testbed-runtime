@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.federator.iwsn;
 import com.google.common.base.Joiner;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -109,6 +111,14 @@ public class FederatorWiseMLProvider implements WisemlProvider {
 
 	@Override
 	public Wiseml get(final Iterable<NodeUrn> nodeUrns) {
-		throw new RuntimeException("Implement me!");
+		final Wiseml wiseml = get();
+		for (Iterator<Setup.Node> iterator = wiseml.getSetup().getNode().iterator(); iterator.hasNext(); ) {
+			Setup.Node next = iterator.next();
+			final NodeUrn currentNodeUrn = new NodeUrn(next.getId());
+			if (!Iterables.contains(nodeUrns, currentNodeUrn)) {
+				iterator.remove();
+			}
+		}
+		return wiseml;
 	}
 }

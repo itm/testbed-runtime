@@ -44,7 +44,9 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 
 	private final WSNFederatorService wsnFederatorService;
 
-	private final WSNFederatorController wsnFederatorController;
+	private final FederatorController federatorController;
+
+	private final FederatedReservationEventBusAdapter reservationEventBusAdapter;
 
 	@Inject
 	public FederatedReservationImpl(final ReservationEventBusFactory reservationEventBusFactory,
@@ -52,6 +54,7 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 									final ResponseTrackerCache responseTrackerCache,
 									final WSNFederatorServiceFactory serviceFactory,
 									final WSNFederatorControllerFactory controllerFactory,
+									final FederatedReservationEventBusAdapterFactory reservationEventBusAdapterFactory,
 									@Assisted final List<ConfidentialReservationData> confidentialReservationDataList,
 									@Assisted final FederatedEndpoints<WSN> endpoints) {
 
@@ -64,18 +67,28 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 		this.interval = extractInterval(confidentialReservationDataList);
 		this.entries = createEntries();
 
-		this.wsnFederatorController = controllerFactory.create(endpoints, nodeUrnPrefixes, nodeUrns);
-		this.wsnFederatorService = serviceFactory.create(wsnFederatorController, endpoints, nodeUrnPrefixes, nodeUrns);
+		this.federatorController = controllerFactory.create(this, endpoints, nodeUrnPrefixes, nodeUrns);
+		this.wsnFederatorService = serviceFactory.create(this, federatorController, endpoints, nodeUrnPrefixes, nodeUrns);
 		this.reservationEventBus = reservationEventBusFactory.create(this);
+		this.reservationEventBusAdapter = reservationEventBusAdapterFactory.create(
+				this,
+				reservationEventBus,
+				federatorController,
+				wsnFederatorService
+		);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
+
 			reservationEventBus.startAndWait();
-			wsnFederatorController.startAndWait();
+			federatorController.startAndWait();
 			wsnFederatorService.startAndWait();
+			reservationEventBusAdapter.startAndWait();
+
 			notifyStarted();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -84,10 +97,14 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 	@Override
 	protected void doStop() {
 		try {
+
+			reservationEventBusAdapter.stopAndWait();
 			wsnFederatorService.stopAndWait();
-			wsnFederatorController.stopAndWait();
+			federatorController.stopAndWait();
 			reservationEventBus.stopAndWait();
+
 			notifyStopped();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -194,7 +211,7 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 		assert earliestEnd != null;
 		assert latestStart != null;
 
-		if (earliestEnd.isAfter(latestStart)) {
+		if (earliestEnd.isBefore(latestStart)) {
 			throw new RuntimeException("It seems the end of the federated reservation is before the start.");
 		}
 
@@ -225,7 +242,7 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 	}
 
 	@Override
-	public WSNFederatorController getWsnFederatorController() {
-		return wsnFederatorController;
+	public FederatorController getFederatorController() {
+		return federatorController;
 	}
 }

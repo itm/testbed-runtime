@@ -6,6 +6,6 @@ public interface FederatedReservation extends Reservation {
 
 	WSNFederatorService getWsnFederatorService();
 
-	WSNFederatorController getWsnFederatorController();
+	FederatorController getFederatorController();
 
 }

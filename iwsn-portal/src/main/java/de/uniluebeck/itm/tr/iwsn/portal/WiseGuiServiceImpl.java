@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import java.io.File;
 import java.net.URL;
@@ -59,7 +60,8 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 				if (resource == null) {
 					throw new IllegalArgumentException("The internal version of WiseGui cannot be started. " +
 							"Did you forget to initialize and update the submodule running " +
-							"'git submodule init' and 'git submodule update'?");
+							"'git submodule init' and 'git submodule update'?"
+					);
 				}
 				resourceBase = resource.toString();
 			}
@@ -69,11 +71,15 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 			params.put(WiseGuiServiceConfig.WISEGUI_TESTBED_NAME, wiseGuiServiceConfig.getWiseguiTestbedName());
 			params.put(WiseGuiServiceConfig.WISEGUI_REST_API_BASE_URI, wiseGuiServiceConfig.getWiseGuiRestApiBaseUri());
 			params.put(WiseGuiServiceConfig.WISEGUI_WEBSOCKET_URI, wiseGuiServiceConfig.getWiseGuiWebSocketUri());
+			params.put("allowedOrigins", "http://*");
+			params.put("allowedMethods", "GET,POST,PUT,DELETE");
+			params.put("allowCredentials", "true");
 
 			webapp = servicePublisher.createServletService(
 					wiseGuiServiceConfig.getWiseGuiContextPath(),
 					resourceBase,
-					params
+					params,
+					new CrossOriginFilter()
 			);
 
 			webapp.startAndWait();

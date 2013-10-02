@@ -94,14 +94,16 @@ public class FederatedReservationManager extends AbstractService implements Rese
 	}
 
 	@Override
-	public Reservation getReservation(final List<SecretReservationKey> srkList)
+	public synchronized Reservation getReservation(final List<SecretReservationKey> srkList)
 			throws ReservationUnknownException {
+		log.trace("FederatedReservationManager.getReservation({})", srkList);
 		return getFederatedReservation(srkList);
 	}
 
 	@Override
-	public Reservation getReservation(final String jsonSerializedSecretReservationKeys)
+	public synchronized Reservation getReservation(final String jsonSerializedSecretReservationKeys)
 			throws ReservationUnknownException {
+		log.trace("FederatedReservationManager.getReservation({})", jsonSerializedSecretReservationKeys);
 		return getFromCache(deserialize(jsonSerializedSecretReservationKeys));
 	}
 

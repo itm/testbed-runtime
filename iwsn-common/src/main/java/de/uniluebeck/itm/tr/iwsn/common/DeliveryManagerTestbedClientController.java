@@ -11,11 +11,13 @@ import javax.annotation.Nullable;
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebService;
 import javax.xml.ws.RequestWrapper;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@WebService(name = "Controller", targetNamespace = "http://wisebed.eu/api/v3/controller")
 public class DeliveryManagerTestbedClientController implements DeliveryManagerController {
 
 	@Nullable
@@ -38,9 +40,11 @@ public class DeliveryManagerTestbedClientController implements DeliveryManagerCo
 	@WebMethod
 	@Oneway
 	@RequestWrapper(localName = "nodesAttached", targetNamespace = "http://wisebed.eu/api/v3/controller", className = "eu.wisebed.api.v3.controller.NodesAttached")
-	public void nodesAttached(@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp,
-							  @WebParam(name = "nodeUrns", targetNamespace = "") final
-							  List<NodeUrn> nodeUrns) {
+	public void nodesAttached(
+			@WebParam(name = "timestamp", targetNamespace = "")
+			DateTime timestamp,
+			@WebParam(name = "nodeUrns", targetNamespace = "")
+			List<NodeUrn> nodeUrns) {
 		endpoint.nodesAttached(timestamp, nodeUrns);
 	}
 
@@ -48,9 +52,11 @@ public class DeliveryManagerTestbedClientController implements DeliveryManagerCo
 	@WebMethod
 	@Oneway
 	@RequestWrapper(localName = "nodesDetached", targetNamespace = "http://wisebed.eu/api/v3/controller", className = "eu.wisebed.api.v3.controller.NodesDetached")
-	public void nodesDetached(@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp,
-							  @WebParam(name = "nodeUrns", targetNamespace = "") final
-							  List<NodeUrn> nodeUrns) {
+	public void nodesDetached(
+			@WebParam(name = "timestamp", targetNamespace = "")
+			DateTime timestamp,
+			@WebParam(name = "nodeUrns", targetNamespace = "")
+			List<NodeUrn> nodeUrns) {
 		endpoint.nodesDetached(timestamp, nodeUrns);
 	}
 
@@ -59,7 +65,8 @@ public class DeliveryManagerTestbedClientController implements DeliveryManagerCo
 	@Oneway
 	@RequestWrapper(localName = "receive", targetNamespace = "http://wisebed.eu/api/v3/controller", className = "eu.wisebed.api.v3.controller.Receive")
 	public void receive(
-			@WebParam(name = "msg", targetNamespace = "") final List<Message> msg) {
+			@WebParam(name = "msg", targetNamespace = "")
+			List<Message> msg) {
 		endpoint.receive(msg);
 	}
 
@@ -68,7 +75,7 @@ public class DeliveryManagerTestbedClientController implements DeliveryManagerCo
 	@Oneway
 	@RequestWrapper(localName = "receiveNotification", targetNamespace = "http://wisebed.eu/api/v3/controller", className = "eu.wisebed.api.v3.controller.ReceiveNotification")
 	public void receiveNotification(
-			@WebParam(name = "notifications", targetNamespace = "") final
+			@WebParam(name = "notifications", targetNamespace = "")
 			List<Notification> notifications) {
 		endpoint.receiveNotification(notifications);
 	}
@@ -78,7 +85,7 @@ public class DeliveryManagerTestbedClientController implements DeliveryManagerCo
 	@Oneway
 	@RequestWrapper(localName = "receiveStatus", targetNamespace = "http://wisebed.eu/api/v3/controller", className = "eu.wisebed.api.v3.controller.ReceiveStatus")
 	public void receiveStatus(
-			@WebParam(name = "status", targetNamespace = "") final
+			@WebParam(name = "status", targetNamespace = "")
 			List<RequestStatus> status) {
 		endpoint.receiveStatus(status);
 	}
@@ -88,7 +95,8 @@ public class DeliveryManagerTestbedClientController implements DeliveryManagerCo
 	@Oneway
 	@RequestWrapper(localName = "reservationEnded", targetNamespace = "http://wisebed.eu/api/v3/controller", className = "eu.wisebed.api.v3.controller.ReservationEnded")
 	public void reservationEnded(
-			@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp) {
+			@WebParam(name = "timestamp", targetNamespace = "")
+			DateTime timestamp) {
 		endpoint.reservationEnded(timestamp);
 	}
 
@@ -97,7 +105,8 @@ public class DeliveryManagerTestbedClientController implements DeliveryManagerCo
 	@Oneway
 	@RequestWrapper(localName = "reservationStarted", targetNamespace = "http://wisebed.eu/api/v3/controller", className = "eu.wisebed.api.v3.controller.ReservationStarted")
 	public void reservationStarted(
-			@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp) {
+			@WebParam(name = "timestamp", targetNamespace = "")
+			DateTime timestamp) {
 		endpoint.reservationStarted(timestamp);
 	}
 

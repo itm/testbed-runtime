@@ -1,6 +1,6 @@
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
+import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
@@ -15,7 +15,7 @@ public class SetChannelPipelineCallable extends AbstractRequestCallable {
 
 	private final List<ChannelHandlerConfiguration> channelHandlerConfigurations;
 
-	public SetChannelPipelineCallable(final WSNFederatorController federatorController,
+	public SetChannelPipelineCallable(final FederatorController federatorController,
 									  final WSN wsnEndpoint,
 									  final long federatedRequestId,
 									  final long federatorRequestId,

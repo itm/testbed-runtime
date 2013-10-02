@@ -6,7 +6,7 @@ import eu.wisebed.api.v3.controller.Controller;
 
 import java.net.URI;
 
-public interface WSNFederatorController extends Service, Controller {
+public interface FederatorController extends Service, Controller {
 
 	URI getEndpointUrl();
 

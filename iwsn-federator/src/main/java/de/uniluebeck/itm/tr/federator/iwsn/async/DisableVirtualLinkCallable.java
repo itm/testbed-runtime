@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
+import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 
@@ -35,7 +35,7 @@ public class DisableVirtualLinkCallable extends AbstractRequestCallable {
 
 	private final NodeUrn targetNodeUrn;
 
-	public DisableVirtualLinkCallable(final WSNFederatorController federatorController,
+	public DisableVirtualLinkCallable(final FederatorController federatorController,
 									  final WSN wsnEndpoint,
 									  final long federatedRequestId,
 									  final long federatorRequestId,

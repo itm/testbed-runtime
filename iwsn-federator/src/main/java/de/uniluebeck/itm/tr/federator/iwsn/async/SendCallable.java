@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
+import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
@@ -37,7 +37,7 @@ public class SendCallable extends AbstractRequestCallable {
 
 	private final byte[] message;
 
-	public SendCallable(final WSNFederatorController federatorController,
+	public SendCallable(final FederatorController federatorController,
 						final WSN wsnEndpoint,
 						final long federatedRequestId,
 						final long federatorRequestId,

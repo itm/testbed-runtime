@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.federator.snaa;
 
+import com.google.common.base.Joiner;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -12,7 +13,10 @@ import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
 
 import javax.jws.WebService;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -44,10 +48,11 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 	protected ServicePublisherService jaxWsService;
 
 	@Inject
-	public SNAAFederatorServiceImpl(@Named(SNAAFederatorService.SNAA_FEDERATOR_EXECUTOR_SERVICE) final ExecutorService executorService,
-									final SNAAFederatorServiceConfig config,
-									final FederatedEndpoints<SNAA> federatedEndpoints,
-									final ServicePublisher servicePublisher) {
+	public SNAAFederatorServiceImpl(
+			@Named(SNAAFederatorService.SNAA_FEDERATOR_EXECUTOR_SERVICE) final ExecutorService executorService,
+			final SNAAFederatorServiceConfig config,
+			final FederatedEndpoints<SNAA> federatedEndpoints,
+			final ServicePublisher servicePublisher) {
 		this.config = checkNotNull(config);
 		this.federatedEndpoints = checkNotNull(federatedEndpoints);
 		this.servicePublisher = checkNotNull(servicePublisher);
@@ -83,7 +88,8 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 
 		checkState(isRunning());
 
-		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet = getIntersectionPrefixSetAT(authenticate.getAuthenticationData());
+		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet =
+				getIntersectionPrefixSetAT(authenticate.getAuthenticationData());
 
 		Set<Future<AuthenticateResponse>> futures = new HashSet<Future<AuthenticateResponse>>();
 
@@ -145,7 +151,7 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 						authorizationResponse.getPerNodeUrnAuthorizationResponses()
 				);
 			} catch (Exception e) {
-				throw createSNAAFault(e.getMessage(),e);
+				throw createSNAAFault(e.getMessage(), e);
 			}
 		}
 
@@ -161,6 +167,20 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 		try {
 
 			checkNotNull(secretAuthenticationKeys, "SecretAuthenticationKey list must not be null!");
+
+			final Set<NodeUrnPrefix> userUrnPrefixes = newHashSet();
+			for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
+				userUrnPrefixes.add(secretAuthenticationKey.getUrnPrefix());
+			}
+
+			if (!federatedEndpoints.getUrnPrefixes().equals(userUrnPrefixes)) {
+				throw createSNAAFault("You must provide secret authentication keys for every federated testbed ("
+						+ Joiner.on(",").join(federatedEndpoints.getUrnPrefixes())
+						+ ") but you only provided for "
+						+ Joiner.on(",").join(userUrnPrefixes)
+						+ "."
+				);
+			}
 
 			final Set<Future<List<ValidationResult>>> futures = newHashSet();
 

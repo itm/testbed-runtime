@@ -10,6 +10,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.util.NetworkUtils;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
@@ -42,12 +43,16 @@ public class WSNImpl implements WSN {
 
 	private final WisemlProvider wisemlProvider;
 
+	private final SchedulerService schedulerService;
+
 	@Inject
 	public WSNImpl(final RequestIdProvider requestIdProvider,
 				   final WisemlProvider wisemlProvider,
+				   final SchedulerService schedulerService,
 				   @Assisted final String reservationId,
 				   @Assisted final Reservation reservation,
 				   @Assisted final DeliveryManager deliveryManager) {
+		this.schedulerService = schedulerService;
 		this.wisemlProvider = checkNotNull(wisemlProvider);
 		this.reservationId = checkNotNull(reservationId);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
@@ -79,7 +84,7 @@ public class WSNImpl implements WSN {
 
 	private DeliveryManagerController createDeliveryManagerController(final String controllerEndpointUrl) {
 		return new DeliveryManagerTestbedClientController(
-					WisebedServiceHelper.getControllerService(controllerEndpointUrl, null),
+					WisebedServiceHelper.getControllerService(controllerEndpointUrl, schedulerService),
 					controllerEndpointUrl
 			);
 	}

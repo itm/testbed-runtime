@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
+import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
@@ -33,7 +33,7 @@ import java.util.concurrent.Callable;
 
 abstract class AbstractRequestCallable implements Callable<Void> {
 
-	protected final WSNFederatorController federatorController;
+	protected final FederatorController federatorController;
 
 	protected final WSN wsnEndpoint;
 
@@ -41,7 +41,7 @@ abstract class AbstractRequestCallable implements Callable<Void> {
 
 	protected final long federatorRequestId;
 
-	protected AbstractRequestCallable(final WSNFederatorController federatorController,
+	protected AbstractRequestCallable(final FederatorController federatorController,
 									  final WSN wsnEndpoint,
 									  final long federatedRequestId,
 									  final long federatorRequestId) {

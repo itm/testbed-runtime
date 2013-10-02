@@ -23,7 +23,7 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.WSNFederatorController;
+import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
 import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
@@ -35,7 +35,7 @@ public class FlashProgramsCallable extends AbstractRequestCallable {
 
 	private final List<FlashProgramsConfiguration> flashProgramsConfigurations;
 
-	public FlashProgramsCallable(final WSNFederatorController federatorController,
+	public FlashProgramsCallable(final FederatorController federatorController,
 								 final WSN wsnEndpoint,
 								 final long federatedRequestId,
 								 final long federatorRequestId,

@@ -33,10 +33,8 @@ import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerController;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerTestbedClientController;
-import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.TimedCache;
-import eu.wisebed.api.v3.WisebedServiceHelper;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -47,8 +45,14 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jws.Oneway;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.ws.RequestWrapper;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +60,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
 
 @WebService(
 		name = "Controller",
@@ -64,19 +69,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
 		serviceName = "ControllerService",
 		targetNamespace = "http://wisebed.eu/api/v3/controller"
 )
-public class WSNFederatorControllerImpl extends AbstractService implements WSNFederatorController {
+public class FederatorControllerImpl extends AbstractService implements FederatorController {
 
-	private static final Logger log = LoggerFactory.getLogger(WSNFederatorControllerImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(FederatorControllerImpl.class);
 
 	private static final int CACHE_TIMEOUT = 10;
 
 	private static final TimeUnit CACHE_TIMEOUT_UNIT = TimeUnit.MINUTES;
 
+	private static final String UTF_8 = "UTF-8";
+
 	private final URI endpointUri;
 
-	private final String contextPath;
-
 	private final CommonPreconditions preconditions;
+
+	private final SchedulerService schedulerService;
 
 	/**
 	 * Maps the federatedRequestId to the federatorRequestId (i.e. remote to local)
@@ -101,28 +108,56 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 
 	private final FederatedEndpoints<WSN> wsnFederatedEndpoints;
 
+	private final Runnable addToFederatedEndpointsRunnable = new Runnable() {
+		@Override
+		public void run() {
+			/*for (Map.Entry<WSN, URI> entry : wsnFederatedEndpoints.getEndpointsURIMap().entrySet()) {
+				final WSN endpoint = entry.getKey();
+				final URI uri = entry.getValue();
+				try {
+					log.trace("FederatorControllerImpl.doStart(): adding {}", endpointUri.toString());
+					endpoint.addController(endpointUri.toString());
+				} catch (Exception e) {
+					if (log.isErrorEnabled()) {
+						log.error(
+								"Exception while adding federator controller ({}) to federated testbed ({}), reason: {}",
+								endpointUri, uri, Throwables.getStackTraceAsString(e)
+						);
+					}
+					notifyFailed(e);
+				}
+			}*/
+		}
+	};
+
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public WSNFederatorControllerImpl(final ServicePublisher servicePublisher,
-									  final DeliveryManager deliveryManager,
-									  final IWSNFederatorServiceConfig config,
-									  final SecureIdGenerator secureIdGenerator,
-									  final PreconditionsFactory preconditionsFactory,
-									  @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints,
-									  @Assisted final Set<NodeUrnPrefix> nodeUrnPrefixes,
-									  @Assisted final Set<NodeUrn> nodeUrns) {
+	public FederatorControllerImpl(final ServicePublisher servicePublisher,
+								   final DeliveryManager deliveryManager,
+								   final IWSNFederatorServiceConfig config,
+								   final PreconditionsFactory preconditionsFactory,
+								   final SchedulerService schedulerService,
+								   @Assisted final FederatedReservation federatedReservation,
+								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints,
+								   @Assisted final Set<NodeUrnPrefix> nodeUrnPrefixes,
+								   @Assisted final Set<NodeUrn> nodeUrns) {
 
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.wsnFederatedEndpoints = checkNotNull(wsnFederatedEndpoints);
 		this.preconditions = preconditionsFactory.createCommonPreconditions(nodeUrnPrefixes, nodeUrns);
+		this.schedulerService = checkNotNull(schedulerService);
 
-		final String id = secureIdGenerator.getNextId();
-		final String endpointUriBaseString = config.getFederatorControllerEndpointUriBase().toString();
-		this.contextPath = config.getFederatorControllerEndpointUriBase().getPath() +
-				(config.getFederatorControllerEndpointUriBase().getPath().endsWith("/") ? id : "/" + id);
-		this.endpointUri = URI.create(endpointUriBaseString + (endpointUriBaseString.endsWith("/") ? id : "/" + id));
+		try {
+			String uriString;
+			uriString = config.getFederatorControllerEndpointUriBase().toString();
+			uriString += uriString.endsWith("/") ? "" : "/";
+			uriString += URLEncoder.encode(federatedReservation.getSerializedKey(), UTF_8);
+			this.endpointUri = URI.create(uriString);
+		} catch (UnsupportedEncodingException e) {
+			throw propagate(e);
+		}
 	}
 
 	@Override
@@ -132,23 +167,14 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 
 			log.debug("Starting federator controller using endpoint URI {}...", endpointUri);
 
-			jaxWsService = servicePublisher.createJaxWsService(contextPath, this);
+			jaxWsService = servicePublisher.createJaxWsService("/test", this);
 			jaxWsService.startAndWait();
 
 			deliveryManager.startAndWait();
+			schedulerService.execute(addToFederatedEndpointsRunnable);
 
-			for (Map.Entry<WSN, URI> entry : wsnFederatedEndpoints.getEndpointsURIMap().entrySet()) {
-				final WSN endpoint = entry.getKey();
-				final URI uri = entry.getValue();
-				try {
-					endpoint.addController(getEndpointUrl().toString());
-				} catch (Exception e) {
-					log.error("Exception while adding federator controller to federated testbed " + uri + ": ", e);
-					notifyFailed(e);
-				}
-			}
+			log.debug("Started federator controller on {}", endpointUri);
 
-			log.debug("Started federator controller on {}!", endpointUri);
 			notifyStarted();
 
 		} catch (Exception e) {
@@ -172,8 +198,8 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 			}
 
 			log.debug("Calling reservationEnded() on connected controllers...");
-			deliveryManager.reservationEnded(DateTime.now());
 
+			deliveryManager.reservationEnded(DateTime.now());
 			deliveryManager.stopAndWait();
 
 			if (jaxWsService.isRunning()) {
@@ -189,6 +215,7 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 
 	}
 
+	@WebMethod(exclude = true)
 	public void addRequestIdMapping(long federatedRequestId, long federatorRequestId) {
 
 		// Add the mapping to the list
@@ -214,49 +241,115 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 		}
 	}
 
+	@WebMethod(exclude = true)
 	public void addController(DeliveryManagerController controller) {
-		log.trace("WSNFederatorControllerImpl.addController({})", controller);
+		log.trace("FederatorControllerImpl.addController({})", controller);
 		deliveryManager.addController(controller);
 	}
 
+	@WebMethod(exclude = true)
 	public void removeController(DeliveryManagerController controller) {
-		log.trace("WSNFederatorControllerImpl.removeController({})", controller);
+		log.trace("FederatorControllerImpl.removeController({})", controller);
 		deliveryManager.removeController(controller);
 	}
 
-	private DeliveryManagerTestbedClientController createController(final String controllerEndpointUrl) {
-		return new DeliveryManagerTestbedClientController(
-				WisebedServiceHelper.getControllerService(controllerEndpointUrl, null),
-				controllerEndpointUrl
-		);
-	}
-
-	private void receive(final Message msg) {
-		preconditions.checkNodesKnown(msg.getSourceNodeUrn());
-		deliveryManager.receive(msg);
-	}
-
-	/**
-	 * Maps federatedRequestID to a list of received RequestStatus instances (multiple updates for one id possible). This
-	 * map caches received RequestStatus instances until the final mapping of federatedRequestID to federatorRequestId is
-	 * known. This should normally never happen, but in very fast networks, it may happen that an asynchronous status
-	 * update is received before the mapping is set using addRequestIdMapping.
-	 */
-	private void cacheRequestStatus(RequestStatus status) {
-		synchronized (pendingRequestStatus) {
-
-			// If no entry for this request id exists, create a new list and add
-			// it to the cache
-			LinkedList<RequestStatus> requestStatusList = pendingRequestStatus.get(status.getRequestId());
-
-			if (requestStatusList == null) {
-				requestStatusList = new LinkedList<RequestStatus>();
-				pendingRequestStatus.put(status.getRequestId(), requestStatusList);
-			}
-
-			// Append this status to the list for this request ID
-			requestStatusList.add(status);
+	@Override
+	@WebMethod
+	@Oneway
+	@RequestWrapper(localName = "receive", targetNamespace = "http://wisebed.eu/api/v3/controller",
+			className = "eu.wisebed.api.v3.controller.Receive")
+	public void receive(
+			@WebParam(name = "msg", targetNamespace = "")
+			List<Message> msg) {
+		for (Message message : msg) {
+			log.trace("FederatorControllerImpl.receive({})", message);
+			receive(message);
 		}
+	}
+
+	@Override
+	@WebMethod
+	@Oneway
+	@RequestWrapper(localName = "receiveNotification", targetNamespace = "http://wisebed.eu/api/v3/controller",
+			className = "eu.wisebed.api.v3.controller.ReceiveNotification")
+	public void receiveNotification(
+			@WebParam(name = "notifications", targetNamespace = "")
+			List<Notification> notifications) {
+		log.trace("FederatorControllerImpl.receiveNotification({})", notifications);
+		deliveryManager.receiveNotification(notifications);
+	}
+
+	@Override
+	@WebMethod
+	@Oneway
+	@RequestWrapper(localName = "receiveStatus", targetNamespace = "http://wisebed.eu/api/v3/controller",
+			className = "eu.wisebed.api.v3.controller.ReceiveStatus")
+	public void receiveStatus(
+			@WebParam(name = "status", targetNamespace = "")
+			List<RequestStatus> status) {
+		log.trace("FederatorControllerImpl.receiveStatus({})", status);
+		for (RequestStatus requestStatus : status) {
+			receiveStatus(requestStatus);
+		}
+	}
+
+	@Override
+	@WebMethod
+	@Oneway
+	@RequestWrapper(localName = "nodesAttached", targetNamespace = "http://wisebed.eu/api/v3/controller",
+			className = "eu.wisebed.api.v3.controller.NodesAttached")
+	public void nodesAttached(
+			@WebParam(name = "timestamp", targetNamespace = "")
+			DateTime timestamp,
+			@WebParam(name = "nodeUrns", targetNamespace = "")
+			List<NodeUrn> nodeUrns) {
+		log.trace("FederatorControllerImpl.nodesAttached({}, {})", timestamp, nodeUrns);
+		preconditions.checkNodesKnown(nodeUrns);
+		deliveryManager.nodesAttached(timestamp, nodeUrns);
+	}
+
+	@Override
+	@WebMethod
+	@Oneway
+	@RequestWrapper(localName = "nodesDetached", targetNamespace = "http://wisebed.eu/api/v3/controller",
+			className = "eu.wisebed.api.v3.controller.NodesDetached")
+	public void nodesDetached(
+			@WebParam(name = "timestamp", targetNamespace = "")
+			DateTime timestamp,
+			@WebParam(name = "nodeUrns", targetNamespace = "")
+			List<NodeUrn> nodeUrns) {
+		log.trace("FederatorControllerImpl.nodesDetached({}, {})", timestamp, nodeUrns);
+		preconditions.checkNodesKnown(nodeUrns);
+		deliveryManager.nodesDetached(timestamp, nodeUrns);
+	}
+
+	@Override
+	@WebMethod
+	@Oneway
+	@RequestWrapper(localName = "reservationStarted", targetNamespace = "http://wisebed.eu/api/v3/controller",
+			className = "eu.wisebed.api.v3.controller.ReservationStarted")
+	public void reservationStarted(
+			@WebParam(name = "timestamp", targetNamespace = "")
+			DateTime timestamp) {
+		log.trace("FederatorControllerImpl.reservationStarted({})", timestamp);
+		deliveryManager.reservationStarted(timestamp);
+	}
+
+	@Override
+	@WebMethod
+	@Oneway
+	@RequestWrapper(localName = "reservationEnded", targetNamespace = "http://wisebed.eu/api/v3/controller",
+			className = "eu.wisebed.api.v3.controller.ReservationEnded")
+	public void reservationEnded(
+			@WebParam(name = "timestamp", targetNamespace = "")
+			DateTime timestamp) {
+		log.trace("FederatorControllerImpl.reservationEnded({})", timestamp);
+		deliveryManager.reservationEnded(timestamp);
+	}
+
+	@WebMethod(exclude = true)
+	public URI getEndpointUrl() {
+		return endpointUri;
 	}
 
 	/**
@@ -285,55 +378,31 @@ public class WSNFederatorControllerImpl extends AbstractService implements WSNFe
 		}
 	}
 
-	@Override
-	public void receive(final List<Message> messageList) {
-		for (Message message : messageList) {
-			log.trace("WSNFederatorControllerImpl.receive({})", message);
-			receive(message);
+	/**
+	 * Maps federatedRequestID to a list of received RequestStatus instances (multiple updates for one id possible). This
+	 * map caches received RequestStatus instances until the final mapping of federatedRequestID to federatorRequestId is
+	 * known. This should normally never happen, but in very fast networks, it may happen that an asynchronous status
+	 * update is received before the mapping is set using addRequestIdMapping.
+	 */
+	private void cacheRequestStatus(RequestStatus status) {
+		synchronized (pendingRequestStatus) {
+
+			// If no entry for this request id exists, create a new list and add
+			// it to the cache
+			LinkedList<RequestStatus> requestStatusList = pendingRequestStatus.get(status.getRequestId());
+
+			if (requestStatusList == null) {
+				requestStatusList = new LinkedList<RequestStatus>();
+				pendingRequestStatus.put(status.getRequestId(), requestStatusList);
+			}
+
+			// Append this status to the list for this request ID
+			requestStatusList.add(status);
 		}
 	}
 
-	@Override
-	public void receiveNotification(final List<Notification> notifications) {
-		log.trace("WSNFederatorControllerImpl.receiveNotification({})", notifications);
-		deliveryManager.receiveNotification(notifications);
-	}
-
-	@Override
-	public void receiveStatus(final List<RequestStatus> requestStatusList) {
-		log.trace("WSNFederatorControllerImpl.receiveStatus({})", requestStatusList);
-		for (RequestStatus requestStatus : requestStatusList) {
-			receiveStatus(requestStatus);
-		}
-	}
-
-	@Override
-	public void nodesAttached(final DateTime timestamp, final List<NodeUrn> nodeUrns) {
-		log.trace("WSNFederatorControllerImpl.nodesAttached({}, {})", timestamp, nodeUrns);
-		preconditions.checkNodesKnown(nodeUrns);
-		deliveryManager.nodesAttached(timestamp, nodeUrns);
-	}
-
-	@Override
-	public void nodesDetached(final DateTime timestamp, final List<NodeUrn> nodeUrns) {
-		log.trace("WSNFederatorControllerImpl.nodesDetached({}, {})", timestamp, nodeUrns);
-		preconditions.checkNodesKnown(nodeUrns);
-		deliveryManager.nodesDetached(timestamp, nodeUrns);
-	}
-
-	@Override
-	public void reservationStarted(final DateTime timestamp) {
-		log.trace("WSNFederatorControllerImpl.reservationStarted({})", timestamp);
-		deliveryManager.reservationStarted(timestamp);
-	}
-
-	@Override
-	public void reservationEnded(final DateTime timestamp) {
-		log.trace("WSNFederatorControllerImpl.reservationEnded({})", timestamp);
-		deliveryManager.reservationEnded(timestamp);
-	}
-
-	public URI getEndpointUrl() {
-		return endpointUri;
+	private void receive(final Message msg) {
+		preconditions.checkNodesKnown(msg.getSourceNodeUrn());
+		deliveryManager.receive(msg);
 	}
 }

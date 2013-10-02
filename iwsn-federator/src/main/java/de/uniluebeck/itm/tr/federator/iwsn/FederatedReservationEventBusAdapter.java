@@ -7,7 +7,6 @@ import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerInternalController;
 import de.uniluebeck.itm.tr.iwsn.messages.Link;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBus;
@@ -19,7 +18,6 @@ import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import eu.wisebed.api.v3.controller.SingleNodeRequestStatus;
-import eu.wisebed.api.v3.sm.NodeConnectionStatus;
 import eu.wisebed.api.v3.wsn.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -35,9 +33,9 @@ import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters.convertToSOAP;
 
-public class FederatedEventBusApiAdapter extends AbstractService implements Controller {
+public class FederatedReservationEventBusAdapter extends AbstractService implements Controller {
 
-	private static final Logger log = LoggerFactory.getLogger(FederatedEventBusApiAdapter.class);
+	private static final Logger log = LoggerFactory.getLogger(FederatedReservationEventBusAdapter.class);
 
 	private final DeliveryManagerInternalController dmController = new DeliveryManagerInternalController(this);
 
@@ -45,23 +43,23 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 
 	private final Reservation reservation;
 
-	private final ReservationEventBus federatedReservationEventBus;
+	private final ReservationEventBus reservationEventBus;
 
-	private final WSNFederatorController wsnFederatorController;
+	private final FederatorController federatorController;
 
 	private final WSNFederatorService wsnFederatorService;
 
 	@Inject
-	public FederatedEventBusApiAdapter(
+	public FederatedReservationEventBusAdapter(
 			final SessionManagementFederatorService smFederatorService,
 			@Assisted final Reservation reservation,
-			@Assisted final ReservationEventBus federatedReservationEventBus,
-			@Assisted final WSNFederatorController wsnFederatorController,
+			@Assisted final ReservationEventBus reservationEventBus,
+			@Assisted final FederatorController federatorController,
 			@Assisted final WSNFederatorService wsnFederatorService) {
 		this.smFederatorService = smFederatorService;
 		this.reservation = reservation;
-		this.federatedReservationEventBus = federatedReservationEventBus;
-		this.wsnFederatorController = wsnFederatorController;
+		this.reservationEventBus = reservationEventBus;
+		this.federatorController = federatorController;
 		this.wsnFederatorService = wsnFederatorService;
 	}
 
@@ -69,8 +67,8 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 	@Override
 	protected void doStart() {
 		try {
-			wsnFederatorController.addController(dmController);
-			federatedReservationEventBus.register(this);
+			federatorController.addController(dmController);
+			reservationEventBus.register(this);
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -80,8 +78,8 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 	@Override
 	protected void doStop() {
 		try {
-			federatedReservationEventBus.unregister(this);
-			wsnFederatorController.removeController(dmController);
+			reservationEventBus.unregister(this);
+			federatorController.removeController(dmController);
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -111,18 +109,7 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 					break;
 
 				case ARE_NODES_CONNECTED:
-					nodeUrns = newArrayList(
-							transform(request.getAreNodesConnectedRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
-					);
-					final List<NodeConnectionStatus> response = smFederatorService.areNodesConnected(nodeUrns);
-					for (NodeConnectionStatus status : response) {
-						final SingleNodeResponse singleNodeResponse = SingleNodeResponse.newBuilder()
-								.setRequestId(requestId)
-								.setNodeUrn(status.getNodeUrn().toString())
-								.setStatusCode(status.isConnected() ? 1 : 0)
-								.build();
-						federatedReservationEventBus.post(singleNodeResponse);
-					}
+					// ignore, this is handled by FederatorPortalEventBusAdapter
 					break;
 
 				case DISABLE_NODES:
@@ -212,7 +199,7 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 							responseMap = Converters.convertToProto(pipelines);
 					for (de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse getChannelPipelineResponse : responseMap
 							.values()) {
-						federatedReservationEventBus.post(getChannelPipelineResponse);
+						reservationEventBus.post(getChannelPipelineResponse);
 					}
 					break;
 
@@ -265,7 +252,7 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		federatedReservationEventBus.post(newDevicesAttachedEvent(timestamp.getMillis(), nodeUrns));
+		reservationEventBus.post(newDevicesAttachedEvent(timestamp.getMillis(), nodeUrns));
 	}
 
 	@Override
@@ -275,7 +262,7 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		federatedReservationEventBus.post(newDevicesDetachedEvent(timestamp.getMillis(), nodeUrns));
+		reservationEventBus.post(newDevicesDetachedEvent(timestamp.getMillis(), nodeUrns));
 	}
 
 	@Override
@@ -284,7 +271,7 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		federatedReservationEventBus.post(new ReservationStartedEvent(reservation));
+		reservationEventBus.post(new ReservationStartedEvent(reservation));
 	}
 
 	@Override
@@ -293,7 +280,7 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		federatedReservationEventBus.post(new ReservationEndedEvent(reservation));
+		reservationEventBus.post(new ReservationEndedEvent(reservation));
 	}
 
 	@Override
@@ -303,7 +290,7 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
 		for (Message msg : msgs) {
-			federatedReservationEventBus.post(newUpstreamMessageEvent(
+			reservationEventBus.post(newUpstreamMessageEvent(
 					msg.getSourceNodeUrn(),
 					msg.getBinaryData(),
 					msg.getTimestamp()
@@ -320,7 +307,7 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
 		for (Notification notification : notifications) {
-			federatedReservationEventBus.post(newNotificationEvent(
+			reservationEventBus.post(newNotificationEvent(
 					notification.getNodeUrn(),
 					notification.getTimestamp().getMillis(),
 					notification.getMsg()
@@ -344,7 +331,7 @@ public class FederatedEventBusApiAdapter extends AbstractService implements Cont
 				final Integer value = singleNodeRequestStatus.getValue();
 				final String msg = singleNodeRequestStatus.getMsg();
 
-				federatedReservationEventBus.post(singleNodeRequestStatus.isCompleted() ?
+				reservationEventBus.post(singleNodeRequestStatus.isCompleted() ?
 						newSingleNodeResponse(reservationId, requestId, nodeUrn, value, msg) :
 						newSingleNodeProgress(reservationId, requestId, nodeUrn, value)
 				);

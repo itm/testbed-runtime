@@ -54,7 +54,7 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 
 		bind(ServedNodeUrnPrefixesProvider.class).to(FederationManagerServedNodeUrnPrefixesProvider.class);
 		bind(ServedNodeUrnsProvider.class).to(FederationManagerServedNodeUrnsProvider.class);
-
+		bind(FederatedReservationManager.class).in(Scopes.SINGLETON);
 		bind(SessionManagementFederatorService.class)
 				.to(SessionManagementFederatorServiceImpl.class)
 				.in(Scopes.SINGLETON);
@@ -66,7 +66,7 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 		bind(WisemlProvider.class).to(FederatorWiseMLProvider.class);
 
 		install(new FactoryModuleBuilder()
-				.implement(WSNFederatorController.class, WSNFederatorControllerImpl.class)
+				.implement(FederatorController.class, FederatorControllerImpl.class)
 				.build(WSNFederatorControllerFactory.class)
 		);
 
@@ -79,6 +79,8 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 				.implement(ReservationEventBus.class, ReservationEventBusImpl.class)
 				.build(ReservationEventBusFactory.class)
 		);
+
+		install(new FactoryModuleBuilder().build(FederatedReservationEventBusAdapterFactory.class));
 	}
 
 	@Provides

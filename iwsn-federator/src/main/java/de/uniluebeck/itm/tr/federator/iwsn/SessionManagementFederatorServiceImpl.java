@@ -133,6 +133,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 
 	@Override
 	protected void doStart() {
+		log.trace("SessionManagementFederatorServiceImpl.doStart()");
 		try {
 
 			jaxWsService = servicePublisher.createJaxWsService(config.getFederatorSmEndpointUri().getPath(), this);
@@ -147,6 +148,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 
 	@Override
 	protected void doStop() {
+		log.trace("SessionManagementFederatorServiceImpl.doStop()");
 		try {
 
 			if (jaxWsService != null && jaxWsService.isRunning()) {
@@ -313,7 +315,10 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 	@Override
 	public String getInstance(final List<SecretReservationKey> srks)
 			throws UnknownSecretReservationKeyFault {
+
+		log.trace("SessionManagementFederatorServiceImpl.getInstance({})", srks);
 		checkState(isRunning());
+
 		preconditions.checkGetInstanceArguments(srks);
 		final FederatedReservation reservation;
 		try {
@@ -332,9 +337,8 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 	@Override
 	public List<NodeConnectionStatus> areNodesConnected(final List<NodeUrn> nodeUrns) {
 
+		log.trace("SessionManagementFederatorServiceImpl.areNodesConnected({})", nodeUrns);
 		checkState(isRunning());
-
-		log.debug("SessionManagementServiceImpl.checkAreNodesAlive({})", nodeUrns);
 
 		// fork areNodesAlive() calls to federated testbeds
 		final Map<URI, Set<NodeUrn>> sessionManagementEndpointUrlToNodeUrnMapping =
@@ -383,6 +387,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 								 final Holder<List<NodeUrnPrefix>> servedUrnPrefixes,
 								 final Holder<List<KeyValuePair>> options) {
 
+		log.trace("SessionManagementFederatorServiceImpl.getConfiguration()");
 		checkState(isRunning());
 
 		rsEndpointUrl.value = config.getFederatorRsEndpointUri().toString();
@@ -426,6 +431,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 
 	@Override
 	public String getNetwork() {
+		log.trace("SessionManagementFederatorServiceImpl.getNetwork()");
 		checkState(isRunning());
 		return serialize(wisemlProvider.get());
 

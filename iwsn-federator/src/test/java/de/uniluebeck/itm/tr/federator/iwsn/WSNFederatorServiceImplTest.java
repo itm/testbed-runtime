@@ -91,9 +91,6 @@ public class WSNFederatorServiceImplTest {
 	private WSNFederatorControllerFactory federatorControllerFactory;
 
 	@Mock
-	private WSNFederatorController federatorController;
-
-	@Mock
 	private ServicePublisher servicePublisher;
 
 	@Mock
@@ -112,7 +109,10 @@ public class WSNFederatorServiceImplTest {
 	private FederatedEndpoints<WSN> wsnFederatedEndpoints;
 
 	@Mock
-	private WSNFederatorController wsnFederatorController;
+	private FederatorController federatorController;
+
+	@Mock
+	private FederatedReservation federatedReservation;
 
 	private WSNFederatorServiceImpl wsnFederatorServiceImpl;
 
@@ -126,7 +126,9 @@ public class WSNFederatorServiceImplTest {
 				Matchers.<Set<NodeUrn>>any()
 		)
 		).thenReturn(wsnPreconditions);
+		when(federatedReservation.getSerializedKey()).thenReturn("hello");
 		when(federatorControllerFactory.create(
+				federatedReservation,
 				Matchers.<FederatedEndpoints<WSN>>any(),
 				Matchers.<Set<NodeUrnPrefix>>any(),
 				Matchers.<Set<NodeUrn>>any()
@@ -142,10 +144,10 @@ public class WSNFederatorServiceImplTest {
 		wsnFederatorServiceImpl = new WSNFederatorServiceImpl(
 				servicePublisher,
 				config,
-				secureIdGenerator,
 				executorService,
 				preconditionsFactory,
-				wsnFederatorController,
+				federatedReservation,
+				federatorController,
 				federatedEndpoints,
 				SERVED_NODE_URN_PREFIXES,
 				SERVED_NODE_URNS
