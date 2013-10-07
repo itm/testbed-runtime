@@ -16,8 +16,11 @@ import de.uniluebeck.itm.tr.snaa.shiro.dto.*;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
+import javax.persistence.RollbackException;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -50,17 +53,39 @@ public class ShiroSNAARestResourceImpl implements ShiroSNAARestResource {
 	private UriInfo uriInfo;
 	
 	@Override
-	public Response addUser(String name, String password, String salt) {
+	public Response addUser(UserDto user) {
         Set<Role> roles = Sets.newHashSet();
-        User newUser = new User(name, password, salt, roles);
-		usersDao.save(newUser);
-		
-		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(name).build();
+        //TODO salt, roles
+        User newUser = new User(user.getName(), user.getPassword(), "", roles);
+		try {
+            usersDao.save(newUser);
+
+        } catch (RollbackException e) {
+            return Response.serverError().entity(e.getLocalizedMessage()).build();
+        }
+
+		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(user.getName()).build();
 		return Response.created(location).entity("true").build();
 	}
 
-	@Override
+    @Override
+    public Response deleteUser(@PathParam("name") final String name) {
+        //TODO delete Path doesn't get found
+        log.trace("ShiroSNAARestResourceImpl.deleteUser({})", name);
+        boolean deleted = false;
+        try {
+            User user = usersDao.find(name);
+            usersDao.delete(user);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
+        return deleted ? Response.ok().build() : Response.notModified().build();
+    }
+
+    @Override
 	public UserListDto listUsers() {
+        log.trace("ShiroSNAARestResourceImpl.listUsers()");
 		return ShiroEntityDaoConverter.userList(usersDao.find());
 	}
 

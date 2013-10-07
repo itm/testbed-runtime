@@ -38,7 +38,7 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 		log.debug("ShiroSNAARestServiceImpl.doStart()");
 		try {
 
-			jaxRsService = servicePublisher.createJaxRsService("/shirosnaa/admin", application);
+			jaxRsService = servicePublisher.createJaxRsService(config.getShiroAdminRestApiContextPath(), application);
 			jaxRsService.startAndWait();
 
 			String webAppResourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/snaa/shiro/webapp").toString();

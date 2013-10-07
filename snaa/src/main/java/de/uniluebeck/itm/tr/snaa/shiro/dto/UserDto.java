@@ -8,10 +8,20 @@ public class UserDto {
 
     private String name;
     private Set<RoleDto> roles;
+    private String password;
 
     public UserDto(String name, Set<RoleDto> roles) {
         this.name = name;
         this.roles = roles;
+    }
+
+    public UserDto(String name, String password) {
+        this.name = name;
+        this.password = password;
+    }
+
+    public UserDto() {
+
     }
 
     public String getName() {
@@ -28,5 +38,13 @@ public class UserDto {
 
     public void setRoles(Set<RoleDto> roles) {
         this.roles = roles;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

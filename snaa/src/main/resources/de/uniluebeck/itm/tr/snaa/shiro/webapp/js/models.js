@@ -3,26 +3,22 @@ var app = app || {};
 $(function () {
     'use strict';
 
-    app.NodeModel = Backbone.Model.extend({
-        idAttribute: 'nodeUrn',
-        urlRoot: deviceDBRestApiContextPath + '/deviceConfigs',
-        defaults: {
-            "nodeUrn" : "urn:wisebed:uzl1:"
-            // TODO add sensible defaults
-        }
+    app.UserModel = Backbone.Model.extend({
+        idAttribute: 'name',
+        urlRoot: app.shiroAdminRestApiContextPath + '/users'
     });
 
-    var NodeCollection = Backbone.Collection.extend({
-        model: app.NodeModel,
-        url: deviceDBRestApiContextPath + '/deviceConfigs',
+    var UserCollection = Backbone.Collection.extend({
+        model: app.UserModel,
+        url: app.shiroAdminRestApiContextPath + '/users',
 		toJSON: function(list) {
-			return { "configs" : list };
+			return { "users" : list };
 		},
 		parse: function(response) {
-			return response.configs;
+			return response.users;
 		}
     });
 
-    app.Nodes = new NodeCollection();
+    app.Users = new UserCollection();
 
 });

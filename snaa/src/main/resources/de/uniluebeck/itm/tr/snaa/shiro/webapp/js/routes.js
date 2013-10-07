@@ -4,33 +4,31 @@ $(function () {
 
 	app.Router = Backbone.Router.extend({
 		routes: {
-			'home' : 'home'
+			'users' : 'users',
+            'users/:name': 'userDetail'
 		},
 
 		initialize: function() {
-			// match every url starting with 'urn'
-			this.route(/^(urn.*)$/, "openDetail");
-			// match the rest
-			this.route(/^(?!urn).*/, 'home');
+
 		},
 
-		home: function() {
+        users: function() {
 			app.table = app.table || new app.TableView({
 				el: $("#table_configs")
 			});
 			app.table.show();
 		},
 
-		openDetail: function(nodeUrn) {
-			if ( !app.detailView || app.detailView.model.id != nodeUrn) {
-				app.detailView = new app.DetailView({
-					el:     jQuery("#edit-view"),
-					model:  app.Nodes.get(nodeUrn)
-				});
-			}
-			if (app.table) app.table.hide();
-			app.detailView.show();
-		}
+        userDetail: function(name) {
+            if ( !app.userDetailView || app.userDetailView.model.id != name) {
+                app.userDetailView = new app.AddUserView({
+                    el:     jQuery("#edit-view"),
+                    model:  app.Users.get(name)
+                });
+            }
+            app.userDetailView.show();
+        }
+
 	});
 
 });

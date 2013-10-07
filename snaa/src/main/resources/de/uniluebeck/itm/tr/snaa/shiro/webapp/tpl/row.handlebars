@@ -1,22 +1,17 @@
- {{#each configs}}
-    <tr data-id="{{nodeUrn}}">
-        <td>{{nodeUrn}}</td>
-        <td>{{nodeType}}</td>
-        <td>{{gatewayNode}}</td>
-        <td>{{nodePort}}</td>
-        <td>{{nodeUSBChipID}}</td>
+ {{#each users}}
+    <tr data-id="{{name}}">
+        <td>{{name}}</td>
         <td>
-            CheckAlive: {{timeoutCheckAliveMillis}}ms <br>
-            Flash: {{timeoutFlashMillis}}ms  <br>
-            Node-API: {{timeoutNodeApiMillis}}ms  <br>
-            Reset: {{timeoutResetMillis}}ms  <br>
+            {{#each roles}}
+                <span class="label">{{name}}</span>
+            {{/each}}
         </td>
         <td>
             <a class="btn btn-mini node-edit" title="Edit this entry">
                 <i class="icon-edit"></i>
             </a>
             <br>
-            <a href="#" class="btn btn-mini" data-confirm="Really remove node {{nodeUrn}} ?">
+            <a href="#" class="btn btn-mini" data-confirm="Really remove user \"{{name}}\" ?">
                 <i class="icon-remove" title="Remove this entry"></i>
             </a>
         </td>
