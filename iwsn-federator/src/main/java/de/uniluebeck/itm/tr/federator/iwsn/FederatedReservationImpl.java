@@ -18,6 +18,8 @@ import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.wsn.WSN;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -25,6 +27,8 @@ import java.util.Set;
 import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.serialize;
 
 public class FederatedReservationImpl extends AbstractService implements FederatedReservation {
+
+	private static final Logger log = LoggerFactory.getLogger(FederatedReservationImpl.class);
 
 	private final ResponseTrackerCache responseTrackerCache;
 
@@ -75,6 +79,12 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 
 	@Override
 	protected void doStart() {
+
+		log.trace(
+				"FederatedReservationImpl.doStart(reservationEventBus={}, federatorController={}, wsnFederatorService={}, reservationEventBusAdapter={})",
+				reservationEventBus, federatorController, wsnFederatorService, reservationEventBusAdapter
+		);
+
 		try {
 
 			reservationEventBus.startAndWait();
@@ -91,6 +101,12 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 
 	@Override
 	protected void doStop() {
+
+		log.trace(
+				"FederatedReservationImpl.doStop(reservationEventBus={}, federatorController={}, wsnFederatorService={}, reservationEventBusAdapter={})",
+				reservationEventBus, federatorController, wsnFederatorService, reservationEventBusAdapter
+		);
+
 		try {
 
 			reservationEventBusAdapter.stopAndWait();
@@ -221,7 +237,8 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 		return nodeUrns.build();
 	}
 
-	private ImmutableSet<NodeUrnPrefix> extractNodeUrnPrefixes(final List<ConfidentialReservationData> reservationData) {
+	private ImmutableSet<NodeUrnPrefix> extractNodeUrnPrefixes(
+			final List<ConfidentialReservationData> reservationData) {
 		final ImmutableSet.Builder<NodeUrnPrefix> nodeUrnPrefixes = ImmutableSet.builder();
 		for (ConfidentialReservationData reservation : reservationData) {
 			for (NodeUrn nodeUrn : reservation.getNodeUrns()) {

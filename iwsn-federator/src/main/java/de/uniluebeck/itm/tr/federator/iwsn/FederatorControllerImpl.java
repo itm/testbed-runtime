@@ -35,7 +35,6 @@ import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerController;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.TimedCache;
-import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -79,8 +78,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 	private final CommonPreconditions preconditions;
 
-	private final SchedulerService schedulerService;
-
 	/**
 	 * Maps the federatedRequestId to the federatorRequestId (i.e. remote to local)
 	 */
@@ -111,7 +108,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 								   final DeliveryManager deliveryManager,
 								   final IWSNFederatorServiceConfig config,
 								   final PreconditionsFactory preconditionsFactory,
-								   final SchedulerService schedulerService,
 								   final SecureIdGenerator secureIdGenerator,
 								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints,
 								   @Assisted final Set<NodeUrnPrefix> nodeUrnPrefixes,
@@ -120,7 +116,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.wsnFederatedEndpoints = checkNotNull(wsnFederatedEndpoints);
-		this.schedulerService = checkNotNull(schedulerService);
 
 		this.preconditions = preconditionsFactory.createCommonPreconditions(nodeUrnPrefixes, nodeUrns);
 
@@ -402,5 +397,10 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	private void receive(final Message msg) {
 		preconditions.checkNodesKnown(msg.getSourceNodeUrn());
 		deliveryManager.receive(msg);
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getName() + "@" + Integer.toHexString(hashCode());
 	}
 }

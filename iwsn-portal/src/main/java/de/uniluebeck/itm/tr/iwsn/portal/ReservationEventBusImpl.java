@@ -206,4 +206,9 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 			);
 		}
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getName() + "@" + Integer.toHexString(hashCode());
+	}
 }

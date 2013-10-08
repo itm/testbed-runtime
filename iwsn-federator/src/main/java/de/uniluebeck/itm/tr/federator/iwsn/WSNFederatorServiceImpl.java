@@ -826,4 +826,9 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 				controllerEndpointUrl
 		);
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getName() + "@" + Integer.toHexString(hashCode());
+	}
 }

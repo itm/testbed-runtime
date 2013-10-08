@@ -344,4 +344,9 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 			}
 		}
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getName() + "@" + Integer.toHexString(hashCode());
+	}
 }

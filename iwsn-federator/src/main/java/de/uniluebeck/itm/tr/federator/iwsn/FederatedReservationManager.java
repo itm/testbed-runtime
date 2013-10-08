@@ -90,8 +90,15 @@ public class FederatedReservationManager extends AbstractService implements Rese
 			throws ReservationUnknownException {
 		log.trace("FederatedReservationManager.getFederatedReservation({})", srkList);
 		checkState(isRunning());
-		final FederatedReservation reservation = getFromCache(srkList);
-		return reservation == null ? putInCache(srkList, createReservation(srkList)) : reservation;
+		FederatedReservation reservation = getFromCache(srkList);
+
+		if (reservation == null) {
+			reservation = createReservation(srkList);
+			reservation.startAndWait();
+			cache(srkList, reservation);
+		}
+
+		return reservation;
 	}
 
 	@Override
@@ -116,13 +123,12 @@ public class FederatedReservationManager extends AbstractService implements Rese
 		}
 	}
 
-	private FederatedReservation putInCache(final List<SecretReservationKey> srkList,
-											final FederatedReservation reservation) {
-		log.trace("FederatedReservationManager.putInCache({}, {})", srkList, reservation);
+	private void cache(final List<SecretReservationKey> srkList,
+					   final FederatedReservation reservation) {
+		log.trace("FederatedReservationManager.cache({}, {})", srkList, reservation);
 		synchronized (reservationMap) {
 			reservationMap.put(newHashSet(srkList), reservation);
 		}
-		return reservation;
 	}
 
 	private synchronized FederatedReservation createReservation(final List<SecretReservationKey> srkList)
@@ -139,7 +145,6 @@ public class FederatedReservationManager extends AbstractService implements Rese
 					wsnFederatedEndpoints
 			);
 
-			reservation.startAndWait();
 			return reservation;
 
 		} catch (UnknownSecretReservationKeyFault unknownSecretReservationKeyFault) {
