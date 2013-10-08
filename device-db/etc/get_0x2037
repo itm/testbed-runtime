@@ -1,4 +1,4 @@
 #!/bin/bash
-CMD='curl -v -X GET http://localhost:7654/rest/deviceConfigs/urn%3Awisebed%3Auzl1%3A0x2037'
+CMD='curl -v -X GET http://localhost:8887/devicedb/rest/deviceConfigs/urn%3Awisebed%3Auzl1%3A0x2037'
 echo $CMD
 exec $CMD

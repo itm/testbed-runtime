@@ -4,8 +4,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.LoginData;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SnaaSecretAuthenticationKeyList;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.NotLoggedInException;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.ResourceHelper;
+import de.uniluebeck.itm.tr.iwsn.common.Base64Helper;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.snaa.*;
 
@@ -14,8 +13,8 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 import java.util.List;
 
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.ResourceHelper.getSAKsFromCookie;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
 
 
 @Path("/auth/")

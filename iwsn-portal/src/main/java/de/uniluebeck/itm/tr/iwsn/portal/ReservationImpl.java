@@ -3,11 +3,14 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.serialize;
 
 public class ReservationImpl extends AbstractService implements Reservation {
 
@@ -36,8 +42,11 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	private final ResponseTrackerFactory responseTrackerFactory;
 
+	private final CommonConfig commonConfig;
+
 	@Inject
-	public ReservationImpl(final ReservationEventBusFactory reservationEventBusFactory,
+	public ReservationImpl(final CommonConfig commonConfig,
+						   final ReservationEventBusFactory reservationEventBusFactory,
 						   final PortalEventBus portalEventBus,
 						   final TimedCache<Long, ResponseTracker> responseTrackerCache,
 						   final ResponseTrackerFactory responseTrackerFactory,
@@ -45,6 +54,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 						   @Assisted("username") final String username,
 						   @Assisted final Set<NodeUrn> nodeUrns,
 						   @Assisted final Interval interval) {
+		this.commonConfig = checkNotNull(commonConfig);
 		this.responseTrackerCache = checkNotNull(responseTrackerCache);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.key = checkNotNull(key);
@@ -79,13 +89,22 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		}
 	}
 
-	public String getKey() {
-		return key;
+	@Override
+	public Set<Entry> getEntries() {
+		return newHashSet(new Entry(
+				commonConfig.getUrnPrefix(),
+				username,
+				key,
+				nodeUrns,
+				interval,
+				reservationEventBus
+		)
+		);
 	}
 
 	@Override
-	public String getUsername() {
-		return username;
+	public Set<NodeUrnPrefix> getNodeUrnPrefixes() {
+		return newHashSet(commonConfig.getUrnPrefix());
 	}
 
 	@Override
@@ -94,13 +113,31 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	}
 
 	@Override
-	public ReservationEventBus getEventBus() {
+	public ReservationEventBus getReservationEventBus() {
 		return reservationEventBus;
 	}
 
 	@Override
 	public Interval getInterval() {
 		return interval;
+	}
+
+	@Override
+	public String getSerializedKey() {
+		try {
+			return serialize(getSecretReservationKey());
+		} catch (Exception e) {
+			throw propagate(e);
+		}
+	}
+
+	private SecretReservationKey getSecretReservationKey() {
+		return new SecretReservationKey().withKey(key).withUrnPrefix(commonConfig.getUrnPrefix());
+	}
+
+	@Override
+	public Set<SecretReservationKey> getSecretReservationKeys() {
+		return newHashSet(getSecretReservationKey());
 	}
 
 	@Override

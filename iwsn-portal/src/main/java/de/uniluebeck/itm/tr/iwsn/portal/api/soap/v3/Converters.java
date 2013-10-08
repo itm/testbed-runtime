@@ -15,8 +15,54 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class Converters {
+
+	public static Map<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse> convertToProto(
+			List<ChannelPipelinesMap> maps) {
+		final Map<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse> resultMap = newHashMap();
+		for (ChannelPipelinesMap map : maps) {
+			for (NodeUrn nodeUrn : map.getNodeUrns()) {
+				final GetChannelPipelinesResponse.GetChannelPipelineResponse.Builder responseBuilder =
+						GetChannelPipelinesResponse.GetChannelPipelineResponse.newBuilder()
+								.setNodeUrn(nodeUrn.toString())
+								.addAllHandlerConfigurations(convertCHCToProto(map.getChannelHandlers()));
+				resultMap.put(nodeUrn, responseBuilder.build());
+			}
+		}
+		return resultMap;
+	}
+
+	public static List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> convertCHCToProto(
+			List<ChannelHandlerConfiguration> configs) {
+		final List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> result = newArrayList();
+		for (ChannelHandlerConfiguration config : configs) {
+			final List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.KeyValuePair> keyValuePairs =
+					convertKVPToProto(config.getConfiguration());
+			result.add(de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration
+					.newBuilder()
+					.setName(config.getName())
+					.addAllConfiguration(keyValuePairs)
+					.build()
+			);
+		}
+		return result;
+	}
+
+	public static List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.KeyValuePair> convertKVPToProto(
+			final List<KeyValuePair> configuration) {
+		final List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.KeyValuePair> targetList =
+				newArrayList();
+		for (KeyValuePair keyValuePair : configuration) {
+			targetList.add(de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.KeyValuePair.newBuilder()
+					.setKey(keyValuePair.getKey())
+					.setValue(keyValuePair.getValue())
+					.build()
+			);
+		}
+		return targetList;
+	}
 
 	public static List<ChannelPipelinesMap> convert(
 			final Map<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse> resultMap) {
@@ -56,7 +102,7 @@ public abstract class Converters {
 		return target;
 	}
 
-	public static  Multimap<NodeUrn, NodeUrn> convertLinksToMap(final List<Link> links) {
+	public static Multimap<NodeUrn, NodeUrn> convertLinksToMap(final List<Link> links) {
 		final Multimap<NodeUrn, NodeUrn> map = HashMultimap.create();
 		for (Link link : links) {
 			map.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
@@ -64,7 +110,7 @@ public abstract class Converters {
 		return map;
 	}
 
-	public static  Multimap<NodeUrn, NodeUrn> convertVirtualLinks(final List<VirtualLink> links) {
+	public static Multimap<NodeUrn, NodeUrn> convertVirtualLinks(final List<VirtualLink> links) {
 		final Multimap<NodeUrn, NodeUrn> map = HashMultimap.create();
 		for (VirtualLink link : links) {
 			map.put(link.getSourceNodeUrn(), link.getTargetNodeUrn());
@@ -72,7 +118,7 @@ public abstract class Converters {
 		return map;
 	}
 
-	public static  Iterable<? extends de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> convertCHCs(
+	public static Iterable<? extends de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> convertCHCs(
 			final List<ChannelHandlerConfiguration> chcs) {
 
 		List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> retList = newLinkedList();
@@ -93,5 +139,30 @@ public abstract class Converters {
 		}
 
 		return retList;
+	}
+
+	public static List<ChannelHandlerConfiguration> convertToSOAP(
+			final List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> chcs) {
+		final List<ChannelHandlerConfiguration> targetList = newArrayList();
+		for (de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration chc : chcs) {
+			targetList.add(convertToSOAP(chc));
+		}
+		return targetList;
+	}
+
+	public static ChannelHandlerConfiguration convertToSOAP(
+			final de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration chc) {
+		final ChannelHandlerConfiguration target = new ChannelHandlerConfiguration();
+		target.setName(chc.getName());
+		for (de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.KeyValuePair kvp : chc
+				.getConfigurationList()) {
+			target.getConfiguration().add(convertToSOAP(kvp));
+		}
+		return target;
+	}
+
+	public static KeyValuePair convertToSOAP(
+			final de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.KeyValuePair kvp) {
+		return new KeyValuePair().withKey(kvp.getKey()).withValue(kvp.getValue());
 	}
 }

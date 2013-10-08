@@ -1,18 +1,22 @@
 package de.uniluebeck.itm.tr.federator.snaa;
 
+import com.google.common.base.Joiner;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
 
 import javax.jws.WebService;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -35,7 +39,7 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 
 	protected final SNAAFederatorServiceConfig config;
 
-	protected final FederationManager<SNAA> federationManager;
+	protected final FederatedEndpoints<SNAA> federatedEndpoints;
 
 	protected final ExecutorService executorService;
 
@@ -44,12 +48,13 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 	protected ServicePublisherService jaxWsService;
 
 	@Inject
-	public SNAAFederatorServiceImpl(@Named(SNAAFederatorService.SNAA_FEDERATOR_EXECUTOR_SERVICE) final ExecutorService executorService,
-									final SNAAFederatorServiceConfig config,
-									final FederationManager<SNAA> federationManager,
-									final ServicePublisher servicePublisher) {
+	public SNAAFederatorServiceImpl(
+			@Named(SNAAFederatorService.SNAA_FEDERATOR_EXECUTOR_SERVICE) final ExecutorService executorService,
+			final SNAAFederatorServiceConfig config,
+			final FederatedEndpoints<SNAA> federatedEndpoints,
+			final ServicePublisher servicePublisher) {
 		this.config = checkNotNull(config);
-		this.federationManager = checkNotNull(federationManager);
+		this.federatedEndpoints = checkNotNull(federatedEndpoints);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.executorService = checkNotNull(executorService);
 	}
@@ -83,7 +88,8 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 
 		checkState(isRunning());
 
-		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet = getIntersectionPrefixSetAT(authenticate.getAuthenticationData());
+		Map<SNAA, Set<AuthenticationTriple>> intersectionPrefixSet =
+				getIntersectionPrefixSetAT(authenticate.getAuthenticationData());
 
 		Set<Future<AuthenticateResponse>> futures = new HashSet<Future<AuthenticateResponse>>();
 
@@ -129,7 +135,7 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 		for (UsernameNodeUrnsMap usernameNodeUrnsMap : usernameNodeUrnsMapList) {
 
 			final NodeUrnPrefix urnPrefix = usernameNodeUrnsMap.getUrnPrefix();
-			final SNAA snaa = federationManager.getEndpointByUrnPrefix(urnPrefix);
+			final SNAA snaa = federatedEndpoints.getEndpointByUrnPrefix(urnPrefix);
 
 			IsAuthorizedCallable callable = new IsAuthorizedCallable(snaa, newArrayList(usernameNodeUrnsMap), action);
 
@@ -145,7 +151,7 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 						authorizationResponse.getPerNodeUrnAuthorizationResponses()
 				);
 			} catch (Exception e) {
-				throw createSNAAFault(e.getMessage(),e);
+				throw createSNAAFault(e.getMessage(), e);
 			}
 		}
 
@@ -162,11 +168,25 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 
 			checkNotNull(secretAuthenticationKeys, "SecretAuthenticationKey list must not be null!");
 
+			final Set<NodeUrnPrefix> userUrnPrefixes = newHashSet();
+			for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
+				userUrnPrefixes.add(secretAuthenticationKey.getUrnPrefix());
+			}
+
+			if (!federatedEndpoints.getUrnPrefixes().equals(userUrnPrefixes)) {
+				throw createSNAAFault("You must provide secret authentication keys for every federated testbed ("
+						+ Joiner.on(",").join(federatedEndpoints.getUrnPrefixes())
+						+ ") but you only provided for "
+						+ Joiner.on(",").join(userUrnPrefixes)
+						+ "."
+				);
+			}
+
 			final Set<Future<List<ValidationResult>>> futures = newHashSet();
 
 			for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
 
-				final SNAA snaa = federationManager.getEndpointByUrnPrefix(secretAuthenticationKey.getUrnPrefix());
+				final SNAA snaa = federatedEndpoints.getEndpointByUrnPrefix(secretAuthenticationKey.getUrnPrefix());
 				final IsValidCallable callable = new IsValidCallable(snaa, newArrayList(secretAuthenticationKey));
 
 				futures.add(executorService.submit(callable));
@@ -200,11 +220,11 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 		for (AuthenticationTriple at : authenticationData) {
 
 			// check if federator federates the urn prefix found in the authentication triple
-			if (!federationManager.servesUrnPrefix(at.getUrnPrefix())) {
+			if (!federatedEndpoints.servesUrnPrefix(at.getUrnPrefix())) {
 				throw createSNAAFault("No endpoint known for URN prefix " + at.getUrnPrefix());
 			}
 
-			final SNAA endpoint = federationManager.getEndpointByUrnPrefix(at.getUrnPrefix());
+			final SNAA endpoint = federatedEndpoints.getEndpointByUrnPrefix(at.getUrnPrefix());
 
 			Set<AuthenticationTriple> set = intersectionPrefixSet.get(endpoint);
 			if (set == null) {

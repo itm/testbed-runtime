@@ -4,10 +4,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
-import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.*;
@@ -21,16 +19,19 @@ public class RestApiModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
-		requireBinding(CommonConfig.class);
-		requireBinding(PortalServerConfig.class);
+		// services
 		requireBinding(RS.class);
 		requireBinding(SNAA.class);
-		requireBinding(ResponseTrackerFactory.class);
-		requireBinding(PortalEventBus.class);
-		requireBinding(RequestIdProvider.class);
-		requireBinding(ReservationManager.class);
-		requireBinding(ServicePublisher.class);
 		requireBinding(WisemlProvider.class);
+
+		// internals
+		requireBinding(PortalEventBus.class);
+		requireBinding(ReservationManager.class);
+
+		// helpers
+		requireBinding(ResponseTrackerFactory.class);
+		requireBinding(RequestIdProvider.class);
+		requireBinding(ServicePublisher.class);
 
 		bind(RestApiService.class).to(RestApiServiceImpl.class);
 		bind(ExperimentResource.class).to(ExperimentResourceImpl.class);

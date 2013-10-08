@@ -7,6 +7,7 @@ import com.google.protobuf.ByteString;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,6 +74,11 @@ public class ReservationEventBusImplTest {
 
 	private static final String OTHER_RESERVATION_ID = "" + RANDOM.nextLong();
 
+	private static final Set<Reservation.Entry> ENTRIES = newHashSet(
+			new Reservation.Entry(GW1_N1.getPrefix(), null, RESERVATION_ID, GW1_NODES, new Interval(0, 1), null),
+			new Reservation.Entry(GW2_N1.getPrefix(), null, RESERVATION_ID, GW1_NODES, new Interval(0, 1), null)
+	);
+
 	@Mock
 	private PortalEventBus portalEventBus;
 
@@ -90,6 +96,7 @@ public class ReservationEventBusImplTest {
 	@Before
 	public void setUp() throws Exception {
 		when(reservation.getNodeUrns()).thenReturn(RESERVED_NODES);
+		when(reservation.getSerializedKey()).thenReturn(RESERVATION_ID);
 		when(eventBusFactory.create(anyString())).thenReturn(eventBus);
 		reservationEventBus = new ReservationEventBusImpl(portalEventBus, eventBusFactory, reservation);
 		reservationEventBus.startAndWait();
@@ -319,7 +326,7 @@ public class ReservationEventBusImplTest {
 
 	@Test
 	public void testSingleNodeProgressShouldBeForwardedIfHasSameReservationId() throws Exception {
-		when(reservation.getKey()).thenReturn(RESERVATION_ID);
+		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
 			final SingleNodeProgress progress = newSingleNodeProgress(RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37);
 			reservationEventBus.onSingleNodeProgressFromPortalEventBus(progress);
@@ -329,7 +336,7 @@ public class ReservationEventBusImplTest {
 
 	@Test
 	public void testSingleNodeProgressDetachedEventShouldNotBeForwardedIfHasOtherReservationId() throws Exception {
-		when(reservation.getKey()).thenReturn(RESERVATION_ID);
+		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
 			final SingleNodeProgress progress =
 					newSingleNodeProgress(OTHER_RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37);
@@ -340,7 +347,7 @@ public class ReservationEventBusImplTest {
 
 	@Test
 	public void testSingleNodeResponseShouldBeForwardedIfHasSameReservationId() throws Exception {
-		when(reservation.getKey()).thenReturn(RESERVATION_ID);
+		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
 			final SingleNodeResponse response =
 					newSingleNodeResponse(RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37, null);
@@ -351,7 +358,7 @@ public class ReservationEventBusImplTest {
 
 	@Test
 	public void testSingleNodeResponseDetachedEventShouldNotBeForwardedIfHasOtherReservationId() throws Exception {
-		when(reservation.getKey()).thenReturn(RESERVATION_ID);
+		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
 			final SingleNodeResponse response =
 					newSingleNodeResponse(OTHER_RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37, null);

@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
 
 public class EventWebSocket implements WebSocket, WebSocket.OnTextMessage {
 

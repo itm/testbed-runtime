@@ -1,13 +1,14 @@
 package de.uniluebeck.itm.tr.federator.iwsn;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.BiMap;
 import de.uniluebeck.itm.util.Tuple;
+import eu.wisebed.wiseml.Setup;
 import eu.wisebed.wiseml.WiseMLHelper;
-import eu.wisebed.wiseml.merger.config.MergerConfiguration;
+import eu.wisebed.wiseml.Wiseml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.stream.XMLStreamException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +22,10 @@ public abstract class FederatorWiseMLMerger {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatorWiseMLMerger.class);
 
-	public static String merge(final BiMap<URI, Callable<String>> endpointUrlToCallableMap,
+	public static Wiseml merge(final BiMap<URI, Callable<String>> endpointUrlToCallableMap,
 							   final ExecutorService executorService) {
 
-		List<String> serializedWiseMLs = newArrayList();
+		List<Wiseml> wiseMLs = newArrayList();
 
 		List<Tuple<URI, Future<String>>> jobs = newArrayList();
 
@@ -52,12 +53,9 @@ public abstract class FederatorWiseMLMerger {
 				);
 			}
 
-			final boolean callSuccessful = serializedWiseML != null;
-
-			if (callSuccessful) {
+			if (serializedWiseML != null) {
 				try {
-					WiseMLHelper.deserialize(serializedWiseML);
-					serializedWiseMLs.add(serializedWiseML);
+					wiseMLs.add(WiseMLHelper.deserialize(serializedWiseML));
 				} catch (Exception e) {
 					log.warn(
 							"Exception while validating serialized WiseML returned by the federated testbed {}: {}",
@@ -69,16 +67,28 @@ public abstract class FederatorWiseMLMerger {
 
 		}
 
-		// Merger configuration (default)
-		MergerConfiguration config = new MergerConfiguration();
+		// merge WiseML documents (only the relevant parts)
+		final StringBuilder description = new StringBuilder()
+				.append("Federated testbed of ")
+				.append(Joiner.on(", ").join(endpointUrlToCallableMap.keySet()))
+				.append(".\nOriginal descriptions: \n\n");
 
-		// return merged network definitions
-		try {
-			return eu.wisebed.wiseml.merger.WiseMLMergerHelper.mergeFromStrings(config, serializedWiseMLs);
-		} catch (XMLStreamException e) {
-			throw new RuntimeException(e);
+		for (Wiseml current : wiseMLs) {
+			description.append(current.getSetup().getDescription());
+			description.append("\n\n");
 		}
 
+		final Wiseml target = new Wiseml()
+				.withVersion("2.0")
+				.withSetup(new Setup().withDescription(description.toString()));
+
+		for (Wiseml current : wiseMLs) {
+			for (Setup.Node node : current.getSetup().getNode()) {
+				target.getSetup().getNode().add(node);
+			}
+		}
+
+		return target;
 	}
 
 }

@@ -4,8 +4,10 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -16,17 +18,13 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 
 	private final WiseGuiServiceConfig wiseGuiServiceConfig;
 
-	private final PortalServerConfig portalServerConfig;
-
 	private ServicePublisherService webapp;
 
 	@Inject
 	public WiseGuiServiceImpl(final ServicePublisher servicePublisher,
-							  final WiseGuiServiceConfig wiseGuiServiceConfig,
-							  final PortalServerConfig portalServerConfig) {
+							  final WiseGuiServiceConfig wiseGuiServiceConfig) {
 		this.servicePublisher = servicePublisher;
 		this.wiseGuiServiceConfig = wiseGuiServiceConfig;
-		this.portalServerConfig = portalServerConfig;
 	}
 
 	@Override
@@ -58,20 +56,30 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 				resourceBase = wiseGuiSourceDir.toString();
 
 			} else {
-
-				resourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/iwsn/portal/wisegui").toString();
+				final URL resource = this.getClass().getResource("/de/uniluebeck/itm/tr/iwsn/portal/wisegui");
+				if (resource == null) {
+					throw new IllegalArgumentException("The internal version of WiseGui cannot be started. " +
+							"Did you forget to initialize and update the submodule running " +
+							"'git submodule init' and 'git submodule update'?"
+					);
+				}
+				resourceBase = resource.toString();
 			}
 
-			final Map<String, String> initParams = newHashMap();
-			initParams.put(WiseGuiServiceConfig.WISEGUI_CONTEXT_PATH, wiseGuiServiceConfig.getWiseGuiContextPath());
-			initParams.put(PortalServerConfig.WISEGUI_TESTBED_NAME, portalServerConfig.getWiseguiTestbedName());
-			initParams.put(PortalServerConfig.REST_API_CONTEXT_PATH, portalServerConfig.getRestApiContextPath());
-			initParams.put(PortalServerConfig.WEBSOCKET_CONTEXT_PATH, portalServerConfig.getWebsocketContextPath());
+			final Map<String, String> params = newHashMap();
+			params.put(WiseGuiServiceConfig.WISEGUI_CONTEXT_PATH, wiseGuiServiceConfig.getWiseGuiContextPath());
+			params.put(WiseGuiServiceConfig.WISEGUI_TESTBED_NAME, wiseGuiServiceConfig.getWiseguiTestbedName());
+			params.put(WiseGuiServiceConfig.WISEGUI_REST_API_BASE_URI, wiseGuiServiceConfig.getWiseGuiRestApiBaseUri());
+			params.put(WiseGuiServiceConfig.WISEGUI_WEBSOCKET_URI, wiseGuiServiceConfig.getWiseGuiWebSocketUri());
+			params.put("allowedOrigins", "http://*");
+			params.put("allowedMethods", "GET,POST,PUT,DELETE");
+			params.put("allowCredentials", "true");
 
 			webapp = servicePublisher.createServletService(
 					wiseGuiServiceConfig.getWiseGuiContextPath(),
 					resourceBase,
-					initParams
+					params,
+					new CrossOriginFilter()
 			);
 
 			webapp.startAndWait();

@@ -6,7 +6,6 @@ import de.uniluebeck.itm.util.TimeDiff;
 import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import org.apache.cxf.interceptor.Fault;
@@ -38,14 +37,9 @@ class DeliveryWorker implements Runnable {
 	private final DeliveryManager deliveryManager;
 
 	/**
-	 * The endpoint URL to deliver the messages to.
-	 */
-	private final String endpointUrl;
-
-	/**
 	 * The endpoint to deliver the messages to.
 	 */
-	private final Controller endpoint;
+	private final DeliveryManagerController endpoint;
 
 	/**
 	 * The queue that contains all {@link Message} objects to be delivered to {@link DeliveryWorker#endpoint}.
@@ -96,8 +90,7 @@ class DeliveryWorker implements Runnable {
 	private final int maximumDeliveryQueueSize;
 
 	public DeliveryWorker(final DeliveryManager deliveryManager,
-						  final String endpointUrl,
-						  final Controller endpoint,
+						  final DeliveryManagerController endpoint,
 						  final Deque<Message> messageQueue,
 						  final Deque<RequestStatus> statusQueue,
 						  final Deque<Notification> notificationQueue,
@@ -105,7 +98,6 @@ class DeliveryWorker implements Runnable {
 						  final Deque<Tuple<DateTime, List<NodeUrn>>> nodesDetachedQueue,
 						  final int maximumDeliveryQueueSize) {
 		this.deliveryManager = checkNotNull(deliveryManager);
-		this.endpointUrl = checkNotNull(endpointUrl);
 		this.endpoint = checkNotNull(endpoint);
 		this.messageQueue = checkNotNull(messageQueue);
 		this.statusQueue = checkNotNull(statusQueue);
@@ -129,17 +121,17 @@ class DeliveryWorker implements Runnable {
 				if (experimentEnded && deliveryQueuesEmpty()) {
 					log.debug(
 							"{} => Calling reservationEnded() as experiment ended and all messages have been delivered.",
-							endpointUrl
+							endpoint
 					);
 					try {
 						endpoint.reservationEnded(experimentEndedAt);
 					} catch (Exception e) {
 						log.warn(
 								"{} => Exception while calling reservationEnded() after delivering all queued messages.",
-								endpointUrl
+								endpoint
 						);
 					}
-					deliveryManager.removeController(endpointUrl);
+					deliveryManager.removeController(endpoint);
 					return;
 				}
 
@@ -182,15 +174,15 @@ class DeliveryWorker implements Runnable {
 						);
 
 					} catch (InterruptedException e1) {
-						log.error("{} => Interrupted while waiting for retry: " + e1, endpointUrl);
+						log.error("{} => Interrupted while waiting for retry: " + e1, endpoint);
 						stopDelivery();
 						continue;
 					}
 
 				} else {
 
-					log.warn("{} => Repeatedly could not deliver messages. Removing endpoint.", endpointUrl);
-					deliveryManager.removeController(endpointUrl); // will also call stopDelivery()
+					log.warn("{} => Repeatedly could not deliver messages. Removing endpoint.", endpoint);
+					deliveryManager.removeController(endpoint); // will also call stopDelivery()
 				}
 			}
 
@@ -201,7 +193,7 @@ class DeliveryWorker implements Runnable {
 					workAvailable.await();
 				}
 			} catch (InterruptedException e) {
-				log.error("{} => Interrupted while waiting for work to arrive: " + e, endpointUrl);
+				log.error("{} => Interrupted while waiting for work to arrive: " + e, endpoint);
 				stopDelivery();
 			} finally {
 				lock.unlock();
@@ -209,7 +201,7 @@ class DeliveryWorker implements Runnable {
 
 		}
 
-		log.debug("{} => Stopping message delivery.", endpointUrl);
+		log.debug("{} => Stopping message delivery.", endpoint);
 
 	}
 
@@ -228,7 +220,7 @@ class DeliveryWorker implements Runnable {
 			lock.unlock();
 		}
 
-		log.trace("{} => Delivering {} messages.", endpointUrl, messageList.size());
+		log.trace("{} => Delivering {} messages.", endpoint, messageList.size());
 		try {
 
 			// try to send messages to endpoint
@@ -241,7 +233,7 @@ class DeliveryWorker implements Runnable {
 
 			// if delivery failed
 			if (!clientDied) {
-				log.warn("{} => Exception while delivering messages. Reason: {}", endpointUrl, e);
+				log.warn("{} => Exception while delivering messages. Reason: {}", endpoint, e);
 			}
 
 			// put messages back in that have been taken out before (in reverse order)
@@ -271,7 +263,7 @@ class DeliveryWorker implements Runnable {
 			lock.unlock();
 		}
 
-		log.trace("{} => Delivering {} status messages", endpointUrl, statusList.size());
+		log.trace("{} => Delivering {} status messages", endpoint, statusList.size());
 		try {
 
 			endpoint.receiveStatus(statusList);
@@ -280,7 +272,7 @@ class DeliveryWorker implements Runnable {
 		} catch (Exception e) {
 
 			// if delivery failed
-			log.warn("{} => Exception while delivering status messages. Reason: {}", endpointUrl, e);
+			log.warn("{} => Exception while delivering status messages. Reason: {}", endpoint, e);
 
 			// put statuses back in that have been taken out before (in reverse order)
 			lock.lock();
@@ -310,7 +302,7 @@ class DeliveryWorker implements Runnable {
 			lock.unlock();
 		}
 
-		log.trace("{} => Delivering {} notifications", endpointUrl, notificationList.size());
+		log.trace("{} => Delivering {} notifications", endpoint, notificationList.size());
 		try {
 
 			endpoint.receiveNotification(notificationList);
@@ -319,7 +311,7 @@ class DeliveryWorker implements Runnable {
 		} catch (Exception e) {
 
 			// if delivery failed
-			log.warn("{} => Exception while delivering notifications. Reason: {}", endpointUrl, e);
+			log.warn("{} => Exception while delivering notifications. Reason: {}", endpoint, e);
 
 			// put statuses back in that have been taken out before (in reverse order)
 			lock.lock();
@@ -350,7 +342,7 @@ class DeliveryWorker implements Runnable {
 		if (log.isTraceEnabled()) {
 			log.trace(
 					"{} => Delivering nodes attached events for node URNs {}",
-					endpointUrl,
+					endpoint,
 					Arrays.toString(nodesAttachedEvent.getSecond().toArray())
 			);
 		}
@@ -386,7 +378,7 @@ class DeliveryWorker implements Runnable {
 		if (log.isTraceEnabled()) {
 			log.trace(
 					"{} => Delivering nodes detached events for node URNs {}",
-					endpointUrl,
+					endpoint,
 					Arrays.toString(nodesDetachedEvent.getSecond().toArray())
 			);
 		}

@@ -3,7 +3,6 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -27,9 +26,9 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserialize;
 import static org.joda.time.DateTime.now;
 
 public class ReservationManagerImpl extends AbstractService implements ReservationManager {
@@ -44,19 +43,15 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private final ReservationFactory reservationFactory;
 
-	private final Map<String, Reservation> reservationMap = newHashMap();
+	private final Map<Set<SecretReservationKey>, Reservation> reservationMap = newHashMap();
 
 	private final SchedulerService schedulerService;
 
-	private final CommonConfig commonConfig;
-
 	@Inject
-	public ReservationManagerImpl(final CommonConfig commonConfig,
-								  final Provider<RS> rs,
+	public ReservationManagerImpl(final Provider<RS> rs,
 								  final DeviceDBService deviceDBService,
 								  final ReservationFactory reservationFactory,
 								  final SchedulerServiceFactory schedulerServiceFactory) {
-		this.commonConfig = checkNotNull(commonConfig);
 		this.rs = checkNotNull(rs);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.reservationFactory = checkNotNull(reservationFactory);
@@ -89,28 +84,30 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	@Override
-	public Reservation getReservation(final String secretReservationKey) throws ReservationUnknownException {
+	public Reservation getReservation(final List<SecretReservationKey> secretReservationKeys)
+			throws ReservationUnknownException {
 
-		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", secretReservationKey);
+		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", secretReservationKeys);
+
+		final Set<SecretReservationKey> srkSet = newHashSet(secretReservationKeys);
 
 		synchronized (reservationMap) {
 
-			if (reservationMap.containsKey(secretReservationKey)) {
-				return reservationMap.get(secretReservationKey);
+			if (reservationMap.containsKey(srkSet)) {
+				return reservationMap.get(srkSet);
 			}
 
 			final List<ConfidentialReservationData> confidentialReservationDataList;
 			try {
-				final List<SecretReservationKey> keys = toSecretReservationKeyList(secretReservationKey);
-				confidentialReservationDataList = rs.get().getReservation(keys);
+				confidentialReservationDataList = rs.get().getReservation(secretReservationKeys);
 			} catch (RSFault_Exception e) {
 				throw propagate(e);
 			} catch (UnknownSecretReservationKeyFault e) {
-				throw new ReservationUnknownException(secretReservationKey, e);
+				throw new ReservationUnknownException(srkSet, e);
 			}
 
 			if (confidentialReservationDataList.size() == 0) {
-				throw new ReservationUnknownException(secretReservationKey);
+				throw new ReservationUnknownException(srkSet);
 			}
 
 			checkArgument(
@@ -130,7 +127,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 					new Interval(data.getFrom(), data.getTo())
 			);
 
-			reservationMap.put(secretReservationKey, reservation);
+			reservationMap.put(srkSet, reservation);
 
 			if (!reservation.isRunning() && reservation.getInterval().containsNow()) {
 
@@ -152,18 +149,17 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 		}
 	}
 
+	@Override
+	public Reservation getReservation(final String jsonSerializedSecretReservationKeys)
+			throws ReservationUnknownException {
+		return getReservation(deserialize(jsonSerializedSecretReservationKeys));
+	}
+
 	private void assertNodesInTestbed(final Set<NodeUrn> reservedNodes) {
 		for (Map.Entry<NodeUrn, DeviceConfig> entry : deviceDBService.getConfigsByNodeUrns(reservedNodes).entrySet()) {
 			if (entry.getValue() == null) {
 				throw new RuntimeException("Node URN \"" + entry.getKey() + "\" unknown.");
 			}
 		}
-	}
-
-	private List<SecretReservationKey> toSecretReservationKeyList(String secretReservationKey) {
-		SecretReservationKey key = new SecretReservationKey();
-		key.setUrnPrefix(commonConfig.getUrnPrefix());
-		key.setKey(secretReservationKey);
-		return newArrayList(key);
 	}
 }

@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.common;
 
 import com.google.common.base.Function;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
 import javax.annotation.Nullable;
 
@@ -22,6 +23,14 @@ public class NodeUrnHelper {
 				@Override
 				public String apply(@Nullable final NodeUrn nodeUrn) {
 					return nodeUrn == null ? "null" : nodeUrn.toString();
+				}
+			};
+
+	public static final Function<NodeUrn, NodeUrnPrefix> NODE_URN_TO_NODE_URN_PREFIX =
+			new Function<NodeUrn, NodeUrnPrefix>() {
+				@Override
+				public NodeUrnPrefix apply(final NodeUrn input) {
+					return input.getPrefix();
 				}
 			};
 }

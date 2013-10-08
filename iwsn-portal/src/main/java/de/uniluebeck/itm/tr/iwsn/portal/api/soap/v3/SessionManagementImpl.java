@@ -219,7 +219,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 		try {
 
-			reservation = reservationManager.getReservation(key);
+			reservation = reservationManager.getReservation(secretReservationKeys);
 
 		} catch (ReservationUnknownException e) {
 			final String message = "Secret reservation key \"" + key + "\" is unknown!";

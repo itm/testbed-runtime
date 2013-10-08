@@ -20,8 +20,8 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.ResourceHelper.assertLoggedIn;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.ResourceHelper.getSAKsFromCookie;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.assertLoggedIn;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
 
 @Path("/reservations/")
 public class RsResourceImpl implements RsResource {
@@ -102,6 +102,11 @@ public class RsResourceImpl implements RsResource {
 			final List<SecretAuthenticationKey> snaaSecretAuthenticationKeys,
 			final Interval interval, final Integer offset, final Integer amount)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
+
+		log.trace(
+				"RsResourceImpl.getConfidentialReservations(snaaSecretAuthenticationKeys={}, interval={}, offset={}, amount={})",
+				snaaSecretAuthenticationKeys, interval, offset, amount
+		);
 
 		return new ConfidentialReservationDataList(
 				rs.getConfidentialReservations(

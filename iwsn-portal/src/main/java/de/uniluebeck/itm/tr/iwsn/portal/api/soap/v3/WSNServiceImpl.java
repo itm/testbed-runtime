@@ -15,6 +15,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import java.net.URI;
@@ -22,6 +23,10 @@ import java.util.List;
 
 
 @WebService(name = "WSN", targetNamespace = "http://wisebed.eu/api/v3/wsn")
+@XmlSeeAlso({
+		eu.wisebed.api.v3.common.ObjectFactory.class,
+		eu.wisebed.api.v3.wsn.ObjectFactory.class
+})
 public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceImpl.class);

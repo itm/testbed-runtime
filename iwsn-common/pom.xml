@@ -44,9 +44,9 @@
 			<artifactId>api</artifactId>
 		</dependency>
 		<dependency>
-	        <groupId>eu.wisebed</groupId>
-	        <artifactId>wiseml</artifactId>
-        </dependency>
+			<groupId>eu.wisebed</groupId>
+			<artifactId>wiseml</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.common</artifactId>

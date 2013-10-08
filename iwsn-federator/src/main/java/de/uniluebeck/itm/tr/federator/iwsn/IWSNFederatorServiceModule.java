@@ -11,16 +11,19 @@ import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.PreconditionsModule;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
+import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.federator.utils.*;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
-import de.uniluebeck.itm.tr.common.PreconditionsModule;
+import de.uniluebeck.itm.tr.iwsn.portal.*;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.snaa.SNAA;
 
 import javax.annotation.Nullable;
 import java.net.URI;
@@ -41,25 +44,32 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 
 		requireBinding(ServicePublisher.class);
 		requireBinding(IWSNFederatorServiceConfig.class);
+		requireBinding(RS.class);
+		requireBinding(SNAA.class);
 
 		install(new PreconditionsModule());
 		install(new FederationManagerModule());
+		install(new FactoryModuleBuilder()
+				.implement(FederatedReservation.class, FederatedReservationImpl.class)
+				.build(FederatedReservationFactory.class)
+		);
+		bind(EventBusFactory.class).to(EventBusFactoryImpl.class);
 
 		bind(ServedNodeUrnPrefixesProvider.class).to(FederationManagerServedNodeUrnPrefixesProvider.class);
 		bind(ServedNodeUrnsProvider.class).to(FederationManagerServedNodeUrnsProvider.class);
-
+		bind(FederatedReservationManager.class).in(Scopes.SINGLETON);
 		bind(SessionManagementFederatorService.class)
 				.to(SessionManagementFederatorServiceImpl.class)
 				.in(Scopes.SINGLETON);
 
-		bind(IWSNFederatorService.class)
-				.to(IWSNFederatorServiceImpl.class)
-				.in(Scopes.SINGLETON);
-
-		bind(WSNFederatorManager.class).to(WSNFederatorManagerImpl.class).in(Scopes.SINGLETON);
+		bind(IWSNFederatorService.class).to(IWSNFederatorServiceImpl.class).in(Scopes.SINGLETON);
+		bind(PortalEventBus.class).to(FederatorPortalEventBus.class).in(Scopes.SINGLETON);
+		bind(ReservationManager.class).to(FederatedReservationManager.class).in(Scopes.SINGLETON);
+		bind(RequestIdProvider.class).to(RandomRequestIdProvider.class);
+		bind(WisemlProvider.class).to(FederatorWiseMLProvider.class);
 
 		install(new FactoryModuleBuilder()
-				.implement(WSNFederatorController.class, WSNFederatorControllerImpl.class)
+				.implement(FederatorController.class, FederatorControllerImpl.class)
 				.build(WSNFederatorControllerFactory.class)
 		);
 
@@ -67,11 +77,13 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 				.implement(WSNFederatorService.class, WSNFederatorServiceImpl.class)
 				.build(WSNFederatorServiceFactory.class)
 		);
-	}
 
-	@Provides
-	RS provideRS(final IWSNFederatorServiceConfig config) {
-		return WisebedServiceHelper.getRSService(config.getFederatorRsEndpointUri().toString());
+		install(new FactoryModuleBuilder()
+				.implement(ReservationEventBus.class, ReservationEventBusImpl.class)
+				.build(ReservationEventBusFactory.class)
+		);
+
+		install(new FactoryModuleBuilder().build(FederatedReservationEventBusAdapterFactory.class));
 	}
 
 	@Provides
@@ -95,8 +107,8 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 
 	@Provides
 	@Singleton
-	public FederationManager<SessionManagement> provideFederationManager(final IWSNFederatorServiceConfig config,
-																		 final FederationManagerFactory factory) {
+	public FederatedEndpoints<SessionManagement> provideFederationManager(final IWSNFederatorServiceConfig config,
+																		  final FederatedEndpointsFactory factory) {
 
 		final Multimap<URI, NodeUrnPrefix> map = HashMultimap.create();
 

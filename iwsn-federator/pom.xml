@@ -58,6 +58,10 @@
 		</dependency>
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.iwsn-portal</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.federator-utils</artifactId>
 		</dependency>
 
