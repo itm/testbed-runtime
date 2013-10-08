@@ -23,7 +23,6 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn;
 
-import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -76,8 +75,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 	private static final TimeUnit CACHE_TIMEOUT_UNIT = TimeUnit.MINUTES;
 
-	private static final String UTF_8 = "UTF-8";
-
 	private final URI endpointUri;
 
 	private final CommonPreconditions preconditions;
@@ -107,28 +104,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 	private final FederatedEndpoints<WSN> wsnFederatedEndpoints;
 
-	private final Runnable addToFederatedEndpointsRunnable = new Runnable() {
-		@Override
-		public void run() {
-			for (Map.Entry<WSN, URI> entry : wsnFederatedEndpoints.getEndpointsURIMap().entrySet()) {
-				final WSN endpoint = entry.getKey();
-				final URI uri = entry.getValue();
-				try {
-					log.trace("FederatorControllerImpl.doStart(): adding {}", endpointUri.toString());
-					endpoint.addController(endpointUri.toString());
-				} catch (Exception e) {
-					if (log.isErrorEnabled()) {
-						log.error(
-								"Exception while adding federator controller ({}) to federated testbed ({}), reason: {}",
-								endpointUri, uri, Throwables.getStackTraceAsString(e)
-						);
-					}
-					notifyFailed(e);
-				}
-			}
-		}
-	};
-
 	private ServicePublisherService jaxWsService;
 
 	@Inject
@@ -145,8 +120,9 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.wsnFederatedEndpoints = checkNotNull(wsnFederatedEndpoints);
-		this.preconditions = preconditionsFactory.createCommonPreconditions(nodeUrnPrefixes, nodeUrns);
 		this.schedulerService = checkNotNull(schedulerService);
+
+		this.preconditions = preconditionsFactory.createCommonPreconditions(nodeUrnPrefixes, nodeUrns);
 
 		String uriString;
 		uriString = config.getFederatorControllerEndpointUriBase().toString();
@@ -158,21 +134,50 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	@Override
 	protected void doStart() {
 
+		log.trace("FederatorControllerImpl.doStart()");
+
 		try {
 
-			log.debug("Starting federator controller using endpoint URI {}...", endpointUri);
+			log.debug("Starting federator controller using endpoint URI {}", endpointUri);
 
 			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this);
 			jaxWsService.startAndWait();
 
+			log.debug("Starting federator DeliveryManager");
 			deliveryManager.startAndWait();
-			schedulerService.execute(addToFederatedEndpointsRunnable);
 
-			log.debug("Started federator controller on {}", endpointUri);
+			/*
+			log.debug("Adding federator controller endpoint to federated reservations");
+
+			for (Map.Entry<WSN, URI> entry : wsnFederatedEndpoints.getEndpointsURIMap().entrySet()) {
+
+				final WSN endpoint = entry.getKey();
+				final URI uri = entry.getValue();
+
+				log.trace(
+						"Adding federator controller endpoint URI ({}) to federated testbed WSN instance ({})",
+						endpointUri.toString(),
+						uri
+				);
+
+				endpoint.addController(endpointUri.toString());
+			}
+			*/
 
 			notifyStarted();
 
 		} catch (Exception e) {
+
+			log.error("Error while starting federator controller endpoint: ", e);
+
+			if (jaxWsService != null && jaxWsService.isRunning()) {
+				jaxWsService.stopAndWait();
+			}
+
+			if (deliveryManager.isRunning()) {
+				deliveryManager.stopAndWait();
+			}
+
 			notifyFailed(e);
 		}
 	}

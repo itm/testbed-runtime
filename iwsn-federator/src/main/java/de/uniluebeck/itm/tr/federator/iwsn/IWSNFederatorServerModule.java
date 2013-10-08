@@ -7,6 +7,9 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
+import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.rs.RS;
+import eu.wisebed.api.v3.snaa.SNAA;
 
 import static com.google.inject.util.Providers.of;
 
@@ -30,6 +33,16 @@ public class IWSNFederatorServerModule extends AbstractModule {
 
 		install(new ServicePublisherCxfModule());
 		install(new IWSNFederatorServiceModule());
+	}
+
+	@Provides
+	RS provideRS(final IWSNFederatorServiceConfig config) {
+		return WisebedServiceHelper.getRSService(config.getFederatorRsEndpointUri().toString());
+	}
+
+	@Provides
+	SNAA provideSNAA(final IWSNFederatorServiceConfig config) {
+		return WisebedServiceHelper.getSNAAService(config.getFederatorSnaaEndpointUri().toString());
 	}
 
 	@Provides

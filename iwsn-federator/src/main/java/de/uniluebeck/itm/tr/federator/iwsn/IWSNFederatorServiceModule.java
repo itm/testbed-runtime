@@ -23,6 +23,7 @@ import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.SessionManagement;
+import eu.wisebed.api.v3.snaa.SNAA;
 
 import javax.annotation.Nullable;
 import java.net.URI;
@@ -43,6 +44,8 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 
 		requireBinding(ServicePublisher.class);
 		requireBinding(IWSNFederatorServiceConfig.class);
+		requireBinding(RS.class);
+		requireBinding(SNAA.class);
 
 		install(new PreconditionsModule());
 		install(new FederationManagerModule());
@@ -81,11 +84,6 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 		);
 
 		install(new FactoryModuleBuilder().build(FederatedReservationEventBusAdapterFactory.class));
-	}
-
-	@Provides
-	RS provideRS(final IWSNFederatorServiceConfig config) {
-		return WisebedServiceHelper.getRSService(config.getFederatorRsEndpointUri().toString());
 	}
 
 	@Provides

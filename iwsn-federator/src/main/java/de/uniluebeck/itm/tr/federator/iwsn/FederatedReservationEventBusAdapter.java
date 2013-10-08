@@ -39,8 +39,6 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 
 	private final DeliveryManagerInternalController dmController = new DeliveryManagerInternalController(this);
 
-	private final SessionManagementFederatorService smFederatorService;
-
 	private final Reservation reservation;
 
 	private final ReservationEventBus reservationEventBus;
@@ -50,13 +48,10 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 	private final WSNFederatorService wsnFederatorService;
 
 	@Inject
-	public FederatedReservationEventBusAdapter(
-			final SessionManagementFederatorService smFederatorService,
-			@Assisted final Reservation reservation,
-			@Assisted final ReservationEventBus reservationEventBus,
-			@Assisted final FederatorController federatorController,
-			@Assisted final WSNFederatorService wsnFederatorService) {
-		this.smFederatorService = smFederatorService;
+	public FederatedReservationEventBusAdapter(@Assisted final Reservation reservation,
+											   @Assisted final ReservationEventBus reservationEventBus,
+											   @Assisted final FederatorController federatorController,
+											   @Assisted final WSNFederatorService wsnFederatorService) {
 		this.reservation = reservation;
 		this.reservationEventBus = reservationEventBus;
 		this.federatorController = federatorController;

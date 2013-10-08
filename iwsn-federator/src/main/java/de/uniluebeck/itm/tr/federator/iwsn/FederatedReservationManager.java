@@ -86,8 +86,9 @@ public class FederatedReservationManager extends AbstractService implements Rese
 		}
 	}
 
-	public FederatedReservation getFederatedReservation(final List<SecretReservationKey> srkList)
+	public synchronized FederatedReservation getFederatedReservation(final List<SecretReservationKey> srkList)
 			throws ReservationUnknownException {
+		log.trace("FederatedReservationManager.getFederatedReservation({})", srkList);
 		checkState(isRunning());
 		final FederatedReservation reservation = getFromCache(srkList);
 		return reservation == null ? putInCache(srkList, createReservation(srkList)) : reservation;
@@ -104,11 +105,12 @@ public class FederatedReservationManager extends AbstractService implements Rese
 	public synchronized Reservation getReservation(final String jsonSerializedSecretReservationKeys)
 			throws ReservationUnknownException {
 		log.trace("FederatedReservationManager.getReservation({})", jsonSerializedSecretReservationKeys);
-		return getFromCache(deserialize(jsonSerializedSecretReservationKeys));
+		return getFederatedReservation(deserialize(jsonSerializedSecretReservationKeys));
 	}
 
 	@Nullable
 	private FederatedReservation getFromCache(final List<SecretReservationKey> srkList) {
+		log.trace("FederatedReservationManager.getFromCache({})", srkList);
 		synchronized (reservationMap) {
 			return reservationMap.get(newHashSet(srkList));
 		}
@@ -116,6 +118,7 @@ public class FederatedReservationManager extends AbstractService implements Rese
 
 	private FederatedReservation putInCache(final List<SecretReservationKey> srkList,
 											final FederatedReservation reservation) {
+		log.trace("FederatedReservationManager.putInCache({}, {})", srkList, reservation);
 		synchronized (reservationMap) {
 			reservationMap.put(newHashSet(srkList), reservation);
 		}
@@ -124,6 +127,8 @@ public class FederatedReservationManager extends AbstractService implements Rese
 
 	private synchronized FederatedReservation createReservation(final List<SecretReservationKey> srkList)
 			throws ReservationUnknownException {
+
+		log.trace("FederatedReservationManager.createReservation({})", srkList);
 
 		try {
 

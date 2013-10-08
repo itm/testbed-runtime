@@ -43,6 +43,16 @@ public class WiseGuiServiceConfig {
 	private String wiseguiTestbedName;
 
 	@PropConf(
+			usage = "JSON Description of the federated testbeds to be displayed in WiseGui",
+			example = "{\"urn:wisebed:uzl:staging1:\":\"Testbed 1\", \"urn:wisebed:uzl:staging2:\":\"Testbed 2\"}"
+	)
+	public static final String WISEGUI_FEDERATES = "wisegui.federates";
+
+	@Inject
+	@Named(WISEGUI_FEDERATES)
+	private String wiseguiFederates;
+
+	@PropConf(
 			usage = "The base URI of the testbed REST API",
 			example = "http://my.testbed.tld/rest/v1.0",
 			typeConverter = URITypeConverter.class
@@ -81,5 +91,9 @@ public class WiseGuiServiceConfig {
 
 	public String getWiseGuiWebSocketUri() {
 		return wiseGuiWebSocketUri;
+	}
+
+	public String getWiseguiFederates() {
+		return wiseguiFederates;
 	}
 }

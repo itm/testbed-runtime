@@ -43,7 +43,7 @@ public class TestbedsResourceImpl implements TestbedsResource {
 		final TestbedDescription testbed = new TestbedDescription();
 
 		testbed.name = wiseGuiServiceConfig.getWiseguiTestbedName();
-		testbed.testbedBaseUri = wiseGuiServiceConfig.getWiseGuiRestApiBaseUri().toString();
+		testbed.testbedBaseUri = wiseGuiServiceConfig.getWiseGuiRestApiBaseUri();
 		testbed.sessionManagementEndpointUrl = endpointManager.getSmEndpointUri().toString();
 		testbed.urnPrefixes = newArrayList(transform(servedNodeUrnPrefixesProvider.get(), NODE_URN_PREFIX_TO_STRING));
 
