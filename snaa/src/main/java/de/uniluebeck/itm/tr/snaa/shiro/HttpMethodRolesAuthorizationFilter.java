@@ -53,7 +53,7 @@ public class HttpMethodRolesAuthorizationFilter extends RolesAuthorizationFilter
 
 			final String[] kv = rolesEntry.split("=");
 			final HttpMethod httpMethod = HttpMethod.parse(kv[0]);
-			final String[] roles = kv[1].split("|");
+			final String[] roles = kv[1].split("\\|");
 			final HashSet<String> rolesSet = new HashSet<String>(roles.length);
 			addAll(rolesSet, roles);
 
