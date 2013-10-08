@@ -152,7 +152,7 @@ public abstract class DeviceDBRDHelper {
 
 		return new DeviceConfig(
 				urn,
-				type.toString(),
+				rdResource.getNodeType(),
 				false,
 				rdResource.getNodePort(),
 				rdResource.getNodeDesc(),
