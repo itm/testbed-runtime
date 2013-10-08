@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.rs;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -7,11 +8,11 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import eu.wisebed.api.v3.common.KeyValuePair;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.common.*;
+import eu.wisebed.api.v3.rs.AuthenticationFault;
+import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import eu.wisebed.api.v3.snaa.SNAA;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import eu.wisebed.api.v3.snaa.ValidationResult;
@@ -29,8 +30,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.common.NodeUrnPrefixHelper.SAK_TO_NODE_URN_PREFIX;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
 
 /**
@@ -194,22 +197,28 @@ public class SingleUrnPrefixRS implements RS {
 			throws RSFault_Exception {
 
 		// Check if authentication data has been supplied
-		if (authenticationData == null || authenticationData.size() != 1) {
-			String msg = "No or too much authentication data supplied -> error.";
+		if (authenticationData == null) {
+			String msg = "No authentication data supplied.";
 			log.warn(msg);
 			RSFault exception = new RSFault();
 			exception.setMessage(msg);
 			throw new RSFault_Exception(msg, exception);
 		}
 
-		SecretAuthenticationKey sak = authenticationData.get(0);
-		if (!commonConfig.getUrnPrefix().equals(sak.getUrnPrefix())) {
-			String msg = "Not serving urn prefix " + sak.getUrnPrefix();
-			log.warn(msg);
-			RSFault exception = new RSFault();
-			exception.setMessage(msg);
-			throw new RSFault_Exception(msg, exception);
+		for (SecretAuthenticationKey sak : authenticationData) {
+			if (commonConfig.getUrnPrefix().equals(sak.getUrnPrefix())) {
+				return;
+			}
 		}
+
+		final String prefixes = Joiner.on(",").join(newHashSet(transform(authenticationData, SAK_TO_NODE_URN_PREFIX)));
+		final String msg = "The supplied secret authentication keys (" + prefixes + ") don't contain keys for this "
+				+ "testbed (URN prefix \"" + commonConfig.getUrnPrefix() + "\").";
+
+		log.warn(msg);
+		RSFault exception = new RSFault();
+		exception.setMessage(msg);
+		throw new RSFault_Exception(msg, exception);
 	}
 
 	private RSFault_Exception createRSFault_Exception(String message) {

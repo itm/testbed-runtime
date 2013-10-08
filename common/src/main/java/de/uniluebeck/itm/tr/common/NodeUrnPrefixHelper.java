@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.common;
 
 import com.google.common.base.Function;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 
 import javax.annotation.Nullable;
 
@@ -22,6 +23,14 @@ public class NodeUrnPrefixHelper {
 				@Override
 				public String apply(@Nullable final NodeUrnPrefix nodeUrnPrefix) {
 					return nodeUrnPrefix == null ? "null" : nodeUrnPrefix.toString();
+				}
+			};
+
+	public static final Function<SecretAuthenticationKey, NodeUrnPrefix> SAK_TO_NODE_URN_PREFIX =
+			new Function<SecretAuthenticationKey, NodeUrnPrefix>() {
+				@Override
+				public NodeUrnPrefix apply(final SecretAuthenticationKey input) {
+					return input.getUrnPrefix();
 				}
 			};
 }
