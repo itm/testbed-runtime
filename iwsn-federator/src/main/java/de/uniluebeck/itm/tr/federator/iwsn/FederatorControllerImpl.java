@@ -146,7 +146,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 			log.debug("Starting federator DeliveryManager");
 			deliveryManager.startAndWait();
 
-			/*
 			log.debug("Adding federator controller endpoint to federated reservations");
 
 			for (Map.Entry<WSN, URI> entry : wsnFederatedEndpoints.getEndpointsURIMap().entrySet()) {
@@ -162,7 +161,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 				endpoint.addController(endpointUri.toString());
 			}
-			*/
 
 			notifyStarted();
 

@@ -47,6 +47,32 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	}
 
 	@Override
+	protected void doStart() {
+
+		log.trace("ReservationEventBus[{}].doStart()", reservationId);
+
+		try {
+			portalEventBus.register(this);
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
+	protected void doStop() {
+
+		log.trace("ReservationEventBus[{}].doStop()", reservationId);
+
+		try {
+			portalEventBus.unregister(this);
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
+
+	@Override
 	public void register(final Object object) {
 		log.trace("ReservationEventBus[{}].register(object={})", reservationId, object);
 		eventBus.register(object);
@@ -154,32 +180,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		log.trace("ReservationEventBusImpl.onGetChannelPipelinesResponse({})", reservationId, response);
 		if (reservationId.equals(response.getReservationId())) {
 			eventBus.post(response);
-		}
-	}
-
-	@Override
-	protected void doStart() {
-
-		log.trace("ReservationEventBus[{}].doStart()", reservationId);
-
-		try {
-			portalEventBus.register(this);
-			notifyStarted();
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
-
-	@Override
-	protected void doStop() {
-
-		log.trace("ReservationEventBus[{}].doStop()", reservationId);
-
-		try {
-			portalEventBus.unregister(this);
-			notifyStopped();
-		} catch (Exception e) {
-			notifyFailed(e);
 		}
 	}
 

@@ -53,6 +53,7 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 						@Assisted final Reservation reservation,
 						@Assisted("secretReservationKeysBase64") final String secretReservationKeysBase64,
 						@Assisted("remoteAddress") final String remoteAddress) {
+		log.trace("WsnWebSocket.WsnWebSocket()");
 		this.requestIdProvider = requestIdProvider;
 		this.schedulerService = schedulerService;
 		this.secretReservationKeysBase64 = secretReservationKeysBase64;
@@ -62,6 +63,8 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	@Override
 	public void onMessage(final String data) {
+
+		log.trace("WsnWebSocket.onMessage({})", data);
 
 		try {
 			final WebSocketDownstreamMessage message = fromJSON(data, WebSocketDownstreamMessage.class);
