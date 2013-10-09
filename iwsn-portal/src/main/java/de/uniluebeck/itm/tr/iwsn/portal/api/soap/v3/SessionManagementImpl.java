@@ -247,7 +247,7 @@ public class SessionManagementImpl implements SessionManagement {
 				deliveryManager = deliveryManagerFactory.create(reservation);
 				deliveryManagers.put(reservation, deliveryManager);
 
-				final WSN wsn = wsnFactory.create(reservationKey, reservation, deliveryManager);
+				final WSN wsn = wsnFactory.create(reservation, deliveryManager);
 				AuthorizingWSN authorizingWSN = authorizingWSNFactory.create(reservation, wsn);
 				wsnService = wsnServiceFactory.create(reservationKey, authorizingWSN);
 				wsnInstances.put(reservation, wsnService);

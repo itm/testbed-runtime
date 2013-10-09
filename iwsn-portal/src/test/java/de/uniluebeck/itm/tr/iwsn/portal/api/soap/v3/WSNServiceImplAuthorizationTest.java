@@ -115,7 +115,7 @@ public class WSNServiceImplAuthorizationTest {
 
 
 		WSNFactory wsnFactory = injector.getInstance(WSNFactory.class);
-		wsnDelegate = spy(wsnFactory.create("", reservation, deliveryManager));
+		wsnDelegate = spy(wsnFactory.create(reservation, deliveryManager));
 		AuthorizingWSNFactory authorizingWSNFactory = injector.getInstance(AuthorizingWSNFactory.class);
 		authorizingWsn = authorizingWSNFactory.create(reservation, wsnDelegate);
 
