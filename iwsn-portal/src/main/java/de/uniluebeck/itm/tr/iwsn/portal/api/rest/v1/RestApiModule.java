@@ -39,7 +39,7 @@ public class RestApiModule extends AbstractModule {
 		bind(RemoteExperimentConfigurationResource.class).to(RemoteExperimentConfigurationResourceImpl.class);
 		bind(RsResource.class).to(RsResourceImpl.class);
 		bind(SnaaResource.class).to(SnaaResourceImpl.class);
-		bind(TestbedsResource.class).to(TestbedsResourceImpl.class);
+		bind(RootResource.class).to(RootResourceImpl.class);
 
 		install(new FactoryModuleBuilder().build(WsnWebSocketFactory.class));
 		install(new FactoryModuleBuilder().build(EventWebSocketFactory.class));

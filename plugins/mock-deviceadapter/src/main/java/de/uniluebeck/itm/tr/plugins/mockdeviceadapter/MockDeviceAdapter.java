@@ -81,7 +81,7 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 
 		final NodeUrn nodeUrn = deviceConfig.getNodeUrn();
 		final ProgressSettableFuture<Void> future = ProgressSettableFuture.create();
-		final ProgressSettableFutureMap<NodeUrn, Void> futureMap = ProgressSettableFutureMap.of(nodeUrn, future);
+		final ProgressSettableFutureMap<NodeUrn, Void> futureMapMessagesHelper = ProgressSettableFutureMap.of(nodeUrn, future);
 
 		for (int i = 1; i <10; i++) {
 			schedulerService.schedule(createSetProgressRunnable(future, (float) i / 10f), i, TimeUnit.SECONDS);

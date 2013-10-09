@@ -20,24 +20,24 @@ public class RestApiApplication extends RestApplicationBase {
 
 	private final SnaaResource snaaResource;
 
-	private final TestbedsResource testbedsResource;
+	private final RootResource rootResource;
 
 	private final CookieResource cookieResource;
 
 	@Inject
-	public RestApiApplication(final ExperimentResourceImpl experimentResource,
+	public RestApiApplication(final ExperimentResource experimentResource,
 							  final CookieResource cookieResource,
-							  final RemoteExperimentConfigurationResourceImpl remoteExperimentConfigurationResource,
-							  final RsResourceImpl rsResource,
-							  final SnaaResourceImpl snaaResource,
-							  final TestbedsResourceImpl testbedsResource) {
+							  final RemoteExperimentConfigurationResource remoteExperimentConfigurationResource,
+							  final RsResource rsResource,
+							  final SnaaResource snaaResource,
+							  final RootResource testbedsResource) {
 
 		this.experimentResource = checkNotNull(experimentResource);
 		this.cookieResource = checkNotNull(cookieResource);
 		this.remoteExperimentConfigurationResource = checkNotNull(remoteExperimentConfigurationResource);
 		this.rsResource = checkNotNull(rsResource);
 		this.snaaResource = checkNotNull(snaaResource);
-		this.testbedsResource = checkNotNull(testbedsResource);
+		this.rootResource = checkNotNull(testbedsResource);
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class RestApiApplication extends RestApplicationBase {
 				remoteExperimentConfigurationResource,
 				rsResource,
 				snaaResource,
-				testbedsResource,
+				rootResource,
 				new Base64ExceptionMapper(),
 				new SNAAFaultExceptionMapper(),
 				new RSFaultExceptionMapper(),

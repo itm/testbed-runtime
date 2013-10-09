@@ -10,15 +10,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.common.NodeUrnPrefixHelper.NODE_URN_PREFIX_TO_STRING;
 
-@Path("/testbeds/")
-public class TestbedsResourceImpl implements TestbedsResource {
+@Path("/")
+public class RootResourceImpl implements RootResource {
 
 	private final EndpointManager endpointManager;
 
@@ -27,9 +26,9 @@ public class TestbedsResourceImpl implements TestbedsResource {
 	private final WiseGuiServiceConfig wiseGuiServiceConfig;
 
 	@Inject
-	public TestbedsResourceImpl(final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
-								final WiseGuiServiceConfig wiseGuiServiceConfig,
-								final EndpointManager endpointManager) {
+	public RootResourceImpl(final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
+							final WiseGuiServiceConfig wiseGuiServiceConfig,
+							final EndpointManager endpointManager) {
 		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
 		this.wiseGuiServiceConfig = checkNotNull(wiseGuiServiceConfig);
 		this.endpointManager = checkNotNull(endpointManager);
@@ -38,7 +37,8 @@ public class TestbedsResourceImpl implements TestbedsResource {
 	@Override
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
-	public List<TestbedDescription> getTestbedList() {
+	@Path("testbedDescription")
+	public TestbedDescription getTestbedDescription() {
 
 		final TestbedDescription testbed = new TestbedDescription();
 
@@ -47,6 +47,6 @@ public class TestbedsResourceImpl implements TestbedsResource {
 		testbed.sessionManagementEndpointUrl = endpointManager.getSmEndpointUri().toString();
 		testbed.urnPrefixes = newArrayList(transform(servedNodeUrnPrefixesProvider.get(), NODE_URN_PREFIX_TO_STRING));
 
-		return newArrayList(testbed);
+		return testbed;
 	}
 }
