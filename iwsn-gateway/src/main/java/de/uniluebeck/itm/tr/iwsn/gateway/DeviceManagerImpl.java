@@ -41,6 +41,8 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	private static final Logger log = LoggerFactory.getLogger(DeviceManager.class);
 
+	private final Set<DeviceFoundEvent> devicesFoundWithoutConfig = newHashSet();
+
 	private final Multimap<String, DeviceConfig> detectedButNotConnectedDevices = HashMultimap.create();
 
 	private final Set<DeviceAdapter> runningDeviceAdapters = newHashSet();
@@ -55,7 +57,41 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	private final DeviceDBService deviceDBService;
 
-	private Runnable tryToConnectToDetectedButUnconnectedDevicesRunnable = new Runnable() {
+	private Runnable tryToRetrieveConfigsForFoundDevicesRunnable = new Runnable() {
+
+		@Override
+		public void run() {
+
+			log.trace("DeviceManagerImpl.tryToRetrieveConfigsForFoundDevicesRunnable.run()");
+
+			final Set<DeviceFoundEvent> deviceFoundEvents;
+			synchronized (devicesFoundWithoutConfig) {
+				deviceFoundEvents = newHashSet(devicesFoundWithoutConfig);
+			}
+
+			boolean foundConfigs = false;
+			for (DeviceFoundEvent deviceFoundEvent : deviceFoundEvents) {
+				final DeviceConfig deviceConfig = getDeviceConfigFromDeviceDB(deviceFoundEvent);
+				if (deviceConfig == null) {
+					log.warn("Ignoring device unknown to DeviceDB: {}", deviceFoundEvent);
+				} else {
+					foundConfigs = true;
+					synchronized (detectedButNotConnectedDevices) {
+						detectedButNotConnectedDevices.put(deviceFoundEvent.getPort(), deviceConfig);
+					}
+					synchronized (devicesFoundWithoutConfig) {
+						devicesFoundWithoutConfig.remove(deviceFoundEvent);
+					}
+				}
+			}
+
+			if (foundConfigs) {
+				schedulerService.execute(tryToConnectToUnconnectedDevicesRunnable);
+			}
+		}
+	};
+
+	private Runnable tryToConnectToUnconnectedDevicesRunnable = new Runnable() {
 		@Override
 		public void run() {
 
@@ -74,7 +110,9 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 			if (log.isTraceEnabled()) {
 				log.trace("Before retrying to connect: detectedButNotConnectedDevices: {}",
-						Iterables.transform(detectedButNotConnectedDevices.entries(), entryToStringFunction)
+						Iterables.transform(detectedButNotConnectedDevices.entries(),
+								entryToStringFunction
+						)
 				);
 			}
 
@@ -90,7 +128,9 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 			if (log.isTraceEnabled()) {
 				log.trace("After retrying to connect: detectedButNotConnectedDevices: {}",
-						Iterables.transform(detectedButNotConnectedDevices.entries(), entryToStringFunction)
+						Iterables.transform(detectedButNotConnectedDevices.entries(),
+								entryToStringFunction
+						)
 				);
 			}
 		}
@@ -175,6 +215,9 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	@Nullable
 	private ScheduledFuture<?> tryToConnectToDetectedButUnconnectedDevicesSchedule;
+
+	@Nullable
+	private ScheduledFuture<?> tryToRetrieveConfigsForFoundDevicesSchedule;
 
 	private class ManagerDeviceAdapterListener implements DeviceAdapterListener {
 
@@ -278,12 +321,21 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 		log.trace("DeviceManagerImpl.doStart()");
 
 		try {
+
 			gatewayEventBus.register(this);
+
+			tryToRetrieveConfigsForFoundDevicesSchedule = schedulerService.scheduleWithFixedDelay(
+					tryToRetrieveConfigsForFoundDevicesRunnable,
+					15, 30, TimeUnit.SECONDS
+			);
+
 			tryToConnectToDetectedButUnconnectedDevicesSchedule = schedulerService.scheduleWithFixedDelay(
-					tryToConnectToDetectedButUnconnectedDevicesRunnable,
+					tryToConnectToUnconnectedDevicesRunnable,
 					30, 30, TimeUnit.SECONDS
 			);
+
 			notifyStarted();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -295,6 +347,18 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 		log.trace("DeviceManagerImpl.doStop()");
 
 		try {
+
+			try {
+				if (tryToRetrieveConfigsForFoundDevicesSchedule != null) {
+					tryToRetrieveConfigsForFoundDevicesSchedule.cancel(false);
+					tryToRetrieveConfigsForFoundDevicesSchedule = null;
+				}
+			} catch (Exception e) {
+				log.error(
+						"Exception while stopping scheduled task that tries to connected with devices that have been detected but not connected to yet: ",
+						e
+				);
+			}
 
 			try {
 				if (tryToConnectToDetectedButUnconnectedDevicesSchedule != null) {
@@ -344,19 +408,23 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 				deviceConfig = getDeviceConfigFromDeviceDB(deviceFoundEvent);
 				if (deviceConfig == null) {
 					log.warn("Ignoring device unknown to DeviceDB: {}", deviceFoundEvent);
-					return;
 				}
 			} catch (Exception e) {
 				log.error("Exception while fetching device configuration from DeviceDB: {}", e.getMessage());
-				return;
 			}
 		}
 
-		synchronized (detectedButNotConnectedDevices) {
-			detectedButNotConnectedDevices.put(deviceFoundEvent.getPort(), deviceConfig);
+		if (deviceConfig == null) {
+			synchronized (devicesFoundWithoutConfig) {
+				devicesFoundWithoutConfig.add(deviceFoundEvent);
+			}
+		} else {
+			synchronized (detectedButNotConnectedDevices) {
+				detectedButNotConnectedDevices.put(deviceFoundEvent.getPort(), deviceConfig);
+			}
 		}
 
-		schedulerService.execute(tryToConnectToDetectedButUnconnectedDevicesRunnable);
+		schedulerService.execute(tryToConnectToUnconnectedDevicesRunnable);
 	}
 
 	/**
@@ -413,7 +481,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 			}
 		}
 
-		schedulerService.execute(tryToConnectToDetectedButUnconnectedDevicesRunnable);
+		schedulerService.execute(tryToConnectToUnconnectedDevicesRunnable);
 	}
 
 	@Subscribe
