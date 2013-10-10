@@ -60,6 +60,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -144,13 +145,15 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 	private ChannelHandlerConfigList currentPipeline;
 
 	@Inject
-	public SingleDeviceAdapter(final String port,
-							   final DeviceConfig deviceConfig,
+	public SingleDeviceAdapter(final String deviceType,
+							   final String devicePort,
+							   final Map<String, String> deviceConfiguration,
+							   @Nullable final DeviceConfig deviceConfig,
 							   final DeviceFactory deviceFactory,
 							   final NodeApiFactory nodeApiFactory,
 							   final Set<HandlerFactory> handlerFactories) {
 
-		super(port, deviceConfig);
+		super(deviceType, devicePort, deviceConfiguration, deviceConfig);
 
 		this.deviceFactory = checkNotNull(deviceFactory);
 		this.nodeApiFactory = checkNotNull(nodeApiFactory);
@@ -163,7 +166,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 		this.abovePipelineLogger = new AbovePipelineLogger(this.deviceConfig.getNodeUrn().toString());
 		this.belowPipelineLogger = new BelowPipelineLogger(this.deviceConfig.getNodeUrn().toString());
-		this.currentPipeline = deviceConfig.getDefaultChannelPipeline();
+		this.currentPipeline = this.deviceConfig.getDefaultChannelPipeline();
 	}
 
 	@Override
@@ -184,10 +187,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 					deviceConfig.getNodeConfiguration()
 			);
 
-			device.connect(port);
+			device.connect(devicePort);
 
 			log.info("{} => Successfully connected to {} device on serial port {}",
-					deviceConfig.getNodeUrn(), deviceConfig.getNodeType(), port
+					deviceConfig.getNodeUrn(), deviceConfig.getNodeType(), devicePort
 			);
 
 			this.nodeApi = nodeApiFactory.create(

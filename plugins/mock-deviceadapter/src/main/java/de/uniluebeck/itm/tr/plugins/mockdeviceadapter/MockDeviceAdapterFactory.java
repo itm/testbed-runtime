@@ -5,6 +5,9 @@ import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapter;
 import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapterFactory;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 
+import javax.annotation.Nullable;
+import java.util.Map;
+
 public class MockDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	private final SchedulerService schedulerService;
@@ -14,12 +17,18 @@ public class MockDeviceAdapterFactory implements DeviceAdapterFactory {
 	}
 
 	@Override
-	public boolean canHandle(final DeviceConfig deviceConfig) {
+	public boolean canHandle(final String deviceType,
+							 final String devicePort,
+							 @Nullable final Map<String, String> deviceConfiguration,
+							 @Nullable final DeviceConfig deviceConfig) {
 		return true;
 	}
 
 	@Override
-	public DeviceAdapter create(final String port, final DeviceConfig deviceConfig) {
-		return new MockDeviceAdapter(port, deviceConfig, schedulerService);
+	public DeviceAdapter create(final String deviceType,
+								final String devicePort,
+								@Nullable final Map<String, String> deviceConfiguration,
+								@Nullable final DeviceConfig deviceConfig) {
+		return new MockDeviceAdapter(deviceType, devicePort, deviceConfiguration, deviceConfig, schedulerService);
 	}
 }

@@ -211,6 +211,7 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 		final DeviceFoundEvent deviceFoundEvent = new DeviceFoundEvent(
 				deviceConfig.getNodeType(),
 				deviceConfig.getNodePort(),
+				deviceConfig.getNodeConfiguration(),
 				deviceConfig.getNodeUSBChipID(),
 				new MacAddress(deviceConfig.getNodeUrn().getSuffix()),
 				deviceConfig
@@ -250,6 +251,7 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 		final DeviceLostEvent deviceLostEvent = new DeviceLostEvent(
 				deviceConfig.getNodeType(),
 				deviceConfig.getNodePort(),
+				deviceConfig.getNodeConfiguration(),
 				deviceConfig.getNodeUSBChipID(),
 				new MacAddress(deviceConfig.getNodeUrn().getSuffix()),
 				deviceConfig

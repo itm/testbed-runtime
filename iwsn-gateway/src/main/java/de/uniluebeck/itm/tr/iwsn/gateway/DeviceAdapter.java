@@ -32,6 +32,7 @@ import de.uniluebeck.itm.util.concurrent.ListenableFutureMap;
 import de.uniluebeck.itm.util.concurrent.ProgressListenableFutureMap;
 import eu.wisebed.api.v3.common.NodeUrn;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,8 +44,14 @@ import java.util.Set;
  */
 public interface DeviceAdapter extends Listenable<DeviceAdapterListener>, Service {
 
-	String getPort();
+	String getDeviceType();
 
+	String getDevicePort();
+
+	@Nullable
+	Map<String, String> getDeviceConfiguration();
+
+	@Nullable
 	DeviceConfig getDeviceConfig();
 
 	/**
