@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class ResponseTrackerCacheImpl implements ResponseTrackerCache {
 
 	private final Cache<Long, ResponseTracker> responseTrackerCache = CacheBuilder.newBuilder()
-			.expireAfterAccess(30, TimeUnit.MINUTES)
+			.expireAfterAccess(1, TimeUnit.HOURS)
 			.build();
 
 	@Override

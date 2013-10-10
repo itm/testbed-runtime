@@ -5,9 +5,9 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -38,7 +38,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	private final String key;
 
-	private final TimedCache<Long, ResponseTracker> responseTrackerCache;
+	private final ResponseTrackerCache responseTrackerCache;
 
 	private final ResponseTrackerFactory responseTrackerFactory;
 
@@ -48,7 +48,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	public ReservationImpl(final CommonConfig commonConfig,
 						   final ReservationEventBusFactory reservationEventBusFactory,
 						   final PortalEventBus portalEventBus,
-						   final TimedCache<Long, ResponseTracker> responseTrackerCache,
+						   final ResponseTrackerCache responseTrackerCache,
 						   final ResponseTrackerFactory responseTrackerFactory,
 						   @Assisted("secretReservationKey") final String key,
 						   @Assisted("username") final String username,
@@ -142,7 +142,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	@Override
 	public ResponseTracker createResponseTracker(final Request request) {
-		if (responseTrackerCache.containsKey(request.getRequestId())) {
+		if (responseTrackerCache.getIfPresent(request.getRequestId()) != null) {
 			throw new IllegalArgumentException(
 					"ResponseTracker for requestId \"" + request.getRequestId() + "\" already exists!"
 			);
@@ -154,7 +154,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	@Override
 	public ResponseTracker getResponseTracker(final long requestId) {
-		return responseTrackerCache.get(requestId);
+		return responseTrackerCache.getIfPresent(requestId);
 	}
 
 	@Override

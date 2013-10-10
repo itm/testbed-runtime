@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.NodeUrnHelper;
@@ -15,7 +14,6 @@ import de.uniluebeck.itm.tr.iwsn.portal.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeyException;
-import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.ChannelPipelinesMap;
 import eu.wisebed.wiseml.Capability;
@@ -23,12 +21,12 @@ import eu.wisebed.wiseml.Setup.Node;
 import eu.wisebed.wiseml.Wiseml;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.Status;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.util.*;
@@ -42,16 +40,14 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
 import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.*;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.fromJSON;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 
 @Path("/experiments/")
 public class ExperimentResourceImpl implements ExperimentResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ExperimentResourceImpl.class);
-
-	private static final Random RANDOM = new Random();
-
-	private final TimedCache<Long, List<Long>> flashResponseTrackers;
 
 	private final WisemlProvider wisemlProvider;
 
@@ -71,14 +67,12 @@ public class ExperimentResourceImpl implements ExperimentResource {
 								  final PortalEventBus portalEventBus,
 								  final ResponseTrackerFactory responseTrackerFactory,
 								  final ReservationManager reservationManager,
-								  final RequestIdProvider requestIdProvider,
-								  final TimedCache<Long, List<Long>> flashResponseTrackers) {
+								  final RequestIdProvider requestIdProvider) {
 		this.wisemlProvider = checkNotNull(wisemlProvider);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
-		this.flashResponseTrackers = checkNotNull(flashResponseTrackers);
 	}
 
 	@Override
@@ -198,15 +192,9 @@ public class ExperimentResourceImpl implements ExperimentResource {
 								  final FlashProgramsRequest flashData) throws Exception {
 
 		log.trace("ExperimentResourceImpl.flashPrograms({}, {})", secretReservationKeysBase64, flashData);
-		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 
-		long flashResponseTrackersId = RANDOM.nextLong();
-		synchronized (flashResponseTrackers) {
-			while (flashResponseTrackers.containsKey(flashResponseTrackersId)) {
-				flashResponseTrackersId = RANDOM.nextLong();
-			}
-			flashResponseTrackers.put(flashResponseTrackersId, Lists.<Long>newArrayList());
-		}
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
+		final List<Long> requestIds = newArrayList();
 
 		for (FlashProgramsRequest.FlashTask flashTask : flashData.configurations) {
 
@@ -218,10 +206,9 @@ public class ExperimentResourceImpl implements ExperimentResource {
 					extractByteArrayFromDataURL(flashTask.image)
 			);
 
-			synchronized (flashResponseTrackers) {
-				flashResponseTrackers.get(flashResponseTrackersId).add(requestId);
-			}
+			requestIds.add(requestId);
 
+			// just create ResponseTracker, we can retrieve it using the reservation later
 			reservation.createResponseTracker(request);
 			reservation.getReservationEventBus().post(request);
 		}
@@ -229,8 +216,8 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		// remember response trackers, make them available via URL, redirect callers to this URL
 		URI location = UriBuilder
 				.fromUri(uriInfo.getRequestUri())
-				.path("{flashResponseTrackersIdBase64}")
-				.build(encode(Long.toString(flashResponseTrackersId)));
+				.path("{requestIdsJSONListBase64}")
+				.build(encode(toJSON(requestIds)));
 
 		return Response.ok(location.toString()).location(location).build();
 	}
@@ -238,27 +225,20 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@Override
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeysBase64}/flash/{flashResponseTrackersIdBase64}")
+	@Path("{secretReservationKeysBase64}/flash/{requestIdsJSONListBase64}")
 	public Response flashProgramsStatus(
 			@PathParam("secretReservationKeysBase64") final String secretReservationKeysBase64,
-			@PathParam("flashResponseTrackersIdBase64") final String flashResponseTrackersIdBase64)
+			@PathParam("requestIdsJSONListBase64") final String requestIdsJSONListBase64)
 			throws Exception {
 
 		log.trace("ExperimentResourceImpl.flashProgramsStatus({}, {})",
 				secretReservationKeysBase64,
-				flashResponseTrackersIdBase64
+				requestIdsJSONListBase64
 		);
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
-		final Long flashResponseTrackersId = Long.parseLong(decode(flashResponseTrackersIdBase64));
-
-		if (!flashResponseTrackers.containsKey(flashResponseTrackersId)) {
-			return Response
-					.status(Status.NOT_FOUND)
-					.entity("No flash job with request ID " + flashResponseTrackersId + " found!")
-					.build();
+		final List<Long> requestIds = fromJSON(decode(requestIdsJSONListBase64), new TypeReference<List<Long>>() {
 		}
-
-		final List<Long> requestIds = flashResponseTrackers.get(flashResponseTrackersId);
+		);
 		return Response.ok(buildOperationStatusMap(reservation, requestIds)).build();
 	}
 

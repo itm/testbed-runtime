@@ -1,9 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -40,7 +39,7 @@ public class ReservationImplTest {
 	private ReservationEventBus reservationEventBus;
 
 	@Mock
-	private TimedCache<Long, ResponseTracker> responseTrackerTimedCache;
+	private ResponseTrackerCache responseTrackerTimedCache;
 
 	@Mock
 	private ResponseTrackerFactory responseTrackerFactory;
