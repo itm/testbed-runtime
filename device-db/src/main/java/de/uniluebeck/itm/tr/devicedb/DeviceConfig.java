@@ -39,6 +39,7 @@ public class DeviceConfig implements Serializable {
 
 	private String nodeType;
 
+	@Nullable
 	private String nodePort;
 
 	private boolean gatewayNode;
@@ -140,6 +141,7 @@ public class DeviceConfig implements Serializable {
 		return new NodeUrn(nodeUrn);
 	}
 
+	@Nullable
 	public String getNodePort() {
 		return nodePort;
 	}
