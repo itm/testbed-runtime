@@ -19,6 +19,7 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,15 +96,16 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", srks);
 
 		// filter out additional keys that are not for this testbed (= urn prefix) and make a set so we can match in map
-		final Set<SecretReservationKey> srkSet = newHashSet();
-		for (SecretReservationKey srk : srks) {
-			if (commonConfig.getUrnPrefix().equals(srk.getUrnPrefix())) {
-				srkSet.add(srk);
+		for (Iterator<SecretReservationKey> it = srks.iterator(); it.hasNext(); ) {
+			SecretReservationKey current = it.next();
+			if (!commonConfig.getUrnPrefix().equals(current.getUrnPrefix())) {
+				it.remove();
 			}
 		}
 
 		synchronized (reservationMap) {
 
+			final Set<SecretReservationKey> srkSet = newHashSet(srks);
 			if (reservationMap.containsKey(srkSet)) {
 				return reservationMap.get(srkSet);
 			}

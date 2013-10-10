@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Service;
@@ -34,6 +35,7 @@ import javax.jws.WebService;
 import javax.xml.ws.Holder;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -214,7 +216,13 @@ public class SessionManagementImpl implements SessionManagement {
 
 		preconditions.get().checkGetInstanceArguments(secretReservationKeys, true);
 
-		final String key = secretReservationKeys.get(0).getKey();
+		for (Iterator<SecretReservationKey> it = secretReservationKeys.iterator(); it.hasNext(); ) {
+			SecretReservationKey current = it.next();
+			if (!commonConfig.getUrnPrefix().equals(current.getUrnPrefix())) {
+				it.remove();
+			}
+		}
+
 		final Reservation reservation;
 
 		try {
@@ -222,16 +230,18 @@ public class SessionManagementImpl implements SessionManagement {
 			reservation = reservationManager.getReservation(secretReservationKeys);
 
 		} catch (ReservationUnknownException e) {
-			final String message = "Secret reservation key \"" + key + "\" is unknown!";
+			final String message =
+					"Secret reservation keys \"" + Joiner.on(",").join(secretReservationKeys) + "\" are unknown!";
 			throw createSMUnknownSecretReservationKeyFault(message, secretReservationKeys.get(0), e);
 		}
 
-		return getOrCreateAndStartWSNServiceInstance(key, reservation).getURI().toString();
+		return getOrCreateAndStartWSNServiceInstance(reservation).getURI().toString();
 	}
 
-	private WSNService getOrCreateAndStartWSNServiceInstance(final String reservationKey,
-															 final Reservation reservation) {
+	private WSNService getOrCreateAndStartWSNServiceInstance(final Reservation reservation) {
 
+		WSN wsn;
+		AuthorizingWSN authorizingWSN;
 		WSNService wsnService;
 		DeliveryManager deliveryManager;
 
@@ -247,9 +257,9 @@ public class SessionManagementImpl implements SessionManagement {
 				deliveryManager = deliveryManagerFactory.create(reservation);
 				deliveryManagers.put(reservation, deliveryManager);
 
-				final WSN wsn = wsnFactory.create(reservation, deliveryManager);
-				AuthorizingWSN authorizingWSN = authorizingWSNFactory.create(reservation, wsn);
-				wsnService = wsnServiceFactory.create(reservationKey, authorizingWSN);
+				wsn = wsnFactory.create(reservation, deliveryManager);
+				authorizingWSN = authorizingWSNFactory.create(reservation, wsn);
+				wsnService = wsnServiceFactory.create(reservation, authorizingWSN);
 				wsnInstances.put(reservation, wsnService);
 			}
 		}
