@@ -173,12 +173,27 @@ public class SingleUrnPrefixRS implements RS {
 		checkNodesServed(nodeUrns);
 		checkNodesAvailable(newHashSet(nodeUrns), from, to, null, null);
 
+		// pick username that matches this testbed (i.e. has the same URN prefix)
+		String username = null;
+		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
+			if (commonConfig.getUrnPrefix().equals(secretAuthenticationKey.getUrnPrefix())) {
+				username = secretAuthenticationKey.getUsername();
+			}
+		}
+
+		if (username == null) {
+			throw new IllegalArgumentException(
+					"Missing SecretAuthenticationKey for this testbed (node URN prefix \"" + commonConfig
+							.getUrnPrefix() + "\")"
+			);
+		}
+
 		final ConfidentialReservationData confidentialReservationData = persistence.addReservation(
 				nodeUrns,
 				from,
 				to,
-				secretAuthenticationKeys.get(0).getUsername(),
-				secretAuthenticationKeys.get(0).getUrnPrefix(),
+				username,
+				commonConfig.getUrnPrefix(),
 				description,
 				options
 		);

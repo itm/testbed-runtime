@@ -173,6 +173,7 @@ public class ReservationManagerImplTest {
 		when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
 		when(rsProvider.get()).thenReturn(rs);
 		reservationManager = new ReservationManagerImpl(
+				commonConfig,
 				rsProvider,
 				deviceDBService,
 				reservationFactory,

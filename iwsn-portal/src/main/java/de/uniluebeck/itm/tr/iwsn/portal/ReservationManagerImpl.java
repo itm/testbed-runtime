@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -47,11 +48,15 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private final SchedulerService schedulerService;
 
+	private final CommonConfig commonConfig;
+
 	@Inject
-	public ReservationManagerImpl(final Provider<RS> rs,
+	public ReservationManagerImpl(final CommonConfig commonConfig,
+								  final Provider<RS> rs,
 								  final DeviceDBService deviceDBService,
 								  final ReservationFactory reservationFactory,
 								  final SchedulerServiceFactory schedulerServiceFactory) {
+		this.commonConfig = checkNotNull(commonConfig);
 		this.rs = checkNotNull(rs);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.reservationFactory = checkNotNull(reservationFactory);
@@ -84,12 +89,18 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	@Override
-	public Reservation getReservation(final List<SecretReservationKey> secretReservationKeys)
+	public Reservation getReservation(final List<SecretReservationKey> srks)
 			throws ReservationUnknownException {
 
-		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", secretReservationKeys);
+		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", srks);
 
-		final Set<SecretReservationKey> srkSet = newHashSet(secretReservationKeys);
+		// filter out additional keys that are not for this testbed (= urn prefix) and make a set so we can match in map
+		final Set<SecretReservationKey> srkSet = newHashSet();
+		for (SecretReservationKey srk : srks) {
+			if (commonConfig.getUrnPrefix().equals(srk.getUrnPrefix())) {
+				srkSet.add(srk);
+			}
+		}
 
 		synchronized (reservationMap) {
 
@@ -99,7 +110,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 			final List<ConfidentialReservationData> confidentialReservationDataList;
 			try {
-				confidentialReservationDataList = rs.get().getReservation(secretReservationKeys);
+				confidentialReservationDataList = rs.get().getReservation(srks);
 			} catch (RSFault_Exception e) {
 				throw propagate(e);
 			} catch (UnknownSecretReservationKeyFault e) {

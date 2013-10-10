@@ -2,11 +2,11 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SecretReservationKeyListRs;
-import de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper;
 import org.apache.cxf.common.util.Base64Exception;
 import org.eclipse.jetty.websocket.WebSocket;
 
