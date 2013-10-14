@@ -34,6 +34,11 @@ public interface RsResource {
 	void deleteReservation(SecretReservationKeyListRs secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault, AuthenticationFault;
 
+	@GET
+	@Produces({MediaType.APPLICATION_JSON})
+	ConfidentialReservationDataList getReservation(String secretReservationKeysBase64)
+			throws RSFault_Exception, UnknownSecretReservationKeyFault;
+
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})

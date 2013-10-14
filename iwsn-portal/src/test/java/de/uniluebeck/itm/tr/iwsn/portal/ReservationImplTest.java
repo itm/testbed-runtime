@@ -4,6 +4,7 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Before;
@@ -13,6 +14,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -47,6 +49,9 @@ public class ReservationImplTest {
 	@Mock
 	private CommonConfig commonConfig;
 
+	@Mock
+	private List<ConfidentialReservationData> confidentialReservationData;
+
 	private ReservationImpl reservation;
 
 	@Before
@@ -58,6 +63,7 @@ public class ReservationImplTest {
 				portalEventBus,
 				responseTrackerTimedCache,
 				responseTrackerFactory,
+				confidentialReservationData,
 				"someRandomReservationIdHere",
 				username,
 				NODE_URNS,

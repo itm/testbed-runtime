@@ -17,9 +17,31 @@ public interface ExperimentResource {
 	Wiseml getNetwork();
 
 	@GET
+	@Path("network.json")
+	@Produces(MediaType.APPLICATION_JSON)
+	Wiseml getNetworkAsJson();
+
+	@GET
+	@Path("network.xml")
+	@Produces(MediaType.APPLICATION_XML)
+	Wiseml getNetworkAsXml();
+
+	@GET
 	@Path("{secretReservationKeyBase64}/network")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	Wiseml getExperimentNetwork(
+			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Exception;
+
+	@GET
+	@Path("{secretReservationKeyBase64}/network.json")
+	@Produces(MediaType.APPLICATION_JSON)
+	Wiseml getExperimentNetworkAsJson(
+			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Exception;
+
+	@GET
+	@Path("{secretReservationKeyBase64}/network.xml")
+	@Produces(MediaType.APPLICATION_XML)
+	Wiseml getExperimentNetworkAsXml(
 			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Exception;
 
 	@GET

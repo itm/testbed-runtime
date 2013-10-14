@@ -7,7 +7,6 @@ import de.uniluebeck.itm.tr.common.NodeUrnHelper;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
@@ -29,7 +28,10 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -78,7 +80,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@Override
 	@GET
 	@Path("network")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Wiseml getNetwork() {
 		log.trace("ExperimentResourceImpl.getNetwork()");
 		return wisemlProvider.get();
@@ -86,12 +88,52 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 	@Override
 	@GET
+	@Path("network.json")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Wiseml getNetworkAsJson() {
+		log.trace("ExperimentResourceImpl.getNetworkAsJson()");
+		return getNetwork();
+	}
+
+	@Override
+	@GET
+	@Path("network.xml")
+	@Produces(MediaType.APPLICATION_XML)
+	public Wiseml getNetworkAsXml() {
+		log.trace("ExperimentResourceImpl.getNetworkAsXml()");
+		return getNetwork();
+	}
+
+	@Override
+	@GET
 	@Path("{secretReservationKeysBase64}/network")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Wiseml getExperimentNetwork(
 			@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64) throws Exception {
 		log.trace("ExperimentResourceImpl.getExperimentNetwork({})", secretReservationKeysBase64);
 		return filterWisemlForReservedNodes(secretReservationKeysBase64);
+	}
+
+	@Override
+	@GET
+	@Path("{secretReservationKeyBase64}/network.json")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Wiseml getExperimentNetworkAsJson(
+			@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64)
+			throws Exception {
+		log.trace("ExperimentResourceImpl.getExperimentNetworkAsJson()");
+		return getExperimentNetwork(secretReservationKeyBase64);
+	}
+
+	@Override
+	@GET
+	@Path("{secretReservationKeyBase64}/network.xml")
+	@Produces(MediaType.APPLICATION_XML)
+	public Wiseml getExperimentNetworkAsXml(
+			@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64)
+			throws Exception {
+		log.trace("ExperimentResourceImpl.getExperimentNetworkAsXml()");
+		return getExperimentNetwork(secretReservationKeyBase64);
 	}
 
 	@Override
@@ -236,9 +278,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				requestIdsJSONListBase64
 		);
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
-		final List<Long> requestIds = fromJSON(decode(requestIdsJSONListBase64), new TypeReference<List<Long>>() {
-		}
-		);
+		final List<Long> requestIds = fromJSON(decode(requestIdsJSONListBase64), new TypeReference<List<Long>>() {});
 		return Response.ok(buildOperationStatusMap(reservation, requestIds)).build();
 	}
 
@@ -444,7 +484,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 	private Reservation getReservationOrThrow(final String secretReservationKeysBase64) throws Exception {
 
-		final SecretReservationKeyListRs secretReservationKeys = JSONHelper.fromJSON(
+		final SecretReservationKeyListRs secretReservationKeys = fromJSON(
 				decode(secretReservationKeysBase64),
 				SecretReservationKeyListRs.class
 		);

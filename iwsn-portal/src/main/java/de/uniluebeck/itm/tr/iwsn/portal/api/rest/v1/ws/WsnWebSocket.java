@@ -108,12 +108,12 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	@Subscribe
 	public void onReservationStarted(final ReservationStartedEvent event) {
-		sendMessage(toJSON(new ReservationStartedMessage(event)));
+		sendMessage(toJSON(new ReservationStartedMessage(event.getReservation())));
 	}
 
 	@Subscribe
 	public void onReservationEnded(final ReservationEndedEvent event) {
-		sendMessage(toJSON(new ReservationEndedMessage(event)));
+		sendMessage(toJSON(new ReservationEndedMessage(event.getReservation())));
 	}
 
 	@Override
@@ -130,9 +130,9 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		final DateTime end = reservation.getInterval().getEnd();
 
 		if (end.isBeforeNow()) {
-			sendMessage(toJSON(new ReservationEndedMessage(end)));
+			sendMessage(toJSON(new ReservationEndedMessage(reservation)));
 		} else if (start.isBeforeNow()) {
-			sendMessage(toJSON(new ReservationStartedMessage(start)));
+			sendMessage(toJSON(new ReservationStartedMessage(reservation)));
 		}
 
 		keepAliveSchedule = schedulerService.scheduleAtFixedRate(

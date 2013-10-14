@@ -194,6 +194,7 @@ public class ReservationManagerImplTest {
 
 		assertSame(reservation1, reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_1));
 		verify(reservationFactory).create(
+				anyListOf(ConfidentialReservationData.class),
 				eq(KNOWN_SECRET_RESERVATION_KEY_1.getKey()),
 				eq(USERNAME),
 				eq(RESERVATION_NODE_URNS_1),
@@ -274,6 +275,7 @@ public class ReservationManagerImplTest {
 	private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_1)).thenReturn(RESERVATION_DATA_1);
 		when(reservationFactory.create(
+				anyListOf(ConfidentialReservationData.class),
 				KNOWN_SECRET_RESERVATION_KEY_1.getKey(),
 				USERNAME,
 				RESERVATION_NODE_URNS_1,
@@ -286,6 +288,7 @@ public class ReservationManagerImplTest {
 	private void setUpReservation2() throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_2)).thenReturn(RESERVATION_DATA_2);
 		when(reservationFactory.create(
+				anyListOf(ConfidentialReservationData.class),
 				KNOWN_SECRET_RESERVATION_KEY_2.getKey(),
 				USERNAME,
 				RESERVATION_NODE_URNS_2,
@@ -298,6 +301,7 @@ public class ReservationManagerImplTest {
 	private void setUpReservation3() throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_3)).thenReturn(RESERVATION_DATA_3);
 		when(reservationFactory.create(
+				anyListOf(ConfidentialReservationData.class),
 				KNOWN_SECRET_RESERVATION_KEY_3.getKey(),
 				USERNAME,
 				RESERVATION_NODE_URNS_3,

@@ -11,10 +11,12 @@ import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,12 +46,15 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	private final CommonConfig commonConfig;
 
+	private final Set<ConfidentialReservationData> confidentialReservationData;
+
 	@Inject
 	public ReservationImpl(final CommonConfig commonConfig,
 						   final ReservationEventBusFactory reservationEventBusFactory,
 						   final PortalEventBus portalEventBus,
 						   final ResponseTrackerCache responseTrackerCache,
 						   final ResponseTrackerFactory responseTrackerFactory,
+						   @Assisted final List<ConfidentialReservationData> confidentialReservationDataList,
 						   @Assisted("secretReservationKey") final String key,
 						   @Assisted("username") final String username,
 						   @Assisted final Set<NodeUrn> nodeUrns,
@@ -57,6 +62,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		this.commonConfig = checkNotNull(commonConfig);
 		this.responseTrackerCache = checkNotNull(responseTrackerCache);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
+		this.confidentialReservationData = newHashSet(checkNotNull(confidentialReservationDataList));
 		this.key = checkNotNull(key);
 		this.username = checkNotNull(username);
 		this.portalEventBus = checkNotNull(portalEventBus);
@@ -138,6 +144,11 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	@Override
 	public Set<SecretReservationKey> getSecretReservationKeys() {
 		return newHashSet(getSecretReservationKey());
+	}
+
+	@Override
+	public Set<ConfidentialReservationData> getConfidentialReservationData() {
+		return confidentialReservationData;
 	}
 
 	@Override

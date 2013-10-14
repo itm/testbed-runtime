@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto;
 
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
-import org.joda.time.DateTime;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import org.joda.time.format.ISODateTimeFormat;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -16,16 +15,16 @@ public class ReservationEndedMessage {
 	@XmlElement(name = "timestamp")
 	public String timestamp;
 
+	@XmlElement(name = "reservationData")
+	public ConfidentialReservationDataList reservationData;
+
 	@SuppressWarnings("unused")
 	public ReservationEndedMessage() {
 	}
 
-	public ReservationEndedMessage(final DateTime timestamp) {
-		this.timestamp = timestamp.toString(ISODateTimeFormat.dateTime());
-	}
-
-	public ReservationEndedMessage(final ReservationEndedEvent event) {
-		this(event.getReservation().getInterval().getStart());
+	public ReservationEndedMessage(final Reservation reservation) {
+		this.timestamp = reservation.getInterval().getEnd().toString(ISODateTimeFormat.dateTime());
+		this.reservationData = new ConfidentialReservationDataList(reservation.getConfidentialReservationData());
 	}
 
 	@Override
@@ -33,6 +32,7 @@ public class ReservationEndedMessage {
 		return "ReservationEndedMessage{" +
 				"type='" + type + '\'' +
 				", timestamp='" + timestamp + '\'' +
-				"} " + super.toString();
+				", reservationData=" + reservationData +
+				'}';
 	}
 }

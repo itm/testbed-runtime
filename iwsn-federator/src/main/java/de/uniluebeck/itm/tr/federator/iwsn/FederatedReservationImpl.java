@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.serialize;
 
 public class FederatedReservationImpl extends AbstractService implements FederatedReservation {
@@ -174,6 +175,11 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 			keys.add(crd.getSecretReservationKey());
 		}
 		return keys.build();
+	}
+
+	@Override
+	public Set<ConfidentialReservationData> getConfidentialReservationData() {
+		return newHashSet(confidentialReservationDataList);
 	}
 
 	@Override

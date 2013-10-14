@@ -20,6 +20,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
+import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserialize;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.assertLoggedIn;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
 
@@ -86,6 +87,16 @@ public class RsResourceImpl implements RsResource {
 		List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 		log.debug("Cookie (secret authentication keys): {}", secretAuthenticationKeys);
 		rs.deleteReservation(secretAuthenticationKeys, secretReservationKeys.reservations);
+	}
+
+	@Override
+	@GET
+	@Path("byExperimentId/{secretReservationKeysBase64}")
+	@Produces({MediaType.APPLICATION_JSON})
+	public ConfidentialReservationDataList getReservation(
+			@PathParam("secretReservationKeysBase64") final String secretReservationKeysBase64)
+			throws RSFault_Exception, UnknownSecretReservationKeyFault {
+		return new ConfidentialReservationDataList(rs.getReservation(deserialize(secretReservationKeysBase64)));
 	}
 
 	@Override
