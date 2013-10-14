@@ -14,9 +14,9 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.List;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -50,7 +50,7 @@ public class ReservationImplTest {
 	private CommonConfig commonConfig;
 
 	@Mock
-	private List<ConfidentialReservationData> confidentialReservationData;
+	private ConfidentialReservationData confidentialReservationData;
 
 	private ReservationImpl reservation;
 
@@ -63,7 +63,7 @@ public class ReservationImplTest {
 				portalEventBus,
 				responseTrackerTimedCache,
 				responseTrackerFactory,
-				confidentialReservationData,
+				newArrayList(confidentialReservationData),
 				"someRandomReservationIdHere",
 				username,
 				NODE_URNS,

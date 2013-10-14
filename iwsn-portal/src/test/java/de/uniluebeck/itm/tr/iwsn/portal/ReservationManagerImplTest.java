@@ -276,10 +276,10 @@ public class ReservationManagerImplTest {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_1)).thenReturn(RESERVATION_DATA_1);
 		when(reservationFactory.create(
 				anyListOf(ConfidentialReservationData.class),
-				KNOWN_SECRET_RESERVATION_KEY_1.getKey(),
-				USERNAME,
-				RESERVATION_NODE_URNS_1,
-				RESERVATION_INTERVAL_1
+				eq(KNOWN_SECRET_RESERVATION_KEY_1.getKey()),
+				eq(USERNAME),
+				eq(RESERVATION_NODE_URNS_1),
+				eq(RESERVATION_INTERVAL_1)
 		)
 		).thenReturn(reservation1);
 		when(reservation1.getInterval()).thenReturn(RESERVATION_INTERVAL_1);
@@ -289,10 +289,10 @@ public class ReservationManagerImplTest {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_2)).thenReturn(RESERVATION_DATA_2);
 		when(reservationFactory.create(
 				anyListOf(ConfidentialReservationData.class),
-				KNOWN_SECRET_RESERVATION_KEY_2.getKey(),
-				USERNAME,
-				RESERVATION_NODE_URNS_2,
-				RESERVATION_INTERVAL_2
+				eq(KNOWN_SECRET_RESERVATION_KEY_2.getKey()),
+				eq(USERNAME),
+				eq(RESERVATION_NODE_URNS_2),
+				eq(RESERVATION_INTERVAL_2)
 		)
 		).thenReturn(reservation2);
 		when(reservation2.getInterval()).thenReturn(RESERVATION_INTERVAL_2);
@@ -302,10 +302,10 @@ public class ReservationManagerImplTest {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_3)).thenReturn(RESERVATION_DATA_3);
 		when(reservationFactory.create(
 				anyListOf(ConfidentialReservationData.class),
-				KNOWN_SECRET_RESERVATION_KEY_3.getKey(),
-				USERNAME,
-				RESERVATION_NODE_URNS_3,
-				RESERVATION_INTERVAL_3
+				eq(KNOWN_SECRET_RESERVATION_KEY_3.getKey()),
+				eq(USERNAME),
+				eq(RESERVATION_NODE_URNS_3),
+				eq(RESERVATION_INTERVAL_3)
 		)
 		).thenReturn(reservation3);
 		when(reservation3.getInterval()).thenReturn(RESERVATION_INTERVAL_3);
