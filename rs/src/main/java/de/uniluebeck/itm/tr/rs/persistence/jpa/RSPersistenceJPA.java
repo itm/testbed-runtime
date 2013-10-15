@@ -39,7 +39,6 @@ import eu.wisebed.api.v3.rs.RSFault;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,16 +169,38 @@ public class RSPersistenceJPA implements RSPersistence {
 	@Override
 	@Transactional
 	@SuppressWarnings("unchecked")
-	public List<ConfidentialReservationData> getReservations(final Interval interval,
+	public List<ConfidentialReservationData> getReservations(@Nullable final DateTime from,
+															 @Nullable final DateTime to,
 															 @Nullable final Integer offset,
 															 @Nullable final Integer amount) throws RSFault_Exception {
 
-		DateTime localFrom = interval.getStart().toDateTime(forTimeZone(localTimeZone));
-		DateTime localTo = interval.getEnd().toDateTime(forTimeZone(localTimeZone));
+		Query query;
 
-		Query query = em.get().createNamedQuery(ReservationDataInternal.QGetByInterval.QUERY_NAME);
-		query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, localFrom.getMillis());
-		query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, localTo.getMillis());
+		if (from == null && to == null) {
+
+			query = em.get().createNamedQuery(ReservationDataInternal.QGetAll.QUERY_NAME);
+
+		} else if (from == null) {
+
+			DateTime localTo = to.toDateTime(forTimeZone(localTimeZone));
+			query = em.get().createNamedQuery(ReservationDataInternal.QGetTo.QUERY_NAME);
+			query.setParameter(ReservationDataInternal.QGetTo.P_TO, localTo.getMillis());
+
+		} else if (to == null) {
+
+			DateTime localFrom = from.toDateTime(forTimeZone(localTimeZone));
+			query = em.get().createNamedQuery(ReservationDataInternal.QGetFrom.QUERY_NAME);
+			query.setParameter(ReservationDataInternal.QGetTo.P_TO, localFrom.getMillis());
+
+		} else {
+
+			DateTime localFrom = from.toDateTime(forTimeZone(localTimeZone));
+			DateTime localTo = to.toDateTime(forTimeZone(localTimeZone));
+
+			query = em.get().createNamedQuery(ReservationDataInternal.QGetByInterval.QUERY_NAME);
+			query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, localFrom.getMillis());
+			query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, localTo.getMillis());
+		}
 
 		if (offset != null) {
 			query.setFirstResult(offset);

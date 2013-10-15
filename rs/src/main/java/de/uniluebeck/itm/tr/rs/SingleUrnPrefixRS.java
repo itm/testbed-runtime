@@ -8,19 +8,19 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import eu.wisebed.api.v3.common.*;
-import eu.wisebed.api.v3.rs.AuthenticationFault;
-import eu.wisebed.api.v3.rs.AuthorizationFault;
+import eu.wisebed.api.v3.common.KeyValuePair;
+import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
-import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import eu.wisebed.api.v3.snaa.SNAA;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import eu.wisebed.api.v3.snaa.ValidationResult;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -65,17 +65,13 @@ public class SingleUrnPrefixRS implements RS {
 
 	@Override
 	public List<PublicReservationData> getReservations(
-			final DateTime from,
-			final DateTime to,
-			final Integer offset,
-			final Integer amount)
+			@Nullable final DateTime from,
+			@Nullable final DateTime to,
+			@Nullable final Integer offset,
+			@Nullable final Integer amount)
 			throws RSFault_Exception {
 
-		checkNotNull(from, "Parameter from date is null or empty");
-		checkNotNull(to, "Parameter to date is null or empty");
-
-		Interval interval = new Interval(from, to);
-		List<PublicReservationData> res = convertToPublic(persistence.getReservations(interval, offset, amount));
+		List<PublicReservationData> res = convertToPublic(persistence.getReservations(from, to, offset, amount));
 
 		log.debug("Found " + res.size() + " reservations from " + from + " until " + to);
 		return res;
@@ -84,36 +80,29 @@ public class SingleUrnPrefixRS implements RS {
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKeys,
-			final DateTime from,
-			final DateTime to,
-			final Integer offset,
-			final Integer amount)
+			@Nullable final DateTime from,
+			@Nullable final DateTime to,
+			@Nullable final Integer offset,
+			@Nullable final Integer amount)
 			throws AuthorizationFault, RSFault_Exception, AuthenticationFault {
 
-		checkNotNull(from, "Parameter from is null!");
-		checkNotNull(to, "Parameter to is null!");
 		checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null!");
-
-		checkArgumentValid(from, to);
 		checkArgumentValidAuthentication(secretAuthenticationKeys);
 		checkValidityWithSNAA(secretAuthenticationKeys);
 
 		SecretAuthenticationKey key = secretAuthenticationKeys.get(0);
 
-		Interval interval = new Interval(from, to);
-		List<ConfidentialReservationData> reservationsOfAllUsersInInterval = persistence.getReservations(interval,
-				offset, amount
-		);
-		List<ConfidentialReservationData> reservationsOfAuthenticatedUserInInterval = newArrayList();
+		List<ConfidentialReservationData> allUsersInInterval = persistence.getReservations(from, to, offset, amount);
+		List<ConfidentialReservationData> authenticatedUserInInterval = newArrayList();
 
-		for (ConfidentialReservationData crd : reservationsOfAllUsersInInterval) {
+		for (ConfidentialReservationData crd : allUsersInInterval) {
 			boolean sameUser = crd.getUsername().equals(key.getUsername());
 			if (sameUser) {
-				reservationsOfAuthenticatedUserInInterval.add(crd);
+				authenticatedUserInInterval.add(crd);
 			}
 		}
 
-		return reservationsOfAuthenticatedUserInInterval;
+		return authenticatedUserInInterval;
 	}
 
 	@Override
@@ -362,18 +351,6 @@ public class SingleUrnPrefixRS implements RS {
 			exception.setMessage(msg);
 			exception.getReservedNodeUrns().addAll(intersection);
 			throw new ReservationConflictFault_Exception(msg, exception);
-		}
-	}
-
-	private void checkArgumentValid(final DateTime from, final DateTime to)
-			throws RSFault_Exception {
-
-		if (from == null || to == null) {
-			String message = "Error on checking null for period. Either period, period.from or period.to is null.";
-			log.warn(message);
-			RSFault rse = new RSFault();
-			rse.setMessage(message);
-			throw new RSFault_Exception(message, rse);
 		}
 	}
 

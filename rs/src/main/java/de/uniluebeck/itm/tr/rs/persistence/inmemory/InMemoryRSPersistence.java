@@ -37,7 +37,10 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newLinkedList;
@@ -54,12 +57,13 @@ public class InMemoryRSPersistence implements RSPersistence {
 
 	@Override
 	public synchronized ConfidentialReservationData addReservation(final List<NodeUrn> nodeUrns,
-													  final DateTime from,
-													  final DateTime to,
-													  final String username,
-													  final NodeUrnPrefix urnPrefix,
-													  final String description,
-													  final List<KeyValuePair> options) throws RSFault_Exception {
+																   final DateTime from,
+																   final DateTime to,
+																   final String username,
+																   final NodeUrnPrefix urnPrefix,
+																   final String description,
+																   final List<KeyValuePair> options)
+			throws RSFault_Exception {
 
 		final SecretReservationKey secretReservationKey = new SecretReservationKey();
 		secretReservationKey.setUrnPrefix(urnPrefix);
@@ -80,9 +84,10 @@ public class InMemoryRSPersistence implements RSPersistence {
 	}
 
 	@Override
-	public synchronized List<ConfidentialReservationData> getReservations(final Interval interval,
-															 @Nullable Integer offset,
-															 @Nullable Integer amount) {
+	public synchronized List<ConfidentialReservationData> getReservations(@Nullable final DateTime from,
+																		  @Nullable final DateTime to,
+																		  @Nullable Integer offset,
+																		  @Nullable Integer amount) {
 
 		checkArgument(offset == null || offset >= 0, "Parameter offset must be a non-negative integer or null");
 		checkArgument(amount == null || amount >= 0, "Parameter amount must be a non-negative integer or null");
@@ -90,7 +95,12 @@ public class InMemoryRSPersistence implements RSPersistence {
 		final List<ConfidentialReservationData> matchingReservations = newLinkedList();
 
 		for (ConfidentialReservationData reservation : reservations) {
-			if (new Interval(reservation.getFrom(), reservation.getTo()).overlaps(interval)) {
+			boolean match =
+					(from == null && to == null) ||
+					(to == null && (reservation.getFrom().equals(from) || reservation.getFrom().isAfter(from))) ||
+					(from == null && (reservation.getTo().equals(to) || reservation.getTo().isBefore(to))) ||
+					(new Interval(reservation.getFrom(), reservation.getTo()).overlaps(new Interval(from, to)));
+			if (match) {
 				matchingReservations.add(reservation);
 			}
 		}

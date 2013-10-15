@@ -9,13 +9,15 @@ import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.api.v3.common.*;
+import eu.wisebed.api.v3.rs.AuthenticationFault;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
 import eu.wisebed.api.v3.rs.*;
 import eu.wisebed.api.v3.sm.SessionManagement;
-import eu.wisebed.api.v3.snaa.*;
-import eu.wisebed.api.v3.rs.AuthenticationFault;
+import eu.wisebed.api.v3.snaa.Action;
+import eu.wisebed.api.v3.snaa.AuthorizationResponse;
+import eu.wisebed.api.v3.snaa.SNAA;
+import eu.wisebed.api.v3.snaa.ValidationResult;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -247,8 +249,13 @@ public class SingleUrnPrefixRSTest {
 		)
 		).thenReturn(confidentialReservationData);
 
-		when(persistence.getReservations(Matchers.<Interval>any(), Matchers.<Integer>any(), Matchers.<Integer>any()))
-				.thenReturn(reservedNodes);
+		when(persistence.getReservations(
+				Matchers.<DateTime>any(),
+				Matchers.<DateTime>any(),
+				Matchers.<Integer>any(),
+				Matchers.<Integer>any()
+		)
+		).thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
 		try {
@@ -316,8 +323,12 @@ public class SingleUrnPrefixRSTest {
 				buildConfidentialReservationData(from, to, USER1_USERNAME, USER1_SECRET_RESERVATION_KEY, user1Node);
 		final ConfidentialReservationData reservation2 =
 				buildConfidentialReservationData(from, to, USER2_USERNAME, USER2_SECRET_RESERVATION_KEY, user2Node);
-		when(persistence.getReservations(Matchers.<Interval>any(), Matchers.<Integer>any(), Matchers.<Integer>any()))
-				.thenReturn(newArrayList(reservation1, reservation2));
+		when(persistence.getReservations(
+				Matchers.<DateTime>any(),
+				Matchers.<DateTime>any(),
+				Matchers.<Integer>any(),
+				Matchers.<Integer>any()
+		)).thenReturn(newArrayList(reservation1, reservation2));
 
 		final List<ConfidentialReservationData> user1Reservations =
 				rs.getConfidentialReservations(USER1_SAKS, from, to, null, null);

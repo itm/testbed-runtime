@@ -9,7 +9,6 @@ import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +48,9 @@ public class RsResourceImpl implements RsResource {
 								   @Nullable @QueryParam("amount") final Integer amount)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
-		final Interval interval = new Interval(from, to);
 		return userOnly ?
-				getConfidentialReservations(getSAKsFromCookie(httpHeaders), interval, offset, amount) :
-				getPublicReservations(interval, offset, amount);
+				getConfidentialReservations(getSAKsFromCookie(httpHeaders), from, to, offset, amount) :
+				getPublicReservations(from, to, offset, amount);
 	}
 
 	@Override
@@ -111,40 +109,45 @@ public class RsResourceImpl implements RsResource {
 
 	private ConfidentialReservationDataList getConfidentialReservations(
 			final List<SecretAuthenticationKey> snaaSecretAuthenticationKeys,
-			final Interval interval, final Integer offset, final Integer amount)
+			@Nullable final DateTime from,
+			@Nullable final DateTime to,
+			@Nullable final Integer offset,
+			@Nullable final Integer amount)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
 		log.trace(
-				"RsResourceImpl.getConfidentialReservations(snaaSecretAuthenticationKeys={}, interval={}, offset={}, amount={})",
-				snaaSecretAuthenticationKeys, interval, offset, amount
+				"RsResourceImpl.getConfidentialReservations(snaaSecretAuthenticationKeys={}, from={}, to={}, offset={}, amount={})",
+				snaaSecretAuthenticationKeys, from, to, offset, amount
 		);
 
 		return new ConfidentialReservationDataList(
 				rs.getConfidentialReservations(
 						snaaSecretAuthenticationKeys,
-						interval.getStart(),
-						interval.getEnd(),
+						from,
+						to,
 						offset,
 						amount
 				)
 		);
 	}
 
-	private PublicReservationDataList getPublicReservations(final Interval interval, final Integer offset,
-															final Integer amount)
+	private PublicReservationDataList getPublicReservations(@Nullable final DateTime from,
+															@Nullable final DateTime to,
+															@Nullable final Integer offset,
+															@Nullable final Integer amount)
 			throws RSFault_Exception {
 
 		final List<PublicReservationData> reservations = rs.getReservations(
-				interval.getStart(),
-				interval.getEnd(),
+				from,
+				to,
 				offset,
 				amount
 		);
 
 		log.debug("Got {} public reservations from {} until {} (offset: {}, amount: {})",
 				reservations.size(),
-				interval.getStart(),
-				interval.getEnd(),
+				from,
+				to,
 				offset,
 				amount
 		);

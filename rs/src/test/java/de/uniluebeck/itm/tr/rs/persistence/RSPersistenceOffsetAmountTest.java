@@ -133,6 +133,6 @@ public abstract class RSPersistenceOffsetAmountTest {
 	}
 
 	private Set<ConfidentialReservationData> query(final int offset, final int amount) throws RSFault_Exception {
-		return newHashSet(persistence.getReservations(INTERVAL, offset, amount));
+		return newHashSet(persistence.getReservations(INTERVAL.getStart(), INTERVAL.getEnd(), offset, amount));
 	}
 }

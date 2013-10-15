@@ -42,6 +42,10 @@ import java.io.Serializable;
 						":" + ReservationDataInternal.QGetByInterval.P_FROM + " >= data.confidentialReservationData.toDate" +
 						")"
 
+		),
+		@NamedQuery(
+				name = ReservationDataInternal.QGetAll.QUERY_NAME,
+				query = "FROM ReservationDataInternal data"
 		)
 })
 public class ReservationDataInternal implements Serializable {
@@ -60,6 +64,25 @@ public class ReservationDataInternal implements Serializable {
 		public static final String P_FROM = "from";
 
 		public static final String P_TO = "to";
+	}
+
+	public static class QGetAll {
+
+		public static final String QUERY_NAME = "getReservationDataAll";
+	}
+
+	public static class QGetTo {
+
+		public static final String QUERY_NAME = "getReservationDataTo";
+
+		public static final String P_TO = "to";
+	}
+
+	public static class QGetFrom {
+
+		public static final String QUERY_NAME = "getReservationDataFrom";
+
+		public static final String P_TO = "from";
 	}
 
 	@Id
