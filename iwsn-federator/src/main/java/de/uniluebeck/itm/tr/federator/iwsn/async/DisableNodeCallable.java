@@ -23,33 +23,30 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.AuthorizationFault;
-import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
-import eu.wisebed.api.v3.wsn.VirtualizationNotEnabledFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
+
+import java.util.concurrent.Callable;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class DisableNodeCallable extends AbstractRequestCallable {
+public class DisableNodeCallable implements Callable<Void> {
+
+	private final WSN wsnEndpoint;
+
+	private final long requestId;
 
 	private final NodeUrn nodeUrn;
 
-	public DisableNodeCallable(final FederatorController federatorController,
-							   final WSN wsnEndpoint,
-							   final long federatedRequestId,
-							   final long federatorRequestId,
-							   final NodeUrn nodeUrn) {
-
-		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
-
+	public DisableNodeCallable(final WSN wsnEndpoint, final long requestId, final NodeUrn nodeUrn) {
+		this.wsnEndpoint = wsnEndpoint;
+		this.requestId = requestId;
 		this.nodeUrn = nodeUrn;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
-		wsnEndpoint.disableNodes(federatedRequestId, newArrayList(nodeUrn));
+	public Void call() throws Exception {
+		wsnEndpoint.disableNodes(requestId, newArrayList(nodeUrn));
+		return null;
 	}
 }

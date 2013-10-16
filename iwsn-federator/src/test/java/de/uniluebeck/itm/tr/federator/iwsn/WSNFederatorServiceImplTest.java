@@ -5,9 +5,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.WSNPreconditions;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.concurrent.ExecutorUtils;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -111,6 +113,15 @@ public class WSNFederatorServiceImplTest {
 	@Mock
 	private SecureIdGenerator secureIdGenerator;
 
+	@Mock
+	private PortalEventBus portalEventBus;
+
+	@Mock
+	private FederatedReservation federatedReservation;
+
+	@Mock
+	private DeliveryManager deliveryManager;
+
 	private WSNFederatorServiceImpl wsnFederatorServiceImpl;
 
 	private ListeningExecutorService executorService;
@@ -125,6 +136,7 @@ public class WSNFederatorServiceImplTest {
 		).thenReturn(wsnPreconditions);
 		when(federatorControllerFactory.create(
 				Matchers.<FederatedReservation>any(),
+				Matchers.<DeliveryManager>any(),
 				Matchers.<FederatedEndpoints<WSN>>any(),
 				Matchers.<Set<NodeUrnPrefix>>any(),
 				Matchers.<Set<NodeUrn>>any()
@@ -142,8 +154,9 @@ public class WSNFederatorServiceImplTest {
 				config,
 				executorService,
 				preconditionsFactory,
-				secureIdGenerator,
-				federatorController,
+				portalEventBus,
+				federatedReservation,
+				deliveryManager,
 				federatedEndpoints,
 				SERVED_NODE_URN_PREFIXES,
 				SERVED_NODE_URNS

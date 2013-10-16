@@ -5,12 +5,14 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBusFactory;
+import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.DeliveryManagerFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -53,6 +55,8 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 
 	private final FederatedReservationEventBusAdapter reservationEventBusAdapter;
 
+	private final DeliveryManager deliveryManager;
+
 	@Inject
 	public FederatedReservationImpl(final ReservationEventBusFactory reservationEventBusFactory,
 									final ResponseTrackerFactory responseTrackerFactory,
@@ -60,6 +64,7 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 									final WSNFederatorServiceFactory serviceFactory,
 									final FederatorControllerFactory controllerFactory,
 									final FederatedReservationEventBusAdapterFactory reservationEventBusAdapterFactory,
+									final DeliveryManagerFactory deliveryManagerFactory,
 									@Assisted final List<ConfidentialReservationData> confidentialReservationDataList,
 									@Assisted final FederatedEndpoints<WSN> endpoints) {
 
@@ -72,26 +77,35 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 		this.interval = extractInterval(confidentialReservationDataList);
 		this.entries = createEntries();
 
-		this.federatorController = controllerFactory.create(this, endpoints, nodeUrnPrefixes, nodeUrns);
-		this.wsnFederatorService = serviceFactory.create(federatorController, endpoints, nodeUrnPrefixes, nodeUrns);
+		this.deliveryManager = deliveryManagerFactory.create(this);
+		this.wsnFederatorService = serviceFactory.create(this, deliveryManager, endpoints, nodeUrnPrefixes, nodeUrns);
 		this.reservationEventBus = reservationEventBusFactory.create(this);
 		this.reservationEventBusAdapter = reservationEventBusAdapterFactory.create(this);
+		this.federatorController = controllerFactory.create(
+				this,
+				deliveryManager,
+				endpoints,
+				nodeUrnPrefixes,
+				nodeUrns
+		);
 	}
 
 	@Override
 	protected void doStart() {
 
 		log.trace(
-				"FederatedReservationImpl.doStart(reservationEventBus={}, federatorController={}, wsnFederatorService={}, reservationEventBusAdapter={})",
-				reservationEventBus, federatorController, wsnFederatorService, reservationEventBusAdapter
+				"FederatedReservationImpl.doStart(deliveryManager={}, reservationEventBus={}, federatorController={}, wsnFederatorService={}, reservationEventBusAdapter={})",
+				deliveryManager, reservationEventBus, federatorController, wsnFederatorService,
+				reservationEventBusAdapter
 		);
 
 		try {
 
+			deliveryManager.startAndWait();
 			reservationEventBus.startAndWait();
-			federatorController.startAndWait();
-			wsnFederatorService.startAndWait();
 			reservationEventBusAdapter.startAndWait();
+			wsnFederatorService.startAndWait();
+			federatorController.startAndWait();
 
 			notifyStarted();
 
@@ -104,16 +118,18 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 	protected void doStop() {
 
 		log.trace(
-				"FederatedReservationImpl.doStop(reservationEventBus={}, federatorController={}, wsnFederatorService={}, reservationEventBusAdapter={})",
-				reservationEventBus, federatorController, wsnFederatorService, reservationEventBusAdapter
+				"FederatedReservationImpl.doStop(deliveryManager={}, reservationEventBus={}, federatorController={}, wsnFederatorService={}, reservationEventBusAdapter={})",
+				deliveryManager, reservationEventBus, federatorController, wsnFederatorService,
+				reservationEventBusAdapter
 		);
 
 		try {
 
-			reservationEventBusAdapter.stopAndWait();
-			wsnFederatorService.stopAndWait();
 			federatorController.stopAndWait();
+			reservationEventBusAdapter.stopAndWait();
 			reservationEventBus.stopAndWait();
+			wsnFederatorService.stopAndWait();
+			deliveryManager.stopAndWait();
 
 			notifyStopped();
 
@@ -262,5 +278,15 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 	@Override
 	public FederatorController getFederatorController() {
 		return federatorController;
+	}
+
+	@Override
+	public DeliveryManager getDeliveryManager() {
+		return deliveryManager;
+	}
+
+	@Override
+	public FederatedReservationEventBusAdapter getFederatedReservationEventBusAdapter() {
+		return reservationEventBusAdapter;
 	}
 }

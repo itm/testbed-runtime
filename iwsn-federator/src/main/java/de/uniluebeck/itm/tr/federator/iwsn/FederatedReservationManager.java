@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,26 +87,26 @@ public class FederatedReservationManager extends AbstractService implements Rese
 		}
 	}
 
-	public synchronized FederatedReservation getFederatedReservation(final List<SecretReservationKey> srkList)
+	public synchronized FederatedReservation getFederatedReservation(final Set<SecretReservationKey> srkSet)
 			throws ReservationUnknownException {
-		log.trace("FederatedReservationManager.getFederatedReservation({})", srkList);
+		log.trace("FederatedReservationManager.getFederatedReservation({})", srkSet);
 		checkState(isRunning());
-		FederatedReservation reservation = getFromCache(srkList);
+		FederatedReservation reservation = getFromCache(srkSet);
 
 		if (reservation == null) {
-			reservation = createReservation(srkList);
+			reservation = createReservation(srkSet);
 			reservation.startAndWait();
-			cache(srkList, reservation);
+			cache(srkSet, reservation);
 		}
 
 		return reservation;
 	}
 
 	@Override
-	public synchronized Reservation getReservation(final List<SecretReservationKey> srkList)
+	public synchronized Reservation getReservation(final Set<SecretReservationKey> srkSet)
 			throws ReservationUnknownException {
-		log.trace("FederatedReservationManager.getReservation({})", srkList);
-		return getFederatedReservation(srkList);
+		log.trace("FederatedReservationManager.getReservation({})", srkSet);
+		return getFederatedReservation(srkSet);
 	}
 
 	@Override
@@ -116,39 +117,38 @@ public class FederatedReservationManager extends AbstractService implements Rese
 	}
 
 	@Nullable
-	private FederatedReservation getFromCache(final List<SecretReservationKey> srkList) {
-		log.trace("FederatedReservationManager.getFromCache({})", srkList);
+	private FederatedReservation getFromCache(final Set<SecretReservationKey> srkSet) {
+		log.trace("FederatedReservationManager.getFromCache({})", srkSet);
 		synchronized (reservationMap) {
-			return reservationMap.get(newHashSet(srkList));
+			return reservationMap.get(srkSet);
 		}
 	}
 
-	private void cache(final List<SecretReservationKey> srkList,
+	private void cache(final Set<SecretReservationKey> srkSet,
 					   final FederatedReservation reservation) {
-		log.trace("FederatedReservationManager.cache({}, {})", srkList, reservation);
+		log.trace("FederatedReservationManager.cache({}, {})", srkSet, reservation);
 		synchronized (reservationMap) {
-			reservationMap.put(newHashSet(srkList), reservation);
+			reservationMap.put(srkSet, reservation);
 		}
 	}
 
-	private synchronized FederatedReservation createReservation(final List<SecretReservationKey> srkList)
+	private synchronized FederatedReservation createReservation(final Set<SecretReservationKey> srkSet)
 			throws ReservationUnknownException {
 
-		log.trace("FederatedReservationManager.createReservation({})", srkList);
+		log.trace("FederatedReservationManager.createReservation({})", srkSet);
 
 		try {
 
+			final ArrayList<SecretReservationKey> srkList = newArrayList(srkSet);
 			final List<ConfidentialReservationData> reservationDataList = retrieveReservationData(srkList);
 			final FederatedEndpoints<WSN> wsnFederatedEndpoints = retrieveFederatedEndpoints(srkList);
-			final FederatedReservation reservation = federatedReservationFactory.create(
+			return federatedReservationFactory.create(
 					reservationDataList,
 					wsnFederatedEndpoints
 			);
 
-			return reservation;
-
 		} catch (UnknownSecretReservationKeyFault unknownSecretReservationKeyFault) {
-			throw new ReservationUnknownException(newHashSet(srkList));
+			throw new ReservationUnknownException(newHashSet(srkSet));
 		}
 	}
 

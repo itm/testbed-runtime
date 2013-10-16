@@ -17,8 +17,9 @@ import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.federator.utils.*;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.DeliveryManagerAdapter;
+import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.DeliveryManagerFactory;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.RS;
@@ -53,7 +54,14 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 				.implement(FederatedReservation.class, FederatedReservationImpl.class)
 				.build(FederatedReservationFactory.class)
 		);
+
+		install(new FactoryModuleBuilder()
+				.implement(DeliveryManager.class, DeliveryManagerAdapter.class)
+				.build(DeliveryManagerFactory.class)
+		);
+
 		bind(EventBusFactory.class).to(EventBusFactoryImpl.class);
+
 
 		bind(ServedNodeUrnPrefixesProvider.class).to(FederationManagerServedNodeUrnPrefixesProvider.class);
 		bind(ServedNodeUrnsProvider.class).to(FederationManagerServedNodeUrnsProvider.class);
@@ -125,10 +133,5 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 		};
 
 		return factory.create(uriToSessionManagementFunction, map);
-	}
-
-	@Provides
-	public DeliveryManager provideDeliveryManager() {
-		return new DeliveryManagerImpl();
 	}
 }

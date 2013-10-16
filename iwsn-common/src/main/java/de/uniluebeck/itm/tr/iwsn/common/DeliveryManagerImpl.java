@@ -75,7 +75,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	 * URL
 	 * to an instantiated endpoint proxy.
 	 */
-	private ImmutableMap<DeliveryManagerController, DeliveryWorker> controllers = ImmutableMap.of();
+	private ImmutableMap<String, DeliveryWorker> controllers = ImmutableMap.of();
 
 	/**
 	 * Used to deliver messages and request status messages in parallel.
@@ -109,9 +109,9 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	 * 		the Controller to add
 	 */
 	@Override
-	public void addController(DeliveryManagerController controller) {
+	public void addController(final String endpointUri, Controller controller) {
 
-		if (controllers.containsKey(controller)) {
+		if (controllers.containsKey(endpointUri)) {
 			log.debug("Not adding controller endpoint {} as it is already in the set of controllers.", controller);
 			return;
 		}
@@ -126,6 +126,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 		final DeliveryWorker deliveryWorker = new DeliveryWorker(
 				this,
+				endpointUri,
 				controller,
 				messageQueue,
 				statusQueue,
@@ -137,9 +138,9 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 		executorService.submit(deliveryWorker);
 
-		controllers = ImmutableMap.<DeliveryManagerController, DeliveryWorker>builder()
+		controllers = ImmutableMap.<String, DeliveryWorker>builder()
 				.putAll(controllers)
-				.put(controller, deliveryWorker)
+				.put(endpointUri, deliveryWorker)
 				.build();
 
 	}
@@ -147,24 +148,23 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	/**
 	 * Removes a Controller service endpoint URL from the list of recipients.
 	 *
-	 * @param controller
-	 * 		the Controller to remove
+	 * @param endpointUri
+	 * 		the endpointUri to remove
 	 */
 	@Override
-	public void removeController(DeliveryManagerController controller) {
+	public void removeController(final String endpointUri) {
 
-		final DeliveryWorker deliveryWorker = controllers.get(controller);
+		final DeliveryWorker deliveryWorker = controllers.get(endpointUri);
 
 		if (deliveryWorker != null) {
 
-			log.debug("{} => Removing controller endpoint from the set of controllers.", controller);
+			log.debug("{} => Removing controller endpoint from the set of controllers.", endpointUri);
 			deliveryWorker.stopDelivery();
 
-			ImmutableMap.Builder<DeliveryManagerController, DeliveryWorker> controllerEndpointsBuilder =
-					ImmutableMap.builder();
+			ImmutableMap.Builder<String, DeliveryWorker> controllerEndpointsBuilder = ImmutableMap.builder();
 
-			for (Map.Entry<DeliveryManagerController, DeliveryWorker> entry : controllers.entrySet()) {
-				if (!entry.getKey().equals(controller)) {
+			for (Map.Entry<String, DeliveryWorker> entry : controllers.entrySet()) {
+				if (!entry.getKey().equals(endpointUri)) {
 					controllerEndpointsBuilder.put(entry.getKey(), entry.getValue());
 				}
 			}
@@ -172,7 +172,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 			controllers = controllerEndpointsBuilder.build();
 
 		} else {
-			log.debug("{} => Not removing controller endpoint as it was not in the set of controllers.", controller);
+			log.debug("{} => Not removing controller endpoint as it was not in the set of controllers.", endpointUri);
 		}
 
 	}
@@ -189,10 +189,10 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	}
 
 	@Override
-	public void reservationStarted(final DateTime timestamp, final DeliveryManagerController controller) {
+	public void reservationStarted(final DateTime timestamp, final String endpointUri) {
 
 		if (isRunning()) {
-			controllers.get(controller).reservationStarted(timestamp);
+			controllers.get(endpointUri).reservationStarted(timestamp);
 		}
 	}
 
@@ -208,9 +208,9 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	}
 
 	@Override
-	public void reservationEnded(final DateTime timestamp, final DeliveryManagerController controller) {
+	public void reservationEnded(final DateTime timestamp, final String endpointUri) {
 		if (isRunning()) {
-			controllers.get(controller).reservationEnded(timestamp);
+			controllers.get(endpointUri).reservationEnded(timestamp);
 		}
 	}
 

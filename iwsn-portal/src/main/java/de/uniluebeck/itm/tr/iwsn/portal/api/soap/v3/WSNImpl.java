@@ -4,8 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerController;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerTestbedClientController;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
@@ -13,6 +11,7 @@ import de.uniluebeck.itm.util.NetworkUtils;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +56,7 @@ public class WSNImpl implements WSN {
 	}
 
 	@Override
-	public void addController(final String controllerEndpointUrl){
+	public void addController(final String controllerEndpointUrl) {
 
 		log.debug("WSNImpl.addController({})", controllerEndpointUrl);
 
@@ -65,24 +64,18 @@ public class WSNImpl implements WSN {
 			NetworkUtils.checkConnectivity(controllerEndpointUrl);
 		}
 
-		final DeliveryManagerController controller = createDeliveryManagerController(controllerEndpointUrl);
+		final Controller controller =
+				WisebedServiceHelper.getControllerService(controllerEndpointUrl, schedulerService);
 
-		deliveryManager.addController(controller);
+		deliveryManager.addController(controllerEndpointUrl, controller);
 
 		if (reservation.getInterval().containsNow()) {
-			deliveryManager.reservationStarted(reservation.getInterval().getStart(), controller);
+			deliveryManager.reservationStarted(reservation.getInterval().getStart(), controllerEndpointUrl);
 		}
 
 		if (reservation.getInterval().isBeforeNow()) {
-			deliveryManager.reservationEnded(reservation.getInterval().getEnd(), controller);
+			deliveryManager.reservationEnded(reservation.getInterval().getEnd(), controllerEndpointUrl);
 		}
-	}
-
-	private DeliveryManagerController createDeliveryManagerController(final String controllerEndpointUrl) {
-		return new DeliveryManagerTestbedClientController(
-					WisebedServiceHelper.getControllerService(controllerEndpointUrl, schedulerService),
-					controllerEndpointUrl
-			);
 	}
 
 	@Override
@@ -189,13 +182,13 @@ public class WSNImpl implements WSN {
 	}
 
 	@Override
-	public void removeController(String controllerEndpointUrl){
+	public void removeController(String controllerEndpointUrl) {
 		log.debug("WSNImpl.removeController({})", controllerEndpointUrl);
-		deliveryManager.removeController(createDeliveryManagerController(controllerEndpointUrl));
+		deliveryManager.removeController(controllerEndpointUrl);
 	}
 
 	@Override
-	public void resetNodes( long requestId, List<NodeUrn> nodeUrns)
+	public void resetNodes(long requestId, List<NodeUrn> nodeUrns)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(
@@ -214,8 +207,8 @@ public class WSNImpl implements WSN {
 
 	@Override
 	public void setChannelPipeline(long requestId,
-	                               List<NodeUrn> nodeUrns,
-	                               List<ChannelHandlerConfiguration> channelHandlerConfigurations)
+								   List<NodeUrn> nodeUrns,
+								   List<ChannelHandlerConfiguration> channelHandlerConfigurations)
 			throws ReservationNotRunningFault_Exception {
 		assertReservationIntervalMet();
 		reservation.getReservationEventBus().post(newSetChannelPipelinesRequest(
@@ -259,7 +252,8 @@ public class WSNImpl implements WSN {
 
 	private void assertVirtualizationEnabled() throws VirtualizationNotEnabledFault_Exception {
 		if (!reservation.isVirtualizationEnabled()) {
-			final String message = "Virtualization features are not enabled! Please enable them by calling WSN.enableVirtualization()";
+			final String message =
+					"Virtualization features are not enabled! Please enable them by calling WSN.enableVirtualization()";
 			final VirtualizationNotEnabledFault faultInfo = new VirtualizationNotEnabledFault();
 			faultInfo.setMessage(message);
 			throw new VirtualizationNotEnabledFault_Exception(message, faultInfo);

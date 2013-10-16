@@ -36,8 +36,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	private final String reservationId;
 
-	private volatile boolean reservationRunning;
-
 	@Inject
 	public ReservationEventBusImpl(final PortalEventBus portalEventBus,
 								   final EventBusFactory eventBusFactory,
@@ -46,7 +44,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		this.eventBus = eventBusFactory.create("ReservationEventBus[" + reservation.getSerializedKey() + "]");
 		this.reservation = reservation;
 		this.reservationId = reservation.getSerializedKey();
-		this.reservationRunning = false;
 	}
 
 	@Override
@@ -93,7 +90,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		log.trace("ReservationEventBus[{}].post({})", reservationId, event);
 
 		checkState(isRunning(), "ReservationEventBus is not running");
-		checkState(reservationRunning, "Reservation did not start yet");
 
 		if (event instanceof Request) {
 			assertNodesArePartOfReservation(extractNodeUrns((Request) event));
@@ -105,11 +101,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
 
 		log.trace("ReservationEventBus[{}].onDevicesAttachedEventFromPortalEventBus({})", reservationId, event);
-
-		if (!reservationRunning) {
-			logIgnore(event);
-			return;
-		}
 
 		final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
 		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
@@ -124,11 +115,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 		log.trace("ReservationEventBus[{}].onUpstreamMessageEventFromPortalEventBus({})", reservationId, event);
 
-		if (!reservationRunning) {
-			logIgnore(event);
-			return;
-		}
-
 		final NodeUrn sourceNodeUrn = new NodeUrn(event.getSourceNodeUrn());
 
 		if (reservation.getNodeUrns().contains(sourceNodeUrn)) {
@@ -140,11 +126,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
 
 		log.trace("ReservationEventBus[{}].onDevicesDetachedEventFromPortalEventBus({})", reservationId, event);
-
-		if (!reservationRunning) {
-			logIgnore(event);
-			return;
-		}
 
 		final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
 		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
@@ -160,12 +141,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		log.trace("ReservationEventBus[{}].onNotificationEventFromPortalEventBus({})", reservationId, event);
 
 		if (!event.hasNodeUrn() || reservation.getNodeUrns().contains(new NodeUrn(event.getNodeUrn()))) {
-
-			if (!reservationRunning) {
-				logIgnore(event);
-				return;
-			}
-
 			eventBus.post(event);
 		}
 	}
@@ -174,11 +149,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	public void onSingleNodeProgressFromPortalEventBus(final SingleNodeProgress progress) {
 
 		log.trace("ReservationEventBus[{}].onSingleNodeProgressFromPortalEventBus({})", reservationId, progress);
-
-		if (!reservationRunning) {
-			logIgnore(progress);
-			return;
-		}
 
 		if (reservationId.equals(progress.getReservationId())) {
 			eventBus.post(progress);
@@ -190,11 +160,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 		log.trace("ReservationEventBus[{}].onSingleNodeResponseFromPortalEventBus({})", reservationId, response);
 
-		if (!reservationRunning) {
-			logIgnore(response);
-			return;
-		}
-
 		if (reservationId.equals(response.getReservationId())) {
 			eventBus.post(response);
 		}
@@ -204,7 +169,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	public void onReservationStartedEventFromPortalEventBus(final ReservationStartedEvent event) {
 		log.trace("ReservationEventBus[{}].onReservationStartedEventFromPortalEventBus({})", reservationId, event);
 		if (event.getReservation() == reservation) {
-			reservationRunning = true;
 			eventBus.post(event);
 		}
 	}
@@ -213,7 +177,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	public void onReservationEndedEventFromPortalEventBus(final ReservationEndedEvent event) {
 		log.trace("ReservationEventBus[{}].onReservationEndedEventFromPortalEventBus({})", reservationId, event);
 		if (event.getReservation() == reservation) {
-			reservationRunning = false;
 			eventBus.post(event);
 		}
 	}
@@ -222,11 +185,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
 
 		log.trace("ReservationEventBusImpl.onGetChannelPipelinesResponse({})", reservationId, response);
-
-		if (!reservationRunning) {
-			logIgnore(response);
-			return;
-		}
 
 		if (reservationId.equals(response.getReservationId())) {
 			eventBus.post(response);

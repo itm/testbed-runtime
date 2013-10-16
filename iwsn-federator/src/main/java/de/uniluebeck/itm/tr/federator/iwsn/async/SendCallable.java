@@ -23,36 +23,32 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.AuthorizationFault;
-import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
-public class SendCallable extends AbstractRequestCallable {
+public class SendCallable implements Callable<Void> {
 
 	private final List<NodeUrn> nodeUrns;
 
-	private final byte[] message;
+	private final byte[] msg;
 
-	public SendCallable(final FederatorController federatorController,
-						final WSN wsnEndpoint,
-						final long federatedRequestId,
-						final long federatorRequestId,
-						final List<NodeUrn> nodeUrns,
-						final byte[] message) {
+	private final long requestId;
 
-		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
+	private final WSN wsnEndpoint;
 
+	public SendCallable(final WSN wsnEndpoint, final long requestId, final List<NodeUrn> nodeUrns, final byte[] msg) {
+		this.wsnEndpoint = wsnEndpoint;
+		this.requestId = requestId;
 		this.nodeUrns = nodeUrns;
-		this.message = message;
+		this.msg = msg;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, AuthorizationFault {
-		wsnEndpoint.send(federatedRequestId, nodeUrns, message);
+	public Void call() throws Exception {
+		wsnEndpoint.send(requestId, nodeUrns, msg);
+		return null;
 	}
 }

@@ -23,15 +23,20 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.*;
+import eu.wisebed.api.v3.wsn.VirtualLink;
+import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class EnableVirtualLinkCallable extends AbstractRequestCallable {
+public class EnableVirtualLinkCallable implements Callable<Void> {
+
+	private final WSN wsnEndpoint;
+
+	private final long requestId;
 
 	private final NodeUrn sourceNodeUrn;
 
@@ -43,18 +48,15 @@ public class EnableVirtualLinkCallable extends AbstractRequestCallable {
 
 	private final List<String> filters;
 
-	public EnableVirtualLinkCallable(final FederatorController federatorController,
-									 final WSN wsnEndpoint,
-									 final long federatedRequestId,
-									 final long federatorRequestId,
+	public EnableVirtualLinkCallable(final WSN wsnEndpoint,
+									 final long requestId,
 									 final NodeUrn sourceNodeUrn,
 									 final NodeUrn targetNodeUrn,
 									 final String remoteWSNServiceEndpointUrl,
 									 final List<String> parameters,
 									 final List<String> filters) {
-
-		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
-
+		this.wsnEndpoint = wsnEndpoint;
+		this.requestId = requestId;
 		this.sourceNodeUrn = sourceNodeUrn;
 		this.targetNodeUrn = targetNodeUrn;
 		this.remoteWSNServiceEndpointUrl = remoteWSNServiceEndpointUrl;
@@ -63,14 +65,14 @@ public class EnableVirtualLinkCallable extends AbstractRequestCallable {
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, VirtualizationNotEnabledFault_Exception, AuthorizationFault {
+	public Void call() throws Exception {
 		final VirtualLink virtualLink = new VirtualLink();
 		virtualLink.setRemoteWSNServiceEndpointUrl(remoteWSNServiceEndpointUrl);
 		virtualLink.setSourceNodeUrn(sourceNodeUrn);
 		virtualLink.setTargetNodeUrn(targetNodeUrn);
 		virtualLink.getParameters().addAll(parameters);
 		virtualLink.getFilters().addAll(filters);
-		wsnEndpoint.enableVirtualLinks(federatedRequestId, newArrayList(virtualLink));
+		wsnEndpoint.enableVirtualLinks(requestId, newArrayList(virtualLink));
+		return null;
 	}
 }

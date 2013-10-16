@@ -46,6 +46,7 @@ import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newAreNodesConnectedRequest;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createSMUnknownSecretReservationKeyFault;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
@@ -227,7 +228,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 		try {
 
-			reservation = reservationManager.getReservation(secretReservationKeys);
+			reservation = reservationManager.getReservation(newHashSet(secretReservationKeys));
 
 		} catch (ReservationUnknownException e) {
 			final String message =

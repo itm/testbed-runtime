@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserialize;
@@ -90,7 +91,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	@Override
-	public Reservation getReservation(final List<SecretReservationKey> srks)
+	public Reservation getReservation(final Set<SecretReservationKey> srks)
 			throws ReservationUnknownException {
 
 		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", srks);
@@ -112,7 +113,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 			final List<ConfidentialReservationData> confidentialReservationDataList;
 			try {
-				confidentialReservationDataList = rs.get().getReservation(srks);
+				confidentialReservationDataList = rs.get().getReservation(newArrayList(srkSet));
 			} catch (RSFault_Exception e) {
 				throw propagate(e);
 			} catch (UnknownSecretReservationKeyFault e) {
@@ -164,9 +165,9 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	@Override
-	public Reservation getReservation(final String jsonSerializedSecretReservationKeys)
+	public Reservation getReservation(final String secretReservationKeysBase64)
 			throws ReservationUnknownException {
-		return getReservation(deserialize(jsonSerializedSecretReservationKeys));
+		return getReservation(deserialize(secretReservationKeysBase64));
 	}
 
 	private void assertNodesInTestbed(final Set<NodeUrn> reservedNodes) {

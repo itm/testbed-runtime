@@ -16,7 +16,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserialize;
+import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserializeToList;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.assertLoggedIn;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
 
@@ -106,7 +106,7 @@ public class RsResourceImpl implements RsResource {
 	public List<ConfidentialReservationData> getReservation(
 			@PathParam("secretReservationKeysBase64") final String secretReservationKeysBase64)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		return rs.getReservation(deserialize(secretReservationKeysBase64));
+		return rs.getReservation(deserializeToList(secretReservationKeysBase64));
 	}
 
 	@Override

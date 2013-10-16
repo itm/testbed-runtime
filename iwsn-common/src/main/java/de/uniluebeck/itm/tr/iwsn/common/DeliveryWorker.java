@@ -6,6 +6,7 @@ import de.uniluebeck.itm.util.TimeDiff;
 import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
 import org.apache.cxf.interceptor.Fault;
@@ -39,7 +40,7 @@ class DeliveryWorker implements Runnable {
 	/**
 	 * The endpoint to deliver the messages to.
 	 */
-	private final DeliveryManagerController endpoint;
+	private final Controller endpoint;
 
 	/**
 	 * The queue that contains all {@link Message} objects to be delivered to {@link DeliveryWorker#endpoint}.
@@ -72,6 +73,8 @@ class DeliveryWorker implements Runnable {
 	 */
 	private final TimeDiff lastMessageDropNotificationTimeDiff = new TimeDiff(1000);
 
+	private final String endpointUri;
+
 	/**
 	 * The number of messages that have been dropped since the controller was notified of dropped messages the last time.
 	 */
@@ -90,7 +93,8 @@ class DeliveryWorker implements Runnable {
 	private final int maximumDeliveryQueueSize;
 
 	public DeliveryWorker(final DeliveryManager deliveryManager,
-						  final DeliveryManagerController endpoint,
+						  final String endpointUri,
+						  final Controller endpoint,
 						  final Deque<Message> messageQueue,
 						  final Deque<RequestStatus> statusQueue,
 						  final Deque<Notification> notificationQueue,
@@ -98,6 +102,7 @@ class DeliveryWorker implements Runnable {
 						  final Deque<Tuple<DateTime, List<NodeUrn>>> nodesDetachedQueue,
 						  final int maximumDeliveryQueueSize) {
 		this.deliveryManager = checkNotNull(deliveryManager);
+		this.endpointUri = checkNotNull(endpointUri);
 		this.endpoint = checkNotNull(endpoint);
 		this.messageQueue = checkNotNull(messageQueue);
 		this.statusQueue = checkNotNull(statusQueue);
@@ -131,7 +136,7 @@ class DeliveryWorker implements Runnable {
 								endpoint
 						);
 					}
-					deliveryManager.removeController(endpoint);
+					deliveryManager.removeController(endpointUri);
 					return;
 				}
 
@@ -182,7 +187,7 @@ class DeliveryWorker implements Runnable {
 				} else {
 
 					log.warn("{} => Repeatedly could not deliver messages. Removing endpoint.", endpoint);
-					deliveryManager.removeController(endpoint); // will also call stopDelivery()
+					deliveryManager.removeController(endpointUri); // will also call stopDelivery()
 				}
 			}
 

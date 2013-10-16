@@ -23,32 +23,29 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.AuthorizationFault;
-import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
-public class WSNAreNodesAliveCallable extends AbstractRequestCallable {
+public class WSNAreNodesAliveCallable implements Callable<Void> {
+
+	private final WSN wsnEndpoint;
+
+	private final long requestId;
 
 	private final List<NodeUrn> nodes;
 
-	public WSNAreNodesAliveCallable(final FederatorController federatorController,
-									final WSN wsnEndpoint,
-									final long federatedRequestId,
-									final long federatorRequestId,
-									final List<NodeUrn> nodes) {
-
-		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
-
+	public WSNAreNodesAliveCallable(final WSN wsnEndpoint, final long requestId, final List<NodeUrn> nodes) {
+		this.wsnEndpoint = wsnEndpoint;
+		this.requestId = requestId;
 		this.nodes = nodes;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, AuthorizationFault {
-		wsnEndpoint.areNodesAlive(federatedRequestId, nodes);
+	public Void call() throws Exception {
+		wsnEndpoint.areNodesAlive(requestId, nodes);
+		return null;
 	}
 }

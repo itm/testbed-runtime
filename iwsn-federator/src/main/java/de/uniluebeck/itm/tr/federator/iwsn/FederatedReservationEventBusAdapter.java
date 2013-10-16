@@ -4,37 +4,26 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerInternalController;
-import de.uniluebeck.itm.tr.iwsn.messages.Link;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters;
-import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.controller.Controller;
-import eu.wisebed.api.v3.controller.Notification;
-import eu.wisebed.api.v3.controller.RequestStatus;
-import eu.wisebed.api.v3.controller.SingleNodeRequestStatus;
 import eu.wisebed.api.v3.wsn.*;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jws.WebParam;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters.convertToSOAP;
 
-public class FederatedReservationEventBusAdapter extends AbstractService implements Controller {
+public class FederatedReservationEventBusAdapter extends AbstractService {
 
 	private static final Logger log = LoggerFactory.getLogger(FederatedReservationEventBusAdapter.class);
-
-	private final DeliveryManagerInternalController dmController = new DeliveryManagerInternalController(this);
 
 	private final PortalEventBus portalEventBus;
 
@@ -52,7 +41,6 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 	protected void doStart() {
 		log.trace("FederatedReservationEventBusAdapter.doStart()");
 		try {
-			reservation.getFederatorController().addController(dmController);
 			portalEventBus.register(this);
 			notifyStarted();
 		} catch (Exception e) {
@@ -65,7 +53,6 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 		log.trace("FederatedReservationEventBusAdapter.doStop()");
 		try {
 			portalEventBus.unregister(this);
-			reservation.getFederatorController().removeController(dmController);
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -73,11 +60,12 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 	}
 
 	@Subscribe
-	public void onRequest(final Request request) {
+	public void on(final Request request) {
 
-		log.trace("FederatedReservationEventBusAdapter.onRequest({})", request);
+		log.trace("FederatedReservationEventBusAdapter.on({})", request);
 
-		if (!reservation.getSerializedKey().equals(request.getReservationId())) {
+		if (request.getType() == Request.Type.ARE_NODES_CONNECTED ||
+				!ReservationHelper.equals(reservation.getSerializedKey(), request.getReservationId())) {
 			return;
 		}
 
@@ -112,7 +100,8 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 					break;
 
 				case DISABLE_VIRTUAL_LINKS:
-					for (Link link : request.getDisableVirtualLinksRequest().getLinksList()) {
+					for (de.uniluebeck.itm.tr.iwsn.messages.Link link : request.getDisableVirtualLinksRequest()
+							.getLinksList()) {
 						sourceNodeUrn = new NodeUrn(link.getSourceNodeUrn());
 						targetNodeUrn = new NodeUrn(link.getTargetNodeUrn());
 						links.add(new eu.wisebed.api.v3.wsn.Link()
@@ -124,7 +113,8 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 					break;
 
 				case DISABLE_PHYSICAL_LINKS:
-					for (Link link : request.getDisablePhysicalLinksRequest().getLinksList()) {
+					for (de.uniluebeck.itm.tr.iwsn.messages.Link link : request.getDisablePhysicalLinksRequest()
+							.getLinksList()) {
 						sourceNodeUrn = new NodeUrn(link.getSourceNodeUrn());
 						targetNodeUrn = new NodeUrn(link.getTargetNodeUrn());
 						links.add(new eu.wisebed.api.v3.wsn.Link()
@@ -143,7 +133,8 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 					break;
 
 				case ENABLE_PHYSICAL_LINKS:
-					for (Link link : request.getEnablePhysicalLinksRequest().getLinksList()) {
+					for (de.uniluebeck.itm.tr.iwsn.messages.Link link : request.getEnablePhysicalLinksRequest()
+							.getLinksList()) {
 						sourceNodeUrn = new NodeUrn(link.getSourceNodeUrn());
 						targetNodeUrn = new NodeUrn(link.getTargetNodeUrn());
 						links.add(new eu.wisebed.api.v3.wsn.Link()
@@ -156,7 +147,8 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 
 				case ENABLE_VIRTUAL_LINKS:
 					final List<VirtualLink> virtualLinks = newArrayList();
-					for (Link link : request.getEnableVirtualLinksRequest().getLinksList()) {
+					for (de.uniluebeck.itm.tr.iwsn.messages.Link link : request.getEnableVirtualLinksRequest()
+							.getLinksList()) {
 						sourceNodeUrn = new NodeUrn(link.getSourceNodeUrn());
 						targetNodeUrn = new NodeUrn(link.getTargetNodeUrn());
 						virtualLinks.add(new VirtualLink()
@@ -185,7 +177,8 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 					nodeUrns = newArrayList(
 							transform(request.getGetChannelPipelinesRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
 					);
-					final List<ChannelPipelinesMap> pipelines = reservation.getWsnFederatorService().getChannelPipelines(nodeUrns);
+					final List<ChannelPipelinesMap> pipelines =
+							reservation.getWsnFederatorService().getChannelPipelines(nodeUrns);
 					final
 					Map<NodeUrn, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>
 							responseMap = Converters.convertToProto(pipelines);
@@ -234,114 +227,6 @@ public class FederatedReservationEventBusAdapter extends AbstractService impleme
 			throw new IllegalStateException(e);
 		} catch (VirtualizationNotEnabledFault_Exception e) {
 			throw new IllegalStateException(e);
-		}
-	}
-
-	@Override
-	public void nodesAttached(@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp,
-							  @WebParam(name = "nodeUrns", targetNamespace = "") final List<NodeUrn> nodeUrns) {
-
-		log.trace("FederatedReservationEventBusAdapter.nodesAttached({}, {})", timestamp, nodeUrns);
-
-		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
-		// event to the federators internal event bus which is then consumed by e.g., the REST API
-
-		portalEventBus.post(newDevicesAttachedEvent(timestamp.getMillis(), nodeUrns));
-	}
-
-	@Override
-	public void nodesDetached(@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp,
-							  @WebParam(name = "nodeUrns", targetNamespace = "") final List<NodeUrn> nodeUrns) {
-
-		log.trace("FederatedReservationEventBusAdapter.nodesDetached({}, {})\", timestamp, nodeUrns");
-
-		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
-		// event to the federators internal event bus which is then consumed by e.g., the REST API
-
-		portalEventBus.post(newDevicesDetachedEvent(timestamp.getMillis(), nodeUrns));
-	}
-
-	@Override
-	public void reservationStarted(@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp) {
-
-		log.trace("FederatedReservationEventBusAdapter.reservationStarted({})", timestamp);
-
-		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
-		// event to the federators internal event bus which is then consumed by e.g., the REST API
-
-		portalEventBus.post(new ReservationStartedEvent(reservation));
-	}
-
-	@Override
-	public void reservationEnded(@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp) {
-
-		log.trace("FederatedReservationEventBusAdapter.reservationEnded({})", timestamp);
-
-		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
-		// event to the federators internal event bus which is then consumed by e.g., the REST API
-
-		portalEventBus.post(new ReservationEndedEvent(reservation));
-	}
-
-	@Override
-	public void receive(@WebParam(name = "msg", targetNamespace = "") final List<Message> msgs) {
-
-		log.trace("FederatedReservationEventBusAdapter.receive({})", msgs);
-
-		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
-		// event to the federators internal event bus which is then consumed by e.g., the REST API
-
-		for (Message msg : msgs) {
-			portalEventBus.post(newUpstreamMessageEvent(
-					msg.getSourceNodeUrn(),
-					msg.getBinaryData(),
-					msg.getTimestamp()
-			)
-			);
-		}
-	}
-
-	@Override
-	public void receiveNotification(
-			@WebParam(name = "notifications", targetNamespace = "") final List<Notification> notifications) {
-
-		log.trace("FederatedReservationEventBusAdapter.receiveNotification({})", notifications);
-
-		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
-		// event to the federators internal event bus which is then consumed by e.g., the REST API
-
-		for (Notification notification : notifications) {
-			portalEventBus.post(newNotificationEvent(
-					notification.getNodeUrn(),
-					notification.getTimestamp().getMillis(),
-					notification.getMsg()
-			)
-			);
-		}
-	}
-
-	@Override
-	public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final List<RequestStatus> statuses) {
-
-		log.trace("FederatedReservationEventBusAdapter.receiveStatus({})", statuses);
-
-		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
-		// event to the federators internal event bus which is then consumed by e.g., the REST API
-
-		for (RequestStatus requestStatus : statuses) {
-			for (SingleNodeRequestStatus singleNodeRequestStatus : requestStatus.getSingleNodeRequestStatus()) {
-
-				final String reservationId = reservation.getSerializedKey();
-				final long requestId = requestStatus.getRequestId();
-				final NodeUrn nodeUrn = singleNodeRequestStatus.getNodeUrn();
-				final Integer value = singleNodeRequestStatus.getValue();
-				final String msg = singleNodeRequestStatus.getMsg();
-
-				portalEventBus.post(singleNodeRequestStatus.isCompleted() ?
-						newSingleNodeResponse(reservationId, requestId, nodeUrn, value, msg) :
-						newSingleNodeProgress(reservationId, requestId, nodeUrn, value)
-				);
-			}
 		}
 	}
 

@@ -322,7 +322,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 		preconditions.checkGetInstanceArguments(srks);
 		final FederatedReservation reservation;
 		try {
-			reservation = reservationManager.getFederatedReservation(srks);
+			reservation = reservationManager.getFederatedReservation(newHashSet(srks));
 		} catch (ReservationUnknownException e) {
 			final String msg = "Reservation " + Joiner.on(",").join(srks) + " unknown!";
 			final eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault faultInfo =

@@ -69,6 +69,18 @@ public class ReservationManagerImplTest {
 				.withUrnPrefix(NODE_URN_PREFIX);
 	}
 
+	private static final Set<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_SET_1 =
+			newHashSet(KNOWN_SECRET_RESERVATION_KEY_1);
+
+	private static final Set<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_SET_2 =
+			newHashSet(KNOWN_SECRET_RESERVATION_KEY_2);
+
+	private static final Set<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_SET_3 =
+			newHashSet(KNOWN_SECRET_RESERVATION_KEY_3);
+
+	private static final Set<SecretReservationKey> UNKNOWN_SECRET_RESERVATION_KEY_SET =
+			newHashSet(UNKNOWN_SECRET_RESERVATION_KEY_1);
+
 	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_1 =
 			newArrayList(KNOWN_SECRET_RESERVATION_KEY_1);
 
@@ -192,7 +204,7 @@ public class ReservationManagerImplTest {
 
 		setUpReservation1();
 
-		assertSame(reservation1, reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_1));
+		assertSame(reservation1, reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1));
 		verify(reservationFactory).create(
 				anyListOf(ConfidentialReservationData.class),
 				eq(KNOWN_SECRET_RESERVATION_KEY_1.getKey()),
@@ -209,7 +221,7 @@ public class ReservationManagerImplTest {
 		setUpUnknownReservation();
 
 		try {
-			reservationManager.getReservation(UNKNOWN_SECRET_RESERVATION_KEY_LIST);
+			reservationManager.getReservation(UNKNOWN_SECRET_RESERVATION_KEY_SET);
 		} catch (ReservationUnknownException e) {
 			verifyZeroInteractions(deviceDBService);
 			verifyZeroInteractions(reservationFactory);
@@ -222,8 +234,8 @@ public class ReservationManagerImplTest {
 		setUpReservation1();
 		setUpReservation2();
 
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_1);
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_2);
+		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
+		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_2);
 
 		reservationManager.stopAndWait();
 
@@ -237,7 +249,7 @@ public class ReservationManagerImplTest {
 		setUpReservation1();
 		when(reservation1.isRunning()).thenReturn(false);
 
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_1);
+		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
 
 		verify(reservation1).isRunning();
 		verify(reservation1).startAndWait();
@@ -250,7 +262,7 @@ public class ReservationManagerImplTest {
 		setUpReservation2();
 		when(reservation2.isRunning()).thenReturn(false);
 
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_2);
+		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_2);
 
 		verify(reservation2).isRunning();
 		verify(reservation2, never()).startAndWait();
@@ -264,7 +276,7 @@ public class ReservationManagerImplTest {
 		setUpReservation3();
 		when(reservation3.isRunning()).thenReturn(false);
 
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_3);
+		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_3);
 
 		verify(reservation3).isRunning();
 		verify(reservation3, never()).startAndWait();

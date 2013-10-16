@@ -23,32 +23,31 @@
 
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
-import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.FlashProgramsConfiguration;
-import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
-public class FlashProgramsCallable extends AbstractRequestCallable {
+public class FlashProgramsCallable implements Callable<Void> {
+
+	private final WSN wsnEndpoint;
+
+	private final long requestId;
 
 	private final List<FlashProgramsConfiguration> flashProgramsConfigurations;
 
-	public FlashProgramsCallable(final FederatorController federatorController,
-								 final WSN wsnEndpoint,
-								 final long federatedRequestId,
-								 final long federatorRequestId,
+	public FlashProgramsCallable(final WSN wsnEndpoint,
+								 final long requestId,
 								 final List<FlashProgramsConfiguration> flashProgramsConfigurations) {
-
-		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
-
+		this.wsnEndpoint = wsnEndpoint;
+		this.requestId = requestId;
 		this.flashProgramsConfigurations = flashProgramsConfigurations;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, AuthorizationFault {
-		wsnEndpoint.flashPrograms(federatedRequestId, flashProgramsConfigurations);
+	public Void call() throws Exception {
+		wsnEndpoint.flashPrograms(requestId, flashProgramsConfigurations);
+		return null;
 	}
 }

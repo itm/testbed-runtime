@@ -1,36 +1,35 @@
 package de.uniluebeck.itm.tr.federator.iwsn.async;
 
-import de.uniluebeck.itm.tr.federator.iwsn.FederatorController;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.wsn.AuthorizationFault;
 import eu.wisebed.api.v3.wsn.ChannelHandlerConfiguration;
-import eu.wisebed.api.v3.wsn.ReservationNotRunningFault_Exception;
 import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
-public class SetChannelPipelineCallable extends AbstractRequestCallable {
+public class SetChannelPipelineCallable implements Callable<Void> {
+
+	private final WSN wsnEndpoint;
+
+	private final long requestId;
 
 	private final List<NodeUrn> nodeUrns;
 
 	private final List<ChannelHandlerConfiguration> channelHandlerConfigurations;
 
-	public SetChannelPipelineCallable(final FederatorController federatorController,
-									  final WSN wsnEndpoint,
-									  final long federatedRequestId,
-									  final long federatorRequestId,
+	public SetChannelPipelineCallable(final WSN wsnEndpoint,
+									  final long requestId,
 									  final List<NodeUrn> nodeUrns,
 									  final List<ChannelHandlerConfiguration> channelHandlerConfigurations) {
-
-		super(federatorController, wsnEndpoint, federatedRequestId, federatorRequestId);
-
+		this.wsnEndpoint = wsnEndpoint;
+		this.requestId = requestId;
 		this.nodeUrns = nodeUrns;
 		this.channelHandlerConfigurations = channelHandlerConfigurations;
 	}
 
 	@Override
-	protected void executeRequestOnFederatedTestbed(final long federatedRequestId)
-			throws ReservationNotRunningFault_Exception, AuthorizationFault {
-		wsnEndpoint.setChannelPipeline(federatedRequestId, nodeUrns, channelHandlerConfigurations);
+	public Void call() throws Exception {
+		wsnEndpoint.setChannelPipeline(requestId, nodeUrns, channelHandlerConfigurations);
+		return null;
 	}
 }
