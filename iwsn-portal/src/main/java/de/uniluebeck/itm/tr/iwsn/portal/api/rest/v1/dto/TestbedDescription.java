@@ -13,4 +13,6 @@ public class TestbedDescription {
 	public String testbedBaseUri;
 
 	public String sessionManagementEndpointUrl;
+
+	public boolean isFederator;
 }

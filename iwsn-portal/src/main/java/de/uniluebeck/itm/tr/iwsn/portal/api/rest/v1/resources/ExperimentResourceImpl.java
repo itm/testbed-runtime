@@ -12,8 +12,9 @@ import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeyException;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeysException;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.wsn.ChannelPipelinesMap;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Setup.Node;
@@ -484,17 +485,17 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 	private Reservation getReservationOrThrow(final String secretReservationKeysBase64) throws Exception {
 
-		final SecretReservationKeyListRs secretReservationKeys = fromJSON(
+		final List<SecretReservationKey> secretReservationKeys = fromJSON(
 				decode(secretReservationKeysBase64),
-				SecretReservationKeyListRs.class
+				new TypeReference<List<SecretReservationKey>>() {}
 		);
 
 		try {
 
-			return reservationManager.getReservation(secretReservationKeys.reservations);
+			return reservationManager.getReservation(secretReservationKeys);
 
 		} catch (ReservationUnknownException e) {
-			throw new UnknownSecretReservationKeyException(secretReservationKeys);
+			throw new UnknownSecretReservationKeysException(secretReservationKeys);
 		}
 	}
 

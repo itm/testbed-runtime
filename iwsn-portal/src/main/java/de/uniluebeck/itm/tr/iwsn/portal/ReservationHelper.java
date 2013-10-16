@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SecretReservationKeyListRs;
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import org.codehaus.jackson.type.TypeReference;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,7 +21,11 @@ public abstract class ReservationHelper {
 			new Comparator<SecretReservationKey>() {
 				@Override
 				public int compare(final SecretReservationKey o1, final SecretReservationKey o2) {
-					return o1.getUrnPrefix().toString().compareTo(o2.getUrnPrefix().toString());
+					final int cmp = o1.getUrnPrefix().toString().compareTo(o2.getUrnPrefix().toString());
+					if (cmp != 0) {
+						return cmp;
+					}
+					return o1.getKey().compareTo(o2.getKey());
 				}
 			};
 
@@ -32,7 +36,7 @@ public abstract class ReservationHelper {
 
 	public static String serialize(final List<SecretReservationKey> secretReservationKeyList) {
 		sort(secretReservationKeyList, secretReservationKeyComparator);
-		return encode(toJSON(new SecretReservationKeyListRs(secretReservationKeyList)));
+		return encode(toJSON(secretReservationKeyList));
 	}
 
 	public static String serialize(final Set<SecretReservationKey> secretReservationKeySet) {
@@ -41,7 +45,10 @@ public abstract class ReservationHelper {
 
 	public static List<SecretReservationKey> deserialize(final String jsonSerializedSecretReservationKeys) {
 		try {
-			return fromJSON(decode(jsonSerializedSecretReservationKeys), SecretReservationKeyListRs.class).reservations;
+			return fromJSON(
+					decode(jsonSerializedSecretReservationKeys),
+					new TypeReference<List<SecretReservationKey>>() {}
+			);
 		} catch (Exception e) {
 			throw propagate(e);
 		}

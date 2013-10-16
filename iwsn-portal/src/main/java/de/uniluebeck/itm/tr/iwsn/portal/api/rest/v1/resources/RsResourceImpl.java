@@ -1,10 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ConfidentialReservationDataList;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.MakeReservationData;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.PublicReservationDataList;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SecretReservationKeyListRs;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
@@ -40,30 +37,41 @@ public class RsResourceImpl implements RsResource {
 
 	@Override
 	@GET
+	@Path("/public")
 	@Produces({MediaType.APPLICATION_JSON})
-	public Object listReservations(@QueryParam("from") final DateTime from,
-								   @QueryParam("to") final DateTime to,
-								   @QueryParam("userOnly") @DefaultValue("false") final boolean userOnly,
-								   @Nullable @QueryParam("offset") final Integer offset,
-								   @Nullable @QueryParam("amount") final Integer amount)
+	public List<PublicReservationData> listPublicReservations(
+			@Nullable @QueryParam("from") final DateTime from,
+			@Nullable @QueryParam("to") final DateTime to,
+			@Nullable @QueryParam("offset") final Integer offset,
+			@Nullable @QueryParam("amount") final Integer amount)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
+		return getPublicReservations(from, to, offset, amount);
+	}
 
-		return userOnly ?
-				getConfidentialReservations(getSAKsFromCookie(httpHeaders), from, to, offset, amount) :
-				getPublicReservations(from, to, offset, amount);
+	@Override
+	@GET
+	@Path("/personal")
+	@Produces({MediaType.APPLICATION_JSON})
+	public List<ConfidentialReservationData> listPersonalReservations(
+			@Nullable @QueryParam("from") final DateTime from,
+			@Nullable @QueryParam("to") final DateTime to,
+			@Nullable @QueryParam("offset") final Integer offset,
+			@Nullable @QueryParam("amount") final Integer amount)
+			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
+		return getConfidentialReservations(getSAKsFromCookie(httpHeaders), from, to, offset, amount);
 	}
 
 	@Override
 	@POST
+	@Path("create")
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("create")
-	public SecretReservationKeyListRs makeReservation(MakeReservationData request)
+	public List<ConfidentialReservationData> makeReservation(MakeReservationData request)
 			throws RSFault_Exception, AuthorizationFault, ReservationConflictFault_Exception, AuthenticationFault {
 
 		final List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 
-		final List<SecretReservationKey> reservation = rs.makeReservation(
+		final List<SecretReservationKey> secretReservationKeys = rs.makeReservation(
 				secretAuthenticationKeys,
 				request.nodeUrns,
 				request.from,
@@ -71,43 +79,46 @@ public class RsResourceImpl implements RsResource {
 				request.description,
 				request.options
 		);
-
-		return new SecretReservationKeyListRs(reservation);
+		try {
+			return rs.getReservation(secretReservationKeys);
+		} catch (UnknownSecretReservationKeyFault unknownSecretReservationKeyFault) {
+			final String msg = "Internal error while retrieving reservation that was just created.";
+			throw new RSFault_Exception(msg, new RSFault().withMessage(msg), unknownSecretReservationKeyFault);
+		}
 	}
 
 	@Override
 	@DELETE
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.TEXT_PLAIN})
-	public void deleteReservation(SecretReservationKeyListRs secretReservationKeys)
+	public void deleteReservation(List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault, AuthenticationFault {
 
 		List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
 		log.debug("Cookie (secret authentication keys): {}", secretAuthenticationKeys);
-		rs.deleteReservation(secretAuthenticationKeys, secretReservationKeys.reservations);
+		rs.deleteReservation(secretAuthenticationKeys, secretReservationKeys);
 	}
 
 	@Override
 	@GET
 	@Path("byExperimentId/{secretReservationKeysBase64}")
 	@Produces({MediaType.APPLICATION_JSON})
-	public ConfidentialReservationDataList getReservation(
+	public List<ConfidentialReservationData> getReservation(
 			@PathParam("secretReservationKeysBase64") final String secretReservationKeysBase64)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		return new ConfidentialReservationDataList(rs.getReservation(deserialize(secretReservationKeysBase64)));
+		return rs.getReservation(deserialize(secretReservationKeysBase64));
 	}
 
 	@Override
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	public ConfidentialReservationDataList getReservation(SecretReservationKeyListRs secretReservationKeys)
+	public List<ConfidentialReservationData> getReservation(List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
-
-		return new ConfidentialReservationDataList(rs.getReservation(secretReservationKeys.reservations));
+		return rs.getReservation(secretReservationKeys);
 	}
 
-	private ConfidentialReservationDataList getConfidentialReservations(
+	private List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> snaaSecretAuthenticationKeys,
 			@Nullable final DateTime from,
 			@Nullable final DateTime to,
@@ -120,21 +131,19 @@ public class RsResourceImpl implements RsResource {
 				snaaSecretAuthenticationKeys, from, to, offset, amount
 		);
 
-		return new ConfidentialReservationDataList(
-				rs.getConfidentialReservations(
-						snaaSecretAuthenticationKeys,
-						from,
-						to,
-						offset,
-						amount
-				)
+		return rs.getConfidentialReservations(
+				snaaSecretAuthenticationKeys,
+				from,
+				to,
+				offset,
+				amount
 		);
 	}
 
-	private PublicReservationDataList getPublicReservations(@Nullable final DateTime from,
-															@Nullable final DateTime to,
-															@Nullable final Integer offset,
-															@Nullable final Integer amount)
+	private List<PublicReservationData> getPublicReservations(@Nullable final DateTime from,
+															  @Nullable final DateTime to,
+															  @Nullable final Integer offset,
+															  @Nullable final Integer amount)
 			throws RSFault_Exception {
 
 		final List<PublicReservationData> reservations = rs.getReservations(
@@ -152,6 +161,6 @@ public class RsResourceImpl implements RsResource {
 				amount
 		);
 
-		return new PublicReservationDataList(reservations);
+		return reservations;
 	}
 }

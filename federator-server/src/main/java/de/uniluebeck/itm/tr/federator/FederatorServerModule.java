@@ -72,7 +72,7 @@ public class FederatorServerModule extends AbstractModule {
 		install(new WiseGuiServiceModule());
 		install(new SchedulerServiceModule());
 		install(new ResponseTrackerModule());
-		install(new RestApiModule());
+		install(new RestApiModule(true));
 	}
 
 	@Provides

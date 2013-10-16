@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.name.Names;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
@@ -15,6 +16,14 @@ import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.snaa.SNAA;
 
 public class RestApiModule extends AbstractModule {
+
+	public static final String IS_FEDERATOR = "RestApiModule.IS_FEDERATOR";
+
+	private final boolean federator;
+
+	public RestApiModule(final boolean federator) {
+		this.federator = federator;
+	}
 
 	@Override
 	protected void configure() {
@@ -40,6 +49,8 @@ public class RestApiModule extends AbstractModule {
 		bind(RsResource.class).to(RsResourceImpl.class);
 		bind(SnaaResource.class).to(SnaaResourceImpl.class);
 		bind(RootResource.class).to(RootResourceImpl.class);
+
+		bindConstant().annotatedWith(Names.named(IS_FEDERATOR)).to(federator);
 
 		install(new FactoryModuleBuilder().build(WsnWebSocketFactory.class));
 		install(new FactoryModuleBuilder().build(EventWebSocketFactory.class));

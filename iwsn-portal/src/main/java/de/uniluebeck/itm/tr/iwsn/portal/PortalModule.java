@@ -130,7 +130,7 @@ public class PortalModule extends AbstractModule {
 
 		install(new DeviceDBRestServiceModule());
 		install(new SoapApiModule());
-		install(new RestApiModule());
+		install(new RestApiModule(false));
 		install(new WiseGuiServiceModule());
 
 		install(new PortalPluginModule());
