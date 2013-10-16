@@ -70,7 +70,7 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 
 		install(new FactoryModuleBuilder()
 				.implement(FederatorController.class, FederatorControllerImpl.class)
-				.build(WSNFederatorControllerFactory.class)
+				.build(FederatorControllerFactory.class)
 		);
 
 		install(new FactoryModuleBuilder()

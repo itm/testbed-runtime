@@ -88,7 +88,7 @@ public class WSNFederatorServiceImplTest {
 	private FederatedEndpoints<WSN> federatedEndpoints;
 
 	@Mock
-	private WSNFederatorControllerFactory federatorControllerFactory;
+	private FederatorControllerFactory federatorControllerFactory;
 
 	@Mock
 	private ServicePublisher servicePublisher;
@@ -124,6 +124,7 @@ public class WSNFederatorServiceImplTest {
 		)
 		).thenReturn(wsnPreconditions);
 		when(federatorControllerFactory.create(
+				Matchers.<FederatedReservation>any(),
 				Matchers.<FederatedEndpoints<WSN>>any(),
 				Matchers.<Set<NodeUrnPrefix>>any(),
 				Matchers.<Set<NodeUrn>>any()

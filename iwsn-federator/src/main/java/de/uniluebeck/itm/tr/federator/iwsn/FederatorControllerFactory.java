@@ -7,9 +7,10 @@ import eu.wisebed.api.v3.wsn.WSN;
 
 import java.util.Set;
 
-public interface WSNFederatorControllerFactory {
+public interface FederatorControllerFactory {
 
-	FederatorController create(FederatedEndpoints<WSN> wsnFederatedEndpoints,
+	FederatorController create(FederatedReservation reservation,
+							   FederatedEndpoints<WSN> wsnFederatedEndpoints,
 							   Set<NodeUrnPrefix> nodeUrnPrefixes,
 							   Set<NodeUrn> nodeUrns);
 

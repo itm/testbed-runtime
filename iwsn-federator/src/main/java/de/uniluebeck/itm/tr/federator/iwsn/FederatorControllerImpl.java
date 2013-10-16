@@ -78,6 +78,8 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 	private final CommonPreconditions preconditions;
 
+	private final FederatedReservation reservation;
+
 	/**
 	 * Maps the federatedRequestId to the federatorRequestId (i.e. remote to local)
 	 */
@@ -109,10 +111,12 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 								   final IWSNFederatorServiceConfig config,
 								   final PreconditionsFactory preconditionsFactory,
 								   final SecureIdGenerator secureIdGenerator,
+								   @Assisted final FederatedReservation reservation,
 								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints,
 								   @Assisted final Set<NodeUrnPrefix> nodeUrnPrefixes,
 								   @Assisted final Set<NodeUrn> nodeUrns) {
 
+		this.reservation = checkNotNull(reservation);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.deliveryManager = checkNotNull(deliveryManager);
 		this.wsnFederatedEndpoints = checkNotNull(wsnFederatedEndpoints);
@@ -129,7 +133,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	@Override
 	protected void doStart() {
 
-		log.trace("FederatorControllerImpl.doStart()");
+		log.trace("FederatorControllerImpl[{}].doStart()", reservation.getSerializedKey());
 
 		try {
 
@@ -236,13 +240,13 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 	@WebMethod(exclude = true)
 	public void addController(DeliveryManagerController controller) {
-		log.trace("FederatorControllerImpl.addController({})", controller);
+		log.trace("FederatorControllerImpl[{}].addController({})", reservation.getSerializedKey(), controller);
 		deliveryManager.addController(controller);
 	}
 
 	@WebMethod(exclude = true)
 	public void removeController(DeliveryManagerController controller) {
-		log.trace("FederatorControllerImpl.removeController({})", controller);
+		log.trace("FederatorControllerImpl[{}].removeController({})", reservation.getSerializedKey(), controller);
 		deliveryManager.removeController(controller);
 	}
 
@@ -255,7 +259,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 			@WebParam(name = "msg", targetNamespace = "")
 			List<Message> msg) {
 		for (Message message : msg) {
-			log.trace("FederatorControllerImpl.receive({})", message);
+			log.trace("FederatorControllerImpl[{}].receive({})", reservation.getSerializedKey(), message);
 			receive(message);
 		}
 	}
@@ -268,7 +272,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	public void receiveNotification(
 			@WebParam(name = "notifications", targetNamespace = "")
 			List<Notification> notifications) {
-		log.trace("FederatorControllerImpl.receiveNotification({})", notifications);
+		log.trace("FederatorControllerImpl[{}].receiveNotification({})", reservation.getSerializedKey(), notifications);
 		deliveryManager.receiveNotification(notifications);
 	}
 
@@ -280,7 +284,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	public void receiveStatus(
 			@WebParam(name = "status", targetNamespace = "")
 			List<RequestStatus> status) {
-		log.trace("FederatorControllerImpl.receiveStatus({})", status);
+		log.trace("FederatorControllerImpl[{}].receiveStatus({})", reservation.getSerializedKey(), status);
 		for (RequestStatus requestStatus : status) {
 			receiveStatus(requestStatus);
 		}
@@ -296,7 +300,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 			DateTime timestamp,
 			@WebParam(name = "nodeUrns", targetNamespace = "")
 			List<NodeUrn> nodeUrns) {
-		log.trace("FederatorControllerImpl.nodesAttached({}, {})", timestamp, nodeUrns);
+		log.trace("FederatorControllerImpl[{}].nodesAttached({}, {})", reservation.getSerializedKey(), timestamp, nodeUrns);
 		preconditions.checkNodesKnown(nodeUrns);
 		deliveryManager.nodesAttached(timestamp, nodeUrns);
 	}
@@ -311,7 +315,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 			DateTime timestamp,
 			@WebParam(name = "nodeUrns", targetNamespace = "")
 			List<NodeUrn> nodeUrns) {
-		log.trace("FederatorControllerImpl.nodesDetached({}, {})", timestamp, nodeUrns);
+		log.trace("FederatorControllerImpl[{}].nodesDetached({}, {})", reservation.getSerializedKey(), timestamp, nodeUrns);
 		preconditions.checkNodesKnown(nodeUrns);
 		deliveryManager.nodesDetached(timestamp, nodeUrns);
 	}
@@ -324,7 +328,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	public void reservationStarted(
 			@WebParam(name = "timestamp", targetNamespace = "")
 			DateTime timestamp) {
-		log.trace("FederatorControllerImpl.reservationStarted({})", timestamp);
+		log.trace("FederatorControllerImpl[{}].reservationStarted({})", reservation.getSerializedKey(), timestamp);
 		deliveryManager.reservationStarted(timestamp);
 	}
 
@@ -336,7 +340,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	public void reservationEnded(
 			@WebParam(name = "timestamp", targetNamespace = "")
 			DateTime timestamp) {
-		log.trace("FederatorControllerImpl.reservationEnded({})", timestamp);
+		log.trace("FederatorControllerImpl[{}].reservationEnded({})", reservation.getSerializedKey(), timestamp);
 		deliveryManager.reservationEnded(timestamp);
 	}
 
