@@ -267,8 +267,6 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			throws RSFault_Exception {
 
 		checkState(isRunning());
-		assertNotNull(from, "from");
-		assertNotNull(to, "to");
 
 		// fork processes to collect reservations from federated services
 		List<Future<List<PublicReservationData>>> futures = newArrayList();
@@ -301,13 +299,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			throws AuthorizationFault, RSFault_Exception {
 
 		checkState(isRunning());
-
-		//check for null
-		if (from == null || to == null) {
-			throw createRSFault_Exception(
-					"could not validate period from: " + from + " to: " + to
-			);
-		}
+		checkArgument(secretAuthenticationKey != null && secretAuthenticationKey.size() > 0, "Missing secret authentication keys!");
 
 		List<Future<List<ConfidentialReservationData>>> futures = newArrayList();
 		Map<RS, List<SecretAuthenticationKey>> endpointToAuthenticationMap = constructEndpointToAuthenticationMap(
