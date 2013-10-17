@@ -168,7 +168,7 @@ public class RSPersistenceJPA implements RSPersistence {
 
 	@Override
 	@Transactional
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "ConstantConditions"})
 	public List<ConfidentialReservationData> getReservations(@Nullable final DateTime from,
 															 @Nullable final DateTime to,
 															 @Nullable final Integer offset,
@@ -180,13 +180,13 @@ public class RSPersistenceJPA implements RSPersistence {
 
 			query = em.get().createNamedQuery(ReservationDataInternal.QGetAll.QUERY_NAME);
 
-		} else if (from == null) {
+		} else if (from == null && to != null) {
 
 			DateTime localTo = to.toDateTime(forTimeZone(localTimeZone));
 			query = em.get().createNamedQuery(ReservationDataInternal.QGetTo.QUERY_NAME);
 			query.setParameter(ReservationDataInternal.QGetTo.P_TO, localTo.getMillis());
 
-		} else if (to == null) {
+		} else if (from != null && to == null) {
 
 			DateTime localFrom = from.toDateTime(forTimeZone(localTimeZone));
 			query = em.get().createNamedQuery(ReservationDataInternal.QGetFrom.QUERY_NAME);

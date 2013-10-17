@@ -49,11 +49,11 @@ import java.io.Serializable;
 		),
 		@NamedQuery(
 				name = ReservationDataInternal.QGetTo.QUERY_NAME,
-				query = "FROM ReservationDataInternal data WHERE :" + ReservationDataInternal.QGetTo.P_TO + "<=data.confidentialReservationData.toDate"
+				query = "FROM ReservationDataInternal data WHERE data.confidentialReservationData.toDate >= :" + ReservationDataInternal.QGetTo.P_TO
 		),
 		@NamedQuery(
 				name = ReservationDataInternal.QGetFrom.QUERY_NAME,
-				query = "FROM ReservationDataInternal data WHERE :" + ReservationDataInternal.QGetFrom.P_FROM + "<=data.confidentialReservationData.fromDate"
+				query = "FROM ReservationDataInternal data WHERE data.confidentialReservationData.fromDate <= :" + ReservationDataInternal.QGetFrom.P_FROM
 		)
 })
 public class ReservationDataInternal implements Serializable {
