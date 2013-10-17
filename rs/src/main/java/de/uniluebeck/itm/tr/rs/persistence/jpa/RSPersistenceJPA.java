@@ -190,7 +190,7 @@ public class RSPersistenceJPA implements RSPersistence {
 
 			DateTime localFrom = from.toDateTime(forTimeZone(localTimeZone));
 			query = em.get().createNamedQuery(ReservationDataInternal.QGetFrom.QUERY_NAME);
-			query.setParameter(ReservationDataInternal.QGetTo.P_TO, localFrom.getMillis());
+			query.setParameter(ReservationDataInternal.QGetFrom.P_FROM, localFrom.getMillis());
 
 		} else {
 

@@ -82,7 +82,7 @@ public class ReservationDataInternal implements Serializable {
 
 		public static final String QUERY_NAME = "getReservationDataFrom";
 
-		public static final String P_TO = "from";
+		public static final String P_FROM = "from";
 	}
 
 	@Id
