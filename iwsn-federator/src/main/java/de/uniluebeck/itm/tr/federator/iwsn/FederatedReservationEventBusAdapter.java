@@ -64,8 +64,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 
 		log.trace("FederatedReservationEventBusAdapter.on({})", request);
 
-		if (request.getType() == Request.Type.ARE_NODES_CONNECTED ||
-				!ReservationHelper.equals(reservation.getSerializedKey(), request.getReservationId())) {
+		if (!request.hasReservationId() || !ReservationHelper.equals(reservation.getSerializedKey(), request.getReservationId())) {
 			return;
 		}
 
@@ -89,7 +88,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 					break;
 
 				case ARE_NODES_CONNECTED:
-					// ignore, this is handled by FederatorPortalEventBusAdapter
+					// handled by FederatorPortalEventBusAdapter
 					break;
 
 				case DISABLE_NODES:

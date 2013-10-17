@@ -87,7 +87,7 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 		);
 
 		install(new FactoryModuleBuilder()
-				.implement(ReservationEventBus.class, ReservationEventBusImpl.class)
+				.implement(ReservationEventBus.class, FederatedReservationEventBus.class)
 				.build(ReservationEventBusFactory.class)
 		);
 

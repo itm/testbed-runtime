@@ -26,10 +26,12 @@ package de.uniluebeck.itm.tr.federator.iwsn;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.protobuf.GeneratedMessage;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
-import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
@@ -73,8 +75,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 	private final ServicePublisher servicePublisher;
 
-	private final DeliveryManager deliveryManager;
-
 	private final FederatedEndpoints<WSN> wsnFederatedEndpoints;
 
 	private final PortalEventBus portalEventBus;
@@ -86,13 +86,11 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 								   final IWSNFederatorServiceConfig config,
 								   final SecureIdGenerator secureIdGenerator,
 								   final PortalEventBus portalEventBus,
-								   @Assisted final DeliveryManager deliveryManager,
 								   @Assisted final FederatedReservation reservation,
 								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints) {
 
 		this.reservation = checkNotNull(reservation);
 		this.servicePublisher = checkNotNull(servicePublisher);
-		this.deliveryManager = checkNotNull(deliveryManager);
 		this.wsnFederatedEndpoints = checkNotNull(wsnFederatedEndpoints);
 		this.portalEventBus = checkNotNull(portalEventBus);
 
@@ -114,9 +112,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this);
 			jaxWsService.startAndWait();
-
-			log.debug("Starting federator DeliveryManager");
-			deliveryManager.startAndWait();
 
 			log.debug("Adding federator controller endpoint to federated reservations");
 
@@ -144,10 +139,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 				jaxWsService.stopAndWait();
 			}
 
-			if (deliveryManager.isRunning()) {
-				deliveryManager.stopAndWait();
-			}
-
 			notifyFailed(e);
 		}
 	}
@@ -167,11 +158,6 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 				}
 			}
 
-			log.debug("Calling reservationEnded() on connected controllers...");
-
-			deliveryManager.reservationEnded(DateTime.now());
-			deliveryManager.stopAndWait();
-
 			if (jaxWsService.isRunning()) {
 				log.info("Stopping federator controller at {}...", endpointUri);
 				jaxWsService.stopAndWait();
@@ -189,46 +175,50 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	public void nodesAttached(@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp,
 							  @WebParam(name = "nodeUrns", targetNamespace = "") final List<NodeUrn> nodeUrns) {
 
-		log.trace("FederatedReservationEventBusAdapter.nodesAttached({}, {})", timestamp, nodeUrns);
+		log.trace("FederatorControllerImpl[{}].nodesAttached({}, {})", reservation.getSerializedKey(), timestamp,
+				nodeUrns
+		);
 
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		portalEventBus.post(newDevicesAttachedEvent(timestamp.getMillis(), nodeUrns));
+		portalEventBus.post(scope(newDevicesAttachedEvent(timestamp.getMillis(), nodeUrns)));
 	}
 
 	@Override
 	public void nodesDetached(@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp,
 							  @WebParam(name = "nodeUrns", targetNamespace = "") final List<NodeUrn> nodeUrns) {
 
-		log.trace("FederatedReservationEventBusAdapter.nodesDetached({}, {})\", timestamp, nodeUrns");
+		log.trace("FederatorControllerImpl[{}].nodesDetached({}, {})\"", reservation.getSerializedKey(), timestamp,
+				nodeUrns
+		);
 
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		portalEventBus.post(newDevicesDetachedEvent(timestamp.getMillis(), nodeUrns));
+		portalEventBus.post(scope(newDevicesDetachedEvent(timestamp.getMillis(), nodeUrns)));
 	}
 
 	@Override
 	public void reservationStarted(@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp) {
 
-		log.trace("FederatedReservationEventBusAdapter.reservationStarted({})", timestamp);
+		log.trace("FederatorControllerImpl[{}].reservationStarted({})", reservation.getSerializedKey(), timestamp);
 
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		portalEventBus.post(new ReservationStartedEvent(reservation));
+		portalEventBus.post(scope(new ReservationStartedEvent(reservation)));
 	}
 
 	@Override
 	public void reservationEnded(@WebParam(name = "timestamp", targetNamespace = "") final DateTime timestamp) {
 
-		log.trace("FederatedReservationEventBusAdapter.reservationEnded({})", timestamp);
+		log.trace("FederatorControllerImpl[{}].reservationEnded({})", reservation.getSerializedKey(), timestamp);
 
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		portalEventBus.post(new ReservationEndedEvent(reservation));
+		portalEventBus.post(scope(new ReservationEndedEvent(reservation)));
 	}
 
 	@Override
@@ -238,18 +228,18 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 			className = "eu.wisebed.api.v3.controller.Receive")
 	public void receive(@WebParam(name = "msg", targetNamespace = "") final List<Message> messages) {
 
-		log.trace("FederatedReservationEventBusAdapter.receive({})", messages);
+		log.trace("FederatorControllerImpl[{}].receive({})", reservation.getSerializedKey(), messages);
 
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
 		for (Message msg : messages) {
-			portalEventBus.post(newUpstreamMessageEvent(
+			final UpstreamMessageEvent event = newUpstreamMessageEvent(
 					msg.getSourceNodeUrn(),
 					msg.getBinaryData(),
 					msg.getTimestamp()
-			)
 			);
+			portalEventBus.post(scope(event));
 		}
 	}
 
@@ -257,25 +247,25 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	public void receiveNotification(
 			@WebParam(name = "notifications", targetNamespace = "") final List<Notification> notifications) {
 
-		log.trace("FederatedReservationEventBusAdapter.receiveNotification({})", notifications);
+		log.trace("FederatorControllerImpl[{}].receiveNotification({})", reservation.getSerializedKey(), notifications);
 
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
 		for (Notification notification : notifications) {
-			portalEventBus.post(newNotificationEvent(
+			final NotificationEvent event = newNotificationEvent(
 					notification.getNodeUrn(),
 					notification.getTimestamp().getMillis(),
 					notification.getMsg()
-			)
 			);
+			portalEventBus.post(scope(event));
 		}
 	}
 
 	@Override
 	public void receiveStatus(@WebParam(name = "status", targetNamespace = "") final List<RequestStatus> statuses) {
 
-		log.trace("FederatedReservationEventBusAdapter.receiveStatus({})", statuses);
+		log.trace("FederatorControllerImpl[{}].receiveStatus({})", reservation.getSerializedKey(), statuses);
 
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
@@ -289,10 +279,11 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 				final Integer value = singleNodeRequestStatus.getValue();
 				final String msg = singleNodeRequestStatus.getMsg();
 
-				portalEventBus.post(singleNodeRequestStatus.isCompleted() ?
+				final Object event = singleNodeRequestStatus.isCompleted() ?
 						newSingleNodeResponse(reservationId, requestId, nodeUrn, value, msg) :
-						newSingleNodeProgress(reservationId, requestId, nodeUrn, value)
-				);
+						newSingleNodeProgress(reservationId, requestId, nodeUrn, value);
+
+				portalEventBus.post(scope(event));
 			}
 		}
 	}
@@ -304,5 +295,9 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 	@Override
 	public String toString() {
 		return getClass().getName() + "@" + Integer.toHexString(hashCode());
+	}
+
+	private FederatedReservationScopedEvent scope(final Object event) {
+		return new FederatedReservationScopedEvent(event, reservation);
 	}
 }

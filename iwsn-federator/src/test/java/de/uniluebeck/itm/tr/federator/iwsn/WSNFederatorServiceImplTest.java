@@ -136,7 +136,6 @@ public class WSNFederatorServiceImplTest {
 		).thenReturn(wsnPreconditions);
 		when(federatorControllerFactory.create(
 				Matchers.<FederatedReservation>any(),
-				Matchers.<DeliveryManager>any(),
 				Matchers.<FederatedEndpoints<WSN>>any(),
 				Matchers.<Set<NodeUrnPrefix>>any(),
 				Matchers.<Set<NodeUrn>>any()

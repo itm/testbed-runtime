@@ -17,7 +17,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.Iterables.*;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newDevicesAttachedEvent;
@@ -28,13 +28,13 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	private static final Logger log = LoggerFactory.getLogger(ReservationEventBus.class);
 
-	private final PortalEventBus portalEventBus;
+	protected final PortalEventBus portalEventBus;
 
-	private final EventBus eventBus;
+	protected final EventBus eventBus;
 
-	private final Reservation reservation;
+	protected final Reservation reservation;
 
-	private final String reservationId;
+	protected final String reservationId;
 
 	@Inject
 	public ReservationEventBusImpl(final PortalEventBus portalEventBus,
@@ -217,10 +217,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	@Override
 	public String toString() {
-		return getClass().getName() + "@" + Integer.toHexString(hashCode());
-	}
-
-	private void logIgnore(final Object event) {
-		log.trace("ReservationEventBusImpl[{}].onDevicesAttachedEventFromPortalEventBus({}): ignoring event as reservation is not running", reservationId, event);
+		return getClass().getName() + "[" + reservationId + "]";
 	}
 }
