@@ -162,42 +162,43 @@ public class FederatedReservationManager extends AbstractService implements Rese
 		}
 
 		// fork calls to getInstance on federated testbeds
-		final Map<URI, Future<GetInstanceCallable.Result>> futures = newHashMap();
+		final Multimap<URI, Future<GetInstanceCallable.Result>> futures = HashMultimap.create();
 		for (URI smEndpointUrl : smToSrkMap.keys()) {
-
-			final GetInstanceCallable callable = new GetInstanceCallable(
-					smEndpointUrl,
-					smFederatedEndpoints.getEndpointByEndpointUrl(smEndpointUrl),
-					newArrayList(smToSrkMap.get(smEndpointUrl))
-			);
-			final Future<GetInstanceCallable.Result> future = schedulerService.submit(callable);
-			futures.put(smEndpointUrl, future);
+			for (SecretReservationKey secretReservationKey : smToSrkMap.get(smEndpointUrl)) {
+				final GetInstanceCallable callable = new GetInstanceCallable(
+						smEndpointUrl,
+						smFederatedEndpoints.getEndpointByEndpointUrl(smEndpointUrl),
+						newArrayList(secretReservationKey)
+				);
+				final Future<GetInstanceCallable.Result> future = schedulerService.submit(callable);
+				futures.put(smEndpointUrl, future);
+			}
 		}
 
 		final Multimap<URI, NodeUrnPrefix> endpointUrlsToUrnPrefixesMap = HashMultimap.create();
 
 		// join getInstance call results
-		for (Map.Entry<URI, Future<GetInstanceCallable.Result>> entry : futures.entrySet()) {
+		for (URI uri : futures.keys()) {
+			for (Future<GetInstanceCallable.Result> future : futures.get(uri)) {
 
-			final URI uri = entry.getKey();
-			final Future<GetInstanceCallable.Result> future = entry.getValue();
-			final GetInstanceCallable.Result result;
+				final GetInstanceCallable.Result result;
 
-			try {
-				result = future.get();
-			} catch (Exception e) {
-				if (e instanceof ExecutionException && e.getCause() instanceof UnknownSecretReservationKeyFault) {
-					throw (UnknownSecretReservationKeyFault) e.getCause();
+				try {
+					result = future.get();
+				} catch (Exception e) {
+					if (e instanceof ExecutionException && e.getCause() instanceof UnknownSecretReservationKeyFault) {
+						throw (UnknownSecretReservationKeyFault) e.getCause();
+					}
+					log.error("Exception while calling getInstance on federated testbed " + uri + ":", e);
+					throw propagate(e);
 				}
-				log.error("Exception while calling getInstance on federated testbed " + uri + ":", e);
-				throw propagate(e);
-			}
 
-			for (SecretReservationKey secretReservationKey : result.secretReservationKey) {
-				endpointUrlsToUrnPrefixesMap.put(
-						result.federatedWSNInstanceEndpointUrl,
-						secretReservationKey.getUrnPrefix()
-				);
+				for (SecretReservationKey secretReservationKey : result.secretReservationKey) {
+					endpointUrlsToUrnPrefixesMap.put(
+							result.federatedWSNInstanceEndpointUrl,
+							secretReservationKey.getUrnPrefix()
+					);
+				}
 			}
 		}
 

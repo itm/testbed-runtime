@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.common;
 import com.google.common.base.Function;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
+import eu.wisebed.api.v3.common.SecretReservationKey;
 
 import javax.annotation.Nullable;
 
@@ -33,4 +34,12 @@ public class NodeUrnPrefixHelper {
 					return input.getUrnPrefix();
 				}
 			};
+
+	public static final Function<SecretReservationKey, NodeUrnPrefix> SRK_TO_NODE_URN_PREFIX = new Function<SecretReservationKey, NodeUrnPrefix>() {
+		@Override
+		public NodeUrnPrefix apply(final SecretReservationKey input) {
+			return input.getUrnPrefix();
+		}
+	};
+
 }
