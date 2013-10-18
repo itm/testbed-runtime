@@ -62,8 +62,6 @@ public abstract class RSPersistenceOffsetAmountTest {
 
 	private RSPersistence persistence;
 
-	private boolean assertOrdered;
-
 	private ConfidentialReservationData res0;
 
 	private ConfidentialReservationData res1;
@@ -118,11 +116,11 @@ public abstract class RSPersistenceOffsetAmountTest {
 	public void test() throws Exception {
 		assertMatch(query(0, 5), matchingReservations);
 		assertMatch(query(0, 6), matchingReservations);
-		assertMatch(query(0, 4), newHashSet(res1, res2, res3, res4));
-		assertMatch(query(1, 4), newHashSet(res2, res3, res4, res5));
-		assertMatch(query(1, 3), newHashSet(res2, res3, res4));
-		assertMatch(query(1, 6), newHashSet(res2, res3, res4, res5));
-		assertMatch(query(4, 1), newHashSet(res5));
+		assertMatch(query(0, 4), newHashSet(res5, res4, res3, res2));
+		assertMatch(query(1, 4), newHashSet(res4, res3, res2, res1));
+		assertMatch(query(1, 3), newHashSet(res4, res3, res2));
+		assertMatch(query(1, 6), newHashSet(res4, res3, res2, res1));
+		assertMatch(query(4, 1), newHashSet(res1));
 		assertMatch(query(5, 1), Sets.<ConfidentialReservationData>newHashSet());
 	}
 
