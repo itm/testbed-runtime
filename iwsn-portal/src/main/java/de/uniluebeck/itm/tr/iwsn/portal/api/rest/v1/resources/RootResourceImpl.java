@@ -49,7 +49,6 @@ public class RootResourceImpl implements RootResource {
 		final TestbedDescription testbed = new TestbedDescription();
 
 		testbed.name = wiseGuiServiceConfig.getWiseguiTestbedName();
-		testbed.testbedBaseUri = wiseGuiServiceConfig.getWiseGuiRestApiBaseUri();
 		testbed.sessionManagementEndpointUrl = endpointManager.getSmEndpointUri().toString();
 		testbed.urnPrefixes = newArrayList(transform(servedNodeUrnPrefixesProvider.get(), NODE_URN_PREFIX_TO_STRING));
 		testbed.isFederator = federator;

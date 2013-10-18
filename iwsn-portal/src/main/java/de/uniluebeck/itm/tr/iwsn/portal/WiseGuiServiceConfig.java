@@ -3,7 +3,6 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.util.propconf.PropConf;
-import de.uniluebeck.itm.util.propconf.converters.URITypeConverter;
 import org.nnsoft.guice.rocoto.converters.FileConverter;
 
 import java.io.File;
@@ -53,25 +52,26 @@ public class WiseGuiServiceConfig {
 	private String wiseguiFederates;
 
 	@PropConf(
-			usage = "The base URI of the testbed REST API",
-			example = "http://my.testbed.tld/rest/v1.0",
-			typeConverter = URITypeConverter.class
+			usage = "The context path under which the REST API runs",
+			example = "/rest/v1.0",
+			defaultValue = "/rest/v1.0"
 	)
-	public static final String WISEGUI_REST_API_BASE_URI = "wisegui.rest_api_base_uri";
+	public static final String REST_API_CONTEXT_PATH = "rest_api.context_path";
 
 	@Inject
-	@Named(WISEGUI_REST_API_BASE_URI)
-	private String wiseGuiRestApiBaseUri;
+	@Named(REST_API_CONTEXT_PATH)
+	private String restApiContextPath;
 
 	@PropConf(
-			usage = "The URI of the testbed WebSocket API",
-			example = "http://my.testbed.tld/ws/v1.0"
+			usage = "The context path under which the WebSocket API runs",
+			example = "/ws/v1.0",
+			defaultValue = "/ws/v1.0"
 	)
-	public static final String WISEGUI_WEBSOCKET_URI = "wisegui.websocket_uri";
+	public static final String WEBSOCKET_CONTEXT_PATH = "websocket.context_path";
 
 	@Inject
-	@Named(WISEGUI_WEBSOCKET_URI)
-	private String wiseGuiWebSocketUri;
+	@Named(WEBSOCKET_CONTEXT_PATH)
+	private String websocketContextPath;
 
 	public String getWiseGuiContextPath() {
 		return wiseGuiContextPath;
@@ -85,15 +85,15 @@ public class WiseGuiServiceConfig {
 		return wiseguiTestbedName;
 	}
 
-	public String getWiseGuiRestApiBaseUri() {
-		return wiseGuiRestApiBaseUri;
-	}
-
-	public String getWiseGuiWebSocketUri() {
-		return wiseGuiWebSocketUri;
-	}
-
 	public String getWiseguiFederates() {
 		return wiseguiFederates;
+	}
+
+	public String getRestApiContextPath() {
+		return restApiContextPath;
+	}
+
+	public String getWebsocketContextPath() {
+		return websocketContextPath;
 	}
 }
