@@ -67,10 +67,12 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 			}
 
 			final Map<String, String> params = newHashMap();
+
 			params.put(WiseGuiServiceConfig.WISEGUI_CONTEXT_PATH, wiseGuiServiceConfig.getWiseGuiContextPath());
 			params.put(WiseGuiServiceConfig.WISEGUI_TESTBED_NAME, wiseGuiServiceConfig.getWiseguiTestbedName());
 			params.put(WiseGuiServiceConfig.REST_API_CONTEXT_PATH, wiseGuiServiceConfig.getRestApiContextPath());
 			params.put(WiseGuiServiceConfig.WEBSOCKET_CONTEXT_PATH, wiseGuiServiceConfig.getWebsocketContextPath());
+
 			params.put("allowedOrigins", "http://*");
 			params.put("allowedMethods", "GET,POST,PUT,DELETE");
 			params.put("allowCredentials", "true");
