@@ -56,7 +56,7 @@ public class WiseGuiServiceConfig {
 			example = "/rest/v1.0",
 			defaultValue = "/rest/v1.0"
 	)
-	public static final String REST_API_CONTEXT_PATH = "rest_api.context_path";
+	public static final String REST_API_CONTEXT_PATH = "wisegui.rest_api.context_path";
 
 	@Inject
 	@Named(REST_API_CONTEXT_PATH)
@@ -67,7 +67,7 @@ public class WiseGuiServiceConfig {
 			example = "/ws/v1.0",
 			defaultValue = "/ws/v1.0"
 	)
-	public static final String WEBSOCKET_CONTEXT_PATH = "websocket.context_path";
+	public static final String WEBSOCKET_CONTEXT_PATH = "wisegui.websocket.context_path";
 
 	@Inject
 	@Named(WEBSOCKET_CONTEXT_PATH)
