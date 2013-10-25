@@ -603,12 +603,15 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 				if (future instanceof ProgressListenableFuture && !future.isDone()) {
 
-					postProgress(
-							reservationId,
-							requestId,
-							nodeUrn,
-							((ProgressListenableFuture) future).getProgress()
-					);
+					final float progress = ((ProgressListenableFuture) future).getProgress();
+					if (progress < 1f) {
+						postProgress(
+								reservationId,
+								requestId,
+								nodeUrn,
+								progress
+						);
+					}
 
 				} else if (future.isDone()) {
 
