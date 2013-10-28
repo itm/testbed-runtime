@@ -93,18 +93,24 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 
 	private final ServicePublisher servicePublisher;
 
-	/**
-	 * Preconditions instance to check method arguments sent by user.
-	 */
-	private final SessionManagementPreconditions preconditions;
-
 	private final IWSNFederatorServiceConfig config;
 
 	private final FederatedEndpoints<SessionManagement> federatedEndpoints;
 
 	private final FederatedReservationManager reservationManager;
 
+	private final PreconditionsFactory preconditionsFactory;
+
+	private final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
+
+	private final ServedNodeUrnsProvider servedNodeUrnsProvider;
+
 	private final SessionManagementWisemlProvider wisemlProvider;
+
+	/**
+	 * Preconditions instance to check method arguments sent by user.
+	 */
+	private SessionManagementPreconditions preconditions;
 
 	private ServicePublisherService jaxWsService;
 
@@ -119,12 +125,11 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 			final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
 			final ServedNodeUrnsProvider servedNodeUrnsProvider,
 			final SessionManagementWisemlProvider wisemlProvider) {
-		this.wisemlProvider = wisemlProvider;
+		this.preconditionsFactory = checkNotNull(preconditionsFactory);
+		this.servedNodeUrnPrefixesProvider = checkNotNull(servedNodeUrnPrefixesProvider);
+		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
+		this.wisemlProvider = checkNotNull(wisemlProvider);
 		this.federatedEndpoints = checkNotNull(federatedEndpoints);
-		this.preconditions = preconditionsFactory.createSessionManagementPreconditions(
-				servedNodeUrnPrefixesProvider.get(),
-				servedNodeUrnsProvider.get()
-		);
 		this.config = checkNotNull(config);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.executorService = checkNotNull(executorService);
@@ -160,6 +165,16 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
+	}
+
+	private synchronized SessionManagementPreconditions getPreconditions() {
+		if (preconditions == null) {
+			preconditions = preconditionsFactory.createSessionManagementPreconditions(
+					servedNodeUrnPrefixesProvider.get(),
+					servedNodeUrnsProvider.get()
+			);
+		}
+		return preconditions;
 	}
 
 	@Override
@@ -319,7 +334,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 		log.trace("SessionManagementFederatorServiceImpl.getInstance({})", srks);
 		checkState(isRunning());
 
-		preconditions.checkGetInstanceArguments(srks);
+		getPreconditions().checkGetInstanceArguments(srks);
 		final FederatedReservation reservation;
 		try {
 			reservation = reservationManager.getFederatedReservation(newHashSet(srks));
