@@ -97,9 +97,9 @@ public class InMemoryRSPersistence implements RSPersistence {
 		for (ConfidentialReservationData reservation : reservations) {
 			boolean match =
 					(from == null && to == null) ||
-					(to == null && (reservation.getFrom().equals(from) || reservation.getFrom().isAfter(from))) ||
-					(from == null && (reservation.getTo().equals(to) || reservation.getTo().isBefore(to))) ||
-					(new Interval(reservation.getFrom(), reservation.getTo()).overlaps(new Interval(from, to)));
+					(to == null && (reservation.getFrom().equals(from) || reservation.getFrom().isBefore(from))) ||
+					(from == null && (reservation.getTo().isBefore(to))) ||
+					(from != null && to != null && new Interval(reservation.getFrom(), reservation.getTo()).overlaps(new Interval(from, to)));
 			if (match) {
 				matchingReservations.add(reservation);
 			}

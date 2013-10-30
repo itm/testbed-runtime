@@ -54,13 +54,13 @@ import java.io.Serializable;
 		@NamedQuery(
 				name = ReservationDataInternal.QGetTo.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
-						+ " data.confidentialReservationData.toDate >= :" + ReservationDataInternal.QGetTo.P_TO
+						+ " data.confidentialReservationData.toDate <= :" + ReservationDataInternal.QGetTo.P_TO
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
 		@NamedQuery(
 				name = ReservationDataInternal.QGetFrom.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
-						+ " data.confidentialReservationData.fromDate <= :" + ReservationDataInternal.QGetFrom.P_FROM
+						+ "     data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetFrom.P_FROM
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		)
 })
