@@ -10,29 +10,38 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.newHashSet;
 
 public class MockDeviceAdapter extends ListenableDeviceAdapter {
 
 	private static final Logger log = LoggerFactory.getLogger(MockDeviceAdapter.class);
 
-	private final String port;
-
 	private final DeviceConfig deviceConfig;
 
 	private final SchedulerService schedulerService;
 
+	private final String deviceType;
+
+	private final String devicePort;
+
+	private final Map<String, String> deviceConfiguration;
+
 	private ChannelHandlerConfigList channelHandlerConfigs;
 
-	public MockDeviceAdapter(final String port,
-							 final DeviceConfig deviceConfig,
+	public MockDeviceAdapter(final String deviceType, final String devicePort,
+							 final Map<String, String> deviceConfiguration,
+							 @Nullable final DeviceConfig deviceConfig,
 							 final SchedulerService schedulerService) {
-		this.port = port;
-		this.deviceConfig = deviceConfig;
+		this.deviceType = deviceType;
+		this.devicePort = devicePort;
+		this.deviceConfiguration = deviceConfiguration;
+		this.deviceConfig = checkNotNull(deviceConfig);
 		this.schedulerService = schedulerService;
 	}
 
@@ -59,11 +68,23 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 	}
 
 	@Override
-	public String getPort() {
-		return port;
+	public String getDeviceType() {
+		return deviceType;
 	}
 
 	@Override
+	public String getDevicePort() {
+		return devicePort;
+	}
+
+	@Override
+	@Nullable
+	public Map<String, String> getDeviceConfiguration() {
+		return deviceConfiguration;
+	}
+
+	@Override
+	@Nullable
 	public DeviceConfig getDeviceConfig() {
 		return deviceConfig;
 	}

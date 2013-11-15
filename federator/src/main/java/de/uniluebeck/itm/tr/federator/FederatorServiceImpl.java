@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.federator.iwsn.IWSNFederatorService;
 import de.uniluebeck.itm.tr.federator.rs.RSFederatorService;
 import de.uniluebeck.itm.tr.federator.snaa.SNAAFederatorService;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 
 public class FederatorServiceImpl extends AbstractService implements FederatorService {
 
@@ -14,22 +15,30 @@ public class FederatorServiceImpl extends AbstractService implements FederatorSe
 
 	private final SNAAFederatorService snaaFederatorService;
 
+	private final RestApiService restApiService;
+
 	@Inject
 	public FederatorServiceImpl(final IWSNFederatorService iwsnFederatorService,
 								final RSFederatorService rsFederatorService,
-								final SNAAFederatorService snaaFederatorService) {
+								final SNAAFederatorService snaaFederatorService,
+								final RestApiService restApiService) {
 		this.iwsnFederatorService = iwsnFederatorService;
 		this.rsFederatorService = rsFederatorService;
 		this.snaaFederatorService = snaaFederatorService;
+		this.restApiService = restApiService;
 	}
 
 	@Override
 	protected void doStart() {
 		try {
+
 			snaaFederatorService.startAndWait();
 			rsFederatorService.startAndWait();
 			iwsnFederatorService.startAndWait();
+			restApiService.startAndWait();
+
 			notifyStarted();
+
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -38,6 +47,9 @@ public class FederatorServiceImpl extends AbstractService implements FederatorSe
 	@Override
 	protected void doStop() {
 		try {
+			if (restApiService.isRunning()) {
+				restApiService.stopAndWait();
+			}
 			if (iwsnFederatorService.isRunning()) {
 				iwsnFederatorService.stopAndWait();
 			}

@@ -33,6 +33,7 @@ import de.uniluebeck.itm.util.concurrent.*;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import eu.wisebed.api.v3.common.NodeUrn;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,21 +44,42 @@ import static com.google.common.collect.Iterables.size;
 
 public abstract class SingleDeviceAdapterBase extends ListenableDeviceAdapter {
 
-	protected final String port;
-
 	protected final DeviceConfig deviceConfig;
 
-	protected SingleDeviceAdapterBase(final String port, final DeviceConfig deviceConfig) {
-		this.port = port;
-		this.deviceConfig = deviceConfig;
+	protected final String deviceType;
+
+	protected final String devicePort;
+
+	protected final Map<String, String> deviceConfiguration;
+
+	protected SingleDeviceAdapterBase(final String deviceType,
+									  final String devicePort,
+									  @Nullable final Map<String, String> deviceConfiguration,
+									  final DeviceConfig deviceConfig) {
+		this.deviceType = checkNotNull(deviceType);
+		this.devicePort = checkNotNull(devicePort);
+		this.deviceConfiguration = deviceConfiguration;
+		this.deviceConfig = checkNotNull(deviceConfig);
 	}
 
 	@Override
-	public String getPort() {
-		return port;
+	public String getDevicePort() {
+		return devicePort;
 	}
 
 	@Override
+	@Nullable
+	public Map<String, String> getDeviceConfiguration() {
+		return deviceConfiguration;
+	}
+
+	@Override
+	public String getDeviceType() {
+		return deviceType;
+	}
+
+	@Override
+	@Nullable
 	public DeviceConfig getDeviceConfig() {
 		return deviceConfig;
 	}

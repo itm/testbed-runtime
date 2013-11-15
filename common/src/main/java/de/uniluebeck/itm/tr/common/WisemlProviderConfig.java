@@ -15,13 +15,6 @@ public class WisemlProviderConfig {
 	@Named(DESCRIPTION)
 	private String description;
 
-	@PropConf(usage = "The type of coordinate used for the testbed origin")
-	public static final String COORDINATE_TYPE = "portal.wiseml.setup.coordinate_type";
-
-	@Inject(optional = true)
-	@Named(COORDINATE_TYPE)
-	private String coordinateType;
-
 	@PropConf(
 			usage = "The type of interpolation used",
 			example = "none|linear|polynomial|cubic|spline"
@@ -87,11 +80,6 @@ public class WisemlProviderConfig {
 	@Inject(optional = true)
 	@Named(ORIGIN_RHO)
 	private Float originRho;
-
-	@Nullable
-	public String getCoordinateType() {
-		return coordinateType;
-	}
 
 	@Nullable
 	public String getDescription() {

@@ -3,9 +3,9 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
+import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
-import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -43,44 +43,55 @@ public class ReservationManagerImplTest {
 
 	private static final NodeUrnPrefix NODE_URN_PREFIX = new NodeUrnPrefix("urn:unit-test:");
 
-	private static final String KNOWN_SECRET_RESERVATION_KEY_1 = "YOU_KNOW_ME_ONE";
+	private static final SecretReservationKey KNOWN_SECRET_RESERVATION_KEY_1;
 
-	private static final String KNOWN_SECRET_RESERVATION_KEY_2 = "YOU_KNOW_ME_TWO";
+	private static final SecretReservationKey KNOWN_SECRET_RESERVATION_KEY_2;
 
-	private static final String KNOWN_SECRET_RESERVATION_KEY_3 = "YOU_KNOW_ME_THREE";
+	private static final SecretReservationKey KNOWN_SECRET_RESERVATION_KEY_3;
 
-	private static final String UNKNOWN_SECRET_RESERVATION_KEY_1 = "YOU_DO_NOT_KNOW_ME";
-
-	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_1 = newArrayList();
-
-	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_2 = newArrayList();
-
-	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_3 = newArrayList();
-
-	private static final List<SecretReservationKey> UNKNOWN_SECRET_RESERVATION_KEY_LIST = newArrayList();
+	private static final SecretReservationKey UNKNOWN_SECRET_RESERVATION_KEY_1;
 
 	static {
+		KNOWN_SECRET_RESERVATION_KEY_1 = new SecretReservationKey()
+				.withKey("YOU_KNOWN_ME_ONE")
+				.withUrnPrefix(NODE_URN_PREFIX);
 
-		final SecretReservationKey srk1 = new SecretReservationKey();
-		srk1.setUrnPrefix(NODE_URN_PREFIX);
-		srk1.setKey(KNOWN_SECRET_RESERVATION_KEY_1);
-		KNOWN_SECRET_RESERVATION_KEY_LIST_1.add(srk1);
+		KNOWN_SECRET_RESERVATION_KEY_2 = new SecretReservationKey()
+				.withKey("YOU_KNOWN_ME_TWO")
+				.withUrnPrefix(NODE_URN_PREFIX);
 
-		final SecretReservationKey srk2 = new SecretReservationKey();
-		srk2.setUrnPrefix(NODE_URN_PREFIX);
-		srk2.setKey(KNOWN_SECRET_RESERVATION_KEY_2);
-		KNOWN_SECRET_RESERVATION_KEY_LIST_2.add(srk2);
+		KNOWN_SECRET_RESERVATION_KEY_3 = new SecretReservationKey()
+				.withKey("YOU_KNOWN_ME_THREE")
+				.withUrnPrefix(NODE_URN_PREFIX);
 
-		final SecretReservationKey srk3 = new SecretReservationKey();
-		srk3.setUrnPrefix(NODE_URN_PREFIX);
-		srk3.setKey(KNOWN_SECRET_RESERVATION_KEY_3);
-		KNOWN_SECRET_RESERVATION_KEY_LIST_3.add(srk3);
-
-		final SecretReservationKey srk4 = new SecretReservationKey();
-		srk4.setUrnPrefix(NODE_URN_PREFIX);
-		srk4.setKey(UNKNOWN_SECRET_RESERVATION_KEY_1);
-		UNKNOWN_SECRET_RESERVATION_KEY_LIST.add(srk4);
+		UNKNOWN_SECRET_RESERVATION_KEY_1 = new SecretReservationKey()
+				.withKey("YOU_KNOWN_ME_THREE")
+				.withUrnPrefix(NODE_URN_PREFIX);
 	}
+
+	private static final Set<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_SET_1 =
+			newHashSet(KNOWN_SECRET_RESERVATION_KEY_1);
+
+	private static final Set<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_SET_2 =
+			newHashSet(KNOWN_SECRET_RESERVATION_KEY_2);
+
+	private static final Set<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_SET_3 =
+			newHashSet(KNOWN_SECRET_RESERVATION_KEY_3);
+
+	private static final Set<SecretReservationKey> UNKNOWN_SECRET_RESERVATION_KEY_SET =
+			newHashSet(UNKNOWN_SECRET_RESERVATION_KEY_1);
+
+	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_1 =
+			newArrayList(KNOWN_SECRET_RESERVATION_KEY_1);
+
+	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_2 =
+			newArrayList(KNOWN_SECRET_RESERVATION_KEY_2);
+
+	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_3 =
+			newArrayList(KNOWN_SECRET_RESERVATION_KEY_3);
+
+	private static final List<SecretReservationKey> UNKNOWN_SECRET_RESERVATION_KEY_LIST =
+			newArrayList(UNKNOWN_SECRET_RESERVATION_KEY_1);
 
 	private static final Set<NodeUrn> RESERVATION_NODE_URNS_1 = newHashSet(new NodeUrn(NODE_URN_PREFIX + "0x0001"));
 
@@ -116,10 +127,7 @@ public class ReservationManagerImplTest {
 		crd1.setTo(RESERVATION_INTERVAL_1.getEnd());
 		crd1.getNodeUrns().addAll(RESERVATION_NODE_URNS_1);
 		crd1.setUsername(USERNAME);
-		final SecretReservationKey srk1 = new SecretReservationKey();
-		srk1.setKey(KNOWN_SECRET_RESERVATION_KEY_1);
-		srk1.setUrnPrefix(NODE_URN_PREFIX);
-		crd1.setSecretReservationKey(srk1);
+		crd1.setSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_1);
 		RESERVATION_DATA_1.add(crd1);
 
 		final ConfidentialReservationData crd2 = new ConfidentialReservationData();
@@ -127,10 +135,7 @@ public class ReservationManagerImplTest {
 		crd2.setTo(RESERVATION_INTERVAL_2.getEnd());
 		crd2.getNodeUrns().addAll(RESERVATION_NODE_URNS_2);
 		crd2.setUsername(USERNAME);
-		final SecretReservationKey srk2 = new SecretReservationKey();
-		srk2.setKey(KNOWN_SECRET_RESERVATION_KEY_2);
-		srk2.setUrnPrefix(NODE_URN_PREFIX);
-		crd2.setSecretReservationKey(srk2);
+		crd2.setSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_2);
 		RESERVATION_DATA_2.add(crd2);
 
 		final ConfidentialReservationData crd3 = new ConfidentialReservationData();
@@ -138,10 +143,7 @@ public class ReservationManagerImplTest {
 		crd3.setTo(RESERVATION_INTERVAL_3.getEnd());
 		crd3.getNodeUrns().addAll(RESERVATION_NODE_URNS_3);
 		crd3.setUsername(USERNAME);
-		final SecretReservationKey srk3 = new SecretReservationKey();
-		srk3.setKey(KNOWN_SECRET_RESERVATION_KEY_3);
-		srk3.setUrnPrefix(NODE_URN_PREFIX);
-		crd3.setSecretReservationKey(srk3);
+		crd3.setSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_3);
 		RESERVATION_DATA_3.add(crd3);
 	}
 
@@ -202,9 +204,10 @@ public class ReservationManagerImplTest {
 
 		setUpReservation1();
 
-		assertSame(reservation1, reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_1));
+		assertSame(reservation1, reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1));
 		verify(reservationFactory).create(
-				eq(KNOWN_SECRET_RESERVATION_KEY_1),
+				anyListOf(ConfidentialReservationData.class),
+				eq(KNOWN_SECRET_RESERVATION_KEY_1.getKey()),
 				eq(USERNAME),
 				eq(RESERVATION_NODE_URNS_1),
 				eq(RESERVATION_INTERVAL_1)
@@ -218,7 +221,7 @@ public class ReservationManagerImplTest {
 		setUpUnknownReservation();
 
 		try {
-			reservationManager.getReservation(UNKNOWN_SECRET_RESERVATION_KEY_1);
+			reservationManager.getReservation(UNKNOWN_SECRET_RESERVATION_KEY_SET);
 		} catch (ReservationUnknownException e) {
 			verifyZeroInteractions(deviceDBService);
 			verifyZeroInteractions(reservationFactory);
@@ -231,8 +234,8 @@ public class ReservationManagerImplTest {
 		setUpReservation1();
 		setUpReservation2();
 
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_1);
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_2);
+		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
+		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_2);
 
 		reservationManager.stopAndWait();
 
@@ -246,7 +249,7 @@ public class ReservationManagerImplTest {
 		setUpReservation1();
 		when(reservation1.isRunning()).thenReturn(false);
 
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_1);
+		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
 
 		verify(reservation1).isRunning();
 		verify(reservation1).startAndWait();
@@ -259,7 +262,7 @@ public class ReservationManagerImplTest {
 		setUpReservation2();
 		when(reservation2.isRunning()).thenReturn(false);
 
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_2);
+		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_2);
 
 		verify(reservation2).isRunning();
 		verify(reservation2, never()).startAndWait();
@@ -273,7 +276,7 @@ public class ReservationManagerImplTest {
 		setUpReservation3();
 		when(reservation3.isRunning()).thenReturn(false);
 
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_3);
+		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_3);
 
 		verify(reservation3).isRunning();
 		verify(reservation3, never()).startAndWait();
@@ -284,10 +287,11 @@ public class ReservationManagerImplTest {
 	private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_1)).thenReturn(RESERVATION_DATA_1);
 		when(reservationFactory.create(
-				KNOWN_SECRET_RESERVATION_KEY_1,
-				USERNAME,
-				RESERVATION_NODE_URNS_1,
-				RESERVATION_INTERVAL_1
+				anyListOf(ConfidentialReservationData.class),
+				eq(KNOWN_SECRET_RESERVATION_KEY_1.getKey()),
+				eq(USERNAME),
+				eq(RESERVATION_NODE_URNS_1),
+				eq(RESERVATION_INTERVAL_1)
 		)
 		).thenReturn(reservation1);
 		when(reservation1.getInterval()).thenReturn(RESERVATION_INTERVAL_1);
@@ -296,10 +300,11 @@ public class ReservationManagerImplTest {
 	private void setUpReservation2() throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_2)).thenReturn(RESERVATION_DATA_2);
 		when(reservationFactory.create(
-				KNOWN_SECRET_RESERVATION_KEY_2,
-				USERNAME,
-				RESERVATION_NODE_URNS_2,
-				RESERVATION_INTERVAL_2
+				anyListOf(ConfidentialReservationData.class),
+				eq(KNOWN_SECRET_RESERVATION_KEY_2.getKey()),
+				eq(USERNAME),
+				eq(RESERVATION_NODE_URNS_2),
+				eq(RESERVATION_INTERVAL_2)
 		)
 		).thenReturn(reservation2);
 		when(reservation2.getInterval()).thenReturn(RESERVATION_INTERVAL_2);
@@ -308,10 +313,11 @@ public class ReservationManagerImplTest {
 	private void setUpReservation3() throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_3)).thenReturn(RESERVATION_DATA_3);
 		when(reservationFactory.create(
-				KNOWN_SECRET_RESERVATION_KEY_3,
-				USERNAME,
-				RESERVATION_NODE_URNS_3,
-				RESERVATION_INTERVAL_3
+				anyListOf(ConfidentialReservationData.class),
+				eq(KNOWN_SECRET_RESERVATION_KEY_3.getKey()),
+				eq(USERNAME),
+				eq(RESERVATION_NODE_URNS_3),
+				eq(RESERVATION_INTERVAL_3)
 		)
 		).thenReturn(reservation3);
 		when(reservation3.getInterval()).thenReturn(RESERVATION_INTERVAL_3);

@@ -18,8 +18,6 @@ public class RestApiServiceImpl extends AbstractService implements RestApiServic
 
 	private ServicePublisherService wsnWebSocketService;
 
-	private ServicePublisherService eventWebSocketService;
-
 	@Inject
 	public RestApiServiceImpl(final ServicePublisher servicePublisher,
 							  final RestApiApplication application,
@@ -48,10 +46,6 @@ public class RestApiServiceImpl extends AbstractService implements RestApiServic
 	@Override
 	protected void doStop() {
 		try {
-
-			if (eventWebSocketService != null) {
-				eventWebSocketService.stopAndWait();
-			}
 
 			if (wsnWebSocketService != null) {
 				wsnWebSocketService.stopAndWait();

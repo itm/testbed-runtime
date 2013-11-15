@@ -53,7 +53,6 @@ public class DeviceDBWisemlProvider implements WisemlProvider {
 			nodes.add(node);
 		}
 
-		setup.setCoordinateType(config.getCoordinateType());
 		setup.setDescription(config.getDescription());
 
 		if (config.getInterpolation() != null && !"".equals(config.getInterpolation())) {

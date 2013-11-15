@@ -10,7 +10,7 @@ public class TestbedDescription {
 
 	public List<String> urnPrefixes;
 
-	public String testbedBaseUri;
-
 	public String sessionManagementEndpointUrl;
+
+	public boolean isFederator;
 }

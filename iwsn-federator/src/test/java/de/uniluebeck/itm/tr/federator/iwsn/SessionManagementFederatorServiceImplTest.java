@@ -6,7 +6,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -55,7 +55,7 @@ public class SessionManagementFederatorServiceImplTest {
 	private SessionManagement testbed2SM;
 
 	@Mock
-	private FederationManager<SessionManagement> federationManager;
+	private FederatedEndpoints<SessionManagement> federatedEndpoints;
 
 	@Mock
 	private PreconditionsFactory preconditionsFactory;
@@ -76,13 +76,16 @@ public class SessionManagementFederatorServiceImplTest {
 	private ServicePublisherService servicePublisherService;
 
 	@Mock
-	private WSNFederatorManager wsnFederatorManager;
-
-	@Mock
 	private ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
 
 	@Mock
 	private ServedNodeUrnsProvider servedNodeUrnsProvider;
+
+	@Mock
+	private SessionManagementWisemlProvider wisemlProvider;
+
+	@Mock
+	private FederatedReservationManager federatedReservationManager;
 
 	private ExecutorService executorService = MoreExecutors.sameThreadExecutor();
 
@@ -93,14 +96,15 @@ public class SessionManagementFederatorServiceImplTest {
 		when(config.getFederatorSmEndpointUri()).thenReturn(URI.create("http://localhost/"));
 		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
 		federatorSM = new SessionManagementFederatorServiceImpl(
-				federationManager,
+				federatedEndpoints,
 				preconditionsFactory,
 				config,
 				servicePublisher,
 				executorService,
-				wsnFederatorManager,
+				federatedReservationManager,
 				servedNodeUrnPrefixesProvider,
-				servedNodeUrnsProvider
+				servedNodeUrnsProvider,
+				wisemlProvider
 		);
 		federatorSM.startAndWait();
 	}
@@ -120,20 +124,20 @@ public class SessionManagementFederatorServiceImplTest {
 	@Test
 	public void testGetSupportedChannelHandlersReturnsOnlyHandlersSupportedByAllFederatedTestbeds() throws Exception {
 
-		final ImmutableSet<FederationManager.Entry<SessionManagement>> smEndpointUrlPrefixSet = ImmutableSet.of(
-				new FederationManager.Entry<SessionManagement>(
+		final ImmutableSet<FederatedEndpoints.Entry<SessionManagement>> smEndpointUrlPrefixSet = ImmutableSet.of(
+				new FederatedEndpoints.Entry<SessionManagement>(
 						testbed1SM,
 						TESTBED_1_ENDPOINT_URL,
 						ImmutableSet.of(TESTBED_1_URN_PREFIX)
 				),
-				new FederationManager.Entry<SessionManagement>(
+				new FederatedEndpoints.Entry<SessionManagement>(
 						testbed2SM,
 						TESTBED_2_ENDPOINT_URL,
 						ImmutableSet.of(TESTBED_2_URN_PREFIX)
 				)
 		);
 
-		when(federationManager.getEntries()).thenReturn(smEndpointUrlPrefixSet);
+		when(federatedEndpoints.getEntries()).thenReturn(smEndpointUrlPrefixSet);
 
 		final List<ChannelHandlerDescription> supportedChannelHandlersTestbed1 = newArrayList(
 				buildChannelHandlerDescription("filter1", "option11", "option12"),

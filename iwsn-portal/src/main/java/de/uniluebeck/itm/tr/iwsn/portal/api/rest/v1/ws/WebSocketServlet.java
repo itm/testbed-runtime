@@ -2,15 +2,15 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.apache.cxf.common.util.Base64Exception;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
 import org.eclipse.jetty.websocket.WebSocket;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.decode;
 
 @Singleton
 @ThreadSafe
@@ -24,10 +24,13 @@ public class WebSocketServlet extends org.eclipse.jetty.websocket.WebSocketServl
 	@Inject
 	private EventWebSocketFactory eventWebSocketFactory;
 
+	@Inject
+	private ReservationManager reservationManager;
+
 	@Override
 	public WebSocket doWebSocketConnect(final HttpServletRequest request, final String protocol) {
 
-		final String remoteAddress = request.getRemoteAddr() + ":" + request.getRemotePort();
+		final String remoteAddress = request.getRemoteHost() + ":" + request.getRemotePort();
 		final String uriString = request.getRequestURI();
 		final URI requestUri;
 		try {
@@ -44,11 +47,14 @@ public class WebSocketServlet extends org.eclipse.jetty.websocket.WebSocketServl
 		String[] splitPath = path.split("/");
 
 		try {
-			return wsnWebSocketFactory.create(
-					decode(splitPath[splitPath.length-1]),
-					remoteAddress
-			);
-		} catch (Base64Exception e) {
+
+			final String secretReservationKeysBase64 = splitPath[splitPath.length - 1];
+			final Reservation reservation = reservationManager.getReservation(secretReservationKeysBase64);
+			return wsnWebSocketFactory.create(reservation, secretReservationKeysBase64, remoteAddress);
+
+		} catch (ReservationUnknownException e) {
+			return null;
+		} catch (Exception e) {
 			return null;
 		}
 	}

@@ -7,7 +7,10 @@ import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -20,12 +23,11 @@ import java.io.IOException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSendDownstreamMessageRequest;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.decodeBytes;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.fromJSON;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.decodeBytes;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.fromJSON;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
 
 public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
@@ -37,6 +39,8 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	private final SchedulerService schedulerService;
 
+	private final String secretReservationKeysBase64;
+
 	private final String remoteAddress;
 
 	private Connection connection;
@@ -45,28 +49,28 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	@Inject
 	public WsnWebSocket(final RequestIdProvider requestIdProvider,
-						final ReservationManager reservationManager,
 						final SchedulerService schedulerService,
-						@Assisted("secretReservationKeyBase64") final String secretReservationKeyBase64,
+						@Assisted final Reservation reservation,
+						@Assisted("secretReservationKeysBase64") final String secretReservationKeysBase64,
 						@Assisted("remoteAddress") final String remoteAddress) {
+		log.trace("WsnWebSocket.WsnWebSocket()");
 		this.requestIdProvider = requestIdProvider;
 		this.schedulerService = schedulerService;
+		this.secretReservationKeysBase64 = secretReservationKeysBase64;
 		this.remoteAddress = remoteAddress;
-		try {
-			this.reservation = reservationManager.getReservation(secretReservationKeyBase64);
-		} catch (ReservationUnknownException e) {
-			throw propagate(e);
-		}
+		this.reservation = reservation;
 	}
 
 	@Override
 	public void onMessage(final String data) {
 
+		log.trace("WsnWebSocket.onMessage({})", data);
+
 		try {
 			final WebSocketDownstreamMessage message = fromJSON(data, WebSocketDownstreamMessage.class);
 			byte[] decodedPayload = decodeBytes(message.payloadBase64);
-			reservation.getEventBus().post(newSendDownstreamMessageRequest(
-					reservation.getKey(),
+			reservation.getReservationEventBus().post(newSendDownstreamMessageRequest(
+					secretReservationKeysBase64,
 					requestIdProvider.get(),
 					newArrayList(new NodeUrn(message.targetNodeUrn)),
 					decodedPayload
@@ -104,12 +108,12 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	@Subscribe
 	public void onReservationStarted(final ReservationStartedEvent event) {
-		sendMessage(toJSON(new ReservationStartedMessage(event)));
+		sendMessage(toJSON(new ReservationStartedMessage(event.getReservation())));
 	}
 
 	@Subscribe
 	public void onReservationEnded(final ReservationEndedEvent event) {
-		sendMessage(toJSON(new ReservationEndedMessage(event)));
+		sendMessage(toJSON(new ReservationEndedMessage(event.getReservation())));
 	}
 
 	@Override
@@ -120,15 +124,15 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		}
 
 		this.connection = connection;
-		reservation.getEventBus().register(this);
+		reservation.getReservationEventBus().register(this);
 
 		final DateTime start = reservation.getInterval().getStart();
 		final DateTime end = reservation.getInterval().getEnd();
 
 		if (end.isBeforeNow()) {
-			sendMessage(toJSON(new ReservationEndedMessage(end)));
+			sendMessage(toJSON(new ReservationEndedMessage(reservation)));
 		} else if (start.isBeforeNow()) {
-			sendMessage(toJSON(new ReservationStartedMessage(start)));
+			sendMessage(toJSON(new ReservationStartedMessage(reservation)));
 		}
 
 		keepAliveSchedule = schedulerService.scheduleAtFixedRate(
@@ -149,7 +153,7 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 			);
 		}
 
-		reservation.getEventBus().unregister(this);
+		reservation.getReservationEventBus().unregister(this);
 		this.connection = null;
 	}
 

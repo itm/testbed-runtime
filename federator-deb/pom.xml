@@ -40,8 +40,8 @@
 
 	<properties>
 		<project.pathName>tr.federator</project.pathName>
-		<project.systemUser>iwsn-federator</project.systemUser>
-		<project.systemGroup>iwsn-federator</project.systemGroup>
+		<project.systemUser>tr-federator</project.systemUser>
+		<project.systemGroup>tr-federator</project.systemGroup>
 	</properties>
 
 	<dependencies>

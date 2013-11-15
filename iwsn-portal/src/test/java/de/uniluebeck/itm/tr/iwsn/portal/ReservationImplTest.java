@@ -1,9 +1,10 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Before;
@@ -15,6 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -39,10 +41,16 @@ public class ReservationImplTest {
 	private ReservationEventBus reservationEventBus;
 
 	@Mock
-	private TimedCache<Long, ResponseTracker> responseTrackerTimedCache;
+	private ResponseTrackerCache responseTrackerTimedCache;
 
 	@Mock
 	private ResponseTrackerFactory responseTrackerFactory;
+
+	@Mock
+	private CommonConfig commonConfig;
+
+	@Mock
+	private ConfidentialReservationData confidentialReservationData;
 
 	private ReservationImpl reservation;
 
@@ -50,10 +58,12 @@ public class ReservationImplTest {
 	public void setUp() throws Exception {
 		when(reservationEventBusFactory.create(Matchers.<Reservation>any())).thenReturn(reservationEventBus);
 		reservation = new ReservationImpl(
+				commonConfig,
 				reservationEventBusFactory,
 				portalEventBus,
 				responseTrackerTimedCache,
 				responseTrackerFactory,
+				newArrayList(confidentialReservationData),
 				"someRandomReservationIdHere",
 				username,
 				NODE_URNS,

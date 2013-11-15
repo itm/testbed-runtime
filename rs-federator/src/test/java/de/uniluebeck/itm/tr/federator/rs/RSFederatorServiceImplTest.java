@@ -26,7 +26,7 @@ package de.uniluebeck.itm.tr.federator.rs;
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.util.concurrent.ExecutorUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -69,7 +69,7 @@ public class RSFederatorServiceImplTest {
 	private RS testbed2RS;
 
 	@Mock
-	private FederationManager<RS> federatorRSFederationManager;
+	private FederatedEndpoints<RS> federatorRSFederatedEndpoints;
 
 	@Mock
 	private ServicePublisher servicePublisher;
@@ -94,7 +94,7 @@ public class RSFederatorServiceImplTest {
 		federatorRS = new RSFederatorServiceImpl(
 				federatorRSExecutorService,
 				servicePublisher,
-				federatorRSFederationManager,
+				federatorRSFederatedEndpoints,
 				config
 		);
 		federatorRS.startAndWait();
@@ -104,15 +104,6 @@ public class RSFederatorServiceImplTest {
 	public void tearDown() {
 		federatorRS.stopAndWait();
 		ExecutorUtils.shutdown(federatorRSExecutorService, 0, TimeUnit.SECONDS);
-	}
-
-	@Test
-	public void testGetReservationsWithNullParameters() {
-		try {
-			federatorRS.getReservations(null, null, null, null);
-			fail("Should have raised RSFault");
-		} catch (RSFault_Exception expected) {
-		}
 	}
 
 	@Test
@@ -127,8 +118,8 @@ public class RSFederatorServiceImplTest {
 	@Test
 	public void testGetReservationWithEmptySecretReservationKeyList() throws Exception {
 
-		when(federatorRSFederationManager.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
-		when(federatorRSFederationManager.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_2)).thenReturn(testbed2RS);
+		when(federatorRSFederatedEndpoints.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
+		when(federatorRSFederatedEndpoints.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_2)).thenReturn(testbed2RS);
 
 		try {
 			federatorRS.getReservation(newArrayList(new SecretReservationKey()));
@@ -145,7 +136,7 @@ public class RSFederatorServiceImplTest {
 		key.setUrnPrefix(URN_PREFIX_TESTBED_1);
 		final List<SecretReservationKey> secretReservationKeys = newArrayList(key);
 
-		when(federatorRSFederationManager.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
+		when(federatorRSFederatedEndpoints.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
 		when(testbed1RS.getReservation(secretReservationKeys)).thenThrow(
 				new UnknownSecretReservationKeyFault("",
 						new eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault()

@@ -63,7 +63,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 import static com.google.common.base.Throwables.propagate;
 import static de.uniluebeck.itm.tr.rs.persistence.OffsetAmountHelper.limitResults;
@@ -231,9 +234,11 @@ public class GCalRSPersistence implements RSPersistence {
 
 
 	@Override
-	public List<ConfidentialReservationData> getReservations(Interval interval,
-															 @Nullable final Integer offset,
-															 @Nullable final Integer amount) throws RSFault_Exception {
+	public List<ConfidentialReservationData> getReservations(
+			@Nullable org.joda.time.DateTime from,
+			@Nullable org.joda.time.DateTime to,
+			@Nullable final Integer offset,
+			@Nullable final Integer amount) throws RSFault_Exception {
 
 		boolean fetchedAll = false;
 
@@ -242,7 +247,7 @@ public class GCalRSPersistence implements RSPersistence {
 
 		while (!fetchedAll) {
 
-			fetchReservations(matchedReservations, interval, 20);
+			fetchReservations(matchedReservations, from, to, 20, matchedReservations.size() + 1);
 
 			if (matchedReservations.size() - lastCount < 20) {
 				log.debug("Fetched all matchedReservations.");
@@ -250,10 +255,6 @@ public class GCalRSPersistence implements RSPersistence {
 			} else {
 				lastCount = matchedReservations.size();
 				log.debug("Fetched {} in total.", lastCount);
-				interval = new Interval(
-						interval.getStart(),
-						matchedReservations.get(0).getFrom()
-				);
 			}
 
 		}
@@ -265,39 +266,48 @@ public class GCalRSPersistence implements RSPersistence {
 	}
 
 	private void fetchReservations(final List<ConfidentialReservationData> reservations,
-								   final Interval interval,
-								   final int maxResults) throws RSFault_Exception {
+								   @Nullable final org.joda.time.DateTime from,
+								   @Nullable final org.joda.time.DateTime to,
+								   final int maxResults,
+								   final int startIndex) throws RSFault_Exception {
 
 		CalendarQuery myQuery = new CalendarQuery(eventFeedUrl);
 
 		// because of different time span logic of calendar api we need to shift the time span to match interval
-		long shiftStartMillis = interval.getStart().getMillis() - 2000;
-		long shiftEndMillis = interval.getEnd().getMillis() + 2000;
+		if (from != null) {
+			myQuery.setMinimumStartTime(new DateTime(new Date(from.getMillis() - 2000), from.getZone().toTimeZone()));
+		}
 
-		DateTime gcalStart = new DateTime(new Date(shiftStartMillis), interval.getStart().getZone().toTimeZone());
-		DateTime gcalEnd = new DateTime(new Date(shiftEndMillis), interval.getEnd().getZone().toTimeZone());
+		if (to != null) {
+			myQuery.setMaximumStartTime(new DateTime(new Date(to.getMillis() + 2000), to.getZone().toTimeZone()));
+		}
 
-		myQuery.setMinimumStartTime(gcalStart);
-		myQuery.setMaximumStartTime(gcalEnd);
 		myQuery.setMaxResults(maxResults);
+		myQuery.setStartIndex(startIndex);
 
 		// Send the request and receive the response:
 		Feed resultFeed;
-		ConfidentialReservationData reservation;
 		try {
 
 			resultFeed = myService.query(myQuery, Feed.class);
 
 			if (log.isDebugEnabled()) {
-				log.debug("Got {} entries for interval: {}", resultFeed.getEntries().size(), interval);
+				log.debug("Got {} entries for interval {} - {}", resultFeed.getEntries().size(), from, to);
 			}
 
 			for (Entry entry : resultFeed.getEntries()) {
 				try {
 
-					reservation = convert(entry).getReservation();
-					Interval reservedInterval = new Interval(reservation.getFrom(), reservation.getTo());
-					if (reservedInterval.overlaps(interval)) {
+					final ConfidentialReservationData reservation = convert(entry).getReservation();
+					if (from == null && to == null) {
+						reservations.add(reservation);
+					} else if (to == null && (from.equals(reservation.getFrom()) || from
+							.isBefore(reservation.getFrom()))) {
+						reservations.add(reservation);
+					} else if (from == null && (to.equals(reservation.getTo()) || to.isAfter(reservation.getTo()))) {
+						reservations.add(reservation);
+					} else if (new Interval(from, to)
+							.overlaps(new Interval(reservation.getFrom(), reservation.getTo()))) {
 						reservations.add(reservation);
 					}
 

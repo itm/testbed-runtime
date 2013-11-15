@@ -12,6 +12,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBRestService;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
+import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginServiceConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginService;
 import de.uniluebeck.itm.tr.rs.RSService;
 import de.uniluebeck.itm.tr.rs.RSServiceConfig;
@@ -193,7 +194,8 @@ public class PortalServer extends AbstractService {
 						PortalServerConfig.class,
 						SNAAServiceConfig.class,
 						WiseGuiServiceConfig.class,
-						WisemlProviderConfig.class
+						WisemlProviderConfig.class,
+						ExternalPluginServiceConfig.class
 				)
 		);
 
@@ -204,6 +206,8 @@ public class PortalServer extends AbstractService {
 		final SNAAServiceConfig snaaServiceConfig = confInjector.getInstance(SNAAServiceConfig.class);
 		final WiseGuiServiceConfig wiseGuiServiceConfig = confInjector.getInstance(WiseGuiServiceConfig.class);
 		final WisemlProviderConfig wisemlProviderConfig = confInjector.getInstance(WisemlProviderConfig.class);
+		final ExternalPluginServiceConfig externalPluginServiceConfig =
+				confInjector.getInstance(ExternalPluginServiceConfig.class);
 
 		final PortalModule portalModule = new PortalModule(
 				commonConfig,
@@ -212,7 +216,8 @@ public class PortalServer extends AbstractService {
 				rsServiceConfig,
 				snaaServiceConfig,
 				wiseGuiServiceConfig,
-				wisemlProviderConfig
+				wisemlProviderConfig,
+				externalPluginServiceConfig
 		);
 
 		final Injector portalInjector = createInjector(portalModule);
@@ -221,7 +226,7 @@ public class PortalServer extends AbstractService {
 		try {
 			portalServer.start().get();
 		} catch (Exception e) {
-			log.error("Could not start iWSN portal: {}", e.getMessage());
+			log.error("Could not start iWSN portal: {}", e.getMessage(), e);
 			System.exit(1);
 		}
 

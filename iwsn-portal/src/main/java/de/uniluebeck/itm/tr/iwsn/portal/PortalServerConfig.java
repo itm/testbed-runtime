@@ -113,16 +113,6 @@ public class PortalServerConfig {
 	private Multimap<String, String> configurationOptions;
 
 	@PropConf(
-			usage = "Name of the testbed to be displayed in WiseGui frontend",
-			defaultValue = "local testbed"
-	)
-	public static final String WISEGUI_TESTBED_NAME = "wisegui.testbed_name";
-
-	@Inject
-	@Named(WISEGUI_TESTBED_NAME)
-	private String wiseguiTestbedName;
-
-	@PropConf(
 			usage = "Path to a directory which Testbed Runtime will check for plugins"
 	)
 	public static final String PLUGIN_DIRECTORY = "portal.plugin_directory";
@@ -165,10 +155,6 @@ public class PortalServerConfig {
 
 	public String getWebsocketContextPath() {
 		return websocketContextPath;
-	}
-
-	public String getWiseguiTestbedName() {
-		return wiseguiTestbedName;
 	}
 
 	@Nullable

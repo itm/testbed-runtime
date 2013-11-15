@@ -3,6 +3,8 @@ package de.uniluebeck.itm.tr.snaa.shiro;
 import com.google.inject.AbstractModule;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.UrnResourceGroupDao;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.UserDao;
+import de.uniluebeck.itm.util.logging.LogLevel;
+import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.Action;
 import eu.wisebed.api.v3.snaa.AuthorizationResponse;
@@ -20,6 +22,10 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShiroSNAATest extends ShiroSNAATestBase {
+
+	static {
+		Logging.setLoggingDefaults(LogLevel.ERROR);
+	}
 
 	@Mock
 	private EntityManager em;

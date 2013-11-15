@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.NodeUrnHelper;
@@ -13,25 +12,26 @@ import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeyException;
-import de.uniluebeck.itm.util.TimedCache;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeysException;
 import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.wsn.ChannelPipelinesMap;
 import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Setup.Node;
 import eu.wisebed.wiseml.Wiseml;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.Status;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -41,17 +41,15 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
+import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.*;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.fromJSON;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper.*;
 
 @Path("/experiments/")
 public class ExperimentResourceImpl implements ExperimentResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ExperimentResourceImpl.class);
-
-	private static final Random RANDOM = new Random();
-
-	private final TimedCache<Long, List<Long>> flashResponseTrackers;
 
 	private final WisemlProvider wisemlProvider;
 
@@ -71,20 +69,18 @@ public class ExperimentResourceImpl implements ExperimentResource {
 								  final PortalEventBus portalEventBus,
 								  final ResponseTrackerFactory responseTrackerFactory,
 								  final ReservationManager reservationManager,
-								  final RequestIdProvider requestIdProvider,
-								  final TimedCache<Long, List<Long>> flashResponseTrackers) {
+								  final RequestIdProvider requestIdProvider) {
 		this.wisemlProvider = checkNotNull(wisemlProvider);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.requestIdProvider = checkNotNull(requestIdProvider);
-		this.flashResponseTrackers = checkNotNull(flashResponseTrackers);
 	}
 
 	@Override
 	@GET
 	@Path("network")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Wiseml getNetwork() {
 		log.trace("ExperimentResourceImpl.getNetwork()");
 		return wisemlProvider.get();
@@ -92,11 +88,52 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 	@Override
 	@GET
-	@Path("{secretReservationKeyBase64}/network")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	@Path("network.json")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Wiseml getNetworkAsJson() {
+		log.trace("ExperimentResourceImpl.getNetworkAsJson()");
+		return getNetwork();
+	}
+
+	@Override
+	@GET
+	@Path("network.xml")
+	@Produces(MediaType.APPLICATION_XML)
+	public Wiseml getNetworkAsXml() {
+		log.trace("ExperimentResourceImpl.getNetworkAsXml()");
+		return getNetwork();
+	}
+
+	@Override
+	@GET
+	@Path("{secretReservationKeysBase64}/network")
+	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
 	public Wiseml getExperimentNetwork(
-			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Base64Exception {
-		return filterWisemlForReservedNodes(secretReservationKeyBase64);
+			@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64) throws Exception {
+		log.trace("ExperimentResourceImpl.getExperimentNetwork({})", secretReservationKeysBase64);
+		return filterWisemlForReservedNodes(secretReservationKeysBase64);
+	}
+
+	@Override
+	@GET
+	@Path("{secretReservationKeyBase64}/network.json")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Wiseml getExperimentNetworkAsJson(
+			@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64)
+			throws Exception {
+		log.trace("ExperimentResourceImpl.getExperimentNetworkAsJson()");
+		return getExperimentNetwork(secretReservationKeyBase64);
+	}
+
+	@Override
+	@GET
+	@Path("{secretReservationKeyBase64}/network.xml")
+	@Produces(MediaType.APPLICATION_XML)
+	public Wiseml getExperimentNetworkAsXml(
+			@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64)
+			throws Exception {
+		log.trace("ExperimentResourceImpl.getExperimentNetworkAsXml()");
+		return getExperimentNetwork(secretReservationKeyBase64);
 	}
 
 	@Override
@@ -106,6 +143,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	public NodeUrnList getNodes(@QueryParam("filter") final String filter,
 								@QueryParam("capability") final String capability) {
 
+		log.trace("ExperimentResourceImpl.getNodes({}, {})", filter, capability);
 		final Wiseml wiseml = wisemlProvider.get();
 
 		NodeUrnList nodeList = new NodeUrnList();
@@ -172,50 +210,16 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	}
 
 	@Override
-	@POST
-	@Consumes({MediaType.APPLICATION_JSON})
-	@Produces({MediaType.TEXT_PLAIN})
-	public Response getInstance(SecretReservationKeyListRs secretReservationKeyList) {
-
-		final boolean emptyList = secretReservationKeyList == null ||
-				secretReservationKeyList.reservations == null ||
-				secretReservationKeyList.reservations.size() == 0;
-
-		if (emptyList) {
-			return Response.status(Status.BAD_REQUEST).entity("No secret reservation keys were given.").build();
-		}
-
-		final SecretReservationKey secretReservationKey = secretReservationKeyList.reservations.get(0);
-
-		try {
-
-			final Reservation reservation = reservationManager.getReservation(secretReservationKey.getKey());
-
-			URI location = UriBuilder
-					.fromUri(uriInfo.getRequestUri())
-					.path("{secretReservationKeyBase64}")
-					.build(encode(reservation.getKey()));
-
-			return Response.ok(location.toString()).location(location).build();
-
-		} catch (ReservationUnknownException e) {
-			return Response
-					.status(Status.NOT_FOUND)
-					.entity("No reservation with the given secret reservation keys could be found!")
-					.build();
-		}
-	}
-
-	@Override
 	@GET
 	@Consumes({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/nodeUrns")
-	public NodeUrnList getNodeUrns(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64)
-			throws Base64Exception {
+	@Path("{secretReservationKeysBase64}/nodeUrns")
+	public NodeUrnList getNodeUrns(@PathParam("secretReservationKeysBase64") final String secretReservationKeysBase64)
+			throws Exception {
+		log.trace("ExperimentResourceImpl.getNodeUrns({})", secretReservationKeysBase64);
 		return new NodeUrnList(
 				newArrayList(
 						transform(
-								getReservationOrThrow(secretReservationKeyBase64).getNodeUrns(),
+								getReservationOrThrow(secretReservationKeysBase64).getNodeUrns(),
 								NODE_URN_TO_STRING
 						)
 				)
@@ -225,43 +229,37 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@Override
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/flash")
-	public Response flashPrograms(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64,
-								  final FlashProgramsRequest flashData) throws Base64Exception {
+	@Path("{secretReservationKeysBase64}/flash")
+	public Response flashPrograms(@PathParam("secretReservationKeysBase64") final String secretReservationKeysBase64,
+								  final FlashProgramsRequest flashData) throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		log.trace("ExperimentResourceImpl.flashPrograms({}, {})", secretReservationKeysBase64, flashData);
 
-		long flashResponseTrackersId = RANDOM.nextLong();
-		synchronized (flashResponseTrackers) {
-			while (flashResponseTrackers.containsKey(flashResponseTrackersId)) {
-				flashResponseTrackersId = RANDOM.nextLong();
-			}
-			flashResponseTrackers.put(flashResponseTrackersId, Lists.<Long>newArrayList());
-		}
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
+		final List<Long> requestIds = newArrayList();
 
 		for (FlashProgramsRequest.FlashTask flashTask : flashData.configurations) {
 
 			final long requestId = requestIdProvider.get();
 			final Request request = newFlashImagesRequest(
-					reservation.getKey(),
+					secretReservationKeysBase64,
 					requestId,
 					transform(flashTask.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN),
 					extractByteArrayFromDataURL(flashTask.image)
 			);
 
-			synchronized (flashResponseTrackers) {
-				flashResponseTrackers.get(flashResponseTrackersId).add(requestId);
-			}
+			requestIds.add(requestId);
 
+			// just create ResponseTracker, we can retrieve it using the reservation later
 			reservation.createResponseTracker(request);
-			reservation.getEventBus().post(request);
+			reservation.getReservationEventBus().post(request);
 		}
 
 		// remember response trackers, make them available via URL, redirect callers to this URL
 		URI location = UriBuilder
 				.fromUri(uriInfo.getRequestUri())
-				.path("{flashResponseTrackersIdBase64}")
-				.build(encode(Long.toString(flashResponseTrackersId)));
+				.path("{requestIdsJSONListBase64}")
+				.build(encode(toJSON(requestIds)));
 
 		return Response.ok(location.toString()).location(location).build();
 	}
@@ -269,23 +267,18 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@Override
 	@GET
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/flash/{flashResponseTrackersIdBase64}")
+	@Path("{secretReservationKeysBase64}/flash/{requestIdsJSONListBase64}")
 	public Response flashProgramsStatus(
-			@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64,
-			@PathParam("flashResponseTrackersIdBase64") final String flashResponseTrackersIdBase64)
-			throws Base64Exception {
+			@PathParam("secretReservationKeysBase64") final String secretReservationKeysBase64,
+			@PathParam("requestIdsJSONListBase64") final String requestIdsJSONListBase64)
+			throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
-		final Long flashResponseTrackersId = Long.parseLong(decode(flashResponseTrackersIdBase64));
-
-		if (!flashResponseTrackers.containsKey(flashResponseTrackersId)) {
-			return Response
-					.status(Status.NOT_FOUND)
-					.entity("No flash job with request ID " + flashResponseTrackersId + " found!")
-					.build();
-		}
-
-		final List<Long> requestIds = flashResponseTrackers.get(flashResponseTrackersId);
+		log.trace("ExperimentResourceImpl.flashProgramsStatus({}, {})",
+				secretReservationKeysBase64,
+				requestIdsJSONListBase64
+		);
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
+		final List<Long> requestIds = fromJSON(decode(requestIdsJSONListBase64), new TypeReference<List<Long>>() {});
 		return Response.ok(buildOperationStatusMap(reservation, requestIds)).build();
 	}
 
@@ -293,13 +286,15 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/resetNodes")
-	public Response resetNodes(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-							   NodeUrnList nodeUrnList) throws Base64Exception {
+	@Path("{secretReservationKeysBase64}/resetNodes")
+	public Response resetNodes(@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64,
+							   NodeUrnList nodeUrnList) throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		log.trace("ExperimentResourceImpl.resetNodes({}, {})", secretReservationKeysBase64, nodeUrnList);
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
-		final Request request = newResetNodesRequest(reservation.getKey(), requestIdProvider.get(), nodeUrns);
+		final Request request = newResetNodesRequest(secretReservationKeysBase64, requestIdProvider.get(), nodeUrns);
 
 		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
@@ -308,18 +303,19 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/getChannelPipelines")
+	@Path("{secretReservationKeysBase64}/getChannelPipelines")
 	public List<ChannelPipelinesMap> getChannelPipelines(
-			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-			NodeUrnList nodeUrnList) throws Base64Exception {
+			@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64,
+			NodeUrnList nodeUrnList) throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		log.trace("ExperimentResourceImpl.getChannelPipelines({}, {})", secretReservationKeysBase64, nodeUrnList);
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
-		final ReservationEventBus reservationEventBus = reservation.getEventBus();
-		final String reservationId = reservation.getKey();
+		final ReservationEventBus reservationEventBus = reservation.getReservationEventBus();
 		final long requestId = requestIdProvider.get();
 
-		return RequestHelper.getChannelPipelines(nodeUrns, reservationId, requestId, reservationEventBus);
+		return RequestHelper.getChannelPipelines(nodeUrns, secretReservationKeysBase64, requestId, reservationEventBus);
 	}
 
 	@Override
@@ -328,6 +324,8 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@Produces({MediaType.APPLICATION_JSON})
 	@Path("areNodesConnected")
 	public Response areNodesConnected(NodeUrnList nodeUrnList) {
+
+		log.trace("ExperimentResourceImpl.areNodesConnected({})", nodeUrnList);
 
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newAreNodesConnectedRequest(null, requestIdProvider.get(), nodeUrns);
@@ -339,13 +337,15 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/areNodesAlive")
-	public Response areNodesAlive(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-								  NodeUrnList nodeUrnList) throws Base64Exception {
+	@Path("{secretReservationKeysBase64}/areNodesAlive")
+	public Response areNodesAlive(@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64,
+								  NodeUrnList nodeUrnList) throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		log.trace("ExperimentResourceImpl.areNodesAlive({}, {})", secretReservationKeysBase64, nodeUrnList);
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
-		final Request request = newAreNodesAliveRequest(reservation.getKey(), requestIdProvider.get(), nodeUrns);
+		final Request request = newAreNodesAliveRequest(secretReservationKeysBase64, requestIdProvider.get(), nodeUrns);
 
 		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
@@ -354,14 +354,16 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/send")
-	public Response send(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-						 SendMessageData data) throws Base64Exception {
+	@Path("{secretReservationKeysBase64}/send")
+	public Response send(@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64,
+						 SendMessageData data) throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		log.trace("ExperimentResourceImpl.send({}, {})", secretReservationKeysBase64, data);
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Iterable<NodeUrn> nodeUrns = transform(data.targetNodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newSendDownstreamMessageRequest(
-				reservation.getKey(),
+				secretReservationKeysBase64,
 				requestIdProvider.get(),
 				nodeUrns,
 				decodeBytes(data.bytesBase64)
@@ -374,15 +376,17 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/destroyVirtualLink")
-	public Response destroyVirtualLink(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-									   TwoNodeUrns nodeUrns) throws Base64Exception {
+	@Path("{secretReservationKeysBase64}/destroyVirtualLink")
+	public Response destroyVirtualLink(@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64,
+									   TwoNodeUrns nodeUrns) throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		log.trace("ExperimentResourceImpl.destroyVirtualLink({}, {})", secretReservationKeysBase64, nodeUrns);
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Multimap<NodeUrn, NodeUrn> links = HashMultimap.create();
 		links.put(new NodeUrn(nodeUrns.from), new NodeUrn(nodeUrns.to));
 		final Request request = newDisableVirtualLinksRequest(
-				reservation.getKey(),
+				secretReservationKeysBase64,
 				requestIdProvider.get(),
 				links
 		);
@@ -394,13 +398,15 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/disableNode")
-	public Response disableNode(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-								String nodeUrn) throws Base64Exception {
+	@Path("{secretReservationKeysBase64}/disableNode")
+	public Response disableNode(@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64,
+								String nodeUrn) throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		log.trace("ExperimentResourceImpl.disableNode({}, {})", secretReservationKeysBase64, nodeUrn);
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Request request = newDisableNodesRequest(
-				reservation.getKey(),
+				secretReservationKeysBase64,
 				requestIdProvider.get(),
 				newArrayList(new NodeUrn(nodeUrn))
 		);
@@ -412,13 +418,15 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/enableNode")
-	public Response enableNode(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-							   String nodeUrn) throws Base64Exception {
+	@Path("{secretReservationKeysBase64}/enableNode")
+	public Response enableNode(@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64,
+							   String nodeUrn) throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		log.trace("ExperimentResourceImpl.enableNode({}, {})", secretReservationKeysBase64, nodeUrn);
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Request request = newEnableNodesRequest(
-				reservation.getKey(),
+				secretReservationKeysBase64,
 				requestIdProvider.get(),
 				newArrayList(new NodeUrn(nodeUrn))
 		);
@@ -430,15 +438,17 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/disablePhysicalLink")
-	public Response disablePhysicalLink(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-										TwoNodeUrns nodeUrns) throws Base64Exception {
+	@Path("{secretReservationKeysBase64}/disablePhysicalLink")
+	public Response disablePhysicalLink(@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64,
+										TwoNodeUrns nodeUrns) throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		log.trace("ExperimentResourceImpl.disablePhysicalLink({}, {})", secretReservationKeysBase64, nodeUrns);
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Multimap<NodeUrn, NodeUrn> links = HashMultimap.create();
 		links.put(new NodeUrn(nodeUrns.from), new NodeUrn(nodeUrns.to));
 		final Request request = newDisablePhysicalLinksRequest(
-				reservation.getKey(),
+				secretReservationKeysBase64,
 				requestIdProvider.get(),
 				links
 		);
@@ -450,15 +460,17 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
-	@Path("{secretReservationKeyBase64}/enablePhysicalLink")
-	public Response enablePhysicalLink(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-									   TwoNodeUrns nodeUrns) throws Base64Exception {
+	@Path("{secretReservationKeysBase64}/enablePhysicalLink")
+	public Response enablePhysicalLink(@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64,
+									   TwoNodeUrns nodeUrns) throws Exception {
 
-		final Reservation reservation = getReservationOrThrow(secretReservationKeyBase64);
+		log.trace("ExperimentResourceImpl.enablePhysicalLink({}, {})", secretReservationKeysBase64, nodeUrns);
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Multimap<NodeUrn, NodeUrn> links = HashMultimap.create();
 		links.put(new NodeUrn(nodeUrns.from), new NodeUrn(nodeUrns.to));
 		final Request request = newEnablePhysicalLinksRequest(
-				reservation.getKey(),
+				secretReservationKeysBase64,
 				requestIdProvider.get(),
 				links
 		);
@@ -466,16 +478,18 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
 	}
 
-	private Wiseml filterWisemlForReservedNodes(final String secretReservationKeyBase64) throws Base64Exception {
-		return wisemlProvider.get(getReservationOrThrow(secretReservationKeyBase64).getNodeUrns());
+	private Wiseml filterWisemlForReservedNodes(final String secretReservationKeysBase64) throws Exception {
+		return wisemlProvider.get(getReservationOrThrow(secretReservationKeysBase64).getNodeUrns());
 	}
 
-	private Reservation getReservationOrThrow(final String secretReservationKeyBase64) throws Base64Exception {
-		final String secretReservationKey = decode(secretReservationKeyBase64);
+	private Reservation getReservationOrThrow(final String secretReservationKeysBase64) throws Exception {
+
 		try {
-			return reservationManager.getReservation(secretReservationKey);
+
+			return reservationManager.getReservation(secretReservationKeysBase64);
+
 		} catch (ReservationUnknownException e) {
-			throw new UnknownSecretReservationKeyException(secretReservationKey);
+			throw new UnknownSecretReservationKeysException(secretReservationKeysBase64);
 		}
 	}
 
@@ -575,7 +589,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 														 final TimeUnit timeUnit) {
 
 		final ResponseTracker responseTracker = reservation.createResponseTracker(request);
-		reservation.getEventBus().post(request);
+		reservation.getReservationEventBus().post(request);
 
 		try {
 			responseTracker.get(timeout, timeUnit);

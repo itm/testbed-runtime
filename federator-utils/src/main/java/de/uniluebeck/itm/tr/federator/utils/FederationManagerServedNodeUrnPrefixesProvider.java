@@ -9,17 +9,17 @@ import java.util.Set;
 
 public class FederationManagerServedNodeUrnPrefixesProvider implements ServedNodeUrnPrefixesProvider {
 
-	private final FederationManager<SessionManagement> federationManager;
+	private final FederatedEndpoints<SessionManagement> federatedEndpoints;
 
 	@Inject
 	public FederationManagerServedNodeUrnPrefixesProvider(
-			final FederationManager<SessionManagement> federationManager) {
-		this.federationManager = federationManager;
+			final FederatedEndpoints<SessionManagement> federatedEndpoints) {
+		this.federatedEndpoints = federatedEndpoints;
 	}
 
 	@Override
 	public Set<NodeUrnPrefix> get() {
 		//noinspection unchecked
-		return federationManager.getUrnPrefixes();
+		return federatedEndpoints.getUrnPrefixes();
 	}
 }

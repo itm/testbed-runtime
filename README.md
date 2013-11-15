@@ -33,6 +33,10 @@ Building
 Testbed Runtime is based on the [Apache Maven][maven] build system. Clone the project and
 simply run 'mvn install' (or 'mvn clean install' to be on the safe side) for building.
 
+Since the integrated graphical user interface [WiseGui][wisegui] is configured as submodule, make sure that it is up-to-date.
+Run ```git submodule init``` and ```git submodule update``` before building with Maven.
+Note that the first command has only to be run once after cloning the project.
+
 When building with Maven, normally only the "standard modules" are built in order to keep build
 times low. If you want to build the distributables ("assemblies") please pass ```-P assemblies```
 to Maven when executing the build, e.g. ```mvn -P assemblies clean install```. The assemblies are
@@ -50,3 +54,4 @@ maintained by the Institute of Telematics, University of Luebeck, Germany.
 [tr-mailinglist]:http://www.itm.uni-luebeck.de/pipermail/testbed-runtime-users/
 [tr-github-issues]:http://github.com/itm/testbed-runtime/issues
 [tr-github-wiki]:http://github.com/itm/testbed-runtime/wiki
+[wisegui]:https://github.com/wisebed/wisegui

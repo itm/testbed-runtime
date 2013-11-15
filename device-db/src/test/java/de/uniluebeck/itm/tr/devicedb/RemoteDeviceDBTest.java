@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNull;
 public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 	static {
-		Logging.setLoggingDefaults(LogLevel.WARN);
+		Logging.setLoggingDefaults(LogLevel.ERROR);
 	}
 
 	private static int port = NetworkUtils.findFreePort();

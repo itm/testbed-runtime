@@ -104,6 +104,7 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 				final DeviceFoundEvent deviceFoundEvent = new DeviceFoundEvent(
 						deviceInfo.getType(),
 						deviceInfo.getPort(),
+						null,
 						deviceInfo.getReference(),
 						deviceInfo.getMacAddress(),
 						null
@@ -114,6 +115,7 @@ public class DeviceObserverWrapper extends AbstractService implements DeviceObse
 				final DeviceLostEvent deviceLostEvent = new DeviceLostEvent(
 						deviceInfo.getType(),
 						deviceInfo.getPort(),
+						null,
 						deviceInfo.getReference(),
 						deviceInfo.getMacAddress(),
 						null

@@ -64,4 +64,20 @@ public class CommonConfig {
 	public String getShiroIni() {
 		return shiroIni;
 	}
+
+	public void setPort(final int port) {
+		this.port = port;
+	}
+
+	public void setShiroIni(final String shiroIni) {
+		this.shiroIni = shiroIni;
+	}
+
+	public void setTimeZone(final String timeZone) {
+		this.timeZone = timeZone;
+	}
+
+	public void setUrnPrefix(final NodeUrnPrefix urnPrefix) {
+		this.urnPrefix = urnPrefix;
+	}
 }

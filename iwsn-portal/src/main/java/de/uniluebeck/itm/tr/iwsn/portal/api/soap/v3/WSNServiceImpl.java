@@ -6,6 +6,7 @@ import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.EndpointManager;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import java.net.URI;
@@ -22,6 +24,10 @@ import java.util.List;
 
 
 @WebService(name = "WSN", targetNamespace = "http://wisebed.eu/api/v3/wsn")
+@XmlSeeAlso({
+		eu.wisebed.api.v3.common.ObjectFactory.class,
+		eu.wisebed.api.v3.wsn.ObjectFactory.class
+})
 public class WSNServiceImpl extends AbstractService implements WSNService {
 
 	private static final Logger log = LoggerFactory.getLogger(WSNServiceImpl.class);
@@ -35,9 +41,9 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Inject
 	public WSNServiceImpl(final ServicePublisher servicePublisher,
 						  final EndpointManager endpointManager,
-						  @Assisted final String reservationId,
+						  @Assisted final Reservation reservation,
 						  @Assisted final WSN wsn) {
-		this.endpointUri = URI.create(endpointManager.getWsnEndpointUriBase().toString() + "/" + reservationId);
+		this.endpointUri = URI.create(endpointManager.getWsnEndpointUriBase().toString() + "/" + reservation.getSerializedKey());
 		this.jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this);
 		this.wsn = wsn;
 	}

@@ -4,7 +4,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.FlashProgramsRequest;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.NodeUrnList;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.RemoteExperimentConfiguration;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.BadRemoteExperimentConfiguration;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.Base64Helper;
+import de.uniluebeck.itm.tr.iwsn.common.Base64Helper;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +20,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.fromJSON;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.util.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.fromJSON;
+import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
 
 @Path("/experimentconfiguration/")
 public class RemoteExperimentConfigurationResourceImpl implements RemoteExperimentConfigurationResource {

@@ -28,13 +28,12 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.uniluebeck.itm.util.Tuple;
-import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Controller;
 import eu.wisebed.api.v3.controller.Notification;
 import eu.wisebed.api.v3.controller.RequestStatus;
-import eu.wisebed.api.v3.controller.Status;
+import eu.wisebed.api.v3.controller.SingleNodeRequestStatus;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,19 +105,18 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	/**
 	 * Adds a Controller service endpoint URL to the list of recipients.
 	 *
-	 * @param endpointUrl
-	 * 		the endpoint URL of a {@link Controller} Web Service instance
+	 * @param controller
+	 * 		the Controller to add
 	 */
 	@Override
-	public void addController(String endpointUrl) {
+	public void addController(final String endpointUri, Controller controller) {
 
-		if (controllers.containsKey(endpointUrl)) {
-			log.debug("Not adding controller endpoint {} as it is already in the set of controllers.", endpointUrl);
+		if (controllers.containsKey(endpointUri)) {
+			log.debug("Not adding controller endpoint {} as it is already in the set of controllers.", controller);
 			return;
 		}
 
-		log.debug("Adding controller endpoint {} to the set of controllers.", endpointUrl);
-		final Controller endpoint = WisebedServiceHelper.getControllerService(endpointUrl, executorService);
+		log.debug("Adding controller endpoint {} to the set of controllers.", controller);
 
 		final Deque<Message> messageQueue = newLinkedList();
 		final Deque<Notification> notificationQueue = newLinkedList();
@@ -128,8 +126,8 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 		final DeliveryWorker deliveryWorker = new DeliveryWorker(
 				this,
-				endpointUrl,
-				endpoint,
+				endpointUri,
+				controller,
 				messageQueue,
 				statusQueue,
 				notificationQueue,
@@ -142,7 +140,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 		controllers = ImmutableMap.<String, DeliveryWorker>builder()
 				.putAll(controllers)
-				.put(endpointUrl, deliveryWorker)
+				.put(endpointUri, deliveryWorker)
 				.build();
 
 	}
@@ -150,23 +148,23 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	/**
 	 * Removes a Controller service endpoint URL from the list of recipients.
 	 *
-	 * @param endpointUrl
-	 * 		the endpoint URL of a {@link Controller} Web Service instance
+	 * @param endpointUri
+	 * 		the endpointUri to remove
 	 */
 	@Override
-	public void removeController(String endpointUrl) {
+	public void removeController(final String endpointUri) {
 
-		final DeliveryWorker deliveryWorker = controllers.get(endpointUrl);
+		final DeliveryWorker deliveryWorker = controllers.get(endpointUri);
 
 		if (deliveryWorker != null) {
 
-			log.debug("{} => Removing controller endpoint from the set of controllers.", endpointUrl);
+			log.debug("{} => Removing controller endpoint from the set of controllers.", endpointUri);
 			deliveryWorker.stopDelivery();
 
 			ImmutableMap.Builder<String, DeliveryWorker> controllerEndpointsBuilder = ImmutableMap.builder();
 
 			for (Map.Entry<String, DeliveryWorker> entry : controllers.entrySet()) {
-				if (!entry.getKey().equals(endpointUrl)) {
+				if (!entry.getKey().equals(endpointUri)) {
 					controllerEndpointsBuilder.put(entry.getKey(), entry.getValue());
 				}
 			}
@@ -174,7 +172,7 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 			controllers = controllerEndpointsBuilder.build();
 
 		} else {
-			log.debug("{} => Not removing controller endpoint as it was not in the set of controllers.", endpointUrl);
+			log.debug("{} => Not removing controller endpoint as it was not in the set of controllers.", endpointUri);
 		}
 
 	}
@@ -191,10 +189,10 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	}
 
 	@Override
-	public void reservationStarted(final DateTime timestamp, final String controllerEndpointUrl) {
+	public void reservationStarted(final DateTime timestamp, final String endpointUri) {
 
 		if (isRunning()) {
-			controllers.get(controllerEndpointUrl).reservationStarted(timestamp);
+			controllers.get(endpointUri).reservationStarted(timestamp);
 		}
 	}
 
@@ -210,9 +208,9 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 	}
 
 	@Override
-	public void reservationEnded(final DateTime timestamp, final String controllerEndpointUrl) {
+	public void reservationEnded(final DateTime timestamp, final String endpointUri) {
 		if (isRunning()) {
-			controllers.get(controllerEndpointUrl).reservationEnded(timestamp);
+			controllers.get(endpointUri).reservationEnded(timestamp);
 		}
 	}
 
@@ -369,11 +367,13 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 			requestStatus.setRequestId(requestId);
 
 			for (NodeUrn nodeUrn : nodeUrns) {
-				Status status = new Status();
+				SingleNodeRequestStatus status = new SingleNodeRequestStatus();
 				status.setNodeUrn(nodeUrn);
 				status.setValue(statusValue);
 				status.setMsg(e.getMessage());
-				requestStatus.getStatus().add(status);
+				status.setCompleted(true);
+				status.setSuccess(false);
+				requestStatus.getSingleNodeRequestStatus().add(status);
 			}
 
 			receiveStatus(Lists.<RequestStatus>newArrayList(requestStatus));
@@ -402,12 +402,14 @@ public class DeliveryManagerImpl extends AbstractService implements DeliveryMana
 
 			for (NodeUrn nodeUrn : nodeUrns) {
 
-				Status status = new Status();
+				SingleNodeRequestStatus status = new SingleNodeRequestStatus();
 				status.setMsg(msg);
 				status.setNodeUrn(nodeUrn);
 				status.setValue(-1);
+				status.setCompleted(true);
+				status.setSuccess(false);
 
-				requestStatus.getStatus().add(status);
+				requestStatus.getSingleNodeRequestStatus().add(status);
 
 			}
 

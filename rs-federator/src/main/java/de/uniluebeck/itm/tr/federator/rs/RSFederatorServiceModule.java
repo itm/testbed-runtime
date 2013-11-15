@@ -4,13 +4,13 @@ import com.google.common.base.Function;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.google.inject.AbstractModule;
+import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.tr.federator.utils.FederationManager;
-import de.uniluebeck.itm.tr.federator.utils.FederationManagerFactory;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
+import de.uniluebeck.itm.tr.federator.utils.FederatedEndpointsFactory;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.RS;
@@ -25,16 +25,21 @@ import java.util.concurrent.ThreadPoolExecutor;
 import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutorService;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
-public class RSFederatorServiceModule extends AbstractModule {
+public class RSFederatorServiceModule extends PrivateModule {
 
 	@Override
 	protected void configure() {
 
 		requireBinding(RSFederatorServiceConfig.class);
 		requireBinding(ServicePublisher.class);
-		requireBinding(FederationManagerFactory.class);
+		requireBinding(FederatedEndpointsFactory.class);
 
-		bind(RSFederatorService.class).to(RSFederatorServiceImpl.class).in(Scopes.SINGLETON);
+		bind(RSFederatorServiceImpl.class).in(Scopes.SINGLETON);
+		bind(RS.class).to(RSFederatorServiceImpl.class);
+		bind(RSFederatorService.class).to(RSFederatorServiceImpl.class);
+
+		expose(RS.class);
+		expose(RSFederatorService.class);
 	}
 
 	@Provides
@@ -47,8 +52,8 @@ public class RSFederatorServiceModule extends AbstractModule {
 	}
 
 	@Provides
-	public FederationManager<RS> provideRsFederationManager(final RSFederatorServiceConfig config,
-															final FederationManagerFactory factory) {
+	public FederatedEndpoints<RS> provideRsFederationManager(final RSFederatorServiceConfig config,
+															final FederatedEndpointsFactory factory) {
 
 		final Function<URI, RS> uriToRSEndpointFunction = new Function<URI, RS>() {
 			@Override

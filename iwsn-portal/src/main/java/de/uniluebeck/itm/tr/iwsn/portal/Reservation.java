@@ -4,21 +4,80 @@ import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import eu.wisebed.api.v3.common.NodeUrn;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
+import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import org.joda.time.Interval;
 
 import java.util.Set;
 
 public interface Reservation extends Service {
 
-	String getKey();
+	public static class Entry {
 
-	String getUsername();
+		private NodeUrnPrefix nodeUrnPrefix;
+
+		private String key;
+
+		private String username;
+
+		private Set<NodeUrn> nodeUrns;
+
+		private Interval interval;
+
+		private ReservationEventBus reservationEventBus;
+
+		public Entry(final NodeUrnPrefix nodeUrnPrefix, final String username, final String key,
+					 final Set<NodeUrn> nodeUrns, final Interval interval,
+					 final ReservationEventBus reservationEventBus) {
+			this.nodeUrnPrefix = nodeUrnPrefix;
+			this.username = username;
+			this.key = key;
+			this.nodeUrns = nodeUrns;
+			this.interval = interval;
+			this.reservationEventBus = reservationEventBus;
+		}
+
+		public Interval getInterval() {
+			return interval;
+		}
+
+		public String getKey() {
+			return key;
+		}
+
+		public NodeUrnPrefix getNodeUrnPrefix() {
+			return nodeUrnPrefix;
+		}
+
+		public Set<NodeUrn> getNodeUrns() {
+			return nodeUrns;
+		}
+
+		public ReservationEventBus getReservationEventBus() {
+			return reservationEventBus;
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+	}
+	Set<Reservation.Entry> getEntries();
+
+	Set<NodeUrnPrefix> getNodeUrnPrefixes();
 
 	Set<NodeUrn> getNodeUrns();
 
-	ReservationEventBus getEventBus();
+	ReservationEventBus getReservationEventBus();
 
 	Interval getInterval();
+
+	String getSerializedKey();
+
+	Set<SecretReservationKey> getSecretReservationKeys();
+
+	Set<ConfidentialReservationData> getConfidentialReservationData();
 
 	/**
 	 * Creates a response tracker for the given {@code requestId}. ResponseTracker instances are held in a cache until

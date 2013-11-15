@@ -19,6 +19,7 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +31,7 @@ import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserialize;
 import static org.joda.time.DateTime.now;
 
 public class ReservationManagerImpl extends AbstractService implements ReservationManager {
@@ -44,7 +46,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 	private final ReservationFactory reservationFactory;
 
-	private final Map<String, Reservation> reservationMap = newHashMap();
+	private final Map<Set<SecretReservationKey>, Reservation> reservationMap = newHashMap();
 
 	private final SchedulerService schedulerService;
 
@@ -89,28 +91,37 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	@Override
-	public Reservation getReservation(final String secretReservationKey) throws ReservationUnknownException {
+	public Reservation getReservation(final Set<SecretReservationKey> srks)
+			throws ReservationUnknownException {
 
-		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", secretReservationKey);
+		log.trace("ReservationManagerImpl.getReservation(secretReservationKey={})", srks);
+
+		// filter out additional keys that are not for this testbed (= urn prefix) and make a set so we can match in map
+		for (Iterator<SecretReservationKey> it = srks.iterator(); it.hasNext(); ) {
+			SecretReservationKey current = it.next();
+			if (!commonConfig.getUrnPrefix().equals(current.getUrnPrefix())) {
+				it.remove();
+			}
+		}
 
 		synchronized (reservationMap) {
 
-			if (reservationMap.containsKey(secretReservationKey)) {
-				return reservationMap.get(secretReservationKey);
+			final Set<SecretReservationKey> srkSet = newHashSet(srks);
+			if (reservationMap.containsKey(srkSet)) {
+				return reservationMap.get(srkSet);
 			}
 
 			final List<ConfidentialReservationData> confidentialReservationDataList;
 			try {
-				final List<SecretReservationKey> keys = toSecretReservationKeyList(secretReservationKey);
-				confidentialReservationDataList = rs.get().getReservation(keys);
+				confidentialReservationDataList = rs.get().getReservation(newArrayList(srkSet));
 			} catch (RSFault_Exception e) {
 				throw propagate(e);
 			} catch (UnknownSecretReservationKeyFault e) {
-				throw new ReservationUnknownException(secretReservationKey, e);
+				throw new ReservationUnknownException(srkSet, e);
 			}
 
 			if (confidentialReservationDataList.size() == 0) {
-				throw new ReservationUnknownException(secretReservationKey);
+				throw new ReservationUnknownException(srkSet);
 			}
 
 			checkArgument(
@@ -124,13 +135,14 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 			assertNodesInTestbed(reservedNodes);
 
 			final Reservation reservation = reservationFactory.create(
+					confidentialReservationDataList,
 					data.getSecretReservationKey().getKey(),
 					data.getUsername(),
 					reservedNodes,
 					new Interval(data.getFrom(), data.getTo())
 			);
 
-			reservationMap.put(secretReservationKey, reservation);
+			reservationMap.put(srkSet, reservation);
 
 			if (!reservation.isRunning() && reservation.getInterval().containsNow()) {
 
@@ -152,18 +164,17 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 		}
 	}
 
+	@Override
+	public Reservation getReservation(final String secretReservationKeysBase64)
+			throws ReservationUnknownException {
+		return getReservation(deserialize(secretReservationKeysBase64));
+	}
+
 	private void assertNodesInTestbed(final Set<NodeUrn> reservedNodes) {
 		for (Map.Entry<NodeUrn, DeviceConfig> entry : deviceDBService.getConfigsByNodeUrns(reservedNodes).entrySet()) {
 			if (entry.getValue() == null) {
 				throw new RuntimeException("Node URN \"" + entry.getKey() + "\" unknown.");
 			}
 		}
-	}
-
-	private List<SecretReservationKey> toSecretReservationKeyList(String secretReservationKey) {
-		SecretReservationKey key = new SecretReservationKey();
-		key.setUrnPrefix(commonConfig.getUrnPrefix());
-		key.setKey(secretReservationKey);
-		return newArrayList(key);
 	}
 }

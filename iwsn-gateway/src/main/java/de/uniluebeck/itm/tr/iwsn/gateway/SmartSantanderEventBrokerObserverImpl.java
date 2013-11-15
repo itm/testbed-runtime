@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
@@ -29,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.iwsn.gateway.SmartSantanderEventBrokerObserverHelper.convert;
 
 public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 		implements SmartSantanderEventBrokerObserver {
@@ -62,6 +62,8 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 
 	private final SchedulerService schedulerService;
 
+	private final Function<NodeOperationsEvents.AddSensorNode, DeviceConfig> conversionFunction;
+
 	private int numPublishedEvents;
 
 	/**
@@ -77,13 +79,15 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 												 final IEventReceiverFactory eventReceiverFactory,
 												 final IEventPublisherFactory eventPublisherFactory,
 												 final GatewayEventBus gatewayEventBus,
-												 final DeviceDBService deviceDBService) {
+												 final DeviceDBService deviceDBService,
+												 final Function<AddSensorNode, DeviceConfig> conversionFunction) {
 		this.schedulerService = checkNotNull(schedulerService);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
 		this.eventReceiverFactory = checkNotNull(eventReceiverFactory);
 		this.eventPublisherFactory = checkNotNull(eventPublisherFactory);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
 		this.deviceDBService = checkNotNull(deviceDBService);
+		this.conversionFunction = checkNotNull(conversionFunction);
 		this.numPublishedEvents = 0;
 	}
 
@@ -124,9 +128,9 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 	@Override
 	public boolean handleEvent(final EventObject event) {
 
-		try {
+		checkNotNull(event);
 
-			checkNotNull(event);
+		try {
 
 			switch (event.eventType) {
 				case ADD_SENSOR_NODE:
@@ -192,12 +196,7 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 			return false;
 		}
 
-		final DeviceConfig deviceConfig = convert(addSensorNode);
-
-		if (deviceConfig == null) {
-			log.error("Conversion of AddSensorNode event to DeviceConfig failed: {}", addSensorNode);
-			return false;
-		}
+		final DeviceConfig deviceConfig = checkNotNull(conversionFunction.apply(addSensorNode));
 
 		synchronized (nodeUrnDeviceConfigMap) {
 			nodeUrnDeviceConfigMap.put(deviceConfig.getNodeUrn(), deviceConfig);
@@ -211,6 +210,7 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 		final DeviceFoundEvent deviceFoundEvent = new DeviceFoundEvent(
 				deviceConfig.getNodeType(),
 				deviceConfig.getNodePort(),
+				deviceConfig.getNodeConfiguration(),
 				deviceConfig.getNodeUSBChipID(),
 				new MacAddress(deviceConfig.getNodeUrn().getSuffix()),
 				deviceConfig
@@ -250,6 +250,7 @@ public class SmartSantanderEventBrokerObserverImpl extends AbstractService
 		final DeviceLostEvent deviceLostEvent = new DeviceLostEvent(
 				deviceConfig.getNodeType(),
 				deviceConfig.getNodePort(),
+				deviceConfig.getNodeConfiguration(),
 				deviceConfig.getNodeUSBChipID(),
 				new MacAddress(deviceConfig.getNodeUrn().getSuffix()),
 				deviceConfig

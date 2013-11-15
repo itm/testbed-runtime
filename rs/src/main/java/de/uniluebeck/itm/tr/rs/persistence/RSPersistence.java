@@ -31,7 +31,6 @@ import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -47,7 +46,8 @@ public interface RSPersistence {
 											   List<KeyValuePair> options) throws RSFault_Exception;
 
 	List<ConfidentialReservationData> getReservations(
-			Interval interval,
+			@Nullable final DateTime from,
+			@Nullable final DateTime to,
 			@Nullable final Integer offset,
 			@Nullable final Integer amount)
 			throws RSFault_Exception;

@@ -2,7 +2,6 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -49,16 +48,12 @@ public class AuthorizingWSNImpl implements AuthorizingWSN {
 	 */
 	private final SNAA snaa;
 
-	private final CommonConfig commonConfig;
-
 
 	/**
 	 * Constructor
 	 *
 	 * @param snaa
 	 * 		The component used to check whether a certain action is authorized for a certain user
-	 * @param commonConfig
-	 * 		The servers configuration parameters
 	 * @param reservation
 	 * 		A user's reservation
 	 * @param wsnDelegate
@@ -66,11 +61,9 @@ public class AuthorizingWSNImpl implements AuthorizingWSN {
 	 */
 	@Inject
 	public AuthorizingWSNImpl(final SNAA snaa,
-							  final CommonConfig commonConfig,
 							  @Assisted final Reservation reservation,
 							  @Assisted final WSN wsnDelegate) {
 		this.snaa = snaa;
-		this.commonConfig = commonConfig;
 		this.delegate = wsnDelegate;
 		this.reservation = reservation;
 	}
@@ -238,12 +231,16 @@ public class AuthorizingWSNImpl implements AuthorizingWSN {
 	private void assertIsAuthorized(Action requestedAction, Collection<NodeUrn> nodeUrnCollection)
 			throws AuthorizationFault {
 
-		UsernameNodeUrnsMap usernameNodeUrnsMap = new UsernameNodeUrnsMap();
-		usernameNodeUrnsMap.setUsername(reservation.getUsername());
-		usernameNodeUrnsMap.setUrnPrefix(commonConfig.getUrnPrefix());
-		usernameNodeUrnsMap.getNodeUrns().addAll(nodeUrnCollection);
+		List<UsernameNodeUrnsMap> usernameNodeUrnsMapList = newArrayList();
 
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMapList = newArrayList(usernameNodeUrnsMap);
+		for (Reservation.Entry entry : reservation.getEntries()) {
+
+			UsernameNodeUrnsMap usernameNodeUrnsMap = new UsernameNodeUrnsMap();
+			usernameNodeUrnsMap.setUsername(entry.getUsername());
+			usernameNodeUrnsMap.setUrnPrefix(entry.getNodeUrnPrefix());
+			usernameNodeUrnsMap.getNodeUrns().addAll(nodeUrnCollection);
+			usernameNodeUrnsMapList.add(usernameNodeUrnsMap);
+		}
 
 		final AuthorizationResponse authorized;
 		try {
@@ -251,16 +248,14 @@ public class AuthorizingWSNImpl implements AuthorizingWSN {
 			authorized = snaa.isAuthorized(usernameNodeUrnsMapList, requestedAction);
 
 			if (authorized.isAuthorized()) {
-				log.debug("Requested action {} was authorized for user {}",
-						requestedAction.toString(),
-						reservation.getUsername()
-				);
+
+				log.debug("Requested action {} was authorized", requestedAction.toString());
+
 			} else {
+
 				StringBuilder sb = new StringBuilder("Requested action '");
 				sb.append(requestedAction.toString());
-				sb.append("' was NOT authorized for user '");
-				sb.append(reservation.getUsername());
-				sb.append("': ");
+				sb.append("' was NOT authorized: ");
 				sb.append(authorized.getMessage());
 
 				final eu.wisebed.api.v3.common.AuthorizationFault faultInfo =

@@ -26,6 +26,8 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
+import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginModule;
+import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginServiceConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
 import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginModule;
 import de.uniluebeck.itm.tr.rs.RSServiceConfig;
@@ -61,6 +63,8 @@ public class PortalModule extends AbstractModule {
 
 	private final WisemlProviderConfig wisemlProviderConfig;
 
+	private final ExternalPluginServiceConfig externalPluginServiceConfig;
+
 	@Inject
 	public PortalModule(final CommonConfig commonConfig,
 						final DeviceDBConfig deviceDBConfig,
@@ -68,7 +72,8 @@ public class PortalModule extends AbstractModule {
 						final RSServiceConfig rsServiceConfig,
 						final SNAAServiceConfig snaaServiceConfig,
 						final WiseGuiServiceConfig wiseGuiServiceConfig,
-						final WisemlProviderConfig wisemlProviderConfig) {
+						final WisemlProviderConfig wisemlProviderConfig,
+						final ExternalPluginServiceConfig externalPluginServiceConfig) {
 		this.commonConfig = commonConfig;
 		this.deviceDBConfig = deviceDBConfig;
 		this.portalServerConfig = portalServerConfig;
@@ -76,6 +81,7 @@ public class PortalModule extends AbstractModule {
 		this.snaaServiceConfig = snaaServiceConfig;
 		this.wiseGuiServiceConfig = wiseGuiServiceConfig;
 		this.wisemlProviderConfig = wisemlProviderConfig;
+		this.externalPluginServiceConfig = externalPluginServiceConfig;
 	}
 
 	@Override
@@ -88,6 +94,7 @@ public class PortalModule extends AbstractModule {
 		bind(SNAAServiceConfig.class).toProvider(of(snaaServiceConfig));
 		bind(WiseGuiServiceConfig.class).toProvider(of(wiseGuiServiceConfig));
 		bind(WisemlProviderConfig.class).toProvider(of(wisemlProviderConfig));
+		bind(ExternalPluginServiceConfig.class).toProvider(of(externalPluginServiceConfig));
 
 		install(new SNAAServiceModule(commonConfig, snaaServiceConfig));
 		install(new RSServiceModule(commonConfig, rsServiceConfig));
@@ -123,10 +130,11 @@ public class PortalModule extends AbstractModule {
 
 		install(new DeviceDBRestServiceModule());
 		install(new SoapApiModule());
-		install(new RestApiModule());
+		install(new RestApiModule(false));
 		install(new WiseGuiServiceModule());
 
 		install(new PortalPluginModule());
+		install(new ExternalPluginModule());
 	}
 
 	@Provides

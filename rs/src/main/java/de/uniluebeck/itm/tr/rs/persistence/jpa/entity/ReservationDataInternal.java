@@ -30,18 +30,38 @@ import java.io.Serializable;
 @NamedQueries({
 		@NamedQuery(
 				name = ReservationDataInternal.QGetByReservationKey.QUERY_NAME,
-				query = "FROM ReservationDataInternal data WHERE data.secretReservationKey.secretReservationKey = :" +
-						ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY +
-						" AND data.deleted = false"
+				query = "FROM ReservationDataInternal data WHERE"
+						+ " data.secretReservationKey.secretReservationKey = :" + ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY
+						+ " AND data.deleted = false"
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
 		@NamedQuery(
 				name = ReservationDataInternal.QGetByInterval.QUERY_NAME,
-				query = "FROM ReservationDataInternal data WHERE NOT (" +
-						":" + ReservationDataInternal.QGetByInterval.P_TO + " <= data.confidentialReservationData.fromDate" +
-						" OR " +
-						":" + ReservationDataInternal.QGetByInterval.P_FROM + " >= data.confidentialReservationData.toDate" +
-						")"
+				query = "FROM ReservationDataInternal data WHERE"
+						+ " NOT ("
+						+ ":" + ReservationDataInternal.QGetByInterval.P_TO + " <= data.confidentialReservationData.fromDate"
+						+ " OR "
+						+ ":" + ReservationDataInternal.QGetByInterval.P_FROM + " >= data.confidentialReservationData.toDate"
+						+ ")"
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 
+		),
+		@NamedQuery(
+				name = ReservationDataInternal.QGetAll.QUERY_NAME,
+				query = "FROM ReservationDataInternal data"
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
+		),
+		@NamedQuery(
+				name = ReservationDataInternal.QGetTo.QUERY_NAME,
+				query = "FROM ReservationDataInternal data WHERE"
+						+ " data.confidentialReservationData.toDate <= :" + ReservationDataInternal.QGetTo.P_TO
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
+		),
+		@NamedQuery(
+				name = ReservationDataInternal.QGetFrom.QUERY_NAME,
+				query = "FROM ReservationDataInternal data WHERE"
+						+ "     data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetFrom.P_FROM
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		)
 })
 public class ReservationDataInternal implements Serializable {
@@ -60,6 +80,25 @@ public class ReservationDataInternal implements Serializable {
 		public static final String P_FROM = "from";
 
 		public static final String P_TO = "to";
+	}
+
+	public static class QGetAll {
+
+		public static final String QUERY_NAME = "getReservationDataAll";
+	}
+
+	public static class QGetTo {
+
+		public static final String QUERY_NAME = "getReservationDataTo";
+
+		public static final String P_TO = "to";
+	}
+
+	public static class QGetFrom {
+
+		public static final String QUERY_NAME = "getReservationDataFrom";
+
+		public static final String P_FROM = "from";
 	}
 
 	@Id
