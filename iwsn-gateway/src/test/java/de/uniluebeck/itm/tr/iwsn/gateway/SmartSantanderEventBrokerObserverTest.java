@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
@@ -7,6 +8,8 @@ import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
+import de.uniluebeck.itm.util.logging.LogLevel;
+import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.smartsantander.eventbroker.client.*;
 import eu.smartsantander.eventbroker.client.exceptions.EventBrokerException;
@@ -20,21 +23,22 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
 
-import static de.uniluebeck.itm.tr.iwsn.gateway.SmartSantanderEventBrokerObserverHelper.convert;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(SmartSantanderEventBrokerObserverHelper.class)
+@RunWith(MockitoJUnitRunner.class)
 public class SmartSantanderEventBrokerObserverTest {
+
+	static {
+		Logging.setLoggingDefaults(LogLevel.ERROR);
+	}
 
 	private static final String NODE_URN_STRING = "urn:smartsantander:testbed:70";
 
@@ -51,7 +55,8 @@ public class SmartSantanderEventBrokerObserverTest {
 			NODE_TYPE,
 			true,
 			NODE_PORT,
-			null, null, null, null, null, null, null, null, null, null);
+			null, null, null, null, null, null, null, null, null, null
+	);
 
 	private static final String GATEWAY_ID = "testbed-test-gw.smartsantander.eu";
 
@@ -83,12 +88,13 @@ public class SmartSantanderEventBrokerObserverTest {
 	@Mock
 	private SchedulerService schedulerService;
 
+	@Mock
+	private Function<NodeOperationsEvents.AddSensorNode, DeviceConfig> conversionFunction;
+
 	@Before
 	public void setUp() throws EventBrokerException {
 
-		PowerMockito.mockStatic(SmartSantanderEventBrokerObserverHelper.class);
-		PowerMockito.when(convert(any(NodeOperationsEvents.AddSensorNode.class))).thenReturn(NODE_DEVICE_CONFIG);
-
+		when(conversionFunction.apply(any(NodeOperationsEvents.AddSensorNode.class))).thenReturn(NODE_DEVICE_CONFIG);
 		when(gatewayConfig.getSmartSantanderEventBrokerUri()).thenReturn(URI.create(""));
 		when(gatewayConfig.getSmartSantanderGatewayId()).thenReturn(GATEWAY_ID);
 		when(eventPublisherFactory.create(anyString())).thenReturn(eventPublisher);
@@ -100,7 +106,8 @@ public class SmartSantanderEventBrokerObserverTest {
 				eventReceiverFactory,
 				eventPublisherFactory,
 				gatewayEventBus,
-				deviceDBService
+				deviceDBService,
+				conversionFunction
 		);
 
 		smartSantanderEventBrokerObserver.startAndWait();
@@ -144,19 +151,25 @@ public class SmartSantanderEventBrokerObserverTest {
 				NODE_PORT
 		);
 
-		PowerMockito.when(convert(any(NodeOperationsEvents.AddSensorNode.class))).thenReturn(null);
+		when(conversionFunction.apply(any(NodeOperationsEvents.AddSensorNode.class)))
+				.thenThrow(new IllegalArgumentException());
 
-		smartSantanderEventBrokerObserver.handleEvent(event);
-		verify(gatewayEventBus, never()).post(any(DeviceFoundEvent.class));
-
+		try {
+			smartSantanderEventBrokerObserver.handleEvent(event);
+		} catch (IllegalArgumentException expected) {
+			verify(gatewayEventBus, never()).post(any(DeviceFoundEvent.class));
+		}
 	}
 
 	@Test
-	public void testHandleEventWhenEventObjectIsNULL() {
+	public void testHandleEventWhenEventObjectIsNull() {
 
-		smartSantanderEventBrokerObserver.handleEvent(null);
-		verify(gatewayEventBus, never()).post(any(DeviceFoundEvent.class));
-
+		try {
+			smartSantanderEventBrokerObserver.handleEvent(null);
+			fail();
+		} catch (NullPointerException expected) {
+			verify(gatewayEventBus, never()).post(any(DeviceFoundEvent.class));
+		}
 	}
 
 	@Test
@@ -178,10 +191,14 @@ public class SmartSantanderEventBrokerObserverTest {
 
 	@Test
 	public void testDeleteSensorNodeForUnsetNodeID() {
+
 		final EventObject event = createAndGetDelSensorNodeEvent(GATEWAY_ID, "");
 
-		smartSantanderEventBrokerObserver.handleEvent(event);
-		verify(gatewayEventBus, never()).post(anyObject());
+		try {
+			smartSantanderEventBrokerObserver.handleEvent(event);
+		} catch (IllegalArgumentException expected) {
+			verify(gatewayEventBus, never()).post(anyObject());
+		}
 	}
 
 	@Test

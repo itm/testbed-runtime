@@ -36,28 +36,33 @@
 	<modules>
 		<module>common</module>
 		<module>device-db</module>
-		<module>device-db-server</module>
-		<module>federator</module>
-		<module>federator-deb</module>
-		<module>federator-server</module>
 		<module>federator-utils</module>
+		<module>federator</module>
+		<module>federator-server</module>
+		<module>federator-deb</module>
 		<module>iwsn-common</module>
-		<module>iwsn-federator</module>
 		<module>iwsn-gateway</module>
 		<module>iwsn-gateway-deb</module>
 		<module>iwsn-portal</module>
 		<module>iwsn-portal-deb</module>
+		<module>iwsn-federator</module>
 		<module>rs</module>
 		<module>rs-federator</module>
-		<module>rs-server</module>
-		<module>snaa</module>
 		<module>snaa-common</module>
+		<module>snaa</module>
 		<module>snaa-federator</module>
-		<module>snaa-server</module>
 		<module>plugins/default-image</module>
+		<module>plugins/mock-deviceadapter</module>
+		<!--
 		<module>plugins/framework-extender-portal</module>
 		<module>plugins/framework-extender-gateway</module>
-		<module>plugins/mock-deviceadapter</module>
+		<module>device-db-server</module>
+		<module>iwsn-federator-server</module>
+		<module>rs-server</module>
+		<module>rs-federator-server</module>
+		<module>snaa-server</module>
+		<module>snaa-federator-server</module>
+		-->
 	</modules>
 
 	<dependencyManagement>
@@ -237,7 +242,7 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-iostream</groupId>
 				<artifactId>netty-iostream</artifactId>
-				<version>0.6</version>
+				<version>0.7</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-protocols</groupId>
@@ -271,6 +276,22 @@
 						<artifactId>log4j</artifactId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>1.1</version>
+				<exclusions>
+					<exclusion>
+						<groupId>log4j</groupId>
+						<artifactId>log4j</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.core</artifactId>
+				<version>4.3.0</version>
 			</dependency>
 
 			<!-- 3rd party libraries -->
@@ -378,6 +399,12 @@
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
 				<version>4.0.1</version>
+				<exclusions>
+					<exclusion>
+						<groupId>javax.servlet</groupId>
+						<artifactId>servlet-api</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
@@ -484,6 +511,11 @@
 				</exclusions>
 			</dependency>
 			<dependency>
+				<groupId>org.hibernate.common</groupId>
+				<artifactId>hibernate-commons-annotations</artifactId>
+				<version>4.0.4.Final</version>
+			</dependency>
+			<dependency>
 				<groupId>org.jboss.logging</groupId>
 				<artifactId>jboss-logging</artifactId>
 				<version>3.1.3.GA</version>
@@ -566,23 +598,6 @@
 				<scope>test</scope>
 			</dependency>
 
-			<!-- PowerMock is necessary to mock static methods
-				see https://code.google.com/p/powermock/wiki/MockitoUsage13
-				for version dependencies between Mockito and PowerMock
-			-->
-			<dependency>
-				<groupId>org.powermock</groupId>
-				<artifactId>powermock-module-junit4</artifactId>
-				<version>1.4.12</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.powermock</groupId>
-				<artifactId>powermock-api-mockito</artifactId>
-				<version>1.4.12</version>
-				<scope>test</scope>
-			</dependency>
-
 			<!-- Apache Shiro dependencies -->
 			<dependency>
 				<groupId>org.apache.shiro</groupId>
@@ -631,9 +646,32 @@
 					<artifactId>maven-overview-plugin</artifactId>
 					<version>RELEASE</version>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>2.1</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>1.3.1</version>
+				<executions>
+					<execution>
+						<id>enforce</id>
+						<configuration>
+							<rules>
+								<DependencyConvergence />
+							</rules>
+						</configuration>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

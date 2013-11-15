@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence;
 
+import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -44,7 +45,7 @@ import static org.junit.Assert.*;
 public abstract class RSPersistenceTest {
 
 	static {
-		Logging.setLoggingDefaults();
+		Logging.setLoggingDefaults(LogLevel.ERROR);
 	}
 
 	protected RSPersistence persistence;

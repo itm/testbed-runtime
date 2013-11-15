@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
+import com.google.common.base.Function;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import eu.smartsantander.eventbroker.events.NodeOperationsEvents;
@@ -9,8 +10,6 @@ import eu.wisebed.wiseml.Capability;
 import eu.wisebed.wiseml.Coordinate;
 import eu.wisebed.wiseml.CoordinateType;
 import eu.wisebed.wiseml.OutdoorCoordinatesType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,14 +18,14 @@ import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 
-public class SmartSantanderEventBrokerObserverHelper {
+public class SmartSantanderEventBrokerObserverConverter implements
+		Function<NodeOperationsEvents.AddSensorNode, DeviceConfig> {
 
-	private static final Logger log = LoggerFactory.getLogger(SmartSantanderEventBrokerObserverHelper.class);
-
-
-	public static DeviceConfig convert(final NodeOperationsEvents.AddSensorNode addSensorNode) {
+	@Override
+	public DeviceConfig apply(final NodeOperationsEvents.AddSensorNode addSensorNode) {
 
 		try {
+
 			final RegistrationEvents.NodeTRConfig nodeTrConfig = addSensorNode.getNodeTrConfig();
 
 			final NodeUrn nodeUrn = new NodeUrn(addSensorNode.getNodeId());
@@ -93,12 +92,12 @@ public class SmartSantanderEventBrokerObserverHelper {
 					coordinate,
 					capabilities
 			);
+
 		} catch (Exception e) {
-			log.error(
-					"The information from the provided AddSensorNode object could not be used to create a valid device configuration ",
+			throw new IllegalArgumentException(
+					"The information from the provided AddSensorNode object could not be used to create a valid device configuration",
 					e
 			);
-			return null;
 		}
 	}
 }

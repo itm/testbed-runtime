@@ -30,7 +30,7 @@ public class WebSocketServlet extends org.eclipse.jetty.websocket.WebSocketServl
 	@Override
 	public WebSocket doWebSocketConnect(final HttpServletRequest request, final String protocol) {
 
-		final String remoteAddress = request.getRemoteAddr() + ":" + request.getRemotePort();
+		final String remoteAddress = request.getRemoteHost() + ":" + request.getRemotePort();
 		final String uriString = request.getRequestURI();
 		final URI requestUri;
 		try {

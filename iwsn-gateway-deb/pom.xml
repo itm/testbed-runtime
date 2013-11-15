@@ -36,7 +36,7 @@
 	</parent>
 
 	<artifactId>tr.iwsn-gateway-deb</artifactId>
-	<name>TR :: iWSN Portal Debian Package</name>
+	<name>TR :: iWSN Gateway Debian Package</name>
 
 	<properties>
 		<project.pathName>tr.iwsn-gateway</project.pathName>
