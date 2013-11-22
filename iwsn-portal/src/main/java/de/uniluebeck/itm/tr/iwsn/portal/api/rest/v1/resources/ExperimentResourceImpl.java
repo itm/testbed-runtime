@@ -12,6 +12,7 @@ import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.ReservationNotRunningException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeysException;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.ChannelPipelinesMap;
@@ -586,9 +587,15 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	private Response sendRequestAndGetOperationStatusMap(final Reservation reservation,
 														 final Request request,
 														 final int timeout,
-														 final TimeUnit timeUnit) {
+														 final TimeUnit timeUnit)
+			throws ReservationNotRunningException {
 
 		final ResponseTracker responseTracker = reservation.createResponseTracker(request);
+
+		if (!reservation.isRunning()) {
+			throw new ReservationNotRunningException(reservation.getInterval());
+		}
+
 		reservation.getReservationEventBus().post(request);
 
 		try {
