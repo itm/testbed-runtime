@@ -5,6 +5,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.MakeReservationData;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.snaa.SNAA;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +18,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserializeToList;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.assertLoggedIn;
-import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookieOrHeader;
 
 @Path("/reservations/")
 public class RsResourceImpl implements RsResource {
@@ -30,9 +30,12 @@ public class RsResourceImpl implements RsResource {
 
 	private final RS rs;
 
+	private final SNAA snaa;
+
 	@Inject
-	public RsResourceImpl(final RS rs) {
+	public RsResourceImpl(final RS rs, final SNAA snaa) {
 		this.rs = rs;
+		this.snaa = snaa;
 	}
 
 	@Override
@@ -58,7 +61,7 @@ public class RsResourceImpl implements RsResource {
 			@Nullable @QueryParam("offset") final Integer offset,
 			@Nullable @QueryParam("amount") final Integer amount)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
-		return getConfidentialReservations(getSAKsFromCookie(httpHeaders), from, to, offset, amount);
+		return getConfidentialReservations(getSAKsFromCookieOrHeader(httpHeaders, snaa), from, to, offset, amount);
 	}
 
 	@Override
@@ -69,10 +72,8 @@ public class RsResourceImpl implements RsResource {
 	public List<ConfidentialReservationData> makeReservation(MakeReservationData request)
 			throws RSFault_Exception, AuthorizationFault, ReservationConflictFault_Exception, AuthenticationFault {
 
-		final List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
-
 		final List<SecretReservationKey> secretReservationKeys = rs.makeReservation(
-				secretAuthenticationKeys,
+				getSAKsFromCookieOrHeader(httpHeaders, snaa),
 				request.nodeUrns,
 				request.from,
 				request.to,
@@ -94,7 +95,7 @@ public class RsResourceImpl implements RsResource {
 	public void deleteReservation(List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault, AuthenticationFault {
 
-		List<SecretAuthenticationKey> secretAuthenticationKeys = assertLoggedIn(httpHeaders);
+		List<SecretAuthenticationKey> secretAuthenticationKeys = getSAKsFromCookieOrHeader(httpHeaders, snaa);
 		log.debug("Cookie (secret authentication keys): {}", secretAuthenticationKeys);
 		rs.deleteReservation(secretAuthenticationKeys, secretReservationKeys);
 	}

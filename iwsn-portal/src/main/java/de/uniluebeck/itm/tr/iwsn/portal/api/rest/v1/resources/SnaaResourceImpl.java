@@ -18,6 +18,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookieOrHeader;
 
 
 @Path("/auth/")
@@ -43,8 +44,15 @@ public class SnaaResourceImpl implements SnaaResource {
 
 		final List<SecretAuthenticationKey> secretAuthenticationKeys;
 		try {
-			secretAuthenticationKeys = getSAKsFromCookie(httpHeaders);
+
+			secretAuthenticationKeys = getSAKsFromCookieOrHeader(httpHeaders, snaa);
+
+			if (secretAuthenticationKeys == null) {
+				return Response.status(Status.FORBIDDEN).build();
+			}
 		} catch (NotLoggedInException e) {
+			return Response.status(Status.FORBIDDEN).build();
+		} catch (eu.wisebed.api.v3.rs.AuthenticationFault authenticationFault) {
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
@@ -53,11 +61,9 @@ public class SnaaResourceImpl implements SnaaResource {
 
 		final List<SecretAuthenticationKey> relevantSAKs = newArrayList();
 
-		if (secretAuthenticationKeys != null) {
-			for (SecretAuthenticationKey sak : secretAuthenticationKeys) {
-				if (servedNodeUrnPrefixesProvider.get().contains(sak.getUrnPrefix())) {
-					relevantSAKs.add(sak);
-				}
+		for (SecretAuthenticationKey sak : secretAuthenticationKeys) {
+			if (servedNodeUrnPrefixesProvider.get().contains(sak.getUrnPrefix())) {
+				relevantSAKs.add(sak);
 			}
 		}
 
@@ -85,8 +91,8 @@ public class SnaaResourceImpl implements SnaaResource {
 	@Path("login")
 	public Response login(final LoginData loginData) throws SNAAFault_Exception, AuthenticationFault {
 
-		final Authenticate authenticate = new Authenticate().withAuthenticationData(loginData.authenticationData);
 		final List<SecretAuthenticationKey> saKsFromCookie = getSAKsFromCookie(httpHeaders);
+		final Authenticate authenticate = new Authenticate().withAuthenticationData(loginData.authenticationData);
 		final List<SecretAuthenticationKey> saks = snaa.authenticate(authenticate).getSecretAuthenticationKey();
 
 		// when creating a new cookie make sure that SecretAuthenticationKey instances for other testbeds on the same
@@ -121,6 +127,7 @@ public class SnaaResourceImpl implements SnaaResource {
 
 		// when users logs out only delete SAKs from this testbed (if multiple testbeds running on the same domain)
 		final List<SecretAuthenticationKey> saKsFromCookie = getSAKsFromCookie(httpHeaders);
+
 		for (Iterator<SecretAuthenticationKey> it = saKsFromCookie.iterator(); it.hasNext(); ) {
 			SecretAuthenticationKey next = it.next();
 			if (servedNodeUrnPrefixesProvider.get().contains(next.getUrnPrefix())) {
