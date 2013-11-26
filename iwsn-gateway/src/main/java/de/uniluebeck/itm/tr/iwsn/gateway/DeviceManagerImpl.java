@@ -87,7 +87,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 			if (log.isTraceEnabled()) {
 				synchronized (deviceFoundEvents) {
-					log.trace("After retrying to connect: deviceFoundEvents: {}", deviceFoundEvents);
+					log.trace("After  retrying to connect: deviceFoundEvents: {}", deviceFoundEvents);
 				}
 			}
 		}

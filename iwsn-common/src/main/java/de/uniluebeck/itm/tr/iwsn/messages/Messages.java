@@ -264,7 +264,7 @@ public final class Messages {
       "icationEvent\"Z\n\004Type\022\024\n\020UPSTREAM_MESSAGE" +
       "\020\001\022\024\n\020DEVICES_ATTACHED\020\002\022\024\n\020DEVICES_DETA" +
       "CHED\020\003\022\020\n\014NOTIFICATION\020\004\"\033\n\010EventAck\022\017\n\007" +
-      "eventId\030\001 \002(\003\"\351\004\n\007Message\022>\n\004type\030\001 \002(\0162" +
+      "eventId\030\001 \002(\003\"\216\005\n\007Message\022>\n\004type\030\001 \002(\0162" +
       "0.de.uniluebeck.itm.tr.iwsn.messages.Mes" +
       "sage.Type\022<\n\007request\030e \001(\0132+.de.uniluebe",
       "ck.itm.tr.iwsn.messages.Request\022H\n\010progr" +
@@ -277,10 +277,11 @@ public final class Messages {
       "e\0228\n\005event\030i \001(\0132).de.uniluebeck.itm.tr." +
       "iwsn.messages.Event\022>\n\010eventAck\030j \001(\0132,." +
       "de.uniluebeck.itm.tr.iwsn.messages.Event",
-      "Ack\"l\n\004Type\022\013\n\007REQUEST\020\001\022\014\n\010PROGRESS\020\002\022\014" +
-      "\n\010RESPONSE\020\003\022!\n\035GET_CHANNELPIPELINES_RES" +
-      "PONSE\020\004\022\t\n\005EVENT\020\005\022\r\n\tEVENT_ACK\020\006B\014B\010Mes" +
-      "sagesP\001"
+      "Ack\"\220\001\n\004Type\022\013\n\007REQUEST\020\001\022\014\n\010PROGRESS\020\002\022" +
+      "\014\n\010RESPONSE\020\003\022!\n\035GET_CHANNELPIPELINES_RE" +
+      "SPONSE\020\004\022\t\n\005EVENT\020\005\022\r\n\tEVENT_ACK\020\006\022\016\n\nKE" +
+      "EP_ALIVE\020\007\022\022\n\016KEEP_ALIVE_ACK\020\010B\014B\010Messag" +
+      "esP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {

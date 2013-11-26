@@ -55,6 +55,9 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 			case EVENT_ACK:
 				gatewayEventBus.post(((Message) e.getMessage()).getEventAck());
 				break;
+			case KEEP_ALIVE:
+			case KEEP_ALIVE_ACK:
+				break;
 			default:
 				throw new RuntimeException("Unexpected message type: " + message.getType());
 		}

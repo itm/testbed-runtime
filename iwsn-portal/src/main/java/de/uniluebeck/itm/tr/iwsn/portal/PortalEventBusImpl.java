@@ -3,9 +3,15 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.iwsn.common.netty.ExceptionChannelHandler;
+import de.uniluebeck.itm.tr.iwsn.common.netty.KeepAliveHandler;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServer;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.Channels;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
@@ -21,6 +27,8 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	private final PortalServerConfig config;
 
+	private final SchedulerService schedulerService;
+
 	private final EventBus eventBus;
 
 	private final NettyServerFactory nettyServerFactory;
@@ -33,8 +41,10 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 	public PortalEventBusImpl(final PortalServerConfig config,
 							  final EventBusFactory eventBusFactory,
 							  final NettyServerFactory nettyServerFactory,
-							  final PortalChannelHandler portalChannelHandler) {
+							  final PortalChannelHandler portalChannelHandler,
+							  final SchedulerService schedulerService) {
 		this.config = config;
+		this.schedulerService = schedulerService;
 		this.eventBus = eventBusFactory.create("PortalEventBus");
 		this.nettyServerFactory = nettyServerFactory;
 		this.portalChannelHandler = portalChannelHandler;
@@ -63,14 +73,23 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 		try {
 
 			portalChannelHandler.doStart();
-			nettyServer = nettyServerFactory.create(
-					new InetSocketAddress(config.getOverlayPort()),
-					new ProtobufVarint32FrameDecoder(),
-					new ProtobufDecoder(Message.getDefaultInstance()),
-					new ProtobufVarint32LengthFieldPrepender(),
-					new ProtobufEncoder(),
-					portalChannelHandler
-			);
+
+			final ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
+				@Override
+				public ChannelPipeline getPipeline() throws Exception {
+					return Channels.pipeline(
+							new ExceptionChannelHandler(),
+							new ProtobufVarint32FrameDecoder(),
+							new ProtobufDecoder(Message.getDefaultInstance()),
+							new ProtobufVarint32LengthFieldPrepender(),
+							new ProtobufEncoder(),
+							new KeepAliveHandler(schedulerService),
+							portalChannelHandler
+					);
+				}
+			};
+
+			nettyServer = nettyServerFactory.create(new InetSocketAddress(config.getOverlayPort()), pipelineFactory);
 			nettyServer.startAndWait();
 
 			notifyStarted();

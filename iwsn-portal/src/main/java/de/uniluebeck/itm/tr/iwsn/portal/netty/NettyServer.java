@@ -2,7 +2,6 @@ package de.uniluebeck.itm.tr.iwsn.portal.netty;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
@@ -11,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-
-import static org.jboss.netty.channel.Channels.pipeline;
 
 public class NettyServer extends AbstractService {
 
@@ -26,26 +23,26 @@ public class NettyServer extends AbstractService {
 
 	private final ServerBootstrap bootstrap;
 
-	private final ChannelHandler[] handlers;
+	private final ChannelPipelineFactory pipelineFactory;
 
 	@Inject
 	NettyServer(final ChannelFactory factory,
 				final ChannelGroup allChannels,
 				@Assisted final SocketAddress address,
-				@Assisted final Provider<ChannelHandler[]> handlers) {
+				@Assisted final ChannelPipelineFactory pipelineFactory) {
 
 		this.factory = factory;
 		this.allChannels = allChannels;
 		this.address = address;
-		this.handlers = handlers.get();
+		this.pipelineFactory = pipelineFactory;
 
 		this.bootstrap = new ServerBootstrap(factory);
 	}
 
-	private ChannelPipelineFactory pipelineFactory(final ChannelHandler[] handlers) {
+	private ChannelPipelineFactory addConnectionsHandler(final ChannelPipelineFactory pipelineFactory) {
 		return new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() throws Exception {
-				final ChannelPipeline pipeline = pipeline(handlers);
+				final ChannelPipeline pipeline = pipelineFactory.getPipeline();
 				pipeline.addFirst("NettyServer.connectionsHandler", connectionsHandler);
 				return pipeline;
 			}
@@ -72,11 +69,11 @@ public class NettyServer extends AbstractService {
 	@Override
 	protected void doStart() {
 
-		log.trace("NettyServer.doStart(address={}, handlers={})", address, handlers);
+		log.trace("NettyServer.doStart(address={})", address, pipelineFactory);
 
 		try {
 
-			bootstrap.setPipelineFactory(pipelineFactory(handlers));
+			bootstrap.setPipelineFactory(addConnectionsHandler(pipelineFactory));
 			bootstrap.setOption("child.tcpNoDelay", true);
 			bootstrap.setOption("child.keepAlive", true);
 
@@ -92,7 +89,7 @@ public class NettyServer extends AbstractService {
 	@Override
 	protected void doStop() {
 
-		log.trace("NettyServer.doStop(address={}, handlers={})", address, handlers);
+		log.trace("NettyServer.doStop(address={})", address);
 
 		try {
 

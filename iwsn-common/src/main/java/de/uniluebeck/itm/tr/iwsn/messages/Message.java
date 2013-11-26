@@ -38,6 +38,8 @@ public  final class Message extends
     GET_CHANNELPIPELINES_RESPONSE(3, 4),
     EVENT(4, 5),
     EVENT_ACK(5, 6),
+    KEEP_ALIVE(6, 7),
+    KEEP_ALIVE_ACK(7, 8),
     ;
     
     public static final int REQUEST_VALUE = 1;
@@ -46,6 +48,8 @@ public  final class Message extends
     public static final int GET_CHANNELPIPELINES_RESPONSE_VALUE = 4;
     public static final int EVENT_VALUE = 5;
     public static final int EVENT_ACK_VALUE = 6;
+    public static final int KEEP_ALIVE_VALUE = 7;
+    public static final int KEEP_ALIVE_ACK_VALUE = 8;
     
     
     public final int getNumber() { return value; }
@@ -58,6 +62,8 @@ public  final class Message extends
         case 4: return GET_CHANNELPIPELINES_RESPONSE;
         case 5: return EVENT;
         case 6: return EVENT_ACK;
+        case 7: return KEEP_ALIVE;
+        case 8: return KEEP_ALIVE_ACK;
         default: return null;
       }
     }
@@ -88,7 +94,7 @@ public  final class Message extends
     }
     
     private static final Type[] VALUES = {
-      REQUEST, PROGRESS, RESPONSE, GET_CHANNELPIPELINES_RESPONSE, EVENT, EVENT_ACK, 
+      REQUEST, PROGRESS, RESPONSE, GET_CHANNELPIPELINES_RESPONSE, EVENT, EVENT_ACK, KEEP_ALIVE, KEEP_ALIVE_ACK, 
     };
     
     public static Type valueOf(

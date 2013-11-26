@@ -2,7 +2,6 @@ package de.uniluebeck.itm.tr.iwsn.gateway.netty;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.google.inject.assistedinject.Assisted;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.*;
@@ -23,7 +22,7 @@ public class NettyClient extends AbstractService {
 
 	private final SocketAddress remoteAddress;
 
-	private final ChannelHandler[] handlers;
+	private final ChannelPipelineFactory pipelineFactory;
 
 	private final ClientBootstrap bootstrap;
 
@@ -31,12 +30,12 @@ public class NettyClient extends AbstractService {
 	public NettyClient(final ChannelFactory factory,
 					   final ChannelGroup allChannels,
 					   @Assisted final SocketAddress remoteAddress,
-					   @Assisted final Provider<ChannelHandler[]> handlers) {
+					   @Assisted final ChannelPipelineFactory pipelineFactory) {
 
 		this.factory = factory;
 		this.allChannels = allChannels;
 		this.remoteAddress = remoteAddress;
-		this.handlers = handlers.get();
+		this.pipelineFactory = pipelineFactory;
 
 		this.bootstrap = new ClientBootstrap(factory);
 	}
@@ -44,11 +43,11 @@ public class NettyClient extends AbstractService {
 	@Override
 	protected void doStart() {
 
-		log.trace("NettyClient.doStart(remoteAddress={}, handlers={})", remoteAddress, handlers);
+		log.trace("NettyClient.doStart(remoteAddress={})", remoteAddress, pipelineFactory);
 
 		try {
 
-			bootstrap.setPipelineFactory(pipelineFactory(handlers));
+			bootstrap.setPipelineFactory(pipelineFactory);
 			bootstrap.setOption("child.tcpNoDelay", true);
 			bootstrap.setOption("child.keepAlive", true);
 
@@ -70,7 +69,7 @@ public class NettyClient extends AbstractService {
 	@Override
 	protected void doStop() {
 
-		log.trace("NettyClient.doStop(remoteAddress={}, handlers={})", remoteAddress, handlers);
+		log.trace("NettyClient.doStop(remoteAddress={})", remoteAddress);
 
 		try {
 
@@ -81,13 +80,5 @@ public class NettyClient extends AbstractService {
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
-	}
-
-	private ChannelPipelineFactory pipelineFactory(final ChannelHandler[] handlers) {
-		return new ChannelPipelineFactory() {
-			public ChannelPipeline getPipeline() throws Exception {
-				return Channels.pipeline(handlers);
-			}
-		};
 	}
 }
