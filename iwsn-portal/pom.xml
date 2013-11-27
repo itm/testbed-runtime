@@ -84,11 +84,11 @@
 			<artifactId>netty-protocols</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+			<groupId>de.uniluebeck.itm.service-publisher</groupId>
 			<artifactId>service-publisher-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.utils.service-publisher</groupId>
+			<groupId>de.uniluebeck.itm.service-publisher</groupId>
 			<artifactId>service-publisher-cxf</artifactId>
 		</dependency>
 
