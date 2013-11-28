@@ -47,11 +47,11 @@ public abstract class DeviceDBRDHelper {
 		if (rdOC != null) {
 
 			final OutdoorCoordinatesType wiseMLOC = new OutdoorCoordinatesType();
-			wiseMLOC.setLatitude(rdOC.getLatitude());
-			wiseMLOC.setLongitude(rdOC.getLongitude());
-			wiseMLOC.setX(rdOC.getXcoor());
-			wiseMLOC.setY(rdOC.getYcoor());
-			wiseMLOC.setZ(rdOC.getZcoor());
+			wiseMLOC.setLatitude((double) rdOC.getLatitude());
+			wiseMLOC.setLongitude((double) rdOC.getLongitude());
+			wiseMLOC.setX((double) rdOC.getXcoor());
+			wiseMLOC.setY((double) rdOC.getYcoor());
+			wiseMLOC.setZ((double) rdOC.getZcoor());
 
 			coordinate = new Coordinate();
 			coordinate.setType(CoordinateType.OUTDOOR);
@@ -65,9 +65,9 @@ public abstract class DeviceDBRDHelper {
 			wiseMLIC.setBuilding(rdIC.getBuilding());
 			wiseMLIC.setFloor(rdIC.getFloor());
 			wiseMLIC.setRoom(rdIC.getRoom());
-			wiseMLIC.setX(rdIC.getXcoor());
-			wiseMLIC.setY(rdIC.getYcoor());
-			wiseMLIC.setZ(rdIC.getZcoor());
+			wiseMLIC.setX((double) rdIC.getXcoor());
+			wiseMLIC.setY((double) rdIC.getYcoor());
+			wiseMLIC.setZ((double) rdIC.getZcoor());
 
 			coordinate = new Coordinate();
 			coordinate.setType(CoordinateType.INDOOR);
@@ -95,21 +95,22 @@ public abstract class DeviceDBRDHelper {
 		timeouts[0] = config.hasTimeoutMsReset() ? (long) config.getTimeoutMsReset() : null;
 		timeouts[1] = config.hasTimeoutMsFlash() ? (long) config.getTimeoutMsFlash() : null;
 		timeouts[2] = config.hasTimeoutMsNodeapi() ? (long) config.getTimeoutMsNodeapi() : null;
-		timeouts[3] = config.hasTimeoutMsCheckalive () ? (long) config.getTimeoutMsCheckalive() : null;
+		timeouts[3] = config.hasTimeoutMsCheckalive() ? (long) config.getTimeoutMsCheckalive() : null;
 		return timeouts;
 	}
 
 	public static Coordinate getCoordinates(NodeOperationsEvents.AddSensorNode eventResource) {
 
 		Coordinate coordinate = null;
-		if (eventResource.getPosition() != null) {
+		final RegistrationEvents.Position pos = eventResource.getPosition();
+		if (pos != null) {
 
 			final OutdoorCoordinatesType outdoorCoordinates = new OutdoorCoordinatesType();
-			outdoorCoordinates.setLatitude(eventResource.getPosition().getLatitude());
-			outdoorCoordinates.setLongitude(eventResource.getPosition().getLongitude());
-			outdoorCoordinates.setX(eventResource.getPosition().getXcoor());
-			outdoorCoordinates.setY(eventResource.getPosition().getYcoor());
-			outdoorCoordinates.setZ(eventResource.getPosition().getZcoor());
+			outdoorCoordinates.setLatitude(pos.hasLatitude() ? (double) pos.getLatitude() : null);
+			outdoorCoordinates.setLongitude(pos.hasLongitude() ? (double) pos.getLongitude() : null);
+			outdoorCoordinates.setX(pos.hasXcoor() ? (double) pos.getXcoor() : null);
+			outdoorCoordinates.setY(pos.hasYcoor() ? (double) pos.getYcoor() : null);
+			outdoorCoordinates.setZ(pos.hasZcoor() ? (double) pos.getZcoor() : null);
 
 			coordinate = new Coordinate();
 			coordinate.setType(CoordinateType.OUTDOOR);
@@ -132,7 +133,8 @@ public abstract class DeviceDBRDHelper {
 		return answer;
 	}
 
-	public static DeviceConfig deviceConfigFromRDResource(ResourceDescription rdResource) throws IllegalArgumentException {
+	public static DeviceConfig deviceConfigFromRDResource(ResourceDescription rdResource)
+			throws IllegalArgumentException {
 
 		IoTNodeType type = rdResource.getResourceType();
 

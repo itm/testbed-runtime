@@ -112,7 +112,7 @@ public abstract class DeviceDBTestBase {
 				TimeUnit.SECONDS.toMillis(5),
 				TimeUnit.SECONDS.toMillis(2),
 				new Coordinate().withType(CoordinateType.OUTDOOR).withOutdoorCoordinates(
-						new OutdoorCoordinatesType().withX(10f).withY(3f).withZ(5.0f)
+						new OutdoorCoordinatesType().withX(10d).withY(3d).withZ(5.0d)
 				),
 				capabilities1
 		);

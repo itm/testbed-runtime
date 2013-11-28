@@ -13,12 +13,12 @@ public class IndoorCoordinatesDto {
 	@Nullable
 	private String room;
 
-	private float x;
+	private double x;
 
-	private float y;
+	private double y;
 
 	@Nullable
-	private Float z;
+	private Double z;
 
 	@Nullable
 	private String backgroundImage;
@@ -59,28 +59,28 @@ public class IndoorCoordinatesDto {
 		this.room = room;
 	}
 
-	public float getX() {
+	public double getX() {
 		return x;
 	}
 
-	public void setX(final float x) {
+	public void setX(final double x) {
 		this.x = x;
 	}
 
-	public float getY() {
+	public double getY() {
 		return y;
 	}
 
-	public void setY(final float y) {
+	public void setY(final double y) {
 		this.y = y;
 	}
 
 	@Nullable
-	public Float getZ() {
+	public Double getZ() {
 		return z;
 	}
 
-	public void setZ(@Nullable final Float z) {
+	public void setZ(@Nullable final Double z) {
 		this.z = z;
 	}
 }

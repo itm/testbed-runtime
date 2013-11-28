@@ -47,15 +47,15 @@ public class SmartSantanderEventBrokerObserverConverter implements
 					(long) nodeTrConfig.getTimeoutMsReset() :
 					null;
 
-			final RegistrationEvents.Position position = addSensorNode.getPosition();
+			final RegistrationEvents.Position pos = addSensorNode.getPosition();
 			final Coordinate coordinate = new Coordinate();
 			coordinate.setType(CoordinateType.OUTDOOR);
 			coordinate.setOutdoorCoordinates(new OutdoorCoordinatesType()
-					.withLatitude(position.getLatitude())
-					.withLongitude(position.getLongitude())
-					.withX(position.getXcoor())
-					.withY(position.getYcoor())
-					.withZ(position.getZcoor())
+					.withLatitude(pos.hasLatitude() ? (double) pos.getLatitude() : null)
+					.withLongitude(pos.hasLongitude() ? (double) pos.getLongitude() : null)
+					.withX(pos.hasXcoor() ? (double) pos.getXcoor() : null)
+					.withY(pos.hasYcoor() ? (double) pos.getYcoor() : null)
+					.withZ(pos.hasZcoor() ? (double) pos.getZcoor() : null)
 			);
 			final Set<Capability> capabilities = newHashSet();
 			final List<RegistrationEvents.Capability> sensorCapabilityList = addSensorNode.getSensorCapabilityList();
