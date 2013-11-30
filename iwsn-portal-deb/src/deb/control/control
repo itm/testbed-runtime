@@ -3,6 +3,6 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-Depends: java7-runtime | sun-java6-jre, java7-jdk | sun-java6-jdk, adduser
+Depends: openjdk-7-jdk | oracle-java7-jdk | sun-java6-jdk, adduser
 Description: [[description]]
 Maintainer: bimschas@itm.uni-luebeck.de
