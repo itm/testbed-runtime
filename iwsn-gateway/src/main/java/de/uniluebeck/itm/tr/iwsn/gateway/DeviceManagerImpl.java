@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
@@ -15,6 +16,7 @@ import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.NodeUrn;
+import gnu.io.PortInUseException;
 import org.apache.cxf.interceptor.Fault;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.client.ClientException;
+import java.io.IOException;
 import java.net.ConnectException;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
@@ -158,7 +161,16 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 					try {
 						deviceAdapter.startAndWait();
 					} catch (Exception e) {
-						log.error("Could not connect to {}: {}", deviceFoundEvent, getStackTraceAsString(e));
+						if (e instanceof UncheckedExecutionException &&
+								e.getCause() instanceof IOException &&
+								e.getCause().getCause() instanceof PortInUseException) {
+							log.info("Not connecting to {} because port is already in use by \"{}\"",
+									deviceFoundEvent.getDevicePort(),
+									((PortInUseException) e.getCause().getCause()).currentOwner
+							);
+						} else {
+							log.error("Could not connect to {}: {}", deviceFoundEvent, getStackTraceAsString(e));
+						}
 					}
 
 					// Note that the device will not be marked as connected until the device adapter throws
