@@ -53,16 +53,18 @@
 		<module>snaa-federator</module>
 		<module>plugins/default-image</module>
 		<module>plugins/mock-deviceadapter</module>
-		<!--
-		<module>plugins/framework-extender-portal</module>
-		<module>plugins/framework-extender-gateway</module>
-		<module>device-db-server</module>
-		<module>iwsn-federator-server</module>
-		<module>rs-server</module>
-		<module>rs-federator-server</module>
-		<module>snaa-server</module>
-		<module>snaa-federator-server</module>
-		-->
+		<module>plugins/waspmote-deviceadapter</module>
+		<module>plugins/waspmote-mobile-deviceadapter</module>
+        <!--
+        <module>plugins/framework-extender-portal</module>
+        <module>plugins/framework-extender-gateway</module>
+        <module>device-db-server</module>
+        <module>iwsn-federator-server</module>
+        <module>rs-server</module>
+        <module>rs-federator-server</module>
+        <module>snaa-server</module>
+        <module>snaa-federator-server</module>
+        -->
 	</modules>
 
 	<dependencyManagement>
