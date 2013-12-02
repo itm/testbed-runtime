@@ -104,7 +104,7 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 		final ProgressSettableFuture<Void> future = ProgressSettableFuture.create();
 		final ProgressSettableFutureMap<NodeUrn, Void> futureMap = ProgressSettableFutureMap.of(nodeUrn, future);
 
-		for (int i = 1; i <10; i++) {
+		for (int i = 1; i <=10; i++) {
 			schedulerService.schedule(createSetProgressRunnable(future, (float) i / 10f), i, TimeUnit.SECONDS);
 		}
 
