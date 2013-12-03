@@ -36,6 +36,10 @@ public abstract class DeviceDBRDHelper {
 
 	public static Coordinate getCoordinates(ResourceDescription rdResource) {
 
+		if (rdResource.getPosition() == null) {
+			return null;
+		}
+
 		Coordinate coordinate = null;
 		final eu.smartsantander.rd.jaxb.OutdoorCoordinatesType rdOC = rdResource
 				.getPosition()
@@ -47,11 +51,11 @@ public abstract class DeviceDBRDHelper {
 		if (rdOC != null) {
 
 			final OutdoorCoordinatesType wiseMLOC = new OutdoorCoordinatesType();
-			wiseMLOC.setLatitude((double) rdOC.getLatitude());
-			wiseMLOC.setLongitude((double) rdOC.getLongitude());
-			wiseMLOC.setX((double) rdOC.getXcoor());
-			wiseMLOC.setY((double) rdOC.getYcoor());
-			wiseMLOC.setZ((double) rdOC.getZcoor());
+			wiseMLOC.setLatitude(rdOC.getLatitude() == null ? null : (double) rdOC.getLatitude());
+			wiseMLOC.setLongitude(rdOC.getLongitude() == null ? null : (double) rdOC.getLongitude());
+			wiseMLOC.setX(rdOC.getXcoor() == null ? null : (double) rdOC.getXcoor());
+			wiseMLOC.setY(rdOC.getYcoor() == null ? null : (double) rdOC.getYcoor());
+			wiseMLOC.setZ(rdOC.getZcoor() == null ? null : (double) rdOC.getZcoor());
 
 			coordinate = new Coordinate();
 			coordinate.setType(CoordinateType.OUTDOOR);
