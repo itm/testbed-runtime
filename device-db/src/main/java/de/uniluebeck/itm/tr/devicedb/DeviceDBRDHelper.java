@@ -36,6 +36,10 @@ public abstract class DeviceDBRDHelper {
 
 	public static Coordinate getCoordinates(ResourceDescription rdResource) {
 
+		if (rdResource.getPosition() == null) {
+			return null;
+		}
+
 		Coordinate coordinate = null;
 		final eu.smartsantander.rd.jaxb.OutdoorCoordinatesType rdOC = rdResource
 				.getPosition()
