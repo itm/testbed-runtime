@@ -9,6 +9,7 @@ import eu.smartsantander.rd.jaxb.ResourceDescription;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.*;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static eu.smartsantander.rd.jaxb.IoTNodeType.MOBILE_SENSOR_NODE;
@@ -33,6 +34,17 @@ public abstract class DeviceDBRDHelper {
 		return timeouts;
 	}
 
+	@Nullable
+	private static Double floatToDouble(@Nullable Float floatValue) {
+		return floatValue == null ? null : Double.parseDouble(Float.toString(floatValue));
+	}
+
+	private static Double floatToDoubleNotNull(Float floatValue) {
+		if (floatValue == null) {
+			throw new NullPointerException("float value must not be null!");
+		}
+		return Double.parseDouble(Float.toString(floatValue));
+	}
 
 	public static Coordinate getCoordinates(ResourceDescription rdResource) {
 
@@ -51,11 +63,13 @@ public abstract class DeviceDBRDHelper {
 		if (rdOC != null) {
 
 			final OutdoorCoordinatesType wiseMLOC = new OutdoorCoordinatesType();
-			wiseMLOC.setLatitude(rdOC.getLatitude() == null ? null : (double) rdOC.getLatitude());
-			wiseMLOC.setLongitude(rdOC.getLongitude() == null ? null : (double) rdOC.getLongitude());
-			wiseMLOC.setX(rdOC.getXcoor() == null ? null : (double) rdOC.getXcoor());
-			wiseMLOC.setY(rdOC.getYcoor() == null ? null : (double) rdOC.getYcoor());
-			wiseMLOC.setZ(rdOC.getZcoor() == null ? null : (double) rdOC.getZcoor());
+			wiseMLOC.setLatitude(rdOC.getLatitude() == null ? null : Double.parseDouble(
+					Float.toString(rdOC.getLatitude())
+			));
+			wiseMLOC.setLongitude(floatToDouble(rdOC.getLongitude()));
+			wiseMLOC.setX(floatToDouble(rdOC.getXcoor()));
+			wiseMLOC.setY(floatToDouble(rdOC.getYcoor()));
+			wiseMLOC.setZ(floatToDouble(rdOC.getZcoor()));
 
 			coordinate = new Coordinate();
 			coordinate.setType(CoordinateType.OUTDOOR);
@@ -69,9 +83,9 @@ public abstract class DeviceDBRDHelper {
 			wiseMLIC.setBuilding(rdIC.getBuilding());
 			wiseMLIC.setFloor(rdIC.getFloor());
 			wiseMLIC.setRoom(rdIC.getRoom());
-			wiseMLIC.setX((double) rdIC.getXcoor());
-			wiseMLIC.setY((double) rdIC.getYcoor());
-			wiseMLIC.setZ((double) rdIC.getZcoor());
+			wiseMLIC.setX(floatToDoubleNotNull(rdIC.getXcoor()));
+			wiseMLIC.setY(floatToDoubleNotNull(rdIC.getYcoor()));
+			wiseMLIC.setZ(floatToDoubleNotNull(rdIC.getZcoor()));
 
 			coordinate = new Coordinate();
 			coordinate.setType(CoordinateType.INDOOR);
@@ -110,11 +124,11 @@ public abstract class DeviceDBRDHelper {
 		if (pos != null) {
 
 			final OutdoorCoordinatesType outdoorCoordinates = new OutdoorCoordinatesType();
-			outdoorCoordinates.setLatitude(pos.hasLatitude() ? (double) pos.getLatitude() : null);
-			outdoorCoordinates.setLongitude(pos.hasLongitude() ? (double) pos.getLongitude() : null);
-			outdoorCoordinates.setX(pos.hasXcoor() ? (double) pos.getXcoor() : null);
-			outdoorCoordinates.setY(pos.hasYcoor() ? (double) pos.getYcoor() : null);
-			outdoorCoordinates.setZ(pos.hasZcoor() ? (double) pos.getZcoor() : null);
+			outdoorCoordinates.setLatitude(pos.hasLatitude() ? floatToDouble(pos.getLatitude()) : null);
+			outdoorCoordinates.setLongitude(pos.hasLongitude() ? floatToDouble(pos.getLongitude()) : null);
+			outdoorCoordinates.setX(pos.hasXcoor() ? floatToDouble(pos.getXcoor()) : null);
+			outdoorCoordinates.setY(pos.hasYcoor() ? floatToDouble(pos.getYcoor()) : null);
+			outdoorCoordinates.setZ(pos.hasZcoor() ? floatToDouble(pos.getZcoor()) : null);
 
 			coordinate = new Coordinate();
 			coordinate.setType(CoordinateType.OUTDOOR);
