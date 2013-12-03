@@ -262,6 +262,14 @@
 						<groupId>commons-logging</groupId>
 						<artifactId>commons-logging</artifactId>
 					</exclusion>
+                    <exclusion>
+                        <groupId>commons-net</groupId>
+                        <artifactId>commons-net</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.jasypt</groupId>
+                        <artifactId>jasypt</artifactId>
+                    </exclusion>
 				</exclusions>
 			</dependency>
 			<dependency>

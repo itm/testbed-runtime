@@ -25,13 +25,11 @@
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
             <artifactId>tr.iwsn-gateway</artifactId>
-            <version>0.9-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <version>4.2.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
