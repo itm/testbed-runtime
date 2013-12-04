@@ -120,12 +120,12 @@ public class FederatorWiseMLProvider implements WisemlProvider {
 	@Override
 	public Wiseml get(final Iterable<NodeUrn> nodeUrns) {
 
-		final Wiseml cachedWiseml = cache.getIfPresent("wiseml");
-		if (cachedWiseml != null) {
-			return cachedWiseml;
+		Wiseml wiseml = cache.getIfPresent("wiseml");
+
+		if (wiseml == null) {
+			wiseml = get();
 		}
 
-		final Wiseml wiseml = get();
 		for (Iterator<Setup.Node> iterator = wiseml.getSetup().getNode().iterator(); iterator.hasNext(); ) {
 			Setup.Node next = iterator.next();
 			final NodeUrn currentNodeUrn = new NodeUrn(next.getId());
@@ -133,6 +133,7 @@ public class FederatorWiseMLProvider implements WisemlProvider {
 				iterator.remove();
 			}
 		}
+
 		return wiseml;
 	}
 }
