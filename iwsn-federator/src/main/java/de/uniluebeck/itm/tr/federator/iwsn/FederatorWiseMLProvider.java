@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.federator.iwsn;
 
 import com.google.common.base.Joiner;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterables;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -31,6 +34,9 @@ public class FederatorWiseMLProvider implements WisemlProvider {
 	private static final Logger log = LoggerFactory.getLogger(FederatorWiseMLProvider.class);
 
 	private final FederatedEndpoints<SessionManagement> federatedEndpoints;
+
+	private final Cache<String, Wiseml> cache =
+			CacheBuilder.newBuilder().maximumSize(1).expireAfterAccess(1, TimeUnit.MINUTES).build();
 
 	@Inject
 	public FederatorWiseMLProvider(
@@ -106,11 +112,19 @@ public class FederatorWiseMLProvider implements WisemlProvider {
 			}
 		}
 
+		cache.put("wiseml", target);
+
 		return target;
 	}
 
 	@Override
 	public Wiseml get(final Iterable<NodeUrn> nodeUrns) {
+
+		final Wiseml cachedWiseml = cache.getIfPresent("wiseml");
+		if (cachedWiseml != null) {
+			return cachedWiseml;
+		}
+
 		final Wiseml wiseml = get();
 		for (Iterator<Setup.Node> iterator = wiseml.getSetup().getNode().iterator(); iterator.hasNext(); ) {
 			Setup.Node next = iterator.next();
