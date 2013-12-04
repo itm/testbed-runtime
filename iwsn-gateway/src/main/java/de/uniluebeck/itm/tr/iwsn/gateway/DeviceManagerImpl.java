@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import javax.ws.rs.client.ClientException;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.util.Deque;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +36,7 @@ import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.intersection;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
@@ -45,7 +47,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	private static final Logger log = LoggerFactory.getLogger(DeviceManager.class);
 
-	private final Set<DeviceFoundEvent> deviceFoundEvents = newHashSet();
+	private final Deque<DeviceFoundEvent> deviceFoundEvents = newLinkedList();
 
 	private final Set<DeviceAdapter> runningDeviceAdapters = newHashSet();
 
@@ -70,20 +72,23 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 			}
 
 			// try to retrieve missing configs
-			Set<DeviceFoundEvent> events;
-			synchronized (deviceFoundEvents) {
-				events = newHashSet(deviceFoundEvents);
-			}
+			while (!deviceFoundEvents.isEmpty()) {
 
-			for (final DeviceFoundEvent event : events) {
+				DeviceFoundEvent event;
+				synchronized (deviceFoundEvents) {
+					event = deviceFoundEvents.removeFirst();
+				}
 
 				if (event.getDeviceConfig() == null) {
 					event.setDeviceConfig(getDeviceConfigFromDeviceDB(event));
 				}
 
 				if (tryToConnect(event)) {
+					log.trace("Successfully connected to {}", event);
+				} else {
+					log.trace("Failed to connect, putting back in queue: {},", event);
 					synchronized (deviceFoundEvents) {
-						deviceFoundEvents.remove(event);
+						deviceFoundEvents.addLast(event);
 					}
 				}
 			}
