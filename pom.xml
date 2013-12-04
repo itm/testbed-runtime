@@ -764,7 +764,7 @@
 		<dep.jaxb.version>2.2.5</dep.jaxb.version>
 		<dep.jaxws.version>2.2.8</dep.jaxws.version>
 		<dep.servlet.version>3.0</dep.servlet.version>
-		<itm-utils.version>0.6</itm-utils.version>
+		<itm-utils.version>0.7-SNAPSHOT</itm-utils.version>
 	</properties>
 
 	<scm>
