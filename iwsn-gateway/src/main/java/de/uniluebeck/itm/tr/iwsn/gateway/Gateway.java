@@ -102,8 +102,11 @@ public class Gateway extends AbstractService {
 			gatewayEventBus.startAndWait();
 			requestHandler.startAndWait();
 			deviceManager.startAndWait();
-			deviceObserverWrapper.startAndWait();
 			gatewayPluginService.startAndWait();
+
+			if (gatewayConfig.isScanDevices()) {
+				deviceObserverWrapper.startAndWait();
+			}
 
 			if (gatewayConfig.isRestAPI()) {
 
@@ -140,7 +143,10 @@ public class Gateway extends AbstractService {
 				servicePublisher.stopAndWait();
 			}
 
-			deviceObserverWrapper.stopAndWait();
+			if (gatewayConfig.isScanDevices() && deviceObserverWrapper.isRunning()) {
+				deviceObserverWrapper.stopAndWait();
+			}
+
 			deviceManager.stopAndWait();
 			requestHandler.stopAndWait();
 			gatewayEventBus.stopAndWait();
