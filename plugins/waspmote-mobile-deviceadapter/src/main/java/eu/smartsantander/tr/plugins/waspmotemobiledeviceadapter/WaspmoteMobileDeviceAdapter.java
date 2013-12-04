@@ -13,7 +13,6 @@ import de.uniluebeck.itm.util.concurrent.*;
 import es.unican.tlmat.smartsantander.waspmote.driver.MobileWaspmoteManager;
 import es.unican.tlmat.smartsantander.waspmote.driver.multiplexer.AsyncDataAvailableListener;
 import es.unican.tlmat.smartsantander.waspmote.driver.operation.OperationListener;
-import es.unican.tlmat.smartsantander.waspmote.driver.operation.mobile.composed.SmartSantanderOTAPOperation;
 import es.unican.tlmat.smartsantander.waspmote.driver.operation.mobile.composed.SmartSantanderOTAPWithLoadOperation;
 import es.unican.tlmat.smartsantander.waspmote.driver.operation.mobile.runnable.SmartSantanderResetOperation;
 import es.unican.tlmat.smartsantander.waspmote.driver.operation.mobile.runnable.SmartSantanderScanNodesOperation;
@@ -86,9 +85,7 @@ public class WaspmoteMobileDeviceAdapter extends ListenableDeviceAdapter impleme
     @Override
     protected void doStart() {
         try {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("WaspmoteDeviceAdapter.doStart()");
-            }
+            LOG.trace("WaspmoteDeviceAdapter.doStart()");
             this.waspmoteManager.addListener(this);
             notifyStarted();
         } catch (Exception e) {
@@ -99,8 +96,9 @@ public class WaspmoteMobileDeviceAdapter extends ListenableDeviceAdapter impleme
     @Override
     protected void doStop() {
         try {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("WaspmoteDeviceAdapter.doStop()");
+            LOG.trace("WaspmoteDeviceAdapter.doStop()");
+            for (SmartSantanderNodeUrn nodeUrn : waspmoteManager.getRegisteredNodes()) {
+                waspmoteManager.unregisterNode(nodeUrn);
             }
             this.waspmoteManager.removeListener(this);
             notifyStopped();
@@ -144,23 +142,20 @@ public class WaspmoteMobileDeviceAdapter extends ListenableDeviceAdapter impleme
         pingOperation.addListener(new OperationListener() {
             @Override
             public void onOperationSucceeded(Set<SmartSantanderNodeUrn> nodeUrnSet) {
-                if (LOG.isTraceEnabled()) {
-                    LOG.error("WaspmoteDeviceAdapter.onRegisterSucceeded({})", nodeUrnSet);
-                }
+                LOG.trace("WaspmoteDeviceAdapter.onRegisterSucceeded({})", nodeUrnSet);
                 fireDevicesConnected(ImmutableSet.copyOf(transform(nodeUrnSet, SMARTSANTANDER_NODE_URN_TO_NODE_URN)));
             }
 
             @Override
             public void onOperationFailed(Set<SmartSantanderNodeUrn> nodeUrnSet, Exception E) {
-                if (LOG.isTraceEnabled()) {
-                    LOG.error("WaspmoteDeviceAdapter.onRegisterFailed({})", nodeUrnSet);
-                }
+                LOG.trace("WaspmoteDeviceAdapter.onRegisterFailed({})", nodeUrnSet);
                 for (SmartSantanderNodeUrn failedNodeUrn : nodeUrnSet) {
                     waspmoteManager.unregisterNode(failedNodeUrn);
                 }
             }
         });
-        waspmoteManager.submitOperation(pingOperation);
+        //        waspmoteManager.submitOperation(pingOperation);
+        fireDevicesConnected(deviceConfig.getNodeUrn());
     }
 
     @Override
@@ -170,9 +165,7 @@ public class WaspmoteMobileDeviceAdapter extends ListenableDeviceAdapter impleme
 
     @Override
     public ListenableFutureMap<NodeUrn, Boolean> areNodesConnected(final Iterable<NodeUrn> nodeUrns) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.areNodesConnected({})", nodeUrns);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.areNodesConnected({})", nodeUrns);
         Map<NodeUrn, Boolean> areNodesConnectedMap = Maps.newHashMap();
         Set<NodeUrn> requestedNodeSet = ImmutableSet.copyOf(nodeUrns);
         for (NodeUrn connectedNodeUrn : Sets.intersection(requestedNodeSet, this.waspmoteManager.getRegisteredNodes())) {
@@ -186,9 +179,7 @@ public class WaspmoteMobileDeviceAdapter extends ListenableDeviceAdapter impleme
 
     @Override
     public ProgressListenableFutureMap<NodeUrn, Void> flashProgram(final Iterable<NodeUrn> nodeUrns, final byte[] binaryImage) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.flashProgram({}, {})", nodeUrns, binaryImage);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.flashProgram({}, {})", nodeUrns, binaryImage);
         final Map<NodeUrn, ProgressSettableFuture<Void>> settableFutureMap = Maps.newHashMap();
         for (NodeUrn nodeUrn : nodeUrns) {
             ProgressSettableFuture<Void> future = ProgressSettableFuture.create();
@@ -224,9 +215,7 @@ public class WaspmoteMobileDeviceAdapter extends ListenableDeviceAdapter impleme
 
     @Override
     public ListenableFutureMap<NodeUrn, Boolean> areNodesAlive(final Iterable<NodeUrn> nodeUrns) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.areNodesAlive({})", nodeUrns);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.areNodesAlive({})", nodeUrns);
         final Map<NodeUrn, SettableFuture<Boolean>> settableFutureMap = Maps.newHashMap();
         for (NodeUrn nodeUrn : nodeUrns) {
             SettableFuture<Boolean> future = SettableFuture.create();
@@ -261,9 +250,7 @@ public class WaspmoteMobileDeviceAdapter extends ListenableDeviceAdapter impleme
 
     @Override
     public ListenableFutureMap<NodeUrn, Void> resetNodes(final Iterable<NodeUrn> nodeUrns) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.resetNodes({})", nodeUrns);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.resetNodes({})", nodeUrns);
         final Map<NodeUrn, SettableFuture<Void>> settableFutureMap = Maps.newHashMap();
         for (NodeUrn nodeUrn : nodeUrns) {
             SettableFuture<Void> future = SettableFuture.create();
@@ -297,9 +284,7 @@ public class WaspmoteMobileDeviceAdapter extends ListenableDeviceAdapter impleme
 
     @Override
     public ListenableFutureMap<NodeUrn, Void> sendMessage(final Iterable<NodeUrn> nodeUrns, final byte[] messageBytes) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.sendMessage({}, {})", nodeUrns, messageBytes);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.sendMessage({}, {})", nodeUrns, messageBytes);
         final Map<NodeUrn, SettableFuture<Void>> settableFutureMap = Maps.newHashMap();
         for (NodeUrn nodeUrn : nodeUrns) {
             SettableFuture<Void> future = SettableFuture.create();
@@ -334,9 +319,7 @@ public class WaspmoteMobileDeviceAdapter extends ListenableDeviceAdapter impleme
     @Override
     public ListenableFutureMap<NodeUrn, Void> setChannelPipelines(final Iterable<NodeUrn> nodeUrns,
                                                                   final ChannelHandlerConfigList channelHandlerConfigs) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.setChannelPipelines({}, {})", nodeUrns, channelHandlerConfigs);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.setChannelPipelines({}, {})", nodeUrns, channelHandlerConfigs);
         for (NodeUrn nodeUrn : nodeUrns) {
             this.channelHandlerConfigs.put(nodeUrn, channelHandlerConfigs);
         }
@@ -345,50 +328,38 @@ public class WaspmoteMobileDeviceAdapter extends ListenableDeviceAdapter impleme
 
     @Override
     public ListenableFutureMap<NodeUrn, ChannelHandlerConfigList> getChannelPipelines(final Iterable<NodeUrn> nodeUrns) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.getChannelPipelines({})", nodeUrns);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.getChannelPipelines({})", nodeUrns);
         return ImmediateListenableFutureMap.of(this.channelHandlerConfigs);
     }
 
     @Override
     public ListenableFutureMap<NodeUrn, NodeApiCallResult> enableNodes(final Iterable<NodeUrn> nodeUrns) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.enableNodes({})", nodeUrns);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.enableNodes({})", nodeUrns);
         return throwVirtualizationUnsupportedException();
     }
 
     @Override
     public ListenableFutureMap<NodeUrn, NodeApiCallResult> enablePhysicalLinks(final Map<NodeUrn, NodeUrn> sourceTargetMap) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.enablePhysicalLinks({})", sourceTargetMap);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.enablePhysicalLinks({})", sourceTargetMap);
         return throwVirtualizationUnsupportedException();
     }
 
     @Override
     public ListenableFutureMap<NodeUrn, NodeApiCallResult> enableVirtualLinks(final Map<NodeUrn, NodeUrn> sourceTargetMap) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.enableVirtualLinks({})", sourceTargetMap);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.enableVirtualLinks({})", sourceTargetMap);
         return throwVirtualizationUnsupportedException();
     }
 
     @Override
     public ListenableFutureMap<NodeUrn, NodeApiCallResult> disableNodes(final Iterable<NodeUrn> nodeUrns) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.disableNodes({})", nodeUrns);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.disableNodes({})", nodeUrns);
         return throwVirtualizationUnsupportedException();
     }
 
     @Override
     public ListenableFutureMap<NodeUrn, NodeApiCallResult> disablePhysicalLinks(
             final Map<NodeUrn, NodeUrn> sourceTargetMap) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("WaspmoteDeviceAdapter.disablePhysicalLinks({})", sourceTargetMap);
-        }
+        LOG.trace("WaspmoteDeviceAdapter.disablePhysicalLinks({})", sourceTargetMap);
         return throwVirtualizationUnsupportedException();
     }
 
