@@ -225,7 +225,7 @@ public abstract class DeviceDBRDHelper {
 
 		return new DeviceConfig(
 				urn,
-				type,
+				eventResource.getNodeTrConfig().getNodeType(),
 				false,
 				eventResource.getNodeTrConfig().getNodePort(),
 				eventResource.getNodeDesc(),

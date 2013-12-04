@@ -92,7 +92,7 @@ public class DeviceDBRDEventBrokerClient extends AbstractService implements IEve
 					final NodeOperationsEvents.AddSensorNode sn = NodeOperationsEvents.AddSensorNode.parseFrom(
 							event.eventBytes
 					);
-					log.trace("Registration request received from node " + sn.getNodeId());
+					log.info("ADD_SENSOR_NODE event received for node " + sn.getNodeId());
 					if (deviceDB.getConfigByNodeUrn(new NodeUrn(sn.getNodeId())) != null) {
 						deviceDB.update(DeviceDBRDHelper.deviceConfigFromRDResource(sn));
 					} else {
@@ -104,7 +104,7 @@ public class DeviceDBRDEventBrokerClient extends AbstractService implements IEve
 					final NodeOperationsEvents.DelSensorNode snd = NodeOperationsEvents.DelSensorNode.parseFrom(
 							event.eventBytes
 					);
-					log.trace("Delete request received from node " + snd.getNodeId());
+					log.info("DEL_SENSOR_NODE event received for node " + snd.getNodeId());
 					this.deviceDB.removeByNodeUrn(new NodeUrn(snd.getNodeId()));
 					break;
 

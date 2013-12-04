@@ -123,8 +123,10 @@ public class ExperimentResourceImpl implements ExperimentResource {
 			@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64)
 			throws Exception {
 		log.trace("ExperimentResourceImpl.getExperimentNetworkAsJson({})", secretReservationKeyBase64);
-		return Response.ok(filterWisemlForReservedNodes(secretReservationKeyBase64))
-				.encoding(MediaType.APPLICATION_JSON).build();
+		return Response
+				.ok(filterWisemlForReservedNodes(secretReservationKeyBase64))
+				.encoding(MediaType.APPLICATION_JSON)
+				.build();
 	}
 
 	@Override

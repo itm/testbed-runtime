@@ -18,12 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -202,6 +197,7 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 
 		for (ResourceDescription res : resources) {
 
+			/*
 			if (log.isTraceEnabled()) {
 
 				final StringWriter writer = new StringWriter();
@@ -216,6 +212,7 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 
 				log.trace("{}", writer.toString());
 			}
+			*/
 
 			try {
 				final DeviceConfig deviceConfig = DeviceDBRDHelper.deviceConfigFromRDResource(res);
