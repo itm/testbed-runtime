@@ -84,6 +84,17 @@ public class GatewayConfig {
 	@Named(SHIRO_INI)
 	protected String shiroIni;
 
+	@PropConf(
+			usage = "Scan for devices supported by the built-in drivers (iSense, TelosB and Pacemate, default: true)."
+					+ " Set to false e.g., if you attach devices using your own (plugin-based) device drivers.",
+			defaultValue = "true"
+	)
+	public static final String SCAN_DEVICES = "gateway.scan_devices";
+
+	@Inject(optional = true)
+	@Named(SCAN_DEVICES)
+	protected boolean scanDevices;
+
 	public HostAndPort getPortalAddress() {
 		return portalAddress;
 	}
@@ -111,5 +122,9 @@ public class GatewayConfig {
 
 	public String getShiroIni() {
 		return shiroIni;
+	}
+
+	public boolean isScanDevices() {
+		return scanDevices;
 	}
 }
