@@ -11,7 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eu.smartsantander</groupId>
-    <artifactId>tr.plugins.waspmote-deviceadapte</artifactId>
+    <artifactId>tr.plugins.waspmote-deviceadapter</artifactId>
     <packaging>bundle</packaging>
     <name>TR :: Plugins :: SmartSantanderWaspmoteDeviceAdapter</name>
 

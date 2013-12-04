@@ -142,6 +142,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 				if (canHandle) {
 
+					log.trace("Calling deviceAdapterFactory.create() for deviceType:{}", deviceFoundEvent.getDeviceType());
 					final DeviceAdapter deviceAdapter = deviceAdapterFactory.create(
 							deviceFoundEvent.getDeviceType(),
 							deviceFoundEvent.getDevicePort(),

@@ -1,6 +1,7 @@
 package eu.smartsantander.tr.plugins.waspmotedeviceadapter;
 
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -54,6 +55,7 @@ public class WaspmoteDeviceAdapter extends ListenableDeviceAdapter implements As
             };
 
     private final Map<NodeUrn, ChannelHandlerConfigList> channelHandlerConfigs = Maps.newHashMap();
+    private final Map<NodeUrn, DeviceConfig> registeredDeviceConfigs = Maps.newHashMap();
 
     private final String port;
     private final String type;
@@ -98,8 +100,10 @@ public class WaspmoteDeviceAdapter extends ListenableDeviceAdapter implements As
     protected void doStop() {
         try {
             LOG.trace("WaspmoteDeviceAdapter.doStop()");
-            for(SmartSantanderNodeUrn nodeUrn : waspmoteManager.getRegisteredNodes()) {
+            for (SmartSantanderNodeUrn nodeUrn : waspmoteManager.getRegisteredNodes()) {
                 waspmoteManager.unregisterNode(nodeUrn);
+                registeredDeviceConfigs.remove(nodeUrn);
+                fireDevicesDisconnected(nodeUrn);
             }
             this.waspmoteManager.removeListener(this);
             notifyStopped();
@@ -125,17 +129,11 @@ public class WaspmoteDeviceAdapter extends ListenableDeviceAdapter implements As
 
     @Nullable
     @Override
-    public Map<String, String> getDeviceConfiguration() {
-        return null;
+    public Map<NodeUrn, DeviceConfig> getDeviceConfig() {
+        return  ImmutableMap.copyOf(registeredDeviceConfigs);
     }
 
-    @Nullable
-    @Override
-    public DeviceConfig getDeviceConfig() {
-        return null;
-    }
-
-    public void registerDevice(DeviceConfig deviceConfig) {
+    public void registerDevice(final DeviceConfig deviceConfig) {
         SmartSantanderNodeUrn nodeUrn = new SmartSantanderNodeUrn(deviceConfig.getNodeUrn());
         waspmoteManager.registerNode(nodeUrn, deviceConfig.getNodeConfiguration());
         SmartSantanderScanNodesOperation pingOperation = new SmartSantanderScanNodesOperation(
@@ -145,6 +143,7 @@ public class WaspmoteDeviceAdapter extends ListenableDeviceAdapter implements As
             @Override
             public void onOperationSucceeded(Set<SmartSantanderNodeUrn> nodeUrnSet) {
                 LOG.trace("WaspmoteDeviceAdapter.onRegisterSucceeded({})", nodeUrnSet);
+                registeredDeviceConfigs.put(nodeUrnSet.iterator().next(), deviceConfig);
                 fireDevicesConnected(ImmutableSet.copyOf(transform(nodeUrnSet, SMARTSANTANDER_NODE_URN_TO_NODE_URN)));
             }
 
@@ -157,6 +156,7 @@ public class WaspmoteDeviceAdapter extends ListenableDeviceAdapter implements As
             }
         });
         //        waspmoteManager.submitOperation(pingOperation);
+        registeredDeviceConfigs.put(nodeUrn, deviceConfig);
         fireDevicesConnected(deviceConfig.getNodeUrn());
     }
 
@@ -169,12 +169,13 @@ public class WaspmoteDeviceAdapter extends ListenableDeviceAdapter implements As
     public ListenableFutureMap<NodeUrn, Boolean> areNodesConnected(final Iterable<NodeUrn> nodeUrns) {
         LOG.trace("WaspmoteDeviceAdapter.areNodesConnected({})", nodeUrns);
         Map<NodeUrn, Boolean> areNodesConnectedMap = Maps.newHashMap();
-        Set<NodeUrn> requestedNodeSet = ImmutableSet.copyOf(nodeUrns);
-        for (NodeUrn connectedNodeUrn : Sets.intersection(requestedNodeSet, this.waspmoteManager.getRegisteredNodes())) {
-            areNodesConnectedMap.put(connectedNodeUrn, true);
-        }
-        for (NodeUrn unconnectedNodeUrn : Sets.difference(requestedNodeSet, this.waspmoteManager.getRegisteredNodes())) {
-            areNodesConnectedMap.put(unconnectedNodeUrn, false);
+        Set<SmartSantanderNodeUrn> registeredNodes = this.waspmoteManager.getRegisteredNodes();
+        for (NodeUrn nodeUrn : nodeUrns) {
+            if (registeredNodes.contains(nodeUrn)) {
+                areNodesConnectedMap.put(nodeUrn, true);
+            } else {
+                areNodesConnectedMap.put(nodeUrn, false);
+            }
         }
         return ImmediateListenableFutureMap.of(areNodesConnectedMap);
     }
