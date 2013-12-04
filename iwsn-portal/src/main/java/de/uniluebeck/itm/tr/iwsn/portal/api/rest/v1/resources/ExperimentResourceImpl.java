@@ -119,26 +119,22 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	@GET
 	@Path("{secretReservationKeyBase64}/network.json")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getExperimentNetworkAsJson(
+	public Wiseml getExperimentNetworkAsJson(
 			@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64)
 			throws Exception {
 		log.trace("ExperimentResourceImpl.getExperimentNetworkAsJson({})", secretReservationKeyBase64);
-		return Response
-				.ok(filterWisemlForReservedNodes(secretReservationKeyBase64))
-				.encoding(MediaType.APPLICATION_JSON)
-				.build();
+		return filterWisemlForReservedNodes(secretReservationKeyBase64);
 	}
 
 	@Override
 	@GET
 	@Path("{secretReservationKeyBase64}/network.xml")
 	@Produces(MediaType.APPLICATION_XML)
-	public Response getExperimentNetworkAsXml(
+	public Wiseml getExperimentNetworkAsXml(
 			@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64)
 			throws Exception {
 		log.trace("ExperimentResourceImpl.getExperimentNetworkAsXml({})", secretReservationKeyBase64);
-		return Response.ok(filterWisemlForReservedNodes(secretReservationKeyBase64))
-				.encoding(MediaType.APPLICATION_XML).build();
+		return filterWisemlForReservedNodes(secretReservationKeyBase64);
 	}
 
 	@Override

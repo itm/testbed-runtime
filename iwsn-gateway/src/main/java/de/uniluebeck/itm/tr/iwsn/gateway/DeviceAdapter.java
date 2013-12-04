@@ -52,7 +52,7 @@ public interface DeviceAdapter extends Listenable<DeviceAdapterListener>, Servic
 	Map<String, String> getDeviceConfiguration();
 
 	@Nullable
-	DeviceConfig getDeviceConfig();
+	Map<NodeUrn, DeviceConfig> getDeviceConfigs();
 
 	/**
 	 * Returns the set of currently "connected" nodes. The returned set is a snapshot of the current state when being

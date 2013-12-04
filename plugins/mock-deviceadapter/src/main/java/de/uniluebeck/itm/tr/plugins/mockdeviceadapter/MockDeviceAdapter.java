@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
 public class MockDeviceAdapter extends ListenableDeviceAdapter {
@@ -85,8 +86,10 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 
 	@Override
 	@Nullable
-	public DeviceConfig getDeviceConfig() {
-		return deviceConfig;
+	public Map<NodeUrn, DeviceConfig> getDeviceConfigs() {
+		final Map<NodeUrn, DeviceConfig> map = newHashMap();
+		map.put(deviceConfig.getNodeUrn(), deviceConfig);
+		return map;
 	}
 
 	@Override
@@ -104,7 +107,7 @@ public class MockDeviceAdapter extends ListenableDeviceAdapter {
 		final ProgressSettableFuture<Void> future = ProgressSettableFuture.create();
 		final ProgressSettableFutureMap<NodeUrn, Void> futureMap = ProgressSettableFutureMap.of(nodeUrn, future);
 
-		for (int i = 1; i <=10; i++) {
+		for (int i = 1; i <= 10; i++) {
 			schedulerService.schedule(createSetProgressRunnable(future, (float) i / 10f), i, TimeUnit.SECONDS);
 		}
 
