@@ -56,6 +56,7 @@ public class WaspmoteDeviceAdapter extends ListenableDeviceAdapter implements As
 
     private final Map<NodeUrn, ChannelHandlerConfigList> channelHandlerConfigs = Maps.newHashMap();
     private final Map<NodeUrn, DeviceConfig> registeredDeviceConfigs = Maps.newHashMap();
+    private final Map<String, String> clusterConfiguration;
 
     private final String port;
     private final String type;
@@ -76,8 +77,9 @@ public class WaspmoteDeviceAdapter extends ListenableDeviceAdapter implements As
         this.timeoutResetMillis = deviceConfig.getTimeoutResetMillis();
         this.timeoutNodeApiMillis = deviceConfig.getTimeoutNodeApiMillis();
 
-        String zmqPubPort = port + deviceConfig.getNodeConfiguration().get("node_port1");
-        String zmqRouterPort = port + deviceConfig.getNodeConfiguration().get("node_port2");
+        clusterConfiguration = deviceConfig.getNodeConfiguration();
+        String zmqPubPort = port + clusterConfiguration.get("node_port1");
+        String zmqRouterPort = port + clusterConfiguration.get("node_port2");
         // @TODO
         // What happens if we have different URN prefixes belonging to the same GW??.
         // We will need to deal with it in the future, for the moment we suppose that it is unique
@@ -129,8 +131,14 @@ public class WaspmoteDeviceAdapter extends ListenableDeviceAdapter implements As
 
     @Nullable
     @Override
-    public Map<NodeUrn, DeviceConfig> getDeviceConfig() {
-        return  ImmutableMap.copyOf(registeredDeviceConfigs);
+    public Map<String, String> getDeviceConfiguration() {
+        return clusterConfiguration;
+    }
+
+    @Nullable
+    @Override
+    public Map<NodeUrn, DeviceConfig> getDeviceConfigs() {
+        return ImmutableMap.copyOf(registeredDeviceConfigs);
     }
 
     public void registerDevice(final DeviceConfig deviceConfig) {
