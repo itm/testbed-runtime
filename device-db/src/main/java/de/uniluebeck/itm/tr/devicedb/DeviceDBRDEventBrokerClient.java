@@ -5,7 +5,10 @@ import com.google.common.base.Joiner;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.protobuf.InvalidProtocolBufferException;
-import eu.smartsantander.eventbroker.client.*;
+import eu.smartsantander.eventbroker.client.AMQEventReceiver;
+import eu.smartsantander.eventbroker.client.EventObject;
+import eu.smartsantander.eventbroker.client.IEventListener;
+import eu.smartsantander.eventbroker.client.IEventReceiver;
 import eu.smartsantander.eventbroker.client.exceptions.EventBrokerException;
 import eu.smartsantander.eventbroker.events.IEventFactory;
 import eu.smartsantander.eventbroker.events.NodeOperationsEvents;
@@ -13,7 +16,8 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static eu.smartsantander.eventbroker.events.IEventFactory.EventType.*;
+import static eu.smartsantander.eventbroker.events.IEventFactory.EventType.ADD_SENSOR_NODE;
+import static eu.smartsantander.eventbroker.events.IEventFactory.EventType.DEL_SENSOR_NODE;
 
 public class DeviceDBRDEventBrokerClient extends AbstractService implements IEventListener {
 
@@ -89,7 +93,11 @@ public class DeviceDBRDEventBrokerClient extends AbstractService implements IEve
 							event.eventBytes
 					);
 					log.trace("Registration request received from node " + sn.getNodeId());
-					deviceDB.add(DeviceDBRDHelper.deviceConfigFromRDResource(sn));
+					if (deviceDB.getConfigByNodeUrn(new NodeUrn(sn.getNodeId())) != null) {
+						deviceDB.update(DeviceDBRDHelper.deviceConfigFromRDResource(sn));
+					} else {
+						deviceDB.add(DeviceDBRDHelper.deviceConfigFromRDResource(sn));
+					}
 					break;
 
 				case DEL_SENSOR_NODE:
