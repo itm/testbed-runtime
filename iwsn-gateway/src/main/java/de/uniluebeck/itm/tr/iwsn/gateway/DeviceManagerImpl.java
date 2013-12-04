@@ -22,11 +22,13 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.ws.rs.client.ClientException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.Deque;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -418,37 +420,43 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 		for (DeviceAdapter deviceAdapter : copy) {
 
-			final boolean canHandle = event.getDeviceAdapterFactory().canHandle(
-					deviceAdapter.getDeviceType(),
-					deviceAdapter.getDevicePort(),
-					deviceAdapter.getDeviceConfiguration(),
-					deviceAdapter.getDeviceConfig()
-			);
+			final Map<NodeUrn, DeviceConfig> deviceConfigs = deviceAdapter.getDeviceConfigs();
 
-			if (canHandle) {
+			if (deviceConfigs != null) {
 
-				log.info("A new DeviceAdapterFactory was added at runtime that can handle the device at "
-						+ "port {}. Shutting down connection and reconnecting.", deviceAdapter.getDevicePort()
-				);
+				for (@Nonnull DeviceConfig deviceConfig : deviceConfigs.values()) {
 
-				deviceAdapter.stopAndWait();
-
-				synchronized (deviceFoundEvents) {
-
-					@SuppressWarnings("ConstantConditions")
-					final String reference = (deviceAdapter.getDeviceConfig() == null) ?
-							null :
-							deviceAdapter.getDeviceConfig().getNodeUSBChipID();
-
-					deviceFoundEvents.add(new DeviceFoundEvent(
+					final boolean canHandle = event.getDeviceAdapterFactory().canHandle(
 							deviceAdapter.getDeviceType(),
 							deviceAdapter.getDevicePort(),
 							deviceAdapter.getDeviceConfiguration(),
-							reference,
-							null,
-							deviceAdapter.getDeviceConfig()
-					)
+							deviceConfig
 					);
+
+					if (canHandle) {
+
+						log.info("A new DeviceAdapterFactory was added at runtime that can handle the device at "
+								+ "port {}. Shutting down connection and reconnecting.", deviceAdapter.getDevicePort()
+						);
+
+						deviceAdapter.stopAndWait();
+
+						synchronized (deviceFoundEvents) {
+
+							@SuppressWarnings("ConstantConditions")
+							final String reference = deviceConfig == null ? null : deviceConfig.getNodeUSBChipID();
+
+							deviceFoundEvents.add(new DeviceFoundEvent(
+									deviceAdapter.getDeviceType(),
+									deviceAdapter.getDevicePort(),
+									deviceConfig.getNodeConfiguration(),
+									reference,
+									null,
+									deviceConfig
+							)
+							);
+						}
+					}
 				}
 			}
 		}
@@ -471,22 +479,31 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 				log.trace("Stopping DeviceAdapter of type {}", deviceAdapter.getClass());
 
+				final Map<NodeUrn, DeviceConfig> deviceConfigs = deviceAdapter.getDeviceConfigs();
+
 				deviceAdapter.stop();
 
-				@SuppressWarnings("ConstantConditions")
-				final String reference = (deviceAdapter.getDeviceConfig() == null) ?
-						null :
-						deviceAdapter.getDeviceConfig().getNodeUSBChipID();
+				if (deviceConfigs != null) {
 
-				deviceFoundEvents.add(new DeviceFoundEvent(
-						deviceAdapter.getDeviceType(),
-						deviceAdapter.getDevicePort(),
-						deviceAdapter.getDeviceConfiguration(),
-						reference,
-						null,
-						deviceAdapter.getDeviceConfig()
-				)
-				);
+					for (NodeUrn nodeUrn : deviceConfigs.keySet()) {
+
+						@Nonnull
+						final DeviceConfig deviceConfig = deviceConfigs.get(nodeUrn);
+
+						@SuppressWarnings("ConstantConditions")
+						final String reference = (deviceConfig == null) ? null : deviceConfig.getNodeUSBChipID();
+
+						deviceFoundEvents.add(new DeviceFoundEvent(
+								deviceAdapter.getDeviceType(),
+								deviceAdapter.getDevicePort(),
+								deviceConfig.getNodeConfiguration(),
+								reference,
+								null,
+								deviceConfig
+						)
+						);
+					}
+				}
 			}
 		}
 	}

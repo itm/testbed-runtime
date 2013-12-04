@@ -35,13 +35,13 @@ public interface ExperimentResource {
 	@GET
 	@Path("{secretReservationKeyBase64}/network.json")
 	@Produces(MediaType.APPLICATION_JSON)
-	Response getExperimentNetworkAsJson(
+	Wiseml getExperimentNetworkAsJson(
 			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Exception;
 
 	@GET
 	@Path("{secretReservationKeyBase64}/network.xml")
 	@Produces(MediaType.APPLICATION_XML)
-	Response getExperimentNetworkAsXml(
+	Wiseml getExperimentNetworkAsXml(
 			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64) throws Exception;
 
 	@GET

@@ -41,6 +41,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.contains;
 import static com.google.common.collect.Iterables.size;
+import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class SingleDeviceAdapterBase extends ListenableDeviceAdapter {
 
@@ -80,8 +81,10 @@ public abstract class SingleDeviceAdapterBase extends ListenableDeviceAdapter {
 
 	@Override
 	@Nullable
-	public DeviceConfig getDeviceConfig() {
-		return deviceConfig;
+	public Map<NodeUrn, DeviceConfig> getDeviceConfigs() {
+		final Map<NodeUrn, DeviceConfig> map = newHashMap();
+		map.put(deviceConfig.getNodeUrn(), deviceConfig);
+		return map;
 	}
 
 	@Override
