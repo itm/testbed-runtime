@@ -52,6 +52,11 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ExperimentResourceImpl.class);
 
+	private static final int TIMEOUT_SECONDS_RESET = 120;
+	private static final int TIMEOUT_SECONDS_ALIVE = 90;
+	private static final int TIMEOUT_SECONDS_FLASH = 600;
+	private static final int TIMEOUT_SECONDS_SEND = 60;
+
 	private final WisemlProvider wisemlProvider;
 
 	private final ReservationManager reservationManager;
@@ -297,7 +302,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newResetNodesRequest(secretReservationKeysBase64, requestIdProvider.get(), nodeUrns);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
+		return sendRequestAndGetOperationStatusMap(reservation, request, TIMEOUT_SECONDS_RESET, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -331,7 +336,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newAreNodesConnectedRequest(null, requestIdProvider.get(), nodeUrns);
 
-		return sendRequestAndGetOperationStatusMap(request, 10, TimeUnit.SECONDS);
+		return sendRequestAndGetOperationStatusMap(request, TIMEOUT_SECONDS_ALIVE, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -348,7 +353,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newAreNodesAliveRequest(secretReservationKeysBase64, requestIdProvider.get(), nodeUrns);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
+		return sendRequestAndGetOperationStatusMap(reservation, request, TIMEOUT_SECONDS_ALIVE, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -370,7 +375,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				decodeBytes(data.bytesBase64)
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
+		return sendRequestAndGetOperationStatusMap(reservation, request, TIMEOUT_SECONDS_SEND, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -392,7 +397,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				links
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
+		return sendRequestAndGetOperationStatusMap(reservation, request, TIMEOUT_SECONDS_ALIVE, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -412,7 +417,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				newArrayList(new NodeUrn(nodeUrn))
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
+		return sendRequestAndGetOperationStatusMap(reservation, request, TIMEOUT_SECONDS_ALIVE, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -432,7 +437,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				newArrayList(new NodeUrn(nodeUrn))
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
+		return sendRequestAndGetOperationStatusMap(reservation, request, TIMEOUT_SECONDS_ALIVE, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -454,7 +459,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				links
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
+		return sendRequestAndGetOperationStatusMap(reservation, request, TIMEOUT_SECONDS_ALIVE, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -476,7 +481,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				links
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, 10, TimeUnit.SECONDS);
+		return sendRequestAndGetOperationStatusMap(reservation, request, TIMEOUT_SECONDS_ALIVE, TimeUnit.SECONDS);
 	}
 
 	private Wiseml filterWisemlForReservedNodes(final String secretReservationKeysBase64) throws Exception {
