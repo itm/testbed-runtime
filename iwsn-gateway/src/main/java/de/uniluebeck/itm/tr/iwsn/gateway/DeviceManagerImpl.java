@@ -28,6 +28,7 @@ import javax.ws.rs.client.ClientException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
@@ -38,6 +39,7 @@ import static com.google.common.base.Predicates.in;
 import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.intersection;
 import static com.google.common.collect.Sets.newHashSet;
@@ -73,6 +75,8 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 				}
 			}
 
+			final List<DeviceFoundEvent> deviceFoundEventsTried = newArrayList();
+
 			// try to retrieve missing configs
 			while (!deviceFoundEvents.isEmpty()) {
 
@@ -89,10 +93,12 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 					log.trace("Successfully connected to {}", event);
 				} else {
 					log.trace("Failed to connect, putting back in queue: {},", event);
-					synchronized (deviceFoundEvents) {
-						deviceFoundEvents.addLast(event);
-					}
+					deviceFoundEventsTried.add(event);
 				}
+			}
+
+			synchronized (deviceFoundEvents) {
+				deviceFoundEvents.addAll(deviceFoundEventsTried);
 			}
 
 			if (log.isTraceEnabled()) {
