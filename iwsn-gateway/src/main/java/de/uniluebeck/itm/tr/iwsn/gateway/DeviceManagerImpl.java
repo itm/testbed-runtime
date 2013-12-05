@@ -158,7 +158,6 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 							deviceFoundEvent.getDeviceConfig()
 					);
 
-					final DeviceAdapterListener deviceAdapterListener = new ManagerDeviceAdapterListener();
 					final DeviceAdapterServiceListener listener = new DeviceAdapterServiceListener(
 							deviceAdapter,
 							deviceAdapterListener
@@ -201,6 +200,8 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 	@Nullable
 	private ScheduledFuture<?> tryToConnectToDetectedButUnconnectedDevicesSchedule;
+
+	private final DeviceAdapterListener deviceAdapterListener = new ManagerDeviceAdapterListener();
 
 	private class ManagerDeviceAdapterListener implements DeviceAdapterListener {
 

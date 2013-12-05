@@ -20,7 +20,9 @@ public abstract class ListenableDeviceAdapter extends AbstractService implements
 
 	@Override
 	public void addListener(final DeviceAdapterListener listener) {
-		listenerManager.addListener(listener);
+		if (!listenerManager.getListeners().contains(listener)) {
+			listenerManager.addListener(listener);
+		}
 	}
 
 	@Override
