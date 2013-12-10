@@ -14,6 +14,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.ReservationNotRunningException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeysException;
+import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.ChannelPipelinesMap;
 import eu.wisebed.wiseml.Capability;
@@ -56,6 +57,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	private static final int TIMEOUT_SECONDS_ALIVE = 90;
 	private static final int TIMEOUT_SECONDS_FLASH = 600;
 	private static final int TIMEOUT_SECONDS_SEND = 60;
+	private static final int TIMEOUT_SECONDS_SET_CHANNEL_PIPELINE = 60;
 
 	private final WisemlProvider wisemlProvider;
 
@@ -303,6 +305,33 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final Request request = newResetNodesRequest(secretReservationKeysBase64, requestIdProvider.get(), nodeUrns);
 
 		return sendRequestAndGetOperationStatusMap(reservation, request, TIMEOUT_SECONDS_RESET, TimeUnit.SECONDS);
+	}
+
+	@POST
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
+	@Path("{secretReservationKeyBase64}/setChannelPipelines")
+	public Response setChannelPipelines(
+			@PathParam("secretReservationKeyBase64") String secretReservationKeysBase64,
+			ChannelHandlerConfigurationList chcl) throws Exception {
+
+		log.trace("ExperimentResourceImpl.setChannelPipelines({}, {})", secretReservationKeysBase64, chcl);
+
+		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
+
+		final Request request = newSetChannelPipelinesRequest(
+				secretReservationKeysBase64,
+				requestIdProvider.get(),
+				transform(chcl.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN),
+				Converters.convertCHCs(chcl.handlers)
+		);
+
+		return sendRequestAndGetOperationStatusMap(
+				reservation,
+				request,
+				TIMEOUT_SECONDS_SET_CHANNEL_PIPELINE,
+				TimeUnit.SECONDS
+		);
 	}
 
 	@Override
