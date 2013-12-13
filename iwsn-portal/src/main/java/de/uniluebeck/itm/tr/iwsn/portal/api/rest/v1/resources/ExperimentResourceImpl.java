@@ -317,6 +317,10 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 		log.trace("ExperimentResourceImpl.setChannelPipelines({}, {})", secretReservationKeysBase64, chcl);
 
+		if (chcl.nodeUrns == null || chcl.nodeUrns.isEmpty()) {
+			return Response.status(Response.Status.BAD_REQUEST).entity("Empty node URN list").build();
+		}
+
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 
 		final Request request = newSetChannelPipelinesRequest(
