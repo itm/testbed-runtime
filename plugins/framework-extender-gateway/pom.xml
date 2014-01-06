@@ -26,7 +26,6 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
-			<version>4.2.0</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
@@ -80,6 +79,7 @@
 							de.uniluebeck.itm.nettyprotocols.tlspeerverification,
 							de.uniluebeck.itm.nettyprotocols.util,
 							de.uniluebeck.itm.nettyprotocols.wisebednodeapi,
+							de.uniluebeck.itm.util,
 							de.uniluebeck.itm.util.concurrent,
 							de.uniluebeck.itm.util.files,
 							de.uniluebeck.itm.util.scheduler,
@@ -111,6 +111,7 @@
 							javax.annotation.concurrent,
 							javax.annotation.meta,
 							org.joda.time,
+							org.joda.time.format,
 							org.slf4j,
 							org.slf4j.helpers,
 							org.slf4j.spi,

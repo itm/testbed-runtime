@@ -30,56 +30,56 @@ public class WisemlProviderConfig {
 
 	@Inject(optional = true)
 	@Named(ORIGIN_LATITUDE)
-	private Float originLatitude;
+	private Double originLatitude;
 
 	@PropConf(usage = "The longitude of the testbeds origin")
 	public static final String ORIGIN_LONGITUDE = "portal.wiseml.setup.origin.longitude";
 
 	@Inject(optional = true)
 	@Named(ORIGIN_LONGITUDE)
-	private Float originLongitude;
+	private Double originLongitude;
 
 	@PropConf(usage = "The x coordinate of the testbeds origin")
 	public static final String ORIGIN_X = "portal.wiseml.setup.origin.x";
 
 	@Inject(optional = true)
 	@Named(ORIGIN_X)
-	private Float originX;
+	private Double originX;
 
 	@PropConf(usage = "The y coordinate of the testbeds origin")
 	public static final String ORIGIN_Y = "portal.wiseml.setup.origin.y";
 
 	@Inject(optional = true)
 	@Named(ORIGIN_Y)
-	private Float originY;
+	private Double originY;
 
 	@PropConf(usage = "The z coordinate of the testbeds origin")
 	public static final String ORIGIN_Z = "portal.wiseml.setup.origin.z";
 
 	@Inject(optional = true)
 	@Named(ORIGIN_Z)
-	private Float originZ;
+	private Double originZ;
 
 	@PropConf(usage = "The phi angle of the testbeds origin")
 	public static final String ORIGIN_PHI = "portal.wiseml.setup.origin.phi";
 
 	@Inject(optional = true)
 	@Named(ORIGIN_PHI)
-	private Float originPhi;
+	private Double originPhi;
 
 	@PropConf(usage = "The theta angle of the testbeds origin")
 	public static final String ORIGIN_THETA = "portal.wiseml.setup.origin.theta";
 
 	@Inject(optional = true)
 	@Named(ORIGIN_THETA)
-	private Float originTheta;
+	private Double originTheta;
 
 	@PropConf(usage = "The rho angle of the testbeds origin")
 	public static final String ORIGIN_RHO = "portal.wiseml.setup.origin.rho";
 
 	@Inject(optional = true)
 	@Named(ORIGIN_RHO)
-	private Float originRho;
+	private Double originRho;
 
 	@Nullable
 	public String getDescription() {
@@ -87,27 +87,27 @@ public class WisemlProviderConfig {
 	}
 
 	@Nullable
-	public Float getOriginPhi() {
+	public Double getOriginPhi() {
 		return originPhi;
 	}
 
 	@Nullable
-	public Float getOriginTheta() {
+	public Double getOriginTheta() {
 		return originTheta;
 	}
 
 	@Nullable
-	public Float getOriginX() {
+	public Double getOriginX() {
 		return originX;
 	}
 
 	@Nullable
-	public Float getOriginY() {
+	public Double getOriginY() {
 		return originY;
 	}
 
 	@Nullable
-	public Float getOriginZ() {
+	public Double getOriginZ() {
 		return originZ;
 	}
 
@@ -117,17 +117,17 @@ public class WisemlProviderConfig {
 	}
 
 	@Nullable
-	public Float getOriginLatitude() {
+	public Double getOriginLatitude() {
 		return originLatitude;
 	}
 
 	@Nullable
-	public Float getOriginLongitude() {
+	public Double getOriginLongitude() {
 		return originLongitude;
 	}
 
 	@Nullable
-	public Float getOriginRho() {
+	public Double getOriginRho() {
 		return originRho;
 	}
 }

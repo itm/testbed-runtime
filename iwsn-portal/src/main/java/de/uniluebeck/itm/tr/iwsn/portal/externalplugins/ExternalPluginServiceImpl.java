@@ -3,12 +3,16 @@ package de.uniluebeck.itm.tr.iwsn.portal.externalplugins;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.iwsn.common.netty.ExceptionChannelHandler;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServer;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.Channels;
 import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
@@ -45,14 +49,23 @@ class ExternalPluginServiceImpl extends AbstractService implements ExternalPlugi
 
 			if (config.getExternalPluginServicePort() != null) {
 
-				nettyServer = nettyServerFactory.create(
-						new InetSocketAddress(config.getExternalPluginServicePort()),
-						new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4),
-						new ProtobufDecoder(ExternalPluginMessage.getDefaultInstance()),
-						new LengthFieldPrepender(4, false),
-						new ProtobufEncoder(),
-						channelHandler
-				);
+				final ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
+					@Override
+					public ChannelPipeline getPipeline() throws Exception {
+						return Channels.pipeline(
+								new ExceptionChannelHandler(),
+								new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4),
+								new ProtobufDecoder(ExternalPluginMessage.getDefaultInstance()),
+								new LengthFieldPrepender(4, false),
+								new ProtobufEncoder(),
+								channelHandler
+						);
+					}
+				};
+
+				final InetSocketAddress address = new InetSocketAddress(config.getExternalPluginServicePort());
+
+				nettyServer = nettyServerFactory.create(address, pipelineFactory);
 				nettyServer.startAndWait();
 			}
 

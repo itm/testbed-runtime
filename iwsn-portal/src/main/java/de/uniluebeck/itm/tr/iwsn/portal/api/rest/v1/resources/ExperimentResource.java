@@ -115,6 +115,14 @@ public interface ExperimentResource {
 	@POST
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_JSON})
+	@Path("{secretReservationKeyBase64}/setChannelPipelines")
+	Response setChannelPipelines(
+			@PathParam("secretReservationKeyBase64") String secretReservationKeysBase64,
+			ChannelHandlerConfigurationList channelHandlerConfigurationList) throws Exception;
+
+	@POST
+	@Consumes({MediaType.APPLICATION_JSON})
+	@Produces({MediaType.APPLICATION_JSON})
 	@Path("{secretReservationKeyBase64}/getChannelPipelines")
 	List<ChannelPipelinesMap> getChannelPipelines(
 			@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,

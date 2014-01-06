@@ -20,12 +20,12 @@ public class IndoorCoordinatesEntity {
 	@Nullable
 	private String room;
 
-	private float x;
+	private double x;
 
-	private float y;
+	private double y;
 
 	@Nullable
-	private Float z;
+	private Double z;
 
 	@Nullable
 	private String backgroundImage;
@@ -74,28 +74,28 @@ public class IndoorCoordinatesEntity {
 		this.room = room;
 	}
 
-	public Float getX() {
+	public Double getX() {
 		return x;
 	}
 
-	public void setX(final float x) {
+	public void setX(final double x) {
 		this.x = x;
 	}
 
-	public Float getY() {
+	public Double getY() {
 		return y;
 	}
 
-	public void setY(final float y) {
+	public void setY(final double y) {
 		this.y = y;
 	}
 
 	@Nullable
-	public Float getZ() {
+	public Double getZ() {
 		return z;
 	}
 
-	public void setZ(@Nullable final Float z) {
+	public void setZ(@Nullable final Double z) {
 		this.z = z;
 	}
 }

@@ -333,7 +333,7 @@ public abstract class DeviceConfigHelper {
 
 	@Nullable
 	public static CoordinateDto toDto(@Nullable final Coordinate coordinate) {
-		if (coordinate == null) {
+		if (coordinate == null || coordinate.getType() == null) {
 			return null;
 		}
 		final CoordinateDto dto = new CoordinateDto();

@@ -54,9 +54,10 @@ public class WiseMLToDeviceDBConverter {
 					null,
 					null,
 					null,
-					node.getPosition(),
+					null,
 					newHashSet(node.getCapability())
 			);
+			System.out.println("Adding device config for " + node.getId());
 			deviceDBService.add(deviceConfig);
 		}
 

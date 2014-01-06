@@ -191,15 +191,16 @@ message Event {
 		DEVICES_ATTACHED   = 2;
         DEVICES_DETACHED   = 3;
 		NOTIFICATION       = 4;
+		
 	}
 
-	required int64                  eventId                = 1;
-	required Type                   type                   = 2;
+	required int64                eventId              = 1;
+	required Type                 type                 = 2;
 
-	optional UpstreamMessageEvent   upstreamMessageEvent   = 101;
-	optional DevicesAttachedEvent   devicesAttachedEvent   = 102;
-	optional DevicesDetachedEvent   devicesDetachedEvent   = 103;
-	optional NotificationEvent      notificationEvent      = 104;
+	optional UpstreamMessageEvent upstreamMessageEvent = 101;
+	optional DevicesAttachedEvent devicesAttachedEvent = 102;
+	optional DevicesDetachedEvent devicesDetachedEvent = 103;
+	optional NotificationEvent    notificationEvent    = 104;
 }
 
 message EventAck {
@@ -217,14 +218,16 @@ message Message {
 		GET_CHANNELPIPELINES_RESPONSE = 4;
 		EVENT                         = 5;
 		EVENT_ACK                     = 6;
+		KEEP_ALIVE                    = 7;
+		KEEP_ALIVE_ACK                = 8;
 	}
 
-	required Type                        type     = 1;
+	required Type                        type                        = 1;
 
-	optional Request                     request  = 101;
-	optional SingleNodeProgress          progress = 102;
-	optional SingleNodeResponse          response = 103;
+	optional Request                     request                     = 101;
+	optional SingleNodeProgress          progress                    = 102;
+	optional SingleNodeResponse          response                    = 103;
 	optional GetChannelPipelinesResponse getChannelPipelinesResponse = 104;
-	optional Event                       event    = 105;
-	optional EventAck                    eventAck = 106;
+	optional Event                       event                       = 105;
+	optional EventAck                    eventAck                    = 106;
 }

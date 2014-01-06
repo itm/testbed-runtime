@@ -1,10 +1,13 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.DecoratedImpl;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
+import eu.smartsantander.rd.jaxb.IoTNodeType;
 import eu.smartsantander.rd.jaxb.ResourceDescription;
 import eu.smartsantander.rd.rd3api.IRD3API;
 import eu.smartsantander.rd.rd3api.QueryOptions;
@@ -15,12 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.namespace.QName;
-import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
@@ -29,6 +27,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
 
 
 public class DeviceDBRD extends AbstractService implements DeviceDBService {
@@ -181,13 +180,24 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 		final String rdURL = deviceDBConfig.getSmartSantanderRDUri().toString();
 		final IRD3API rd = RD3InteractorJ.getInstance(rdURL.endsWith("/") ? rdURL : rdURL + "/");
 		final Optional<QueryOptions> options = Optional.absent();
-		final List<ResourceDescription> resources = rd.getTestbedResourcesURN(
+
+		log.info("Querying RD for (mobile) sensor node resource descriptions...");
+
+		final List<ResourceDescription> resources = newArrayList(Iterables.filter(rd.getTestbedResourcesURN(
 				deviceDBConfig.getSmartSantanderRDPortalId(),
 				options
-		);
+		), new Predicate<ResourceDescription>() {
+			@Override
+			public boolean apply(final ResourceDescription input) {
+				return input.getResourceType() == IoTNodeType.MOBILE_SENSOR_NODE || input.getResourceType() == IoTNodeType.SENSOR_NODE;
+			}
+		}));
+
+		log.info("Retrieved {} (mobile) sensor node resource descriptions from the RD", resources.size());
 
 		for (ResourceDescription res : resources) {
 
+			/*
 			if (log.isTraceEnabled()) {
 
 				final StringWriter writer = new StringWriter();
@@ -202,6 +212,7 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 
 				log.trace("{}", writer.toString());
 			}
+			*/
 
 			try {
 				final DeviceConfig deviceConfig = DeviceDBRDHelper.deviceConfigFromRDResource(res);

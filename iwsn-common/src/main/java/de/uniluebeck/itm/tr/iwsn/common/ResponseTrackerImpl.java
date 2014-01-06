@@ -77,9 +77,19 @@ class ResponseTrackerImpl implements ResponseTracker {
 		if (forMe) {
 
 			final NodeUrn responseNodeUrn = new NodeUrn(response.getNodeUrn());
-			((ProgressSettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn)).set(response);
-			if (futureMap.isDone()) {
-				eventBusService.unregister(this);
+			final ProgressSettableFuture<SingleNodeResponse> future =
+					(ProgressSettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn);
+
+			if (future.isDone()) {
+				log.warn(
+						"Received multiple responses for reservationId {} and requestId {}. Ignoring subsequent responses...",
+						request.getReservationId(), request.getRequestId()
+				);
+			} else {
+				future.set(response);
+				if (futureMap.isDone()) {
+					eventBusService.unregister(this);
+				}
 			}
 		}
 	}

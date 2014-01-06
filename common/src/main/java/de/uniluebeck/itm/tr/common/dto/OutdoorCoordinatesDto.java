@@ -5,98 +5,98 @@ import javax.annotation.Nullable;
 public class OutdoorCoordinatesDto {
 
 	@Nullable
-	private Float longitude;
+	private Double longitude;
 
 	@Nullable
-	private Float latitude;
+	private Double latitude;
 
 	@Nullable
-	private Float x;
+	private Double x;
 
 	@Nullable
-	private Float y;
+	private Double y;
 
 	@Nullable
-	private Float z;
+	private Double z;
 
 	@Nullable
-	private Float rho;
+	private Double rho;
 
 	@Nullable
-	private Float phi;
+	private Double phi;
 
 	@Nullable
-	private Float theta;
+	private Double theta;
 
 	@Nullable
-	public Float getLatitude() {
+	public Double getLatitude() {
 		return latitude;
 	}
 
-	public void setLatitude(@Nullable final Float latitude) {
+	public void setLatitude(@Nullable final Double latitude) {
 		this.latitude = latitude;
 	}
 
 	@Nullable
-	public Float getLongitude() {
+	public Double getLongitude() {
 		return longitude;
 	}
 
-	public void setLongitude(@Nullable final Float longitude) {
+	public void setLongitude(@Nullable final Double longitude) {
 		this.longitude = longitude;
 	}
 
 	@Nullable
-	public Float getPhi() {
+	public Double getPhi() {
 		return phi;
 	}
 
-	public void setPhi(@Nullable final Float phi) {
+	public void setPhi(@Nullable final Double phi) {
 		this.phi = phi;
 	}
 
 	@Nullable
-	public Float getRho() {
+	public Double getRho() {
 		return rho;
 	}
 
-	public void setRho(@Nullable final Float rho) {
+	public void setRho(@Nullable final Double rho) {
 		this.rho = rho;
 	}
 
 	@Nullable
-	public Float getTheta() {
+	public Double getTheta() {
 		return theta;
 	}
 
-	public void setTheta(@Nullable final Float theta) {
+	public void setTheta(@Nullable final Double theta) {
 		this.theta = theta;
 	}
 
 	@Nullable
-	public Float getX() {
+	public Double getX() {
 		return x;
 	}
 
-	public void setX(@Nullable final Float x) {
+	public void setX(@Nullable final Double x) {
 		this.x = x;
 	}
 
 	@Nullable
-	public Float getY() {
+	public Double getY() {
 		return y;
 	}
 
-	public void setY(@Nullable final Float y) {
+	public void setY(@Nullable final Double y) {
 		this.y = y;
 	}
 
 	@Nullable
-	public Float getZ() {
+	public Double getZ() {
 		return z;
 	}
 
-	public void setZ(@Nullable final Float z) {
+	public void setZ(@Nullable final Double z) {
 		this.z = z;
 	}
 }

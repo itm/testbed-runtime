@@ -397,6 +397,10 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				sendToExternalPlugins(getChannelPipelinesResponse);
 				break;
 
+			case KEEP_ALIVE:
+			case KEEP_ALIVE_ACK:
+				break;
+
 			default:
 				throw new RuntimeException("Unexpected message type: " + message.getType());
 		}
