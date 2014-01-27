@@ -14,6 +14,7 @@ import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.channels.ClosedChannelException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +22,12 @@ import java.util.Set;
 
 import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
+import static de.uniluebeck.itm.tr.iwsn.messages.RequestHelper.extractNodeUrns;
 import static org.jboss.netty.channel.Channels.write;
 
 public class PortalChannelHandler extends SimpleChannelHandler {
@@ -289,8 +293,18 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		}
 	}
 
+	private void sendUnconnectedResponsesString(final String reservationId, final long requestId, final int statusCode,
+												final Iterable<String> unconnectedNodeUrns) {
+		sendUnconnectedResponses(
+				reservationId,
+				requestId,
+				statusCode,
+				transform(unconnectedNodeUrns, STRING_TO_NODE_URN)
+		);
+	}
+
 	private void sendUnconnectedResponses(final String reservationId, final long requestId, final int statusCode,
-										  final Set<NodeUrn> unconnectedNodeUrns) {
+										  final Iterable<NodeUrn> unconnectedNodeUrns) {
 
 		for (NodeUrn nodeUrn : unconnectedNodeUrns) {
 
@@ -315,7 +329,23 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 					.setType(Message.Type.REQUEST)
 					.setRequest(requestBuilder)
 					.build();
-			Channels.write(ctx, new DefaultChannelFuture(ctx.getChannel(), true), message);
+			final DefaultChannelFuture future = new DefaultChannelFuture(ctx.getChannel(), true);
+			future.addListener(new ChannelFutureListener() {
+				@Override
+				public void operationComplete(final ChannelFuture channelFuture) throws Exception {
+					//noinspection ThrowableResultOfMethodCallIgnored
+					if (!channelFuture.isSuccess() && channelFuture.getCause() instanceof ClosedChannelException) {
+						sendUnconnectedResponses(
+								requestBuilder.getReservationId(),
+								requestBuilder.getRequestId(),
+								-1,
+								extractNodeUrns(requestBuilder)
+						);
+					}
+				}
+			}
+			);
+			Channels.write(ctx, future, message);
 		}
 	}
 
