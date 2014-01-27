@@ -11,7 +11,7 @@
     <script src="lib/js/bootbox-3.2.0.js"></script>
     <script src="lib/js/handlebars-1.0.0.js"></script>
     <script src="lib/js/underscore-1.4.4.js"></script>
-    <script src="lib/js/backbone-1.0.0-min.js"></script>
+    <script src="lib/js/backbone-1.1.0.js"></script>
     <script src="lib/js/form2js.js"></script>
     <script src="js/routes.js"></script>
     <script src="js/models.js"></script>
