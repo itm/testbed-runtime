@@ -18,7 +18,7 @@ public abstract class RequestHelper {
 		}
 	};
 
-	public static Set<NodeUrn> extractNodeUrns(final Request request) {
+	public static Set<NodeUrn> extractNodeUrns(final RequestOrBuilder request) {
 		switch (request.getType()) {
 
 			case ARE_NODES_ALIVE:
