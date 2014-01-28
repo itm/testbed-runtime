@@ -1,7 +1,8 @@
 package de.uniluebeck.itm.tr.snaa.shiro.dto;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Action;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Permission;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
@@ -11,27 +12,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.collect.Sets.newHashSet;
+
 public class ShiroEntityDaoConverter {
 
     public static UserListDto userList(List<User> users) {
 
         List<UserDto> res = new ArrayList<UserDto>();
         for ( User user : users ) {
-            UserDto dto = new UserDto( user.getName(), toDto(user.getRoles()) );
+            UserDto dto = new UserDto(user.getName(), toDto(user.getRoles()) );
             res.add(dto);
         }
         return new UserListDto(res);
     }
 
-    public static Set<RoleDto> toDto(Set<Role> roles) {
-        Set<RoleDto> res = Sets.newHashSet();
-        for ( Role role : roles ) {
-            res.add(new RoleDto(role.getName()));
-        }
-        return res;
-    }
+	private static Set<String> toDto(final Set<Role> roles) {
+		return newHashSet(Iterables.transform(roles, new Function<Role, String>() {
+			@Override
+			public String apply(final Role role) {
+				return role.getName();
+			}
+		}));
+	}
 
-    public static List<ActionDto> toActionDtoList(List<Action> actions) {
+	public static List<ActionDto> toActionDtoList(List<Action> actions) {
         List<ActionDto> res = Lists.newArrayList();
         for ( Action action : actions ) {
             ActionDto dto = new ActionDto(action.getName());

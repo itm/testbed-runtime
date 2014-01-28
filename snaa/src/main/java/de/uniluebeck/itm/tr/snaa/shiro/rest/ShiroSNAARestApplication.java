@@ -14,16 +14,35 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class ShiroSNAARestApplication extends Application {
 
-	private final ShiroSNAARestResourceImpl resource;
+	private final UserResource userResource;
+
+	private final ActionResource actionResource;
+
+	private final PermissionResource permissionResource;
+
+	private final RoleResource roleResource;
 
 	@Inject
-	public ShiroSNAARestApplication(final ShiroSNAARestResourceImpl resource) {
-		this.resource = resource;
+	public ShiroSNAARestApplication(final UserResource userResource,
+									final ActionResource actionResource,
+									final PermissionResource permissionResource,
+									final RoleResource roleResource) {
+		this.userResource = userResource;
+		this.actionResource = actionResource;
+		this.permissionResource = permissionResource;
+		this.roleResource = roleResource;
 	}
 
 	@Override
 	public Set<Object> getSingletons() {
-		return newHashSet(resource, createJaxbElementProvider(), createJsonProvider());
+		return newHashSet(
+				userResource,
+				actionResource,
+				permissionResource,
+				roleResource,
+				createJaxbElementProvider(),
+				createJsonProvider()
+		);
 	}
 
 	/**

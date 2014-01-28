@@ -58,7 +58,7 @@ public class User implements java.io.Serializable {
 		this.salt = salt;
 	}
 
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "USERS_ROLES", joinColumns = {
 			@JoinColumn(name = "USER_NAME", nullable = false, updatable = false)
 	}, inverseJoinColumns = {

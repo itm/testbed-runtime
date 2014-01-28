@@ -12,6 +12,10 @@ public class ShiroSNAARestModule extends PrivateModule {
 		requireBinding(EntityManager.class);
 
 		bind(ShiroSNAARestService.class).to(ShiroSNAARestServiceImpl.class);
+		bind(ActionResource.class).to(ActionResourceImpl.class);
+		bind(UserResource.class).to(UserResourceImpl.class);
+		bind(RoleResource.class).to(RoleResourceImpl.class);
+		bind(PermissionResource.class).to(PermissionResourceImpl.class);
 
 		expose(ShiroSNAARestService.class);
 	}

@@ -7,10 +7,10 @@ import java.util.Set;
 public class UserDto {
 
     private String name;
-    private Set<RoleDto> roles;
+    private Set<String> roles;
     private String password;
 
-    public UserDto(String name, Set<RoleDto> roles) {
+    public UserDto(String name, Set<String> roles) {
         this.name = name;
         this.roles = roles;
     }
@@ -32,11 +32,11 @@ public class UserDto {
         this.name = name;
     }
 
-    public Set<RoleDto> getRoles() {
+    public Set<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<RoleDto> roles) {
+    public void setRoles(Set<String> roles) {
         this.roles = roles;
     }
 
