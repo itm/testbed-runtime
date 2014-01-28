@@ -3,16 +3,22 @@ var app = app || {};
 $(function () {
 
 	app.Router = Backbone.Router.extend({
+
 		routes: {
-			'users' : 'users',
-            'users/:name': 'userDetail'
+			'users'       : 'users',
+            'users/:name' : 'userDetail',
+			'.*'          : 'users'
 		},
 
 		initialize: function() {
-
+			console.log("app.initialize()");
+			app.mainView = app.mainView || new app.MainView({
+				el : $("body")
+			});
 		},
 
         users: function() {
+			console.log("app.users()");
 			app.table = app.table || new app.TableView({
 				el: $("#table_configs")
 			});
@@ -20,9 +26,10 @@ $(function () {
 		},
 
         userDetail: function(name) {
+			console.log("app.userDetail()");
             if ( !app.userDetailView || app.userDetailView.model.id != name) {
                 app.userDetailView = new app.AddUserView({
-                    el:     jQuery("#edit-view"),
+                    el:     $("#edit-view"),
                     model:  app.Users.get(name)
                 });
             }

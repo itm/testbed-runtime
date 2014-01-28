@@ -3,15 +3,15 @@
         <td>{{name}}</td>
         <td>
             {{#each roles}}
-                <span class="label">{{name}}</span>
+                <span class="label">{{this}}</span>
             {{/each}}
         </td>
         <td>
-            <a class="btn btn-mini node-edit" title="Edit this entry">
+            <a class="btn btn-mini user-edit" title="Edit this entry">
                 <i class="icon-edit"></i>
             </a>
             <br>
-            <a href="#" class="btn btn-mini" data-confirm="Really remove user \"{{name}}\" ?">
+            <a href="#" class="btn btn-mini user-remove" data-confirm="Really remove user \"{{name}}\" ?">
                 <i class="icon-remove" title="Remove this entry"></i>
             </a>
         </td>

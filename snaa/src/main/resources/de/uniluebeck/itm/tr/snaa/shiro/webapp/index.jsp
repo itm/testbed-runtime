@@ -39,7 +39,7 @@
 
             $('#btnUserAdd').click(function() {
                 app.detail = new app.AddUserView({
-                    el:     jQuery("#edit-view"),
+                    el: jQuery("#edit-view"),
                     model: new app.UserModel()
                 });
             });
@@ -49,8 +49,5 @@
 </head>
 <body>
 <div id="edit-view"></div>
-<div class="container">
-
-</div>
 </body>
 </html>
