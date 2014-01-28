@@ -53,7 +53,12 @@ public class UserResourceImpl implements UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addUser(final UserDto user) {
 
-		// TODO: role creation for non-existent roles
+		if (usersDao.find(user.getName()) != null) {
+			return Response
+					.status(Response.Status.CONFLICT)
+					.entity("User \"" + user.getName() + "\" already exists!\n")
+					.build();
+		}
 
 		final Set<Role> requestedRoles = newHashSet(transform(user.getRoles(), STRING_TO_ROLE_FUNCTION));
 		final Set<Role> userRoles = newHashSet();
@@ -78,7 +83,7 @@ public class UserResourceImpl implements UserResource {
 		}
 
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(user.getName()).build();
-		return Response.created(location).entity("true").build();
+		return Response.created(location).build();
 	}
 
 	@Override
@@ -86,9 +91,13 @@ public class UserResourceImpl implements UserResource {
 	@Path("{name}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response deleteUser(@PathParam("name") final String name) {
-		// TODO: what if user does not exist?
+
 		log.trace("UserResourceImpl.deleteUser({})", name);
-		User user = usersDao.find(name);
+
+		final User user = usersDao.find(name);
+		if (user == null) {
+			return Response.ok().build();
+		}
 		usersDao.delete(user);
 		return Response.ok().build();
 	}
