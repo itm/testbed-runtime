@@ -37,7 +37,7 @@
 
 			// set up that route events in backbone.js will trigger clicks in bootstrap tabs
 			Backbone.history.on('route', function(router, event) {
-				$('#navigation a[href="#'+this.fragment+'"]').click();
+				$('#navigation a[href="#'+event+'"]').click();
 			});
 
 			app.Users.fetch({
