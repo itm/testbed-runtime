@@ -7,22 +7,35 @@ $(function () {
 		routes: {
 			'users'       : 'users',
             'users/:name' : 'userDetail',
-			'.*'          : 'users'
+			'roles'       : 'roles',
+			'actions'     : 'actions',
+			'.*'          : 'users',
+			''            : 'users'
 		},
 
 		initialize: function() {
 			console.log("app.initialize()");
-			app.mainView = app.mainView || new app.MainView({
-				el : $("body")
+		},
+
+		users: function() {
+			console.log("app.users()");
+			app.usersView = app.usersView || new app.UsersView({
+				el: $("div.tab-content div#users")
 			});
 		},
 
-        users: function() {
-			console.log("app.users()");
-			app.table = app.table || new app.TableView({
-				el: $("#table_configs")
+		roles: function() {
+			console.log("app.roles()");
+			app.rolesView = app.rolesView || new app.RolesView({
+				el: $("div.tab-content div#roles")
 			});
-			app.table.show();
+		},
+
+		actions: function() {
+			console.log("app.actions()");
+			app.actionsView = app.actionsView || new app.ActionsView({
+				el: $("div.tab-content div#actions")
+			});
 		},
 
         userDetail: function(name) {
@@ -37,5 +50,4 @@ $(function () {
         }
 
 	});
-
 });

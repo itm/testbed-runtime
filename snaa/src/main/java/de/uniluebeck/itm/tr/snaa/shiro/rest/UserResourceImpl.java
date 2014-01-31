@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.snaa.shiro.rest;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.RoleDao;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.UserDao;
@@ -60,7 +61,9 @@ public class UserResourceImpl implements UserResource {
 					.build();
 		}
 
-		final Set<Role> requestedRoles = newHashSet(transform(user.getRoles(), STRING_TO_ROLE_FUNCTION));
+		final Set<Role> requestedRoles = user.getRoles() != null && user.getRoles().size() > 0 ?
+				newHashSet(transform(user.getRoles(), STRING_TO_ROLE_FUNCTION)) :
+				Sets.<Role>newHashSet();
 		final Set<Role> userRoles = newHashSet();
 
 		for (Role requestedRole : requestedRoles) {

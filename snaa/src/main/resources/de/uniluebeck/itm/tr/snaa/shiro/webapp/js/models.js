@@ -5,12 +5,12 @@ $(function () {
 
     app.UserModel = Backbone.Model.extend({
         idAttribute: 'name',
-        urlRoot: app.shiroAdminRestApiContextPath + '/users'
+        urlRoot: app.rest_api_context_path + '/users'
     });
 
     var UserCollection = Backbone.Collection.extend({
         model: app.UserModel,
-        url: app.shiroAdminRestApiContextPath + '/users',
+        url: app.rest_api_context_path + '/users',
 		toJSON: function(list) {
 			return { "users" : list };
 		},

@@ -3,9 +3,9 @@ var app = app || {};
 $(function () {
     'use strict';
 
-    app.MainView = Backbone.View.extend({
+    app.RolesView = Backbone.View.extend({
 
-        template: Handlebars.getTemplate('main'),
+        template: Handlebars.getTemplate('roles'),
 
         events: {
 
@@ -18,13 +18,46 @@ $(function () {
         render: function() {
             this.$el.append(this.template());
             return this;
-        }
+        },
 
+		show: function() {
+			this.$el.show();
+		},
+
+		hide: function() {
+			this.$el.hide();
+		}
     });
 
-    app.TableView = Backbone.View.extend({
+	app.ActionsView = Backbone.View.extend({
 
-        template: Handlebars.getTemplate('row'),
+		template: Handlebars.getTemplate('actions'),
+
+		events: {
+
+		},
+
+		initialize: function() {
+			this.render();
+		},
+
+		render: function() {
+			this.$el.append(this.template());
+			return this;
+		},
+
+		show: function() {
+			this.$el.show();
+		},
+
+		hide: function() {
+			this.$el.hide();
+		}
+	});
+
+    app.UsersView = Backbone.View.extend({
+
+        template: Handlebars.getTemplate('users'),
 
         events: {
             'click a.user-edit'     : 'editClicked',
@@ -34,7 +67,6 @@ $(function () {
         initialize: function() {
             // changes in our collection will redraw view
             this.listenTo(app.Users, 'all', this.render);
-
             this.render();
         },
 
@@ -72,12 +104,11 @@ $(function () {
         hide: function() {
             this.$el.hide();
         }
-
     });
 
     app.AddUserView = Backbone.View.extend({
 
-        template: Handlebars.getTemplate('add-user'),
+        template: Handlebars.getTemplate('user-edit'),
 
         events: {
             'click #save'           : 'save',
@@ -132,7 +163,6 @@ $(function () {
         show: function() {
             this.$el.find('.modal').modal('show');
         }
-
     });
 
 });
