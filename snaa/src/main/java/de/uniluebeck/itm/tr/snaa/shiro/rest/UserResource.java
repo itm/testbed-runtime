@@ -26,7 +26,7 @@ public interface UserResource {
 	@PUT
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	Response updateUser(@PathParam("name") final UserDto user);
+	Response updateUser(@PathParam("name") final String name, final UserDto user);
 
     @DELETE
     @Path("/{name}")

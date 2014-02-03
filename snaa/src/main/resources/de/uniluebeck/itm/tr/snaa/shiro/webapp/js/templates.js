@@ -49,9 +49,12 @@ Handlebars.registerHelper('selected', function(foo, bar) {
 });
 
 Handlebars.registerHelper('hasRole', function(user, role, options) {
-	user.roles.map(function(r) {
-		if (r.name == role.attributes.name) {
-			return options.fn(this);
+	if (user && user.roles) {
+		for (var i=0; i<user.roles.length; i++) {
+			if (user.roles[i].name == role.attributes.name) {
+				return options.fn(this);
+			}
 		}
-	});
+	}
+	return options.inverse(this);
 });

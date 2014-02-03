@@ -14,24 +14,6 @@ public class UserDto {
 
 	private String password;
 
-	public UserDto(String name, Set<RoleDto> roles) {
-		this.name = checkNotNull(name);
-		this.roles = roles;
-	}
-
-	public UserDto(final String name) {
-		this.name = checkNotNull(name);
-	}
-
-	public UserDto(String name, String password) {
-		this.name = checkNotNull(name);
-		this.password = password;
-	}
-
-	public UserDto() {
-		// for JAXB usage only
-	}
-
 	public String getName() {
 		return name;
 	}

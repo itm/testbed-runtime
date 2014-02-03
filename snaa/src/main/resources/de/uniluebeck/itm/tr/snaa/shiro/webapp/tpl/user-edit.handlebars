@@ -28,7 +28,7 @@
                 <div class="controls">
 					{{#each roles}}
                         <label class="checkbox-inline" for="roles_{{this.attributes.name}}">
-                            <input type="checkbox" name="roles"
+                            <input type="checkbox" name="roles[]"
                                    id="roles_{{this.attributes.name}}"
                                    value="{{this.attributes.name}}"
 								   {{#hasRole ../user this}} checked="checked"{{/hasRole}}/>

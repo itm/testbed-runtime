@@ -109,7 +109,7 @@ $(function() {
 			var id = $(e.target).parents('tr').data('id');
 
 			// navigate to modal dialog but don't add history entry as it is a modal dialog
-			app.routes.navigate('users/' + id, {trigger : true, replace: true});
+			app.routes.navigate('users/' + id, {trigger : true, replace : true});
 		},
 
 		show : function() {
@@ -153,6 +153,7 @@ $(function() {
 			var nodeCallback = function(node) {
 
 			};
+
 			var data = form2js('modal-form', '.', true, nodeCallback, true);
 
 			if (data.password == '********') {
@@ -167,8 +168,13 @@ $(function() {
 					self.close(e);
 				},
 				error : function(model, xhr, options) {
-					console.log(xhr);
-					alert(xhr.responseText);
+					if (xhr.status == 201) {
+						app.Users.add(self.model.user, {merge : true});
+						self.close(e);
+					} else {
+						console.log(xhr);
+						alert(xhr.responseText);
+					}
 				}
 			});
 		},

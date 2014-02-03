@@ -25,7 +25,10 @@ public class DtoConverter {
 	public static final Function<User, UserDto> USER_TO_DTO_FUNCTION = new Function<User, UserDto>() {
 		@Override
 		public UserDto apply(final User user) {
-			return new UserDto(user.getName(), convertRoleSet(user.getRoles()));
+			final UserDto userDto = new UserDto();
+			userDto.setName(user.getName());
+			userDto.setRoles(convertRoleSet(user.getRoles()));
+			return userDto;
 		}
 	};
 

@@ -106,9 +106,21 @@ public class UserResourceImpl implements UserResource {
 	}
 
 	@Override
-	public Response updateUser(final UserDto userDto) {
+	@PUT
+	@Path("/{name}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateUser(@PathParam("name") final String name, final UserDto userDto) {
+
 		log.trace("UserResourceImpl.updateUser()");
-		final User user = usersDao.find(userDto.getName());
+
+		if (!userDto.getName().equals(name)) {
+			return Response
+					.status(Response.Status.BAD_REQUEST)
+					.entity("Username in request URL and request body do not match!")
+					.build();
+		}
+
+		final User user = usersDao.find(name);
 		if (user == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
@@ -120,6 +132,7 @@ public class UserResourceImpl implements UserResource {
 			final String salt = new SecureRandomNumberGenerator().nextBytes().toHex();
 			final String hash = new SimpleHash(SHA512.ALGORITHM, userDto.getPassword(), salt, 1000).toHex();
 			user.setPassword(hash);
+			user.setSalt(salt);
 			updated = true;
 		}
 

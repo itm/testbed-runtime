@@ -25,5 +25,4 @@ $(function() {
 
 	app.Users = new UserCollection();
 	app.Roles = new RoleCollection();
-
 });
