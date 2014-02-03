@@ -40,20 +40,18 @@
 				$('#navigation a[href="#'+event+'"]').click();
 			});
 
-			app.Users.fetch({
-				success : function() {
-					Backbone.history.start();
-				},
+			Backbone.history.start();
+
+			app.Roles.fetch({
 				error : function() {
-					console.error('Error fetching data');
+					alert('Error fetching roles list');
 				}
 			});
 
-			$('#btnUserAdd').click(function() {
-				app.detail = new app.AddUserView({
-					el : jQuery("#edit-view"),
-					model : new app.UserModel()
-				});
+			app.Users.fetch({
+				error : function() {
+					alert('Error fetching users list');
+				}
 			});
 		});
 

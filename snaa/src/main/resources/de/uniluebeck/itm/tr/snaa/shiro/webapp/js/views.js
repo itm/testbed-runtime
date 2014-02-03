@@ -1,168 +1,191 @@
 var app = app || {};
 
-$(function () {
-    'use strict';
+$(function() {
+	'use strict';
 
-    app.RolesView = Backbone.View.extend({
+	app.RolesView = Backbone.View.extend({
 
-        template: Handlebars.getTemplate('roles'),
+		template : Handlebars.getTemplate('roles'),
 
-        events: {
-
-        },
-
-        initialize: function() {
-            this.render();
-        },
-
-        render: function() {
-            this.$el.append(this.template());
-            return this;
-        },
-
-		show: function() {
-			this.$el.show();
-		},
-
-		hide: function() {
-			this.$el.hide();
-		}
-    });
-
-	app.ActionsView = Backbone.View.extend({
-
-		template: Handlebars.getTemplate('actions'),
-
-		events: {
+		events : {
 
 		},
 
-		initialize: function() {
+		initialize : function() {
 			this.render();
 		},
 
-		render: function() {
+		render : function() {
 			this.$el.append(this.template());
 			return this;
 		},
 
-		show: function() {
+		show : function() {
 			this.$el.show();
 		},
 
-		hide: function() {
+		hide : function() {
 			this.$el.hide();
 		}
 	});
 
-    app.UsersView = Backbone.View.extend({
+	app.ActionsView = Backbone.View.extend({
 
-        template: Handlebars.getTemplate('users'),
+		template : Handlebars.getTemplate('actions'),
 
-        events: {
-            'click a.user-edit'     : 'editClicked',
-			'click a.user-remove'   : 'delClicked'
+		events : {
+
 		},
 
-        initialize: function() {
-            // changes in our collection will redraw view
-            this.listenTo(app.Users, 'all', this.render);
-            this.render();
-        },
+		initialize : function() {
+			this.render();
+		},
 
-        render: function() {
-            var seed = { users: _.map(
+		render : function() {
+			this.$el.append(this.template());
+			return this;
+		},
+
+		show : function() {
+			this.$el.show();
+		},
+
+		hide : function() {
+			this.$el.hide();
+		}
+	});
+
+	app.UsersView = Backbone.View.extend({
+
+		template : Handlebars.getTemplate('users'),
+
+		events : {
+			'click p#btnUserAdd' : 'clickedAddUser',
+			'click a.user-edit' : 'clickedEditUser',
+			'click a.user-remove' : 'clickedRemoveUser'
+		},
+
+		initialize : function() {
+			// changes in our collection will redraw view
+			this.listenTo(app.Users, 'all', this.render);
+			this.render();
+		},
+
+		render : function() {
+			var seed = { users : _.map(
 					app.Users.models,
-					function(el) { return el.attributes; })
+					function(el) {
+						return el.attributes;
+					})
 			};
-            this.$el.html(this.template(seed));
-            return this;
-        },
+			this.$el.html(this.template(seed));
+			return this;
+		},
 
-        delClicked: function(e) {
-            e.preventDefault();
-            var id = $(e.target).parents('tr').data('id');
-            var msg = $(e.target).data('confirm') || $(e.target).parent().data('confirm');
-            bootbox.confirm(msg, function(sure) {
-                if ( sure ) {
-                    app.Users.get(id).destroy();
-                }
-            });
-        },
+		clickedRemoveUser : function(e) {
+			e.preventDefault();
+			var id = $(e.target).parents('tr').data('id');
+			var msg = $(e.target).data('confirm') || $(e.target).parent().data('confirm');
+			bootbox.confirm(msg, function(sure) {
+				if (sure) {
+					app.Users.get(id).destroy();
+				}
+			});
+		},
 
-        editClicked: function(e) {
-            e.preventDefault();
-            var id = $(e.target).parents('tr').data('id');
-            app.routes.navigate('users/'+id, {trigger:true});
-        },
+		clickedAddUser : function(e) {
+			e.preventDefault();
+			new app.EditUserView({
+				el : $("#edit-view"),
+				model : {
+					user : new app.UserModel(),
+					roles : app.Roles
+				}
+			}).show();
+		},
 
-        show: function() {
-            app.routes.navigate('users');
-            this.$el.show();
-        },
+		clickedEditUser : function(e) {
+			e.preventDefault();
+			var id = $(e.target).parents('tr').data('id');
 
-        hide: function() {
-            this.$el.hide();
-        }
-    });
+			// navigate to modal dialog but don't add history entry as it is a modal dialog
+			app.routes.navigate('users/' + id, {trigger : true, replace: true});
+		},
 
-    app.AddUserView = Backbone.View.extend({
+		show : function() {
+			app.routes.navigate('users');
+			this.$el.show();
+		},
 
-        template: Handlebars.getTemplate('user-edit'),
+		hide : function() {
+			this.$el.hide();
+		}
+	});
 
-        events: {
-            'click #save'           : 'save',
-            'click #close'          : 'close',
-            'hidden'                : 'hidden'
-        },
+	app.EditUserView = Backbone.View.extend({
 
-        initialize: function() {
-            this.render();
-        },
+		template : Handlebars.getTemplate('user-edit'),
 
-        render: function() {
-            this.$el.html(this.template(this.model.attributes));
-            this.show();
-            app.routes.navigate(this.model.get('name'));
-            return this;
-        },
+		events : {
+			'click #save' : 'save',
+			'click #close' : 'close',
+			'hidden' : 'hidden'
+		},
 
-        save: function(e) {
-            e.preventDefault();
-            var self = this;
+		initialize : function() {
+			this.render();
+		},
 
-            // serialize form
-            var nodeCallback = function(node) {
+		render : function() {
+			this.$el.html(this.template({
+				user : this.model.user.attributes,
+				roles : this.model.roles.models
+			}));
+			this.show();
+			return this;
+		},
 
-            };
-            var data = form2js('modal-form', '.', true, nodeCallback, true);
+		save : function(e) {
+			e.preventDefault();
+			var self = this;
 
-            // send to server
-            this.model.save(data, {
-                wait: true,
-                success: function(model, response, options) {
-                    app.Users.add(self.model, {merge: true});
-                    self.close(e);
-                },
-                error: function(model, xhr, options) {
-                    alert(xhr.responseText);
-                }
-            });
-        },
+			// serialize form
+			var nodeCallback = function(node) {
 
-        close: function(e) {
-            e.preventDefault();
-            this.$el.find('.modal').modal('hide');
-        },
+			};
+			var data = form2js('modal-form', '.', true, nodeCallback, true);
 
-        hidden: function() {
-            this.undelegateEvents();
-            app.routes.navigate('home',{trigger:true});
-        },
+			if (data.password == '********') {
+				data.password = null;
+			}
 
-        show: function() {
-            this.$el.find('.modal').modal('show');
-        }
-    });
+			// send to server
+			this.model.user.save(data, {
+				wait : true,
+				success : function(model, response, options) {
+					app.Users.add(self.model.user, {merge : true});
+					self.close(e);
+				},
+				error : function(model, xhr, options) {
+					console.log(xhr);
+					alert(xhr.responseText);
+				}
+			});
+		},
+
+		close : function(e) {
+			e.preventDefault();
+			this.$el.find('.modal').modal('hide');
+		},
+
+		hidden : function() {
+			this.undelegateEvents();
+			app.routes.navigate('users', {trigger : true});
+		},
+
+		show : function() {
+			this.$el.find('.modal').modal('show');
+		}
+	});
 
 });

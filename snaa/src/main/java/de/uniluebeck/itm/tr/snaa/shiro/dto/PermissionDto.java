@@ -2,40 +2,44 @@ package de.uniluebeck.itm.tr.snaa.shiro.dto;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @XmlRootElement
 public class PermissionDto {
 
-    private String roleName;
-    private String actionName;
-    private String resourceGroupName;
+	private String roleName;
 
-    public PermissionDto(String roleName, String actionName, String resourceGroupName) {
-        this.roleName = roleName;
-        this.actionName = actionName;
-        this.resourceGroupName = resourceGroupName;
-    }
+	private String actionName;
 
-    public String getRoleName() {
-        return roleName;
-    }
+	private String resourceGroupName;
 
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
+	public PermissionDto(String roleName, String actionName, String resourceGroupName) {
+		this.roleName = checkNotNull(roleName);
+		this.actionName = checkNotNull(actionName);
+		this.resourceGroupName = checkNotNull(resourceGroupName);
+	}
 
-    public String getActionName() {
-        return actionName;
-    }
+	public String getRoleName() {
+		return roleName;
+	}
 
-    public void setActionName(String actionName) {
-        this.actionName = actionName;
-    }
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
 
-    public String getResourceGroupName() {
-        return resourceGroupName;
-    }
+	public String getActionName() {
+		return actionName;
+	}
 
-    public void setResourceGroupName(String resourceGroupName) {
-        this.resourceGroupName = resourceGroupName;
-    }
+	public void setActionName(String actionName) {
+		this.actionName = actionName;
+	}
+
+	public String getResourceGroupName() {
+		return resourceGroupName;
+	}
+
+	public void setResourceGroupName(String resourceGroupName) {
+		this.resourceGroupName = resourceGroupName;
+	}
 }

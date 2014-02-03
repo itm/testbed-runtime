@@ -2,8 +2,8 @@ package de.uniluebeck.itm.tr.snaa.shiro.rest;
 
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.PermissionDao;
+import de.uniluebeck.itm.tr.snaa.shiro.dto.DtoConverter;
 import de.uniluebeck.itm.tr.snaa.shiro.dto.PermissionDto;
-import de.uniluebeck.itm.tr.snaa.shiro.dto.ShiroEntityDaoConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +28,6 @@ public class PermissionResourceImpl implements PermissionResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<PermissionDto> listPermissions() {
 		log.trace("UserResourceImpl.listPermissions()");
-		return ShiroEntityDaoConverter.toPermissionDtoList(permissionsDao.find());
+		return DtoConverter.convertPermissionList(permissionsDao.find());
 	}
 }

@@ -15,16 +15,16 @@
             <td>{{name}}</td>
             <td>
 				{{#each roles}}
-                    <span class="label">{{this}}</span>
+                    <span class="label">{{this.name}}</span>
 				{{/each}}
             </td>
             <td>
                 <a class="btn btn-mini user-edit" title="Edit this entry">
-                    <i class="icon-edit"></i>
-                </a>
-                <br>
-                <a href="#" class="btn btn-mini user-remove" data-confirm="Really remove user \"{{name}}\" ?">
-                <i class="icon-remove" title="Remove this entry"></i>
+					<i class="icon-edit"></i>
+				</a>
+				<br/>
+                <a class="btn btn-mini user-remove" data-confirm="Really remove user '{{name}}'?">
+					<i class="icon-remove" title="Remove this entry"></i>
                 </a>
             </td>
         </tr>

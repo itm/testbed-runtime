@@ -3,7 +3,7 @@ package de.uniluebeck.itm.tr.snaa.shiro.rest;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.ActionDao;
 import de.uniluebeck.itm.tr.snaa.shiro.dto.ActionDto;
-import de.uniluebeck.itm.tr.snaa.shiro.dto.ShiroEntityDaoConverter;
+import de.uniluebeck.itm.tr.snaa.shiro.dto.DtoConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +28,6 @@ public class ActionResourceImpl implements ActionResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<ActionDto> listActions() {
 		log.trace("ActionResourceImpl.listActions()");
-		return ShiroEntityDaoConverter.toActionDtoList(actionsDao.find());
+		return DtoConverter.convertActionList(actionsDao.find());
 	}
 }

@@ -30,11 +30,11 @@ Handlebars.registerExternalPartial = function(name) {
 };
 
 // use before nested loops.
-Handlebars.registerHelper('setOuterIndex', function(value){
-    this.outerIndex = Number(value);
+Handlebars.registerHelper('setOuterIndex', function(value) {
+	this.outerIndex = Number(value);
 });
 // Use {{outerIndex}} to acces outer index
-Handlebars.registerHelper('eachWithOuter', function(context, outerIndex, options){
+Handlebars.registerHelper('eachWithOuter', function(context, outerIndex, options) {
 	if (context) {
 		$.each(context, function(idx, val) {
 			val.outerIndex = outerIndex;
@@ -45,5 +45,13 @@ Handlebars.registerHelper('eachWithOuter', function(context, outerIndex, options
 });
 
 Handlebars.registerHelper('selected', function(foo, bar) {
-  return foo == bar ? ' selected' : '';
+	return foo == bar ? ' selected' : '';
+});
+
+Handlebars.registerHelper('hasRole', function(user, role, options) {
+	user.roles.map(function(r) {
+		if (r.name == role.attributes.name) {
+			return options.fn(this);
+		}
+	});
 });

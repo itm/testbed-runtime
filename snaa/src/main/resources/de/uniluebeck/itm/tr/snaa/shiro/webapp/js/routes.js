@@ -1,47 +1,47 @@
 var app = app || {};
 
-$(function () {
+$(function() {
 
 	app.Router = Backbone.Router.extend({
 
-		routes: {
-			'users'       : 'users',
-            'users/:name' : 'userDetail',
-			'roles'       : 'roles',
-			'actions'     : 'actions',
-			'.*'          : 'users'
+		routes : {
+			'users' : 'users',
+			'users/:name' : 'userDetail',
+			'roles' : 'roles',
+			'actions' : 'actions',
+			'.*' : 'users'
 		},
 
-		initialize: function() {
+		initialize : function() {
 		},
 
-		users: function() {
+		users : function() {
 			app.usersView = app.usersView || new app.UsersView({
-				el: $("div.tab-content div#users")
+				el : $("div.tab-content div#users")
 			});
 		},
 
-		roles: function() {
+		roles : function() {
 			app.rolesView = app.rolesView || new app.RolesView({
-				el: $("div.tab-content div#roles")
+				el : $("div.tab-content div#roles")
 			});
 		},
 
-		actions: function() {
+		actions : function() {
 			app.actionsView = app.actionsView || new app.ActionsView({
-				el: $("div.tab-content div#actions")
+				el : $("div.tab-content div#actions")
 			});
 		},
 
-        userDetail: function(name) {
-            if ( !app.userDetailView || app.userDetailView.model.id != name) {
-                app.userDetailView = new app.AddUserView({
-                    el:     $("#edit-view"),
-                    model:  app.Users.get(name)
-                });
-            }
-            app.userDetailView.show();
-        }
+		userDetail : function(name) {
+			new app.EditUserView({
+				el : $("#edit-view"),
+				model : {
+					user : app.Users.get(name),
+					roles : app.Roles
+				}
+			}).show();
+		}
 
 	});
 });

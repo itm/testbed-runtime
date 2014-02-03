@@ -5,11 +5,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @XmlRootElement
-public class ActionDto {
+public class RoleDto {
 
     private String name;
 
-    public ActionDto(String name) {
+    public RoleDto(String name) {
         this.name = checkNotNull(name);
     }
 
@@ -32,9 +32,9 @@ public class ActionDto {
 			return false;
 		}
 
-		final ActionDto actionDto = (ActionDto) o;
+		final RoleDto roleDto = (RoleDto) o;
 
-		return name.equals(actionDto.name);
+		return name.equals(roleDto.name);
 	}
 
 	@Override
