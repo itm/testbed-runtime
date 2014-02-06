@@ -1,20 +1,29 @@
 package de.uniluebeck.itm.tr.snaa.shiro.entity;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "USERS")
 public class User implements java.io.Serializable {
 
+	@Id
+	@Column(name = "NAME", unique = true, nullable = false, length = 150)
 	private String name;
 
+	@Column(name = "PASSWORD", length = 1500)
 	private String password;
 
+	@Column(name = "SALT", length = 1500)
 	private String salt;
 
-	private Set<Role> roles = new HashSet<Role>(0);
+	@ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
+	@JoinTable(name = "USERS_ROLES", joinColumns = {
+			@JoinColumn(name = "USER_NAME", nullable = false, updatable = false)
+	}, inverseJoinColumns = {
+			@JoinColumn(name = "ROLE_NAME", nullable = false, updatable = false)
+	})
+	private Set<Role> roles;
 
 	public User() {
 	}
@@ -30,8 +39,6 @@ public class User implements java.io.Serializable {
 		this.roles = roles;
 	}
 
-	@Id
-	@Column(name = "NAME", unique = true, nullable = false, length = 150)
 	public String getName() {
 		return this.name;
 	}
@@ -40,7 +47,6 @@ public class User implements java.io.Serializable {
 		this.name = name;
 	}
 
-	@Column(name = "PASSWORD", length = 1500)
 	public String getPassword() {
 		return this.password;
 	}
@@ -49,7 +55,6 @@ public class User implements java.io.Serializable {
 		this.password = password;
 	}
 
-	@Column(name = "SALT", length = 1500)
 	public String getSalt() {
 		return this.salt;
 	}
@@ -58,12 +63,6 @@ public class User implements java.io.Serializable {
 		this.salt = salt;
 	}
 
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "USERS_ROLES", joinColumns = {
-			@JoinColumn(name = "USER_NAME", nullable = false, updatable = false)
-	}, inverseJoinColumns = {
-			@JoinColumn(name = "ROLE_NAME", nullable = false, updatable = false)
-	})
 	public Set<Role> getRoles() {
 		return this.roles;
 	}
@@ -71,8 +70,6 @@ public class User implements java.io.Serializable {
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
-
-
 }
 
 

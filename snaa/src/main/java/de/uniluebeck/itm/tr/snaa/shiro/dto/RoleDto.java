@@ -9,7 +9,10 @@ public class RoleDto {
 
     private String name;
 
-    public RoleDto(String name) {
+	public RoleDto() {
+	}
+
+	public RoleDto(String name) {
         this.name = checkNotNull(name);
     }
 

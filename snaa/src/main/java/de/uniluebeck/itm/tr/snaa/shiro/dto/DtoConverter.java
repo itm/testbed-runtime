@@ -18,7 +18,9 @@ public class DtoConverter {
 	public static final Function<Role, RoleDto> ROLE_TO_DTO_FUNCTION = new Function<Role, RoleDto>() {
 		@Override
 		public RoleDto apply(final Role role) {
-			return new RoleDto(role.getName());
+			final RoleDto roleDto = new RoleDto();
+			roleDto.setName(role.getName());
+			return roleDto;
 		}
 	};
 

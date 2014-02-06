@@ -15,7 +15,6 @@ $(function () {
         initialize: function() {
             // changes in our collection will redraw view
             this.listenTo(app.Nodes, 'all', this.render);
-
             this.render();
         },
 

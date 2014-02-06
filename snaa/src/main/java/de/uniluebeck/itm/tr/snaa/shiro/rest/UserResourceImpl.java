@@ -2,13 +2,14 @@ package de.uniluebeck.itm.tr.snaa.shiro.rest;
 
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.RoleDao;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.UserDao;
 import de.uniluebeck.itm.tr.snaa.shiro.dto.RoleDto;
 import de.uniluebeck.itm.tr.snaa.shiro.dto.UserDto;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
-import edu.vt.middleware.crypt.digest.SHA512;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.slf4j.Logger;
@@ -33,10 +34,18 @@ public class UserResourceImpl implements UserResource {
 
 	private final RoleDao roleDao;
 
+	private final String hashAlgorithmName;
+
+	private final int hashIterations;
+
 	@Inject
-	public UserResourceImpl(final UserDao usersDao, final RoleDao roleDao) {
+	public UserResourceImpl(final UserDao usersDao, final RoleDao roleDao,
+							@Named("shiro.hashAlgorithmName") final String hashAlgorithmName,
+							@Named("shiro.hashIterations") final int hashIterations) {
 		this.usersDao = usersDao;
 		this.roleDao = roleDao;
+		this.hashAlgorithmName = hashAlgorithmName;
+		this.hashIterations = hashIterations;
 	}
 
 	@Context
@@ -45,6 +54,7 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Transactional
 	public Response addUser(final UserDto user) {
 
 		if (usersDao.find(user.getName()) != null) {
@@ -69,7 +79,7 @@ public class UserResourceImpl implements UserResource {
 		}
 
 		final String salt = new SecureRandomNumberGenerator().nextBytes().toHex();
-		final String hash = new SimpleHash(SHA512.ALGORITHM, user.getPassword(), salt, 1000).toHex();
+		final String hash = new SimpleHash(hashAlgorithmName, user.getPassword(), salt, hashIterations).toHex();
 		final User newUser = new User(user.getName(), hash, salt, userRoles);
 
 		try {
@@ -79,13 +89,14 @@ public class UserResourceImpl implements UserResource {
 		}
 
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(user.getName()).build();
-		return Response.created(location).build();
+		return Response.created(location).entity(convertUser(newUser)).build();
 	}
 
 	@Override
 	@DELETE
 	@Path("{name}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
 	public Response deleteUser(@PathParam("name") final String name) {
 		log.trace("UserResourceImpl.deleteUser({})", name);
 		final User user = usersDao.find(name);
@@ -100,6 +111,7 @@ public class UserResourceImpl implements UserResource {
 	@GET
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
 	public UserDto getUser(@PathParam("name") final String name) {
 		log.trace("UserResourceImpl.getUser()");
 		return convertUser(usersDao.find(name));
@@ -109,6 +121,7 @@ public class UserResourceImpl implements UserResource {
 	@PUT
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
 	public Response updateUser(@PathParam("name") final String name, final UserDto userDto) {
 
 		log.trace("UserResourceImpl.updateUser()");
@@ -130,7 +143,7 @@ public class UserResourceImpl implements UserResource {
 		// update password if it was changed ('null' password indicates no change)
 		if (userDto.getPassword() != null) {
 			final String salt = new SecureRandomNumberGenerator().nextBytes().toHex();
-			final String hash = new SimpleHash(SHA512.ALGORITHM, userDto.getPassword(), salt, 1000).toHex();
+			final String hash = new SimpleHash(hashAlgorithmName, userDto.getPassword(), salt, hashIterations).toHex();
 			user.setPassword(hash);
 			user.setSalt(salt);
 			updated = true;
@@ -169,8 +182,9 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
 	public List<UserDto> listUsers() {
-		log.trace("UserResourceImpl.listUsers()");
+		log.trace("UserResourceImpl.listUsers(usersDao={})", usersDao);
 		return convertUserList(usersDao.find());
 	}
 }

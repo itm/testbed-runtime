@@ -18,6 +18,8 @@ public interface RoleResource {
 	Response addRole(RoleDto role);
 
 	@DELETE
-	Response removeRole(RoleDto role);
+	@Path("/{name}")
+	@Produces(MediaType.APPLICATION_JSON)
+	Response removeRole(@PathParam("name") String role);
 
 }

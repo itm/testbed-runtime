@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.snaa.shiro.rest;
 
 import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.RoleDao;
 import de.uniluebeck.itm.tr.snaa.shiro.dto.RoleDto;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
@@ -33,6 +34,7 @@ public class RoleResourceImpl implements RoleResource {
 	@Override
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
 	public List<RoleDto> listRoles() {
 		log.trace("RoleResourceImpl.listRoles()");
 		return newArrayList(transform(rolesDao.find(), ROLE_TO_DTO_FUNCTION));
@@ -40,6 +42,7 @@ public class RoleResourceImpl implements RoleResource {
 
 	@Override
 	@POST
+	@Transactional
 	public Response addRole(final RoleDto role) {
 		log.trace("RoleResourceImpl.addRole()");
 		if (rolesDao.find(role.getName()) != null) {
@@ -47,14 +50,17 @@ public class RoleResourceImpl implements RoleResource {
 		}
 		rolesDao.save(new Role(role.getName()));
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(role.getName()).build();
-		return Response.created(location).build();
+		return Response.created(location).entity(role).build();
 	}
 
 	@Override
 	@DELETE
-	public Response removeRole(final RoleDto role) {
+	@Path("/{name}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Transactional
+	public Response removeRole(@PathParam("name") final String role) {
 		log.trace("RoleResourceImpl.removeRole()");
-		final Role roleFound = rolesDao.find(role.getName());
+		final Role roleFound = rolesDao.find(role);
 		if (roleFound == null) {
 			return Response.ok().build();
 		}

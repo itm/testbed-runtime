@@ -10,7 +10,8 @@ $(function() {
 
 	var RoleCollection = Backbone.Collection.extend({
 		model : app.RoleModel,
-		url : app.rest_api_context_path + '/roles'
+		url : app.rest_api_context_path + '/roles',
+		comparator : 'name'
 	});
 
 	app.UserModel = Backbone.Model.extend({
@@ -20,7 +21,8 @@ $(function() {
 
 	var UserCollection = Backbone.Collection.extend({
 		model : app.UserModel,
-		url : app.rest_api_context_path + '/users'
+		url : app.rest_api_context_path + '/users',
+		comparator : 'name'
 	});
 
 	app.Users = new UserCollection();
