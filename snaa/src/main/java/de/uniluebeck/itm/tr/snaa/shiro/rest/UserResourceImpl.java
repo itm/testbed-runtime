@@ -3,7 +3,6 @@ package de.uniluebeck.itm.tr.snaa.shiro.rest;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.RoleDao;
 import de.uniluebeck.itm.tr.snaa.shiro.dao.UserDao;
 import de.uniluebeck.itm.tr.snaa.shiro.dto.RoleDto;
@@ -15,6 +14,9 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Provider;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.RollbackException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -34,16 +36,19 @@ public class UserResourceImpl implements UserResource {
 
 	private final RoleDao roleDao;
 
+	private final Provider<EntityManager> em;
+
 	private final String hashAlgorithmName;
 
 	private final int hashIterations;
 
 	@Inject
-	public UserResourceImpl(final UserDao usersDao, final RoleDao roleDao,
+	public UserResourceImpl(final UserDao usersDao, final RoleDao roleDao, final Provider<EntityManager> em,
 							@Named("shiro.hashAlgorithmName") final String hashAlgorithmName,
 							@Named("shiro.hashIterations") final int hashIterations) {
 		this.usersDao = usersDao;
 		this.roleDao = roleDao;
+		this.em = em;
 		this.hashAlgorithmName = hashAlgorithmName;
 		this.hashIterations = hashIterations;
 	}
@@ -54,9 +59,10 @@ public class UserResourceImpl implements UserResource {
 	@Override
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Transactional
 	public Response addUser(final UserDto user) {
 
+		final EntityTransaction transaction = em.get().getTransaction();
+		transaction.begin();
 		if (usersDao.find(user.getName()) != null) {
 			return Response
 					.status(Response.Status.CONFLICT)
@@ -88,6 +94,8 @@ public class UserResourceImpl implements UserResource {
 			return Response.serverError().entity(e).build();
 		}
 
+		transaction.commit();
+
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(user.getName()).build();
 		return Response.created(location).entity(convertUser(newUser)).build();
 	}
@@ -96,14 +104,16 @@ public class UserResourceImpl implements UserResource {
 	@DELETE
 	@Path("{name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
 	public Response deleteUser(@PathParam("name") final String name) {
 		log.trace("UserResourceImpl.deleteUser({})", name);
+		final EntityTransaction transaction = em.get().getTransaction();
+		transaction.begin();
 		final User user = usersDao.find(name);
 		if (user == null) {
 			return Response.ok().build();
 		}
 		usersDao.delete(user);
+		transaction.commit();
 		return Response.ok().build();
 	}
 
@@ -111,17 +121,19 @@ public class UserResourceImpl implements UserResource {
 	@GET
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
 	public UserDto getUser(@PathParam("name") final String name) {
 		log.trace("UserResourceImpl.getUser()");
-		return convertUser(usersDao.find(name));
+		final EntityTransaction transaction = em.get().getTransaction();
+		transaction.begin();
+		final User user = usersDao.find(name);
+		transaction.commit();
+		return convertUser(user);
 	}
 
 	@Override
 	@PUT
 	@Path("/{name}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
 	public Response updateUser(@PathParam("name") final String name, final UserDto userDto) {
 
 		log.trace("UserResourceImpl.updateUser()");
@@ -133,6 +145,8 @@ public class UserResourceImpl implements UserResource {
 					.build();
 		}
 
+		final EntityTransaction transaction = em.get().getTransaction();
+		transaction.begin();
 		final User user = usersDao.find(name);
 		if (user == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
@@ -176,15 +190,20 @@ public class UserResourceImpl implements UserResource {
 			usersDao.update(user);
 		}
 
+		transaction.commit();
+
 		return Response.ok(convertUser(user)).build();
 	}
 
 	@Override
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
 	public List<UserDto> listUsers() {
 		log.trace("UserResourceImpl.listUsers(usersDao={})", usersDao);
-		return convertUserList(usersDao.find());
+		final EntityTransaction transaction = em.get().getTransaction();
+		transaction.begin();
+		final List<User> users = usersDao.find();
+		transaction.commit();
+		return convertUserList(users);
 	}
 }

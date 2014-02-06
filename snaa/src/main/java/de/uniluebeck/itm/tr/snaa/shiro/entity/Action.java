@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.snaa.shiro.entity;
 import javax.persistence.*;
 import java.util.Set;
 
+import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
@@ -13,7 +14,7 @@ public class Action implements java.io.Serializable {
 	@Column(name = "NAME", unique = true, nullable = false, length = 30)
 	private String name;
 
-	@OneToMany(fetch = LAZY, mappedBy = "action")
+	@OneToMany(fetch = LAZY, mappedBy = "action", cascade = ALL)
 	private Set<Permission> permissions;
 
 	public Action() {

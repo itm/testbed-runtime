@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.EAGER;
+import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Table(name = "USERS")
@@ -20,7 +20,7 @@ public class User implements java.io.Serializable {
 	@Column(name = "SALT", length = 1500)
 	private String salt;
 
-	@ManyToMany(fetch = EAGER, cascade = ALL)
+	@ManyToMany(fetch = LAZY, cascade = ALL)
 	@JoinTable(name = "USERS_ROLES", joinColumns = {
 			@JoinColumn(name = "USER_NAME", nullable = false, updatable = false)
 	}, inverseJoinColumns = {

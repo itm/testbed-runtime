@@ -3,6 +3,8 @@ package de.uniluebeck.itm.tr.snaa.shiro.entity;
 import javax.persistence.*;
 import java.util.Set;
 
+import static javax.persistence.CascadeType.ALL;
+
 @Entity
 @Table(name = "RESOURCEGROUPS")
 public class ResourceGroup implements java.io.Serializable {
@@ -11,10 +13,10 @@ public class ResourceGroup implements java.io.Serializable {
 	@Column(name = "NAME", unique = true, nullable = false, length = 40)
 	private String name;
 
-	@OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "resourceGroup")
+	@OneToMany(cascade = ALL, fetch = FetchType.LAZY, mappedBy = "resourceGroup")
 	private Set<UrnResourceGroup> urnResourceGroups;
 
-	@OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "resourceGroup")
+	@OneToMany(cascade = ALL, fetch = FetchType.LAZY, mappedBy = "resourceGroup")
 	private Set<Permission> permissions;
 
 	public ResourceGroup() {
