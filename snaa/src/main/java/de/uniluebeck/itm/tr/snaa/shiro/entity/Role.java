@@ -1,8 +1,10 @@
 package de.uniluebeck.itm.tr.snaa.shiro.entity;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Set;
+
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Table(name = "ROLES")
@@ -12,7 +14,7 @@ public class Role implements java.io.Serializable {
 	@Column(name = "NAME", unique = true, nullable = false, length = 150)
 	private String name;
 
-	@ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+	@ManyToMany(cascade = ALL, fetch = LAZY)
 	@JoinTable(name = "USERS_ROLES", joinColumns = {
 			@JoinColumn(name = "ROLE_NAME", nullable = false, updatable = false)
 	}, inverseJoinColumns = {
@@ -20,7 +22,7 @@ public class Role implements java.io.Serializable {
 	})
 	private Set<User> users;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
+	@OneToMany(fetch = LAZY, mappedBy = "role", cascade = ALL)
 	private Set<Permission> permissions;
 
 	public Role() {

@@ -1,8 +1,9 @@
 package de.uniluebeck.itm.tr.snaa.shiro.entity;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Set;
+
+import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Table(name = "ACTIONS")
@@ -12,7 +13,7 @@ public class Action implements java.io.Serializable {
 	@Column(name = "NAME", unique = true, nullable = false, length = 30)
 	private String name;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "action")
+	@OneToMany(fetch = LAZY, mappedBy = "action")
 	private Set<Permission> permissions;
 
 	public Action() {

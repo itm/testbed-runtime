@@ -41,18 +41,6 @@
 			});
 
 			Backbone.history.start();
-
-			app.Roles.fetch({
-				error : function() {
-					alert('Error fetching roles list');
-				}
-			});
-
-			app.Users.fetch({
-				error : function() {
-					alert('Error fetching users list');
-				}
-			});
 		});
 
 	</script>

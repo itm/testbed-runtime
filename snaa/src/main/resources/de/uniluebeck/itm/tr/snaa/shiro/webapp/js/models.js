@@ -3,6 +3,17 @@ var app = app || {};
 $(function() {
 	'use strict';
 
+	app.ActionModel = Backbone.Model.extend({
+		idAttribute : 'name',
+		urlRoot : app.rest_api_context_path + '/actions'
+	});
+
+	var ActionCollection = Backbone.Collection.extend({
+		model : app.ActionModel,
+		url : app.rest_api_context_path + '/actions',
+		comparator : 'name'
+	});
+
 	app.RoleModel = Backbone.Model.extend({
 		idAttribute : 'name',
 		urlRoot : app.rest_api_context_path + '/roles'
@@ -25,6 +36,7 @@ $(function() {
 		comparator : 'name'
 	});
 
-	app.Users = new UserCollection();
 	app.Roles = new RoleCollection();
+	app.Users = new UserCollection();
+	app.Actions = new ActionCollection();
 });

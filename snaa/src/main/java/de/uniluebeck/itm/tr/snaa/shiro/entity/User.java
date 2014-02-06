@@ -3,6 +3,9 @@ package de.uniluebeck.itm.tr.snaa.shiro.entity;
 import javax.persistence.*;
 import java.util.Set;
 
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.EAGER;
+
 @Entity
 @Table(name = "USERS")
 public class User implements java.io.Serializable {
@@ -17,7 +20,7 @@ public class User implements java.io.Serializable {
 	@Column(name = "SALT", length = 1500)
 	private String salt;
 
-	@ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
+	@ManyToMany(fetch = EAGER, cascade = ALL)
 	@JoinTable(name = "USERS_ROLES", joinColumns = {
 			@JoinColumn(name = "USER_NAME", nullable = false, updatable = false)
 	}, inverseJoinColumns = {

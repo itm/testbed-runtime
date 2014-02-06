@@ -15,9 +15,6 @@ $(function() {
 		initialize : function() {
 			this.listenTo(app.Roles, 'sync', this.render);
 			this.listenTo(app.Roles, 'destroy', this.render);
-			app.routes.on('route:roles', function() {
-				app.Roles.fetch();
-			});
 			this.render();
 		},
 
@@ -69,15 +66,22 @@ $(function() {
 		},
 
 		initialize : function() {
+			this.listenTo(app.Actions, 'sync', this.render);
 			this.render();
 		},
 
 		render : function() {
-			this.$el.append(this.template());
+			var model = {
+				actions : _.map(app.Actions.models, function(el) {
+					return el.attributes;
+				})
+			};
+			this.$el.html(this.template(model));
 			return this;
 		},
 
 		show : function() {
+			app.routes.navigate('actions');
 			this.$el.show();
 		},
 
@@ -99,9 +103,6 @@ $(function() {
 		initialize : function() {
 			this.listenTo(app.Users, 'sync', this.render);
 			this.listenTo(app.Users, 'destroy', this.render);
-			app.routes.on('route:users', function() {
-				app.Users.fetch();
-			});
 			this.render();
 		},
 
