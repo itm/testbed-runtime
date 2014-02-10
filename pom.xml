@@ -208,11 +208,6 @@
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.util</groupId>
-				<artifactId>jpa</artifactId>
-				<version>${itm-utils.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>de.uniluebeck.itm.util</groupId>
 				<artifactId>logging</artifactId>
 				<version>${itm-utils.version}</version>
 			</dependency>
@@ -459,7 +454,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>4.2.7.Final</version>
+				<version>4.2.8.Final</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.hibernate.common</groupId>
@@ -478,7 +473,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-entitymanager</artifactId>
-				<version>4.2.7.Final</version>
+				<version>4.2.8.Final</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.jboss.logging</groupId>
@@ -493,7 +488,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-c3p0</artifactId>
-				<version>4.2.7.Final</version>
+				<version>4.2.8.Final</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.jboss.logging</groupId>
@@ -508,7 +503,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-ehcache</artifactId>
-				<version>4.2.7.Final</version>
+				<version>4.2.8.Final</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.jboss.logging</groupId>
@@ -523,7 +518,7 @@
 			<dependency>
 				<groupId>org.hibernate.common</groupId>
 				<artifactId>hibernate-commons-annotations</artifactId>
-				<version>4.0.4.Final</version>
+				<version>4.0.2.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.jboss.logging</groupId>

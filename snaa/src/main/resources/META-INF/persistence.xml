@@ -6,7 +6,7 @@
 
 	<persistence-unit name="ShiroSNAA" transaction-type="RESOURCE_LOCAL">
 
-		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<provider>org.hibernate.ejb.HibernatePersistenceProvider</provider>
 
 		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.Action</class>
 		<class>de.uniluebeck.itm.tr.snaa.shiro.entity.Permission</class>

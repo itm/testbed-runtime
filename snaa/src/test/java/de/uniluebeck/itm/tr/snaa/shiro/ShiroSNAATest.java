@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
 import com.google.inject.AbstractModule;
-import de.uniluebeck.itm.tr.snaa.shiro.dao.UrnResourceGroupDao;
-import de.uniluebeck.itm.tr.snaa.shiro.dao.UserDao;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
 import de.uniluebeck.itm.util.logging.LogLevel;
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
@@ -15,6 +15,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertFalse;
@@ -31,25 +34,30 @@ public class ShiroSNAATest extends ShiroSNAATestBase {
 	private EntityManager em;
 
 	@Mock
-	private UserDao usersDao;
+	private CriteriaBuilder criteriaBuilder;
 
 	@Mock
-	private UrnResourceGroupDao urnResourceGroupDao;
+	private CriteriaQuery<UrnResourceGroup> criteriaQuery;
+
+	@Mock
+	private TypedQuery<UrnResourceGroup> typedQuery;
 
 	@Before
 	public void setUp() throws Exception {
 
-		when(usersDao.find(EXPERIMENTER1)).thenReturn(getExperimenter1());
-		when(usersDao.find(SERVICE_PROVIDER1)).thenReturn(getServiceProvider1());
-		when(usersDao.find(ADMINISTRATOR1)).thenReturn(getAdministrator1());
-		when(urnResourceGroupDao.find()).thenReturn(getUrnResourceGroup());
+		when(em.find(User.class, EXPERIMENTER1)).thenReturn(getExperimenter1());
+		when(em.find(User.class, SERVICE_PROVIDER1)).thenReturn(getServiceProvider1());
+		when(em.find(User.class, ADMINISTRATOR1)).thenReturn(getAdministrator1());
+
+		when(em.getCriteriaBuilder()).thenReturn(criteriaBuilder);
+		when(criteriaBuilder.createQuery(UrnResourceGroup.class)).thenReturn(criteriaQuery);
+		when(em.createQuery(criteriaQuery)).thenReturn(typedQuery);
+		when(typedQuery.getResultList()).thenReturn(getUrnResourceGroup());
 
 		final AbstractModule jpaModule = new AbstractModule() {
 			@Override
 			protected void configure() {
 				bind(EntityManager.class).toInstance(em);
-				bind(UserDao.class).toInstance(usersDao);
-				bind(UrnResourceGroupDao.class).toInstance(urnResourceGroupDao);
 			}
 		};
 

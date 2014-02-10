@@ -1,7 +1,8 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.snaa.shiro.dao.UserDao;
+import com.google.inject.Provider;
+import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Permission;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
@@ -16,6 +17,7 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.SimpleByteSource;
 
+import javax.persistence.EntityManager;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,11 +26,7 @@ import java.util.Set;
  */
 public class ShiroSNAAJPARealm extends AuthorizingRealm {
 
-	/**
-	 * Object use to access persisted user information
-	 */
-	@Inject
-	private UserDao usersDao;
+	private final Provider<EntityManager> emProvider;
 
 	// ------------------------------------------------------------------------
 	/**
@@ -39,14 +37,17 @@ public class ShiroSNAAJPARealm extends AuthorizingRealm {
 	 *            The credentials matcher to be used
 	 */
 	@Inject
-	public ShiroSNAAJPARealm(final HashedCredentialsMatcher hashedCredentialsMatcher) {
+	public ShiroSNAAJPARealm(final HashedCredentialsMatcher hashedCredentialsMatcher,
+							 final Provider<EntityManager> emProvider) {
+		this.emProvider = emProvider;
 		setCredentialsMatcher(hashedCredentialsMatcher);
 	}
 
 	@Override
+	@Transactional
 	protected SimpleAuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authToken) throws AuthenticationException {
 		UsernamePasswordToken token = (UsernamePasswordToken) authToken;
-		User user = usersDao.find(token.getUsername());
+		final User user = emProvider.get().find(User.class, token.getUsername());
 		if (user != null && user.getSalt() != null && !user.getSalt().equals("")) {
 			return new SimpleAuthenticationInfo(user.getName(), user.getPassword(), new SimpleByteSource(user.getSalt()), getName());
 		} else if (user != null) {
@@ -58,9 +59,10 @@ public class ShiroSNAAJPARealm extends AuthorizingRealm {
 	}
 
 	@Override
+	@Transactional
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-		String userId = (String) principals.fromRealm(getName()).iterator().next();
-		User user = usersDao.find(userId);
+		String username = (String) principals.fromRealm(getName()).iterator().next();
+		final User user = emProvider.get().find(User.class, username);
 		if (user != null) {
 			SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 			for (Role role : user.getRoles()) {
@@ -93,7 +95,8 @@ public class ShiroSNAAJPARealm extends AuthorizingRealm {
 		return result;
 	}
 
-	public boolean doesUserExist(final String userId) {
-		return usersDao.find(userId) != null;
+	@Transactional
+	public boolean doesUserExist(final String username) {
+		return emProvider.get().find(User.class, username) != null;
 	}
 }

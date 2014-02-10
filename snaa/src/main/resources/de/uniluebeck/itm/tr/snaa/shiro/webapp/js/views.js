@@ -42,7 +42,17 @@ $(function() {
 			var msg = $(e.target).data('confirm') || $(e.target).parent().data('confirm');
 			bootbox.confirm(msg, function(sure) {
 				if (sure) {
-					app.Roles.get(id).destroy();
+					app.Roles.get(id).destroy({
+						wait : true,
+						error : function(model, xhr, options) {
+							console.log(xhr);
+							if (xhr.responseText && "" != xhr.responseText) {
+								alert(xhr.responseText);
+							} else {
+								alert('An error occurred during request processing!');
+							}
+						}
+					});
 				}
 			});
 		},
@@ -123,7 +133,17 @@ $(function() {
 			var msg = $(e.target).data('confirm') || $(e.target).parent().data('confirm');
 			bootbox.confirm(msg, function(sure) {
 				if (sure) {
-					app.Users.get(id).destroy();
+					app.Users.get(id).destroy({
+						wait : true,
+						error : function(model, xhr, options) {
+							console.log(xhr);
+							if (xhr.responseText && "" != xhr.responseText) {
+								alert(xhr.responseText);
+							} else {
+								alert('An error occurred during request processing!');
+							}
+						}
+					});
 				}
 			});
 		},

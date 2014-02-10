@@ -28,11 +28,11 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
-import de.uniluebeck.itm.tr.snaa.shiro.dao.UrnResourceGroupDao;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
 import de.uniluebeck.itm.tr.snaa.shiro.rest.ShiroSNAARestService;
 import de.uniluebeck.itm.util.TimedCache;
@@ -55,6 +55,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -74,8 +77,12 @@ import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
  * The authentication and authorization is performed for a certain set of nodes. These nodes are
  * grouped by a shared uniform resource locator prefix.
  */
-@WebService(endpointInterface = "eu.wisebed.api.v3.snaa.SNAA", portName = "SNAAPort", serviceName = "SNAAService",
-		targetNamespace = "http://wisebed.eu/api/v3/snaa/")
+@WebService(
+		endpointInterface = "eu.wisebed.api.v3.snaa.SNAA",
+		portName = "SNAAPort",
+		serviceName = "SNAAService",
+		targetNamespace = "http://wisebed.eu/api/v3/snaa/"
+)
 public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.snaa.SNAAService {
 
 	/**
@@ -110,11 +117,6 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	private final TimedCache<String, AuthenticationTriple> authenticatedSessions =
 			new TimedCache<String, AuthenticationTriple>(30, TimeUnit.MINUTES);
 
-	/**
-	 * An object which provides access to the persisted groups of resources
-	 */
-	private final UrnResourceGroupDao urnResourceGroupsDAO;
-
 	private final ServicePublisher servicePublisher;
 
 	private final SecurityManager securityManager;
@@ -125,16 +127,19 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 
 	private final ShiroSNAARestService restService;
 
+	private final Provider<EntityManager> emProvider;
+
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public ShiroSNAA(final ServicePublisher servicePublisher,
+	public ShiroSNAA(final Provider<EntityManager> emProvider,
+					 final ServicePublisher servicePublisher,
 					 final SecurityManager securityManager,
-					 final UrnResourceGroupDao urnResourceGroupsDAO,
 					 final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
 					 final SNAAServiceConfig snaaServiceConfig,
 					 final Provider<Subject> currentUserProvider,
 					 final ShiroSNAARestService restService) {
+		this.emProvider = emProvider;
 
 		Collection<Realm> realms = ((RealmSecurityManager) securityManager).getRealms();
 		checkArgument(realms.size() == 1, "Exactly one realm must be configured");
@@ -145,7 +150,6 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 		this.realm = realms.iterator().next();
 		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
 		this.snaaServiceConfig = snaaServiceConfig;
-		this.urnResourceGroupsDAO = urnResourceGroupsDAO;
 		this.restService = restService;
 	}
 
@@ -269,7 +273,8 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 			Action action)
 			throws SNAAFault_Exception {
 
-		checkNotNull(action, "action parameter must be non-null (one of " + Joiner.on(", ").join(Action.values()) + ")");
+		checkNotNull(action, "action parameter must be non-null (one of " + Joiner.on(", ").join(Action.values()) + ")"
+		);
 		checkArgument(usernameNodeUrnsMaps.size() == 1,
 				"The number of username and node urn mappings must be 1 but is " + usernameNodeUrnsMaps.size()
 		);
@@ -337,6 +342,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	 * 		Thrown if the provided collection of node urns contains node urns with prefixes which
 	 * 		are not served by this SNAA server
 	 */
+	@Transactional
 	protected Set<String> getNodeGroupsForNodeURNs(final Collection<NodeUrn> nodeUrns) throws SNAAFault_Exception {
 
 		assertAllNodeUrnPrefixesServed(servedNodeUrnPrefixesProvider.get(), Lists.newLinkedList(nodeUrns));
@@ -347,7 +353,12 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 			nodeUrnStringList.add(nodeUrn.getPrefix().toString() + nodeUrn.getSuffix());
 		}
 
-		List<UrnResourceGroup> nodeUrnResourceGroup = urnResourceGroupsDAO.find();
+		final EntityManager em = emProvider.get();
+		final CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+		final CriteriaQuery<UrnResourceGroup> query = criteriaBuilder.createQuery(UrnResourceGroup.class);
+		query.from(UrnResourceGroup.class);
+		final List<UrnResourceGroup> nodeUrnResourceGroup = em.createQuery(query).getResultList();
+
 		for (UrnResourceGroup grp : nodeUrnResourceGroup) {
 			if (nodeUrnStringList.contains(grp.getId().getUrn())) {
 				nodeGroups.add(grp.getId().getResourcegroup());

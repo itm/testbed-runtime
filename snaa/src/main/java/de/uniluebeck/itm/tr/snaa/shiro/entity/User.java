@@ -3,7 +3,6 @@ package de.uniluebeck.itm.tr.snaa.shiro.entity;
 import javax.persistence.*;
 import java.util.Set;
 
-import static javax.persistence.CascadeType.ALL;
 import static javax.persistence.FetchType.LAZY;
 
 @Entity
@@ -20,7 +19,7 @@ public class User implements java.io.Serializable {
 	@Column(name = "SALT", length = 1500)
 	private String salt;
 
-	@ManyToMany(fetch = LAZY, cascade = ALL)
+	@ManyToMany(fetch = LAZY)
 	@JoinTable(name = "USERS_ROLES", joinColumns = {
 			@JoinColumn(name = "USER_NAME", nullable = false, updatable = false)
 	}, inverseJoinColumns = {
@@ -72,6 +71,23 @@ public class User implements java.io.Serializable {
 
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		final User user = (User) o;
+		return name.equals(user.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
 	}
 }
 

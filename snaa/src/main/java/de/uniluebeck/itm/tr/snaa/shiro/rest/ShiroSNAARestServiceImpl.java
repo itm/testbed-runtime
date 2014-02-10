@@ -27,7 +27,9 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 	private ServicePublisherService webApp;
 
 	@Inject
-	public ShiroSNAARestServiceImpl(final ServicePublisher servicePublisher, final ShiroSNAARestApplication application, final SNAAServiceConfig config) {
+	public ShiroSNAARestServiceImpl(final ServicePublisher servicePublisher,
+									final ShiroSNAARestApplication application,
+									final SNAAServiceConfig config) {
 		this.servicePublisher = servicePublisher;
 		this.application = application;
 		this.config = config;
@@ -41,11 +43,14 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 			jaxRsService = servicePublisher.createJaxRsService(config.getShiroAdminRestApiContextPath(), application);
 			jaxRsService.startAndWait();
 
-			String webAppResourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/snaa/shiro/webapp").toString();
+			String webAppResourceBase =
+					this.getClass().getResource("/de/uniluebeck/itm/tr/snaa/shiro/webapp").toString();
 
 			final Map<String, String> webAppInitParams = newHashMap();
-			webAppInitParams.put(SNAAServiceConfig.SHIRO_ADMIN_REST_API_CONTEXTPATH, config.getShiroAdminRestApiContextPath());
-			webAppInitParams.put(SNAAServiceConfig.SHIRO_ADMIN_WEBAPP_CONTEXTPATH, config.getShiroAdminWebappContextPath());
+			webAppInitParams
+					.put(SNAAServiceConfig.SHIRO_ADMIN_REST_API_CONTEXTPATH, config.getShiroAdminRestApiContextPath());
+			webAppInitParams
+					.put(SNAAServiceConfig.SHIRO_ADMIN_WEBAPP_CONTEXTPATH, config.getShiroAdminWebappContextPath());
 
 			webApp = servicePublisher.createServletService(
 					config.getShiroAdminWebappContextPath(),

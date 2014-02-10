@@ -15,6 +15,15 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class DtoConverter {
 
+	public static final Function<RoleDto, Role> DTO_TO_ROLE_FUNCTION = new Function<RoleDto, Role>() {
+		@Override
+		public Role apply(final RoleDto roleDto) {
+			final Role role = new Role();
+			role.setName(roleDto.getName());
+			return role;
+		}
+	};
+
 	public static final Function<Role, RoleDto> ROLE_TO_DTO_FUNCTION = new Function<Role, RoleDto>() {
 		@Override
 		public RoleDto apply(final Role role) {
@@ -49,13 +58,6 @@ public class DtoConverter {
 							permission.getAction().getName(),
 							permission.getResourceGroup().getName()
 					);
-				}
-			};
-
-	public static final Function<RoleDto, Role> DTO_TO_ROLE_FUNCTION = new Function<RoleDto, Role>() {
-				@Override
-				public Role apply(final RoleDto s) {
-					return new Role(s.getName());
 				}
 			};
 

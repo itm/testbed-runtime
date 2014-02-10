@@ -57,8 +57,8 @@
 			<artifactId>tr.federator-utils</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>de.uniluebeck.itm.util</groupId>
-			<artifactId>jpa</artifactId>
+			<groupId>org.hibernate.javax.persistence</groupId>
+			<artifactId>hibernate-jpa-2.0-api</artifactId>
 		</dependency>
 
 		<dependency>
@@ -159,62 +159,5 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>hibernate3-maven-plugin</artifactId>
-				<version>2.2</version>
-				<configuration>
-					<components>
-						<component>
-							<name>hbm2cfgxml</name>
-							<outputDirectory>src/main/resources</outputDirectory>
-							<implementation>jdbcconfiguration</implementation>
-						</component>
-						<component>
-							<name>hbm2java</name>
-							<outputDirectory>src/main/java</outputDirectory>
-							<implementation>jdbcconfiguration</implementation>
-						</component>
-						<component>
-							<name>hbm2dao</name>
-							<implementation>jdbcconfiguration</implementation>
-							<outputDirectory>src/main/java</outputDirectory>
-						</component>
-						<component>
-							<name>hbm2ddl</name>
-							<implementation>jpaconfiguration</implementation>
-						</component>
-					</components>
-					<componentProperties>
-						<revengfile>/src/main/resources/hibernate.reveng.xml</revengfile>
-						<persistenceunit>Default</persistenceunit>
-						<propertyfile>/src/main/resources/META-INF/hibernate.properties</propertyfile>
-						<jdk5>true</jdk5>
-						<ejb3>true</ejb3>
-						<!-- properties for hbm2ddl -->
-						<drop>true</drop>
-						<create>true</create>
-						<export>true</export>
-						<outputfilename>myapp.sql</outputfilename>
-					</componentProperties>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>mysql</groupId>
-						<artifactId>mysql-connector-java</artifactId>
-						<version>5.1.9</version>
-					</dependency>
-					<dependency>
-						<groupId>cglib</groupId>
-						<artifactId>cglib-nodep</artifactId>
-						<version>2.2.2</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-		</plugins>
-	</build>
 
 </project>

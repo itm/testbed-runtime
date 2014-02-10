@@ -23,17 +23,18 @@ import eu.wisebed.api.v3.snaa.AuthenticationTriple;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import org.apache.shiro.crypto.hash.Sha512Hash;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Application;
 import java.util.*;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.inject.util.Providers.of;
 import static eu.wisebed.api.v3.snaa.Action.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
 public abstract class ShiroSNAATestBase {
@@ -94,7 +95,13 @@ public abstract class ShiroSNAATestBase {
 	protected ServicePublisher servicePublisher;
 
 	@Mock
-	protected ServicePublisherService servicePublisherService;
+	protected ServicePublisherService jaxWsService;
+
+	@Mock
+	protected ServicePublisherService jaxRsService;
+
+	@Mock
+	protected ServicePublisherService servletService;
 
 	@Mock
 	protected ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
@@ -103,9 +110,15 @@ public abstract class ShiroSNAATestBase {
 
 	public void setUp(final Module jpaModule) throws Exception {
 
-		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
+		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(jaxWsService);
+		when(servicePublisher.createJaxRsService(anyString(), any(Application.class))).thenReturn(jaxRsService);
+		when(servicePublisher.createServletService(anyString(), anyString(), Matchers.anyMap()))
+				.thenReturn(servletService);
+
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX_1);
+
 		when(servedNodeUrnPrefixesProvider.get()).thenReturn(newHashSet(NODE_URN_PREFIX_1));
+
 		when(snaaServiceConfig.getShiroJpaProperties()).thenReturn(new Properties());
 		when(snaaServiceConfig.getShiroHashAlgorithmName()).thenReturn(Sha512Hash.ALGORITHM_NAME);
 		when(snaaServiceConfig.getShiroHashAlgorithmIterations()).thenReturn(1000);

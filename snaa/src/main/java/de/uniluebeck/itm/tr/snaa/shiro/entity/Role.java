@@ -14,12 +14,7 @@ public class Role implements java.io.Serializable {
 	@Column(name = "NAME", unique = true, nullable = false, length = 150)
 	private String name;
 
-	@ManyToMany(cascade = ALL, fetch = LAZY)
-	@JoinTable(name = "USERS_ROLES", joinColumns = {
-			@JoinColumn(name = "ROLE_NAME", nullable = false, updatable = false)
-	}, inverseJoinColumns = {
-			@JoinColumn(name = "USER_NAME", nullable = false, updatable = false)
-	})
+	@ManyToMany(fetch = LAZY, mappedBy = "roles")
 	private Set<User> users;
 
 	@OneToMany(fetch = LAZY, mappedBy = "role", cascade = ALL)
@@ -61,6 +56,23 @@ public class Role implements java.io.Serializable {
 
 	public void setPermissions(Set<Permission> permissions) {
 		this.permissions = permissions;
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		final Role role = (Role) o;
+		return name.equals(role.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return name.hashCode();
 	}
 }
 
