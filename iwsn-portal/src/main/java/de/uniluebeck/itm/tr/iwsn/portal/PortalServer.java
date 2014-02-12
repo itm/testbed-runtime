@@ -62,6 +62,8 @@ public class PortalServer extends AbstractService {
 
 	private final SchedulerService schedulerService;
 
+	private final PortalEventStoreService portalEventStoreService;
+
 	@Inject
 	public PortalServer(final SchedulerService schedulerService,
 						final ServicePublisher servicePublisher,
@@ -74,7 +76,8 @@ public class PortalServer extends AbstractService {
 						final SoapApiService soapApiService,
 						final RestApiService restApiService,
 						final WiseGuiService wiseGuiService,
-						final PortalPluginService portalPluginService) {
+						final PortalPluginService portalPluginService,
+						final PortalEventStoreService portalEventStoreService) {
 
 		this.schedulerService = checkNotNull(schedulerService);
 		this.servicePublisher = checkNotNull(servicePublisher);
@@ -84,6 +87,7 @@ public class PortalServer extends AbstractService {
 		this.deviceDBService = checkNotNull(deviceDBService);
 
 		this.portalEventBus = checkNotNull(portalEventBus);
+		this.portalEventStoreService = checkNotNull(portalEventStoreService);
 		this.reservationManager = checkNotNull(reservationManager);
 
 		this.deviceDBRestService = checkNotNull(deviceDBRestService);
@@ -110,6 +114,7 @@ public class PortalServer extends AbstractService {
 
 			// internal components of the portal server
 			portalEventBus.startAndWait();
+			portalEventStoreService.startAndWait();
 			reservationManager.startAndWait();
 
 			// services that the portal exposes to clients
@@ -141,6 +146,7 @@ public class PortalServer extends AbstractService {
 
 			// internal components
 			reservationManager.stopAndWait();
+			portalEventStoreService.stopAndWait();
 			portalEventBus.stopAndWait();
 
 			// services that the portal depends on (either embedded or remote, depends on binding)

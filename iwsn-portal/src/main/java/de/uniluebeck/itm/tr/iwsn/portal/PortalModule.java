@@ -106,6 +106,7 @@ public class PortalModule extends AbstractModule {
 		bind(EventBusFactory.class).to(EventBusFactoryImpl.class);
 		bind(PortalEventBus.class).to(PortalEventBusImpl.class).in(Singleton.class);
 		bind(ReservationManager.class).to(ReservationManagerImpl.class).in(Singleton.class);
+		bind(PortalEventStoreService.class).to(PortalEventStoreServiceImpl.class).in(Singleton.class);
 
 		install(new FactoryModuleBuilder()
 				.implement(Reservation.class, ReservationImpl.class)
