@@ -72,10 +72,15 @@ public class DtoConverter {
 				public ResourceGroupDto apply(final ResourceGroup input) {
 					final ResourceGroupDto dto = new ResourceGroupDto();
 					dto.setName(input.getName());
-					dto.setNodeUrns(newArrayList(
-							transform(input.getUrnResourceGroups(), URN_RESOURCE_GROUP_TO_URN_STRING_FUNCTION)
-					)
-					);
+					if (input.getUrnResourceGroups() != null) {
+						dto.setNodeUrns(newArrayList(
+								transform(
+										input.getUrnResourceGroups(),
+										URN_RESOURCE_GROUP_TO_URN_STRING_FUNCTION
+								)
+						)
+						);
+					}
 					return dto;
 				}
 			};

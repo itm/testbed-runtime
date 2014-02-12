@@ -112,7 +112,25 @@ $(function() {
 		},
 
 		clickedRemoveResourceGroup : function(e) {
-			alert("TODO: implement!");
+			e.preventDefault();
+			var id = $(e.target).parents('tr').data('id');
+			var msg = $(e.target).data('confirm') || $(e.target).parent().data('confirm');
+			bootbox.confirm(msg, function(sure) {
+				if (sure) {
+					app.ResourceGroups.get(id).destroy({
+						wait : true,
+						error : function(model, xhr, options) {
+							console.log(xhr);
+							if (xhr.responseText && "" != xhr.responseText) {
+								alert(xhr.responseText);
+							} else {
+								alert('An error occurred during request processing!');
+							}
+						}
+					});
+					app.ResourceGroups.fetch();
+				}
+			});
 		},
 
 		show : function() {
@@ -131,11 +149,20 @@ $(function() {
 
 		events : {
 			'click button.edit-resource_group-save' : 'save',
+			'click button.resource_group-add-node-urns' : 'onAddNodeUrns',
+			'click button.resource_group-remove-node-urns' : 'onRemoveNodeUrns',
+			'change select#nodeUrnsAvailable' : 'onNodeUrnsAvailableSelectionChange',
+			'change select#nodeUrns' : 'onNodeUrnsSelectionChange',
 			'hidden.bs.modal' : 'hidden'
 		},
 
 		initialize : function() {
+
 			this.render();
+
+			this.onNodeUrnsAvailableSelectionChange();
+			this.onNodeUrnsSelectionChange();
+
 			if (this.model.resourceGroup.attributes.name) {
 				this.$el.find('select#nodeUrns').attr("autofocus", "autofocus");
 			} else {
@@ -144,13 +171,9 @@ $(function() {
 		},
 
 		render : function() {
-			var resourceGroupNodeUrns = this.model.resourceGroup.attributes.nodeUrns;
-			var availableNodeUrns = this.model.availableNodes.filter(function(node) {
-				return resourceGroupNodeUrns.indexOf(node.id) == -1;
-			});
 			this.$el.html(this.template({
 				resourceGroup : this.model.resourceGroup.attributes,
-				availableNodeUrns : availableNodeUrns.map(function(node) {
+				availableNodeUrns : this.model.availableNodes.map(function(node) {
 					return node.attributes;
 				})
 			}));
@@ -160,31 +183,58 @@ $(function() {
 
 		save : function(e) {
 			e.preventDefault();
-			var self = this;
-
-			// serialize form
-			var nodeCallback = function(node) {
-
+			var nodeUrns = [];
+			this.$el.find('select#nodeUrns option').each(function(idx, option) {
+				nodeUrns.push(option.value);
+			});
+			var data = {
+				name : this.$el.find('input[name="name"]').val(),
+				nodeUrns : nodeUrns
 			};
 
-			var data = form2js('resource_group-form', '.', true, nodeCallback, true);
-
-			alert("TODO: implement");
+			var self = this;
 
 			// send to server
-			/*
-			 this.model.user.save(data, {
-			 wait : true,
-			 success : function(model, response, options) {
-			 app.Users.add(self.model.user, {merge : true});
-			 app.Users.sort();
-			 self.close(e);
-			 },
-			 error : function(model, xhr, options) {
-			 console.log(xhr);
-			 alert(xhr.responseText);
-			 }
-			 });*/
+			this.model.resourceGroup.save(data, {
+				wait : true,
+				success : function(model, response, options) {
+					app.ResourceGroups.add(self.model.resourceGroup, {merge : true});
+					app.ResourceGroups.sort();
+					self.close(e);
+				},
+				error : function(model, xhr, options) {
+					console.log(xhr);
+					alert(xhr.responseText);
+				}
+			});
+		},
+
+		onAddNodeUrns : function(e) {
+			var select = this.$el.find('select#nodeUrns');
+			this.$el.find('select#nodeUrnsAvailable option:selected').each(function(idx, option) {
+				select.append($("<option />").val(option.value).text(option.text));
+				option.remove();
+			});
+			this.onNodeUrnsAvailableSelectionChange();
+		},
+
+		onRemoveNodeUrns : function(e) {
+			var selectNodeUrnsAvailable = this.$el.find('select#nodeUrnsAvailable');
+			this.$el.find('select#nodeUrns').find('option:selected').each(function(idx, option) {
+				selectNodeUrnsAvailable.append($("<option />").val(option.value).text(option.text));
+				option.remove();
+			});
+			this.onNodeUrnsSelectionChange();
+		},
+
+		onNodeUrnsAvailableSelectionChange : function() {
+			var disable = this.$el.find('select#nodeUrnsAvailable option:selected').size() == 0;
+			this.$el.find('button.resource_group-add-node-urns').toggleClass('disabled', disable);
+		},
+
+		onNodeUrnsSelectionChange : function() {
+			var disable = this.$el.find('select#nodeUrns option:selected').size() == 0;
+			this.$el.find('button.resource_group-remove-node-urns').toggleClass('disabled', disable);
 		},
 
 		close : function(e) {

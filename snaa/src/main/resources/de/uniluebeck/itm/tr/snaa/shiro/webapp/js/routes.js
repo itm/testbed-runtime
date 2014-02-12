@@ -40,9 +40,17 @@ $(function() {
 		},
 
 		resource_groups : function() {
-			this.fetchResourceGroups();
-			app.resourceGroupsView = app.resourceGroupsView || new app.ResourceGroupsView({
-				el : $("div.tab-content div#resource_groups")
+			var self = this;
+			self.fetchResourceGroups({
+				success : function() {
+					self.fetchNodes({
+						success : function() {
+							app.resourceGroupsView = app.resourceGroupsView || new app.ResourceGroupsView({
+								el : $("div.tab-content div#resource_groups")
+							});
+						}
+					});
+				}
 			});
 		},
 
