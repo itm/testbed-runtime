@@ -1,6 +1,6 @@
-<p id="button-role-add" class="pull-right">
-    <a class="btn btn-info btn-small"><i class="icon-plus-sign icon-white"></i>Add Role</a>
-</p>
+<button type="button" class="btn btn-primary role-add pull-right">
+    <span class="glyphicon glyphicon-plus"></span> Add Role
+</button>
 <table class="table table-striped table-bordered table-hover table-condensed">
     <thead>
     <tr>
@@ -13,9 +13,10 @@
         <tr data-id="{{this.name}}">
             <td>{{this.name}}</td>
             <td>
-                <a class="btn btn-mini role-remove" data-confirm="Really remove role '{{this.name}}'?">
-                    <i class="icon-remove" title="Remove this role"></i>
-                </a>
+                <button type="button" class="btn btn-default btn-sm role-remove"
+                        data-confirm="Really remove role '{{this.name}}'?">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </button>
             </td>
         </tr>
 	{{/each}}

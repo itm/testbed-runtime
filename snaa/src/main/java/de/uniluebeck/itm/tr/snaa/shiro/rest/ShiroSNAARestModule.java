@@ -18,6 +18,7 @@ public class ShiroSNAARestModule extends PrivateModule {
 		bind(UserResource.class).to(UserResourceImpl.class).in(Scopes.SINGLETON);
 		bind(RoleResource.class).to(RoleResourceImpl.class).in(Scopes.SINGLETON);
 		bind(PermissionResource.class).to(PermissionResourceImpl.class).in(Scopes.SINGLETON);
+		bind(ResourceGroupsResource.class).to(ResourceGroupsResourceImpl.class).in(Scopes.SINGLETON);
 
 		expose(ShiroSNAARestService.class);
 	}

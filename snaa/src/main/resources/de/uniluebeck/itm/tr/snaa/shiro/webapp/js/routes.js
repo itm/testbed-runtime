@@ -6,16 +6,16 @@ $(function() {
 
 		routes : {
 			'users' : 'users',
-			'users/:name' : 'userDetail',
+			'users/:name' : 'edit_user',
 			'roles' : 'roles',
 			'actions' : 'actions',
+			'resource_groups' : 'resource_groups',
+			'resource_groups/:name' : 'edit_resource_group',
 			'.*' : 'users'
 		},
 
 		initialize : function() {
-			this.fetchUsers();
-			this.fetchRoles();
-			this.fetchActions();
+
 		},
 
 		users : function() {
@@ -39,8 +39,34 @@ $(function() {
 			});
 		},
 
-		userDetail : function(name) {
+		resource_groups : function() {
+			this.fetchResourceGroups();
+			app.resourceGroupsView = app.resourceGroupsView || new app.ResourceGroupsView({
+				el : $("div.tab-content div#resource_groups")
+			});
+		},
 
+		edit_resource_group : function(name) {
+			var self = this;
+			self.fetchResourceGroups({
+				success : function() {
+					self.fetchNodes({
+						success : function() {
+							var view = new app.EditResourceGroupView({
+								el : $("#edit-view"),
+								model : {
+									resourceGroup : app.ResourceGroups.get(name),
+									availableNodes : app.Nodes
+								}
+							});
+							view.show();
+						}
+					});
+				}
+			});
+		},
+
+		edit_user : function(name) {
 			var view = new app.EditUserView({
 				el : $("#edit-view"),
 				model : {
@@ -48,32 +74,47 @@ $(function() {
 					roles : app.Roles
 				}
 			});
-
 			view.show();
 		},
 
-		fetchActions : function() {
-			app.Actions.fetch({
-				error : function() {
-					alert('Error fetching actions list');
-				}
-			});
+		fetchActions : function(options) {
+			options = options || {};
+			options.error = function() {
+				alert('Error fetching actions list');
+			};
+			app.Actions.fetch(options);
 		},
 
-		fetchRoles : function() {
-			app.Roles.fetch({
-				error : function() {
-					alert('Error fetching roles list');
-				}
-			});
+		fetchRoles : function(options) {
+			options = options || {};
+			options.error = function() {
+				alert('Error fetching roles list');
+			};
+			app.Roles.fetch(options);
 		},
 
-		fetchUsers : function() {
-			app.Users.fetch({
-				error : function() {
-					alert('Error fetching users list');
-				}
-			});
+		fetchUsers : function(options) {
+			options = options || {};
+			options.error = function() {
+				alert('Error fetching users list');
+			};
+			app.Users.fetch(options);
+		},
+
+		fetchResourceGroups : function(options) {
+			options = options || {};
+			options.error = function() {
+				alert('Error fetching resource groups');
+			};
+			app.ResourceGroups.fetch(options);
+		},
+
+		fetchNodes : function(options) {
+			options = options || {};
+			options.error = function() {
+				alert('Error fetching nodes from DeviceDB');
+			};
+			app.Nodes.fetch(options);
 		}
 	});
 });

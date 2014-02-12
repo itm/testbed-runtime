@@ -347,10 +347,10 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 
 		assertAllNodeUrnPrefixesServed(servedNodeUrnPrefixesProvider.get(), Lists.newLinkedList(nodeUrns));
 
-		Set<String> nodeGroups = new HashSet<String>();
-		List<String> nodeUrnStringList = new ArrayList<String>();
+		final Set<String> nodeGroups = new HashSet<String>();
+		final List<String> nodeUrnStringList = new ArrayList<String>();
 		for (NodeUrn nodeUrn : nodeUrns) {
-			nodeUrnStringList.add(nodeUrn.getPrefix().toString() + nodeUrn.getSuffix());
+			nodeUrnStringList.add(nodeUrn.toString());
 		}
 
 		final EntityManager em = emProvider.get();

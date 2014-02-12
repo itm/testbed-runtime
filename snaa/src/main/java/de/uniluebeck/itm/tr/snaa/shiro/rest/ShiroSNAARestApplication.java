@@ -22,15 +22,19 @@ public class ShiroSNAARestApplication extends Application {
 
 	private final RoleResource roleResource;
 
+	private final ResourceGroupsResource resourceGroupsResource;
+
 	@Inject
 	public ShiroSNAARestApplication(final UserResource userResource,
 									final ActionResource actionResource,
 									final PermissionResource permissionResource,
-									final RoleResource roleResource) {
+									final RoleResource roleResource,
+									final ResourceGroupsResource resourceGroupsResource) {
 		this.userResource = userResource;
 		this.actionResource = actionResource;
 		this.permissionResource = permissionResource;
 		this.roleResource = roleResource;
+		this.resourceGroupsResource = resourceGroupsResource;
 	}
 
 	@Override
@@ -40,6 +44,7 @@ public class ShiroSNAARestApplication extends Application {
 				actionResource,
 				permissionResource,
 				roleResource,
+				resourceGroupsResource,
 				createJaxbElementProvider(),
 				createJsonProvider()
 		);

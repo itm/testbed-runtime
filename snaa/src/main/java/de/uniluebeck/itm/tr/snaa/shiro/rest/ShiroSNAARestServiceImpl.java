@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static de.uniluebeck.itm.tr.snaa.SNAAServiceConfig.*;
 
 public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSNAARestService {
 
@@ -47,10 +48,21 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 					this.getClass().getResource("/de/uniluebeck/itm/tr/snaa/shiro/webapp").toString();
 
 			final Map<String, String> webAppInitParams = newHashMap();
-			webAppInitParams
-					.put(SNAAServiceConfig.SHIRO_ADMIN_REST_API_CONTEXTPATH, config.getShiroAdminRestApiContextPath());
-			webAppInitParams
-					.put(SNAAServiceConfig.SHIRO_ADMIN_WEBAPP_CONTEXTPATH, config.getShiroAdminWebappContextPath());
+
+			webAppInitParams.put(
+					SHIRO_ADMIN_REST_API_CONTEXTPATH,
+					config.getShiroAdminRestApiContextPath()
+			);
+
+			webAppInitParams.put(
+					SHIRO_ADMIN_WEBAPP_CONTEXTPATH,
+					config.getShiroAdminWebappContextPath()
+			);
+
+			webAppInitParams.put(
+					SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH,
+					config.getShiroAdminDeviceDBRestApiContextPath()
+			);
 
 			webApp = servicePublisher.createServletService(
 					config.getShiroAdminWebappContextPath(),

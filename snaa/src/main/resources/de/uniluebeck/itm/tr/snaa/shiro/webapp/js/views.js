@@ -8,8 +8,8 @@ $(function() {
 		template : Handlebars.getTemplate('roles'),
 
 		events : {
-			'click #button-role-add' : 'clickedAddRole',
-			'click a.role-remove' : 'clickedRemoveRole'
+			'click button.role-add' : 'clickedAddRole',
+			'click button.role-remove' : 'clickedRemoveRole'
 		},
 
 		initialize : function() {
@@ -67,6 +67,140 @@ $(function() {
 		}
 	});
 
+	app.ResourceGroupsView = Backbone.View.extend({
+
+		template : Handlebars.getTemplate('resource_groups'),
+
+		events : {
+			'click button.resource_group-add' : 'clickedAddResourceGroup',
+			'click button.resource_group-edit' : 'clickedEditResourceGroup',
+			'click button.resource_group-remove' : 'clickedRemoveResourceGroup'
+		},
+
+		initialize : function() {
+			this.listenTo(app.ResourceGroups, 'sync', this.render);
+			this.render();
+		},
+
+		render : function() {
+			var model = {
+				resourceGroups : _.map(app.ResourceGroups.models, function(el) {
+					return el.attributes;
+				})
+			};
+			this.$el.html(this.template(model));
+			return this;
+		},
+
+		clickedAddResourceGroup : function(e) {
+			e.preventDefault();
+			new app.EditResourceGroupView({
+				el : $("#edit-view"),
+				model : {
+					resourceGroup : new app.ResourceGroupModel(),
+					availableNodes : app.Nodes
+				}
+			}).show();
+		},
+
+		clickedEditResourceGroup : function(e) {
+			e.preventDefault();
+			var id = $(e.target).parents('tr').data('id');
+
+			// navigate to modal dialog but don't add history entry as it is a modal dialog
+			app.routes.navigate('resource_groups/' + id, {trigger : true, replace : true});
+		},
+
+		clickedRemoveResourceGroup : function(e) {
+			alert("TODO: implement!");
+		},
+
+		show : function() {
+			app.routes.navigate('resource_groups');
+			this.$el.show();
+		},
+
+		hide : function() {
+			this.$el.hide();
+		}
+	});
+
+	app.EditResourceGroupView = Backbone.View.extend({
+
+		template : Handlebars.getTemplate('resource_group-edit'),
+
+		events : {
+			'click button.edit-resource_group-save' : 'save',
+			'hidden.bs.modal' : 'hidden'
+		},
+
+		initialize : function() {
+			this.render();
+			if (this.model.resourceGroup.attributes.name) {
+				this.$el.find('select#nodeUrns').attr("autofocus", "autofocus");
+			} else {
+				this.$el.find('input#name').attr("autofocus", "autofocus");
+			}
+		},
+
+		render : function() {
+			var resourceGroupNodeUrns = this.model.resourceGroup.attributes.nodeUrns;
+			var availableNodeUrns = this.model.availableNodes.filter(function(node) {
+				return resourceGroupNodeUrns.indexOf(node.id) == -1;
+			});
+			this.$el.html(this.template({
+				resourceGroup : this.model.resourceGroup.attributes,
+				availableNodeUrns : availableNodeUrns.map(function(node) {
+					return node.attributes;
+				})
+			}));
+			this.show();
+			return this;
+		},
+
+		save : function(e) {
+			e.preventDefault();
+			var self = this;
+
+			// serialize form
+			var nodeCallback = function(node) {
+
+			};
+
+			var data = form2js('resource_group-form', '.', true, nodeCallback, true);
+
+			alert("TODO: implement");
+
+			// send to server
+			/*
+			 this.model.user.save(data, {
+			 wait : true,
+			 success : function(model, response, options) {
+			 app.Users.add(self.model.user, {merge : true});
+			 app.Users.sort();
+			 self.close(e);
+			 },
+			 error : function(model, xhr, options) {
+			 console.log(xhr);
+			 alert(xhr.responseText);
+			 }
+			 });*/
+		},
+
+		close : function(e) {
+			this.$el.find('.modal').modal('hide');
+		},
+
+		hidden : function() {
+			this.undelegateEvents();
+			app.routes.navigate('resource_groups', {trigger : true});
+		},
+
+		show : function() {
+			this.$el.find('.modal').modal('show');
+		}
+	});
+
 	app.ActionsView = Backbone.View.extend({
 
 		template : Handlebars.getTemplate('actions'),
@@ -105,9 +239,9 @@ $(function() {
 		template : Handlebars.getTemplate('users'),
 
 		events : {
-			'click p#button-user-add' : 'clickedAddUser',
-			'click a.user-edit' : 'clickedEditUser',
-			'click a.user-remove' : 'clickedRemoveUser'
+			'click button.user-add' : 'clickedAddUser',
+			'click button.user-edit' : 'clickedEditUser',
+			'click button.user-remove' : 'clickedRemoveUser'
 		},
 
 		initialize : function() {
@@ -182,9 +316,8 @@ $(function() {
 		template : Handlebars.getTemplate('role-edit'),
 
 		events : {
-			'click #save' : 'save',
-			'click #close' : 'close',
-			'hidden' : 'hidden'
+			'click button.edit-role-save' : 'save',
+			'hidden.bs.modal' : 'hidden'
 		},
 
 		initialize : function() {
@@ -207,7 +340,7 @@ $(function() {
 
 			};
 
-			var data = form2js('modal-form', '.', true, nodeCallback, true);
+			var data = form2js('role-edit-form', '.', true, nodeCallback, true);
 
 			// send to server
 			this.model.save(data, {
@@ -224,8 +357,7 @@ $(function() {
 			});
 		},
 
-		close : function(e) {
-			e.preventDefault();
+		close : function() {
 			this.$el.find('.modal').modal('hide');
 		},
 
@@ -244,9 +376,8 @@ $(function() {
 		template : Handlebars.getTemplate('user-edit'),
 
 		events : {
-			'click #save' : 'save',
-			'click #close' : 'close',
-			'hidden' : 'hidden'
+			'click button.edit-user-save' : 'save',
+			'hidden.bs.modal' : 'hidden'
 		},
 
 		initialize : function() {
@@ -276,7 +407,7 @@ $(function() {
 
 			};
 
-			var data = form2js('modal-form', '.', true, nodeCallback, true);
+			var data = form2js('user-edit-form', '.', true, nodeCallback, true);
 
 			if (data.password == '********') {
 				data.password = null;
@@ -292,7 +423,7 @@ $(function() {
 				success : function(model, response, options) {
 					app.Users.add(self.model.user, {merge : true});
 					app.Users.sort();
-					self.close(e);
+					self.close();
 				},
 				error : function(model, xhr, options) {
 					console.log(xhr);
@@ -301,8 +432,7 @@ $(function() {
 			});
 		},
 
-		close : function(e) {
-			e.preventDefault();
+		close : function() {
 			this.$el.find('.modal').modal('hide');
 		},
 

@@ -1,10 +1,7 @@
 package de.uniluebeck.itm.tr.snaa.shiro.dto;
 
 import com.google.common.base.Function;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.Action;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.Permission;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
-import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
 
 import java.util.List;
 import java.util.Set;
@@ -50,7 +47,7 @@ public class DtoConverter {
 		}
 	};
 
-	private static final Function<Permission, PermissionDto> PERMISSION_TO_DTO_FUNCTION =
+	public static final Function<Permission, PermissionDto> PERMISSION_TO_DTO_FUNCTION =
 			new Function<Permission, PermissionDto>() {
 				@Override
 				public PermissionDto apply(final Permission permission) {
@@ -58,6 +55,28 @@ public class DtoConverter {
 							permission.getAction().getName(),
 							permission.getResourceGroup().getName()
 					);
+				}
+			};
+
+	public static final Function<UrnResourceGroup, String> URN_RESOURCE_GROUP_TO_URN_STRING_FUNCTION =
+			new Function<UrnResourceGroup, String>() {
+				@Override
+				public String apply(final UrnResourceGroup input) {
+					return input.getId().getUrn();
+				}
+			};
+
+	public static final Function<ResourceGroup, ResourceGroupDto> RESOURCE_GROUP_TO_DTO_FUNCTION =
+			new Function<ResourceGroup, ResourceGroupDto>() {
+				@Override
+				public ResourceGroupDto apply(final ResourceGroup input) {
+					final ResourceGroupDto dto = new ResourceGroupDto();
+					dto.setName(input.getName());
+					dto.setNodeUrns(newArrayList(
+							transform(input.getUrnResourceGroups(), URN_RESOURCE_GROUP_TO_URN_STRING_FUNCTION)
+					)
+					);
+					return dto;
 				}
 			};
 
@@ -79,5 +98,9 @@ public class DtoConverter {
 
 	public static UserDto convertUser(final User user) {
 		return USER_TO_DTO_FUNCTION.apply(user);
+	}
+
+	public static List<ResourceGroupDto> convertResourceGroupList(final List<ResourceGroup> resourceGroups) {
+		return newArrayList(transform(resourceGroups, RESOURCE_GROUP_TO_DTO_FUNCTION));
 	}
 }

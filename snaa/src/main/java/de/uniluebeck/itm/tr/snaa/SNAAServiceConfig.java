@@ -207,8 +207,23 @@ public class SNAAServiceConfig {
 	@Named(SHIRO_ADMIN_WEBAPP_CONTEXTPATH)
 	private String shiroAdminWebappContextPath;
 
+	@PropConf(
+			usage = "The context path on which to run the device database REST API",
+			example = "/rest/v1.0/devicedb",
+			defaultValue = "/rest/v1.0/devicedb"
+	)
+	public static final String SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH = "devicedb.rest_api.context_path";
+
+	@Inject
+	@Named(SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH)
+	private String shiroAdminDeviceDBRestApiContextPath;
+
 	public String getShiroAdminWebappContextPath() {
 		return shiroAdminWebappContextPath;
+	}
+
+	public String getShiroAdminDeviceDBRestApiContextPath() {
+		return shiroAdminDeviceDBRestApiContextPath;
 	}
 
 	public String getShiroAdminRestApiContextPath() {

@@ -1,47 +1,56 @@
-<div class="modal hide fade">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3>User Details</h3>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal" id="modal-form">
-            <div class="control-group">
-                <label class="control-label" for="name">User-Name</label>
-
-                <div class="controls">
-                    <input type="text" id="name" placeholder="enter a name..." value="{{user.name}}"
-						   {{#if user.name}}disabled="disabled"{{/if}}>
-                    <span class="help-inline" title="mandatory field">*</span>
-                </div>
+<div class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">User Details</h4>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="password">Password</label>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" id="user-edit-form">
+                    <div class="form-group">
+                        <label for="name" class="col-sm-3 control-label">Username</label>
 
-                <div class="controls">
-                    <input type="password" id="password" value="********">
-                    <span class="help-inline" title="mandatory field">*</span>
-                </div>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="name" placeholder="enter a name..."
+                                   value="{{user.name}}"{{#if user.name}} disabled="disabled"{{/if}}>
+
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="help-block">*</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-3 control-label">Password</label>
+
+                        <div class="col-sm-8">
+                            <input type="password" class="form-control" id="password" value="********">
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="help-block">*</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="roles" class="col-sm-3 control-label">Roles</label>
+
+                        <div class="col-sm-8">
+							{{#each roles}}
+                                <div class="checkbox">
+                                    <label for="roles_{{this.attributes.name}}">
+                                        <input type="checkbox" name="roles[]" id="roles_{{this.attributes.name}}"
+                                               value="{{this.attributes.name}}"{{#hasRole ../user this}}
+                                               checked="checked"{{/hasRole}}/>
+										{{this.attributes.name}}
+                                    </label>
+                                </div>
+							{{/each}}
+                        </div>
+                    </div>
+                </form>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="roles">Roles</label>
-
-                <div class="controls">
-					{{#each roles}}
-                        <label class="checkbox-inline" for="roles_{{this.attributes.name}}">
-                            <input type="checkbox" name="roles[]"
-                                   id="roles_{{this.attributes.name}}"
-                                   value="{{this.attributes.name}}"
-								   {{#hasRole ../user this}} checked="checked"{{/hasRole}}/>
-							{{this.attributes.name}}
-                        </label>
-					{{/each}}
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default edit-user-close" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary edit-user-save">Save changes</button>
             </div>
-
-        </form>
-    </div>
-    <div class="modal-footer">
-        <a href="#" id="close" class="btn">Close</a>
-        <a href="#" id="save" class="btn btn-primary">Save changes</a>
+        </div>
     </div>
 </div>

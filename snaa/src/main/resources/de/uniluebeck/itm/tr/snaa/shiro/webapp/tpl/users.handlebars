@@ -1,6 +1,6 @@
-<p id="button-user-add" class="pull-right">
-    <a class="btn btn-info btn-small"><i class="icon-plus-sign icon-white"></i>Add User</a>
-</p>
+<button type="button" class="btn btn-primary user-add pull-right">
+    <span class="glyphicon glyphicon-plus"></span> Add User
+</button>
 <table class="table table-striped table-bordered table-hover table-condensed">
     <thead>
     <tr>
@@ -9,23 +9,23 @@
         <th></th>
     </tr>
     </thead>
-    <tbody id="table_configs">
+    <tbody>
 	{{#each users}}
         <tr data-id="{{name}}">
             <td>{{name}}</td>
             <td>
 				{{#each roles}}
-                    <span class="label">{{this.name}}</span>
+                    <span class="label label-default">{{this.name}}</span>
 				{{/each}}
             </td>
             <td>
-                <a class="btn btn-mini user-edit" title="Edit this entry">
-					<i class="icon-edit"></i>
-				</a>
-				<br/>
-                <a class="btn btn-mini user-remove" data-confirm="Really remove user '{{name}}'?">
-					<i class="icon-remove" title="Remove this user"></i>
-                </a>
+                <button type="button" class="btn btn-default btn-sm user-edit">
+                    <span class="glyphicon glyphicon-edit"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm user-remove"
+                        data-confirm="Really remove user '{{name}}'?">
+                    <span class="glyphicon glyphicon-remove"></span>
+                </button>
             </td>
         </tr>
 	{{/each}}

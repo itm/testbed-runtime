@@ -36,7 +36,37 @@ $(function() {
 		comparator : 'name'
 	});
 
+	app.ResourceGroupModel = Backbone.Model.extend({
+		idAttribute : 'name',
+		urlRoot : app.rest_api_context_path + '/resource_groups'
+	});
+
+	var ResourceGroupCollection = Backbone.Collection.extend({
+		model : app.ResourceGroupModel,
+		url : app.rest_api_context_path + '/resource_groups',
+		comparator : 'name'
+	});
+
+	app.NodeModel = Backbone.Model.extend({
+		idAttribute: 'nodeUrn',
+		urlRoot: app.device_db_rest_api_context_path + '/deviceConfigs'
+	});
+
+	var NodeCollection = Backbone.Collection.extend({
+		model: app.NodeModel,
+		url: app.device_db_rest_api_context_path + '/deviceConfigs',
+		toJSON: function(list) {
+			return { "configs" : list };
+		},
+		parse: function(response) {
+			return response.configs;
+		},
+		comparator : 'nodeUrn'
+	});
+
 	app.Roles = new RoleCollection();
 	app.Users = new UserCollection();
 	app.Actions = new ActionCollection();
+	app.ResourceGroups = new ResourceGroupCollection();
+	app.Nodes = new NodeCollection();
 });
