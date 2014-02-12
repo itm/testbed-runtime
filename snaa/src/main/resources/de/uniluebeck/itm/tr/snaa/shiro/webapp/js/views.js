@@ -3,6 +3,175 @@ var app = app || {};
 $(function() {
 	'use strict';
 
+	app.PermissionsView = Backbone.View.extend({
+
+		template : Handlebars.getTemplate('permissions'),
+
+		events : {
+			'change select#role' : 'onRoleSelectionChanged',
+			'change select#resourceGroup' : 'onResourceGroupSelectionChanged',
+			'change select#permissionsGranted' : 'onPermissionsGrantedSelectionChanged',
+			'change select#permissionsAvailable' : 'onPermissionsAvailableSelectionChanged',
+			'click button.permission-add' : 'onPermissionAddClicked',
+			'click button.permission-remove' : 'onPermissionRemovedClicked'
+		},
+
+		initialize : function() {
+
+			this.listenTo(app.Roles, 'sync', this.render);
+			this.listenTo(app.Roles, 'destroy', this.render);
+
+			this.listenTo(app.ResourceGroups, 'sync', this.render);
+			this.listenTo(app.ResourceGroups, 'destroy', this.render);
+
+			app.Permissions.fetch({wait : true});
+
+			this.render();
+
+			this.selectedRole = null;
+			this.selectedResourceGroup = null;
+		},
+
+		render : function() {
+			var model = {
+				roles : _.map(app.Roles.models, function(el) {
+					return el.attributes;
+				}),
+				resourceGroups : _.map(app.ResourceGroups.models, function(el) {
+					return el.attributes;
+				})
+			};
+			this.$el.html(this.template(model));
+			return this;
+		},
+
+		onRoleSelectionChanged : function() {
+			this.selectedRole = this.$el.find('select#role').val();
+			this.updatePermissions();
+		},
+
+		onResourceGroupSelectionChanged : function() {
+			this.selectedResourceGroup = this.$el.find('select#resourceGroup').val();
+			this.updatePermissions();
+		},
+
+		onPermissionsGrantedSelectionChanged : function() {
+			var selection = this.$el.find('select#permissionsGranted').val();
+			this.$el.find('button.permission-remove').toggleClass('disabled', !selection || selection.length == 0);
+		},
+
+		onPermissionsAvailableSelectionChanged : function() {
+			var selection = this.$el.find('select#permissionsAvailable').val();
+			this.$el.find('button.permission-add').toggleClass('disabled', !selection || selection.length == 0);
+		},
+
+		onPermissionAddClicked : function() {
+			var self = this;
+			var permissionsToAdd = this.$el.find('select#permissionsAvailable').val();
+			permissionsToAdd.forEach(function(permission) {
+				var model = new app.PermissionModel();
+				var data = {
+					roleName : self.selectedRole,
+					actionName : permission,
+					resourceGroupName : self.selectedResourceGroup
+				};
+				var options = {
+					wait : true,
+					success : function(model, response, options) {
+						app.Permissions.add(model, {merge : true});
+						self.updatePermissions();
+					},
+					error : function(model, xhr, options) {
+						console.log(xhr);
+						alert(xhr.responseText);
+					}
+				};
+				model.save(data, options);
+			});
+		},
+
+		onPermissionRemovedClicked : function(e) {
+			var self = this;
+			var permissionsToRemove = this.$el.find('select#permissionsGranted').val();
+			permissionsToRemove.forEach(function(permissionToRemove) {
+				app.Permissions.models.forEach(function(permission) {
+					var match = permission.attributes.roleName == self.selectedRole &&
+							permission.attributes.resourceGroupName == self.selectedResourceGroup &&
+							permission.attributes.actionName == permissionToRemove;
+					if (match) {
+						permission.destroy({
+							wait : true,
+							success : function() {
+								app.Permissions.remove(permission);
+								self.updatePermissions();
+							},
+							error : function(model, xhr, options) {
+								console.log(xhr);
+								if (xhr.responseText && "" != xhr.responseText) {
+									alert(xhr.responseText);
+								} else {
+									alert('An error occurred during request processing!');
+								}
+							}
+						});
+					}
+				});
+			});
+		},
+
+		updatePermissions : function() {
+
+			var self = this;
+			var selectPermissionsGranted = this.$el.find('select#permissionsGranted');
+			var selectPermissionsAvailable = this.$el.find('select#permissionsAvailable');
+
+			selectPermissionsGranted.empty();
+			selectPermissionsAvailable.empty();
+
+			var editable = this.selectedRole && this.selectedResourceGroup;
+
+			selectPermissionsGranted.toggleClass('disabled', !editable);
+			selectPermissionsAvailable.toggleClass('disabled', !editable);
+
+			if (editable) {
+
+				var permissionsGranted = [];
+
+				app.Permissions.models.forEach(function(permission) {
+					var match = permission.attributes.roleName == self.selectedRole &&
+							permission.attributes.resourceGroupName == self.selectedResourceGroup;
+
+					if (match) {
+						var option = $("<option />")
+								.val(permission.attributes.actionName)
+								.text(permission.attributes.actionName);
+						selectPermissionsGranted.append(option);
+						permissionsGranted.push(permission.attributes.actionName);
+					}
+				});
+
+				app.Actions.models.forEach(function(action) {
+					if (permissionsGranted.indexOf(action.attributes.name) == -1) {
+						var option = $("<option />").val(action.attributes.name).text(action.attributes.name);
+						selectPermissionsAvailable.append(option);
+					}
+				});
+			}
+
+			self.onPermissionsAvailableSelectionChanged();
+			self.onPermissionsGrantedSelectionChanged();
+		},
+
+		show : function() {
+			app.routes.navigate('permissions');
+			this.$el.show();
+		},
+
+		hide : function() {
+			this.$el.hide();
+		}
+	});
+
 	app.RolesView = Backbone.View.extend({
 
 		template : Handlebars.getTemplate('roles'),
@@ -79,6 +248,7 @@ $(function() {
 
 		initialize : function() {
 			this.listenTo(app.ResourceGroups, 'sync', this.render);
+			this.listenTo(app.ResourceGroups, 'destroy', this.render);
 			this.render();
 		},
 
@@ -128,7 +298,6 @@ $(function() {
 							}
 						}
 					});
-					app.ResourceGroups.fetch();
 				}
 			});
 		},

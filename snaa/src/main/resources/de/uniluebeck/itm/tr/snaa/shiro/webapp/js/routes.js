@@ -11,6 +11,7 @@ $(function() {
 			'actions' : 'actions',
 			'resource_groups' : 'resource_groups',
 			'resource_groups/:name' : 'edit_resource_group',
+			'permissions' : 'permissions',
 			'.*' : 'users'
 		},
 
@@ -74,6 +75,16 @@ $(function() {
 			});
 		},
 
+		permissions : function() {
+			this.fetchRoles();
+			this.fetchResourceGroups();
+			this.fetchActions();
+			this.fetchPermissions();
+			app.permissionsView = app.permissionsView || new app.PermissionsView({
+				el : $("div.tab-content div#permissions")
+			});
+		},
+
 		edit_user : function(name) {
 			var view = new app.EditUserView({
 				el : $("#edit-view"),
@@ -91,6 +102,14 @@ $(function() {
 				alert('Error fetching actions list');
 			};
 			app.Actions.fetch(options);
+		},
+
+		fetchPermissions : function(options) {
+			options = options || {};
+			options.error = function() {
+				alert('Error fetching permissions');
+			};
+			app.Permissions.fetch(options);
 		},
 
 		fetchRoles : function(options) {

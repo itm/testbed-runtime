@@ -51,10 +51,11 @@ public class DtoConverter {
 			new Function<Permission, PermissionDto>() {
 				@Override
 				public PermissionDto apply(final Permission permission) {
-					return new PermissionDto(permission.getRole().getName(),
-							permission.getAction().getName(),
-							permission.getResourceGroup().getName()
-					);
+					final PermissionDto dto = new PermissionDto();
+					dto.setRoleName(permission.getRole().getName());
+					dto.setActionName(permission.getAction().getName());
+					dto.setResourceGroupName(permission.getResourceGroup().getName());
+					return dto;
 				}
 			};
 
