@@ -54,14 +54,12 @@
 	<ul class="nav nav-tabs" id="navigation">
 		<li><a href="#users" data-toggle="tab" data-nav="users">Users</a></li>
 		<li><a href="#roles" data-toggle="tab" data-nav="roles">Roles</a></li>
-		<li><a href="#actions" data-toggle="tab" data-nav="actions">Actions</a></li>
 		<li><a href="#resource_groups" data-toggle="tab" data-nav="resource_groups">Resource Groups</a></li>
 		<li><a href="#permissions" data-toggle="tab" data-nav="permissions">Permissions</a></li>
 	</ul>
 	<div class="tab-content">
 		<div class="tab-pane" id="users"></div>
 		<div class="tab-pane" id="roles"></div>
-		<div class="tab-pane" id="actions"></div>
 		<div class="tab-pane" id="resource_groups"></div>
 		<div class="tab-pane" id="permissions"></div>
 	</div>

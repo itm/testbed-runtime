@@ -421,39 +421,6 @@ $(function() {
 		}
 	});
 
-	app.ActionsView = Backbone.View.extend({
-
-		template : Handlebars.getTemplate('actions'),
-
-		events : {
-
-		},
-
-		initialize : function() {
-			this.listenTo(app.Actions, 'sync', this.render);
-			this.render();
-		},
-
-		render : function() {
-			var model = {
-				actions : _.map(app.Actions.models, function(el) {
-					return el.attributes;
-				})
-			};
-			this.$el.html(this.template(model));
-			return this;
-		},
-
-		show : function() {
-			app.routes.navigate('actions');
-			this.$el.show();
-		},
-
-		hide : function() {
-			this.$el.hide();
-		}
-	});
-
 	app.UsersView = Backbone.View.extend({
 
 		template : Handlebars.getTemplate('users'),

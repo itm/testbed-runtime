@@ -8,7 +8,6 @@ $(function() {
 			'users' : 'users',
 			'users/:name' : 'edit_user',
 			'roles' : 'roles',
-			'actions' : 'actions',
 			'resource_groups' : 'resource_groups',
 			'resource_groups/:name' : 'edit_resource_group',
 			'permissions' : 'permissions',
@@ -30,13 +29,6 @@ $(function() {
 			this.fetchRoles();
 			app.rolesView = app.rolesView || new app.RolesView({
 				el : $("div.tab-content div#roles")
-			});
-		},
-
-		actions : function() {
-			this.fetchActions();
-			app.actionsView = app.actionsView || new app.ActionsView({
-				el : $("div.tab-content div#actions")
 			});
 		},
 
