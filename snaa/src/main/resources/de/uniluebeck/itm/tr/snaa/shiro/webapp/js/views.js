@@ -341,9 +341,12 @@ $(function() {
 		},
 
 		render : function() {
+			var self = this;
 			this.$el.html(this.template({
 				resourceGroup : this.model.resourceGroup.attributes,
-				availableNodeUrns : this.model.availableNodes.map(function(node) {
+				availableNodeUrns : this.model.availableNodes.filter(function(node) {
+					return self.model.resourceGroup.attributes.nodeUrns.indexOf(node.attributes.nodeUrn) == -1;
+				}).map(function(node) {
 					return node.attributes;
 				})
 			}));
@@ -640,7 +643,4 @@ $(function() {
 			this.$el.find('.modal').modal('show');
 		}
 	})
-	;
-
-})
-;
+});
