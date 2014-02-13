@@ -86,14 +86,23 @@ $(function() {
 		},
 
 		edit_user : function(name) {
-			var view = new app.EditUserView({
-				el : $("#edit-view"),
-				model : {
-					user : app.Users.get(name),
-					roles : app.Roles
+			var self = this;
+			self.fetchRoles({
+				success : function() {
+					self.fetchUsers({
+						success : function() {
+							var view = new app.EditUserView({
+								el : $("#edit-view"),
+								model : {
+									user : app.Users.get(name),
+									roles : app.Roles
+								}
+							});
+							view.show();
+						}
+					})
 				}
 			});
-			view.show();
 		},
 
 		fetchActions : function(options) {

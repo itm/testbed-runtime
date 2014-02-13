@@ -51,7 +51,7 @@ Handlebars.registerHelper('selected', function(foo, bar) {
 Handlebars.registerHelper('hasRole', function(user, role, options) {
 	if (user && user.roles) {
 		for (var i=0; i<user.roles.length; i++) {
-			if (user.roles[i].name == role.attributes.name) {
+			if (user.roles[i] == role) {
 				return options.fn(this);
 			}
 		}

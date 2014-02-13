@@ -57,7 +57,8 @@ $(function() {
 
 		onPermissionsGrantedSelectionChanged : function() {
 			var selection = this.$el.find('select#permissionsGranted').val();
-			this.$el.find('button.permission-remove').toggleClass('disabled', !selection || selection.length == 0);
+			this.$el.find('button.permission-remove').toggleClass('disabled',
+					!selection || selection.length == 0);
 		},
 
 		onPermissionsAvailableSelectionChanged : function() {
@@ -609,10 +610,18 @@ $(function() {
 		},
 
 		render : function() {
-			this.$el.html(this.template({
-				user : this.model.user.attributes,
-				roles : this.model.roles.models
-			}));
+			var model = {
+				user : {
+					name : this.model.user.attributes.name,
+					roles : this.model.user.attributes.roles.map(function(role) {
+						return role.name
+					})
+				},
+				roles : this.model.roles.map(function(roleModel) {
+					return roleModel.attributes.name;
+				})
+			};
+			this.$el.html(this.template(model));
 			this.show();
 			return this;
 		},
@@ -663,6 +672,8 @@ $(function() {
 		show : function() {
 			this.$el.find('.modal').modal('show');
 		}
-	});
+	})
+	;
 
-});
+})
+;

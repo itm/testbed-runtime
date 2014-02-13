@@ -35,11 +35,11 @@
                         <div class="col-sm-8">
 							{{#each roles}}
                                 <div class="checkbox">
-                                    <label for="roles_{{this.attributes.name}}">
-                                        <input type="checkbox" name="roles[]" id="roles_{{this.attributes.name}}"
-                                               value="{{this.attributes.name}}"{{#hasRole ../user this}}
+                                    <label for="roles_{{this}}">
+                                        <input type="checkbox" name="roles[]" id="roles_{{this}}"
+                                               value="{{this}}"{{#hasRole ../user this}}
                                                checked="checked"{{/hasRole}}/>
-										{{this.attributes.name}}
+										{{this}}
                                     </label>
                                 </div>
 							{{/each}}
