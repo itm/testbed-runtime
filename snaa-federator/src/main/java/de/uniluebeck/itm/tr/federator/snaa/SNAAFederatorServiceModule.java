@@ -8,15 +8,10 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpointsFactory;
-import de.uniluebeck.itm.tr.snaa.SNAAService;
-import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
-import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAA;
-import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -30,7 +25,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutorService;
-import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class SNAAFederatorServiceModule extends PrivateModule {
@@ -54,25 +48,6 @@ public class SNAAFederatorServiceModule extends PrivateModule {
 				bind(SNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
 				bind(SNAA.class).to(SNAAFederatorServiceImpl.class);
 				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
-				break;
-
-			case SHIBBOLETH:
-				final SNAAServiceConfig snaaServiceConfig = buildConfig(
-						SNAAServiceConfig.class,
-						snaaFederatorServiceConfig.getSnaaFederatorProperties()
-				);
-				install(new ShibbolethSNAAModule(snaaServiceConfig));
-
-				bind(SNAA.class).to(DelegatingSNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
-				bind(SNAAFederatorService.class).to(DelegatingSNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
-				bind(SNAAService.class)
-						.annotatedWith(Names.named("authorizationSnaa"))
-						.to(SNAAFederatorServiceImpl.class)
-						.in(Scopes.SINGLETON);
-				bind(SNAAService.class)
-						.annotatedWith(Names.named("authenticationSnaa"))
-						.to(ShibbolethSNAA.class)
-						.in(Scopes.SINGLETON);
 				break;
 
 			default:

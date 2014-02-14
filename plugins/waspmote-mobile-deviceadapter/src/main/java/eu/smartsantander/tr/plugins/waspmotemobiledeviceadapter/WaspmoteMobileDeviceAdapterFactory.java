@@ -22,11 +22,7 @@ public class WaspmoteMobileDeviceAdapterFactory implements DeviceAdapterFactory 
 
     @Override
     public boolean canHandle(String deviceType, String devicePort, @Nullable Map<String, String> deviceConfiguration, @Nullable DeviceConfig deviceConfig) {
-        if (deviceType.equals("mobile-waspmote")) {
-            return true;
-        } else {
-            return false;
-        }
+		return deviceType.equals("mobile-waspmote");
     }
 
     @Override

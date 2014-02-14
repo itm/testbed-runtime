@@ -2,12 +2,9 @@ package de.uniluebeck.itm.tr.federator.snaa;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.util.propconf.converters.PropertiesTypeConverter;
 import de.uniluebeck.itm.tr.federator.utils.URIToNodeUrnPrefixSetMap;
 import de.uniluebeck.itm.tr.federator.utils.UriToNodeUrnPrefixSetMapTypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
-
-import java.util.Properties;
 
 public class SNAAFederatorServiceConfig {
 
@@ -34,8 +31,8 @@ public class SNAAFederatorServiceConfig {
 	private String snaaContextPath;
 
 	@PropConf(
-			usage = "Type of federator to run (API is purely API-based, SHIBBOLETH uses Shibboleth for authentication and API for authorization)",
-			example = "API/SHIBBOLETH",
+			usage = "Type of federator to run (API is purely API-based)",
+			example = "API",
 			defaultValue = "API"
 	)
 	public static final String FEDERATOR_TYPE = "federator.snaa.type";
@@ -44,22 +41,8 @@ public class SNAAFederatorServiceConfig {
 	@Named(FEDERATOR_TYPE)
 	private SNAAFederatorType snaaFederatorType;
 
-	@PropConf(
-			usage = "The properties file containing the configuration for the SNAA federator (only if SHIBBOLETH is used)",
-			typeConverter = PropertiesTypeConverter.class
-	)
-	public static final String FEDERATOR_SHIBBOLETH_PROPERTIES = "federator.snaa.shibboleth.properties";
-
-	@Inject
-	@Named(FEDERATOR_SHIBBOLETH_PROPERTIES)
-	private Properties snaaFederatorProperties;
-
 	public String getSnaaContextPath() {
 		return snaaContextPath;
-	}
-
-	public Properties getSnaaFederatorProperties() {
-		return snaaFederatorProperties;
 	}
 
 	public SNAAFederatorType getSnaaFederatorType() {
