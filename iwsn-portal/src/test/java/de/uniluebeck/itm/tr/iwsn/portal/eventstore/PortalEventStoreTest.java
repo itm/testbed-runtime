@@ -1,9 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
-import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
-import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,19 +18,21 @@ public class PortalEventStoreTest {
     private PortalEventBus portalEventBus;
 
     @Mock
-    private PortalServerConfig portalServerConfig;
-
-    @Mock
     private ReservationEventStoreFactory reservationEventStoreFactory;
 
     @Mock
-    private PortalEventStoreHelper portalEventStoreHelper;
+    private ReservationManager reservationManager;
 
+    @Mock
+    private PortalServerConfig portalServerConfig;
+
+    private PortalEventStoreHelper portalEventStoreHelper;
     private PortalEventStoreServiceImpl store;
 
 
     @Before
     public void setUp() throws Exception {
+        portalEventStoreHelper = new PortalEventStoreHelperImpl(reservationManager, portalServerConfig);
         store = new PortalEventStoreServiceImpl(portalEventBus, reservationEventStoreFactory, portalEventStoreHelper);
     }
 
@@ -42,8 +41,8 @@ public class PortalEventStoreTest {
 
         final Reservation reservation = mock(Reservation.class);
         when(reservation.getSerializedKey()).thenReturn("abc");
-
-        //when(portalEventStoreHelper.createAndConfigureEventStore("abc")).thenReturn(new ChronicleBasedEventStore())
+        when(portalServerConfig.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
+        when(reservationManager.getReservation("abc")).thenReturn(reservation);
 
         store.onReservationStarted(new ReservationStartedEvent(reservation));
 
