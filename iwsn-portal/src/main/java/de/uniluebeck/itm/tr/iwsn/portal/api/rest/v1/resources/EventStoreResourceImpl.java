@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalEventStoreService;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreService;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
