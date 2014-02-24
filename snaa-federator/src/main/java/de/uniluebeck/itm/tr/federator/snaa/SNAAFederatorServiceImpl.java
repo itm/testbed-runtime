@@ -7,11 +7,16 @@ import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
+import de.uniluebeck.itm.tr.snaa.UserAlreadyExistsException;
+import de.uniluebeck.itm.tr.snaa.UserPwdMismatchException;
+import de.uniluebeck.itm.tr.snaa.UserUnknownException;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
+import org.omg.CORBA.UnknownUserException;
 
+import javax.annotation.Nullable;
 import javax.jws.WebService;
 import java.util.HashSet;
 import java.util.List;
@@ -235,5 +240,27 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 		}
 
 		return intersectionPrefixSet;
+	}
+
+	@Override
+	public boolean isUserRegistrationSupported() {
+		return false;
+	}
+
+	@Override
+	public void add(final String email, final String password) throws UserAlreadyExistsException {
+		throw new UnsupportedOperationException("User self-registration is not supported on the federator!");
+	}
+
+	@Override
+	public void update(final String email, final String oldPassword, final String newPassword)
+			throws UserUnknownException, UserPwdMismatchException {
+		throw new UnsupportedOperationException("User self-registration is not supported on the federator!");
+	}
+
+	@Override
+	public void delete(final String email, final String password)
+			throws UserUnknownException, UserPwdMismatchException {
+		throw new UnsupportedOperationException("User self-registration is not supported on the federator!");
 	}
 }

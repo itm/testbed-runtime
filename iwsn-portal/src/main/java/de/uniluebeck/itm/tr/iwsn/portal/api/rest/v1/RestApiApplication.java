@@ -24,20 +24,23 @@ public class RestApiApplication extends RestApplicationBase {
 
 	private final CookieResource cookieResource;
 
+	private final UserRegistrationResource userRegistrationResource;
+
 	@Inject
 	public RestApiApplication(final ExperimentResource experimentResource,
 							  final CookieResource cookieResource,
 							  final RemoteExperimentConfigurationResource remoteExperimentConfigurationResource,
 							  final RsResource rsResource,
 							  final SnaaResource snaaResource,
-							  final RootResource testbedsResource) {
-
+							  final RootResource testbedsResource,
+							  final UserRegistrationResource userRegistrationResource) {
 		this.experimentResource = checkNotNull(experimentResource);
 		this.cookieResource = checkNotNull(cookieResource);
 		this.remoteExperimentConfigurationResource = checkNotNull(remoteExperimentConfigurationResource);
 		this.rsResource = checkNotNull(rsResource);
 		this.snaaResource = checkNotNull(snaaResource);
 		this.rootResource = checkNotNull(testbedsResource);
+		this.userRegistrationResource = checkNotNull(userRegistrationResource);
 	}
 
 	@Override
@@ -49,6 +52,7 @@ public class RestApiApplication extends RestApplicationBase {
 				rsResource,
 				snaaResource,
 				rootResource,
+				userRegistrationResource,
 				new Base64ExceptionMapper(),
 				new SNAAFaultExceptionMapper(),
 				new RSFaultExceptionMapper(),
@@ -60,7 +64,10 @@ public class RestApiApplication extends RestApplicationBase {
 				new RSUnknownSecretReservationKeyFaultExceptionMapper(),
 				new RuntimeExceptionMapper(),
 				new SMUnknownSecretReservationKeyFaultExceptionMapper(),
-				new WebServiceExceptionMapper()
+				new WebServiceExceptionMapper(),
+				new UserAlreadyExistsExceptionMapper(),
+				new UserPwdMismatchExceptionMapper(),
+				new UserUnknownExceptionMapper()
 		);
 	}
 }

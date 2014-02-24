@@ -19,18 +19,18 @@ public interface UserResource {
 	Response addUser(final UserDto user);
 
 	@GET
-	@Path("/{name}")
+	@Path("/{email}")
 	@Produces(MediaType.APPLICATION_JSON)
-	UserDto getUser(@PathParam("name") final String name);
+	UserDto getUser(@PathParam("email") final String email);
 
 	@PUT
-	@Path("/{name}")
+	@Path("/{email}")
 	@Produces(MediaType.APPLICATION_JSON)
-	Response updateUser(@PathParam("name") final String name, final UserDto user);
+	Response updateUser(@PathParam("email") final String email, final UserDto user);
 
     @DELETE
-    @Path("/{name}")
+    @Path("/{email}")
     @Produces(MediaType.APPLICATION_JSON)
-    Response deleteUser(@PathParam("name") final String name);
+    Response deleteUser(@PathParam("email") final String email);
 
 }

@@ -26,14 +26,14 @@ $(function() {
 	});
 
 	app.UserModel = Backbone.Model.extend({
-		idAttribute : 'name',
+		idAttribute : 'email',
 		urlRoot : app.rest_api_context_path + '/users'
 	});
 
 	var UserCollection = Backbone.Collection.extend({
 		model : app.UserModel,
 		url : app.rest_api_context_path + '/users',
-		comparator : 'name'
+		comparator : 'email'
 	});
 
 	app.ResourceGroupModel = Backbone.Model.extend({

@@ -6,7 +6,7 @@ $(function() {
 
 		routes : {
 			'users' : 'users',
-			'users/:name' : 'edit_user',
+			'users/:email' : 'edit_user',
 			'roles' : 'roles',
 			'resource_groups' : 'resource_groups',
 			'resource_groups/:name' : 'edit_resource_group',
@@ -77,7 +77,7 @@ $(function() {
 			});
 		},
 
-		edit_user : function(name) {
+		edit_user : function(email) {
 			var self = this;
 			self.fetchRoles({
 				success : function() {
@@ -86,7 +86,7 @@ $(function() {
 							var view = new app.EditUserView({
 								el : $("#edit-view"),
 								model : {
-									user : app.Users.get(name),
+									user : app.Users.get(email),
 									roles : app.Roles
 								}
 							});

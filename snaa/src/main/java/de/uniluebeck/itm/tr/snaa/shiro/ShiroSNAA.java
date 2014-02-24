@@ -24,17 +24,25 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
+import de.uniluebeck.itm.tr.snaa.UserAlreadyExistsException;
+import de.uniluebeck.itm.tr.snaa.UserPwdMismatchException;
+import de.uniluebeck.itm.tr.snaa.UserUnknownException;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
+import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
 import de.uniluebeck.itm.tr.snaa.shiro.rest.ShiroSNAARestService;
+import de.uniluebeck.itm.tr.snaa.shiro.rest.UserResource;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -44,6 +52,8 @@ import eu.wisebed.api.v3.snaa.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
+import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.mgt.RealmSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
@@ -65,6 +75,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.snaa.common.SNAAHelper.*;
 
 /**
@@ -127,7 +138,13 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 
 	private final ShiroSNAARestService restService;
 
+	private final UserResource userResource;
+
 	private final Provider<EntityManager> emProvider;
+
+	private final String hashAlgorithmName;
+
+	private final int hashIterations;
 
 	private ServicePublisherService jaxWsService;
 
@@ -138,19 +155,24 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 					 final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
 					 final SNAAServiceConfig snaaServiceConfig,
 					 final Provider<Subject> currentUserProvider,
-					 final ShiroSNAARestService restService) {
+					 final ShiroSNAARestService restService,
+					 final UserResource userResource,
+					 @Named("shiro.hashAlgorithmName") final String hashAlgorithmName,
+					 @Named("shiro.hashIterations") final int hashIterations) {
 		this.emProvider = emProvider;
-
-		Collection<Realm> realms = ((RealmSecurityManager) securityManager).getRealms();
-		checkArgument(realms.size() == 1, "Exactly one realm must be configured");
-
 		this.currentUserProvider = currentUserProvider;
 		this.servicePublisher = servicePublisher;
 		this.securityManager = securityManager;
-		this.realm = realms.iterator().next();
 		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
 		this.snaaServiceConfig = snaaServiceConfig;
 		this.restService = restService;
+		this.userResource = userResource;
+		this.hashAlgorithmName = hashAlgorithmName;
+		this.hashIterations = hashIterations;
+
+		Collection<Realm> realms = ((RealmSecurityManager) securityManager).getRealms();
+		checkArgument(realms.size() == 1, "Exactly one realm must be configured");
+		this.realm = realms.iterator().next();
 	}
 
 	@Override
@@ -366,5 +388,84 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 		}
 
 		return nodeGroups;
+	}
+
+	@Override
+	public boolean isUserRegistrationSupported() {
+		return true;
+	}
+
+	@Override
+	@Transactional
+	public void add(final String email, final String password) throws UserAlreadyExistsException {
+
+		final EntityManager em = emProvider.get();
+
+		if (em.find(User.class, email) != null) {
+			throw new UserAlreadyExistsException(email);
+		}
+
+		final Set<Role> autoRoles = newHashSet();
+		final Iterable<String> autoRoleStrings = Splitter.on(",").trimResults().omitEmptyStrings().split(
+				snaaServiceConfig.getGetShiroUserRegistrationAutoRoles()
+		);
+
+		for (String autoRoleString : autoRoleStrings) {
+			Role autoRole = em.find(Role.class, autoRoleString);
+			if (autoRole == null) {
+				autoRole = new Role(autoRoleString);
+				em.persist(autoRole);
+			}
+			autoRoles.add(autoRole);
+		}
+
+		final String salt = new SecureRandomNumberGenerator().nextBytes().toHex();
+		final String hash = new SimpleHash(hashAlgorithmName, password, salt, hashIterations).toHex();
+		final User newUser = new User(email, hash, salt, autoRoles);
+
+		em.persist(newUser);
+	}
+
+	@Override
+	@Transactional
+	public void update(final String email, final String oldPassword, final String newPassword)
+			throws UserUnknownException, UserPwdMismatchException {
+
+		final User user = getUserAndAssurePwdMatches(email, oldPassword);
+
+		final String newSalt = new SecureRandomNumberGenerator().nextBytes().toHex();
+		final String newHash = new SimpleHash(hashAlgorithmName, newPassword, newSalt, hashIterations).toHex();
+
+		user.setPassword(newHash);
+		user.setSalt(newSalt);
+	}
+
+	@Override
+	@Transactional
+	public void delete(final String email, final String password)
+			throws UserUnknownException, UserPwdMismatchException {
+
+		final User user = getUserAndAssurePwdMatches(email, password);
+		emProvider.get().remove(user);
+	}
+
+	private User getUserAndAssurePwdMatches(final String email, final String password)
+			throws UserUnknownException, UserPwdMismatchException {
+
+		final EntityManager em = emProvider.get();
+		final User user = em.find(User.class, email);
+
+		if (user == null) {
+			throw new UserUnknownException(email);
+		}
+
+		final String oldSalt = user.getSalt();
+		final String oldHash = new SimpleHash(hashAlgorithmName, password, oldSalt, hashIterations).toHex();
+
+		if (!oldHash.equals(user.getPassword())) {
+			throw new UserPwdMismatchException(email);
+		}
+
+		return user;
 	}
 }

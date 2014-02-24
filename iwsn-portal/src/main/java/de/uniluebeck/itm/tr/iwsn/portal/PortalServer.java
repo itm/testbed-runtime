@@ -62,6 +62,8 @@ public class PortalServer extends AbstractService {
 
 	private final SchedulerService schedulerService;
 
+	private final UserRegistrationWebAppService userRegistrationWebAppService;
+
 	@Inject
 	public PortalServer(final SchedulerService schedulerService,
 						final ServicePublisher servicePublisher,
@@ -74,7 +76,8 @@ public class PortalServer extends AbstractService {
 						final SoapApiService soapApiService,
 						final RestApiService restApiService,
 						final WiseGuiService wiseGuiService,
-						final PortalPluginService portalPluginService) {
+						final PortalPluginService portalPluginService,
+						final UserRegistrationWebAppService userRegistrationWebAppService) {
 
 		this.schedulerService = checkNotNull(schedulerService);
 		this.servicePublisher = checkNotNull(servicePublisher);
@@ -90,6 +93,7 @@ public class PortalServer extends AbstractService {
 		this.soapApiService = checkNotNull(soapApiService);
 		this.restApiService = checkNotNull(restApiService);
 		this.wiseGuiService = checkNotNull(wiseGuiService);
+		this.userRegistrationWebAppService = checkNotNull(userRegistrationWebAppService);
 
 		this.portalPluginService = checkNotNull(portalPluginService);
 	}
@@ -117,6 +121,7 @@ public class PortalServer extends AbstractService {
 			soapApiService.startAndWait();
 			restApiService.startAndWait();
 			wiseGuiService.startAndWait();
+			userRegistrationWebAppService.startAndWait();
 
 			portalPluginService.startAndWait();
 
@@ -134,6 +139,7 @@ public class PortalServer extends AbstractService {
 			portalPluginService.stopAndWait();
 
 			// services that the portal server exposes to clients
+			userRegistrationWebAppService.stopAndWait();
 			wiseGuiService.stopAndWait();
 			restApiService.stopAndWait();
 			soapApiService.stopAndWait();

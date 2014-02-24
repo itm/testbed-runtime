@@ -49,9 +49,9 @@ public class ShiroSNAAJPARealm extends AuthorizingRealm {
 		UsernamePasswordToken token = (UsernamePasswordToken) authToken;
 		final User user = emProvider.get().find(User.class, token.getUsername());
 		if (user != null && user.getSalt() != null && !user.getSalt().equals("")) {
-			return new SimpleAuthenticationInfo(user.getName(), user.getPassword(), new SimpleByteSource(user.getSalt()), getName());
+			return new SimpleAuthenticationInfo(user.getEmail(), user.getPassword(), new SimpleByteSource(user.getSalt()), getName());
 		} else if (user != null) {
-			return new SimpleAuthenticationInfo(user.getName(), user.getPassword(), getName());
+			return new SimpleAuthenticationInfo(user.getEmail(), user.getPassword(), getName());
 		}
 
 		return null;

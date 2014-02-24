@@ -59,10 +59,10 @@ public class UserResourceImpl implements UserResource {
 
 		final EntityManager em = emProvider.get();
 
-		if (em.find(User.class, user.getName()) != null) {
+		if (em.find(User.class, user.getEmail()) != null) {
 			return Response
 					.status(Response.Status.CONFLICT)
-					.entity("User \"" + user.getName() + "\" already exists!\n")
+					.entity("User \"" + user.getEmail() + "\" already exists!\n")
 					.build();
 		}
 
@@ -82,7 +82,7 @@ public class UserResourceImpl implements UserResource {
 
 		final String salt = new SecureRandomNumberGenerator().nextBytes().toHex();
 		final String hash = new SimpleHash(hashAlgorithmName, user.getPassword(), salt, hashIterations).toHex();
-		final User newUser = new User(user.getName(), hash, salt, userRoles);
+		final User newUser = new User(user.getEmail(), hash, salt, userRoles);
 
 		try {
 			em.persist(newUser);
@@ -90,7 +90,7 @@ public class UserResourceImpl implements UserResource {
 			return Response.serverError().entity(e).build();
 		}
 
-		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(user.getName()).build();
+		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(user.getEmail()).build();
 		final UserDto userDto = convertUser(newUser);
 
 		return Response.created(location).entity(userDto).build();
@@ -98,13 +98,13 @@ public class UserResourceImpl implements UserResource {
 
 	@Override
 	@DELETE
-	@Path("{name}")
+	@Path("{email}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Transactional
-	public Response deleteUser(@PathParam("name") final String name) {
-		log.trace("UserResourceImpl.deleteUser({})", name);
+	public Response deleteUser(@PathParam("email") final String email) {
+		log.trace("UserResourceImpl.deleteUser({})", email);
 		final EntityManager em = emProvider.get();
-		final User user = em.find(User.class, name);
+		final User user = em.find(User.class, email);
 		if (user == null) {
 			return Response.ok().build();
 		}
@@ -117,34 +117,34 @@ public class UserResourceImpl implements UserResource {
 
 	@Override
 	@GET
-	@Path("/{name}")
+	@Path("/{email}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Transactional
-	public UserDto getUser(@PathParam("name") final String name) {
+	public UserDto getUser(@PathParam("email") final String email) {
 		log.trace("UserResourceImpl.getUser()");
-		return convertUser(emProvider.get().find(User.class, name));
+		return convertUser(emProvider.get().find(User.class, email));
 	}
 
 	@Override
 	@PUT
-	@Path("/{name}")
+	@Path("/{email}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Transactional
-	public Response updateUser(@PathParam("name") final String name, final UserDto userDto) {
+	public Response updateUser(@PathParam("email") final String email, final UserDto userDto) {
 
 		log.trace("UserResourceImpl.updateUser()");
 
 		final EntityManager em = emProvider.get();
 
-		if (!userDto.getName().equals(name)) {
+		if (!userDto.getEmail().equals(email)) {
 			return Response
 					.status(Response.Status.BAD_REQUEST)
-					.entity("Username in request URL and request body do not match!")
+					.entity("User email in request URL and request body do not match!")
 					.build();
 		}
 
-		final User user = em.find(User.class, name);
+		final User user = em.find(User.class, email);
 		if (user == null) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}

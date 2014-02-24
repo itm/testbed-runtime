@@ -265,13 +265,17 @@ $(function() {
 
 		clickedAddResourceGroup : function(e) {
 			e.preventDefault();
-			new app.EditResourceGroupView({
-				el : $("#edit-view"),
-				model : {
-					resourceGroup : new app.ResourceGroupModel(),
-					availableNodes : app.Nodes
+			app.routes.fetchNodes({
+				success : function() {
+					new app.EditResourceGroupView({
+						el : $("#edit-view"),
+						model : {
+							resourceGroup : new app.ResourceGroupModel(),
+							availableNodes : app.Nodes
+						}
+					}).show();
 				}
-			}).show();
+			})
 		},
 
 		clickedEditResourceGroup : function(e) {
@@ -345,7 +349,9 @@ $(function() {
 			this.$el.html(this.template({
 				resourceGroup : this.model.resourceGroup.attributes,
 				availableNodeUrns : this.model.availableNodes.filter(function(node) {
-					return self.model.resourceGroup.attributes.nodeUrns.indexOf(node.attributes.nodeUrn) == -1;
+					return !self.model.resourceGroup.attributes.nodeUrns ?
+							true :
+							self.model.resourceGroup.attributes.nodeUrns.indexOf(node.attributes.nodeUrn) == -1;
 				}).map(function(node) {
 					return node.attributes;
 				})
@@ -474,13 +480,17 @@ $(function() {
 
 		clickedAddUser : function(e) {
 			e.preventDefault();
-			new app.EditUserView({
-				el : $("#edit-view"),
-				model : {
-					user : new app.UserModel(),
-					roles : app.Roles
+			app.routes.fetchRoles({
+				success : function() {
+					new app.EditUserView({
+						el : $("#edit-view"),
+						model : {
+							user : new app.UserModel(),
+							roles : app.Roles
+						}
+					}).show();
 				}
-			}).show();
+			});
 		},
 
 		clickedEditUser : function(e) {
@@ -507,7 +517,9 @@ $(function() {
 
 		events : {
 			'click button.edit-role-save' : 'save',
-			'hidden.bs.modal' : 'hidden'
+			'hidden.bs.modal' : 'hidden',
+			'keypress input' : 'saveIfEnter',
+			'input input' : 'toggleSaveButtonState'
 		},
 
 		initialize : function() {
@@ -518,7 +530,23 @@ $(function() {
 		render : function() {
 			this.$el.html(this.template(this.model));
 			this.show();
+			this.toggleSaveButtonState();
 			return this;
+		},
+
+		saveIfEnter : function(e) {
+			var code = e.keyCode || e.which;
+			if(code == 13 && !this.formHasErrors()) {
+				this.save(e);
+			}
+		},
+
+		formHasErrors : function() {
+			return "" == this.$el.find('input#name').val();
+		},
+
+		toggleSaveButtonState : function() {
+			this.$el.find('button.edit-role-save').toggleClass('disabled', this.formHasErrors());
 		},
 
 		save : function(e) {
@@ -567,25 +595,23 @@ $(function() {
 
 		events : {
 			'click button.edit-user-save' : 'save',
-			'hidden.bs.modal' : 'hidden'
+			'hidden.bs.modal' : 'hidden',
+			'keypress input' : 'saveIfEnter'
 		},
 
 		initialize : function() {
 			this.render();
-			if (this.model.user.attributes.name) {
-				this.$el.find('input#password').attr("autofocus", "autofocus");
-			} else {
-				this.$el.find('input#name').attr("autofocus", "autofocus");
-			}
+			this.$el.find(this.model.user.isNew() ? 'input#email' : 'input#password').attr("autofocus", "autofocus");
 		},
 
 		render : function() {
 			var model = {
 				user : {
-					name : this.model.user.attributes.name,
-					roles : this.model.user.attributes.roles.map(function(role) {
-						return role.name
-					})
+					email : this.model.user.attributes.email,
+					roles : this.model.user.attributes.roles ?
+							this.model.user.attributes.roles.map(function(role) {
+								return role.name
+							}) : []
 				},
 				roles : this.model.roles.map(function(roleModel) {
 					return roleModel.attributes.name;
@@ -594,6 +620,17 @@ $(function() {
 			this.$el.html(this.template(model));
 			this.show();
 			return this;
+		},
+
+		saveIfEnter : function(e) {
+			var code = e.keyCode || e.which;
+			if(code == 13 && !this.formHasErrors()) {
+				this.save(e);
+			}
+		},
+
+		formHasErrors : function() {
+			return this.$el.find('input#email').val() == "" || this.$el.find('input#password').val() == "";
 		},
 
 		save : function(e) {

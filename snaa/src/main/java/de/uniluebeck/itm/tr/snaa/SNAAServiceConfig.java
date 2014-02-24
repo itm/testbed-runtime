@@ -128,6 +128,21 @@ public class SNAAServiceConfig {
 	@Named(SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH)
 	private String shiroAdminDeviceDBRestApiContextPath;
 
+	@PropConf(
+			usage = "Comma-separated list of roles that shall be automatically assigned to users registering themselves",
+			example = "EXPERIMENTER,SERVICE_PROVIDER",
+			defaultValue = "EXPERIMENTER"
+	)
+	public static final String SHIRO_USER_REGISTRATION_AUTO_ROLES = "snaa.shiro.user_registration.auto_roles";
+
+	@Inject
+	@Named(SHIRO_USER_REGISTRATION_AUTO_ROLES)
+	private String getShiroUserRegistrationAutoRoles;
+
+	public String getGetShiroUserRegistrationAutoRoles() {
+		return getShiroUserRegistrationAutoRoles;
+	}
+
 	public String getShiroAdminWebappContextPath() {
 		return shiroAdminWebappContextPath;
 	}
