@@ -30,8 +30,6 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 
 	private ServicePublisherService restService;
 
-	private ServicePublisherService restAdminService;
-
 	@Inject
 	public DeviceDBRestServiceImpl(final CommonConfig commonConfig,
 								   final ServicePublisher servicePublisher,
