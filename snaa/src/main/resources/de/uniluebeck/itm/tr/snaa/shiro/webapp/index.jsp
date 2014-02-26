@@ -1,5 +1,3 @@
-<%@ page import="static de.uniluebeck.itm.tr.snaa.SNAAServiceConfig.SHIRO_ADMIN_REST_API_CONTEXTPATH" %>
-<%@ page import="static de.uniluebeck.itm.tr.snaa.SNAAServiceConfig.SHIRO_ADMIN_WEBAPP_CONTEXTPATH" %>
 <%@ page import="static de.uniluebeck.itm.tr.snaa.SNAAServiceConfig.SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH" %>
 <!DOCTYPE html>
 <html>
@@ -23,8 +21,8 @@
 
 		var app = app || {};
 
-		app.rest_api_context_path = "<%= getServletConfig().getInitParameter(SHIRO_ADMIN_REST_API_CONTEXTPATH) %>";
-		app.webapp_context_path   = "<%= getServletConfig().getInitParameter(SHIRO_ADMIN_WEBAPP_CONTEXTPATH) %>";
+		app.rest_api_context_path = "/admin/shiro-snaa/rest";
+		app.webapp_context_path   = "/admin/shiro-snaa";
 		app.device_db_rest_api_context_path = "<%= getServletConfig().getInitParameter(SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH) %>";
 
 		$(document).ready(function() {

@@ -21,6 +21,7 @@ import eu.wisebed.api.v3.snaa.Authenticate;
 import eu.wisebed.api.v3.snaa.AuthenticationFault;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+import org.apache.shiro.config.Ini;
 import org.apache.shiro.crypto.hash.Sha512Hash;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -110,9 +111,9 @@ public abstract class ShiroSNAATestBase {
 
 	public void setUp(final Module jpaModule) throws Exception {
 
-		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(jaxWsService);
-		when(servicePublisher.createJaxRsService(anyString(), any(Application.class))).thenReturn(jaxRsService);
-		when(servicePublisher.createServletService(anyString(), anyString(), anyMapOf(String.class, String.class)))
+		when(servicePublisher.createJaxWsService(anyString(), anyObject(), any(Ini.class))).thenReturn(jaxWsService);
+		when(servicePublisher.createJaxRsService(anyString(), any(Application.class), any(Ini.class))).thenReturn(jaxRsService);
+		when(servicePublisher.createServletService(anyString(), anyString(), anyMapOf(String.class, String.class), any(Ini.class)))
 				.thenReturn(servletService);
 
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX_1);

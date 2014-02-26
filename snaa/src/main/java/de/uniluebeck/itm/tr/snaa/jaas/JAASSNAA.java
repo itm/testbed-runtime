@@ -93,7 +93,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 	protected void doStart() {
 		try {
 			System.setProperty("java.security.auth.login.config", snaaServiceConfig.getJaasConfigFile());
-			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

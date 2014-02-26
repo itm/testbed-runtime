@@ -17,21 +17,7 @@ public class FederatorServerConfig {
 	@Named(FEDERATOR_PORT)
 	private int federatorPort;
 
-	@PropConf(
-			usage = "Shiro INI file (if given, configures the Apache Shiro framework to do authentication and authorization for all published REST, SOAP & HTML services)",
-			defaultValue = ""
-	)
-	public static final String FEDERATOR_SHIRO_INI = "federator.shiro.ini";
-
-	@Inject(optional = true)
-	@Named(FEDERATOR_SHIRO_INI)
-	protected String federatorShiroIni;
-
 	public int getFederatorPort() {
 		return federatorPort;
-	}
-
-	public String getFederatorShiroIni() {
-		return federatorShiroIni;
 	}
 }

@@ -110,7 +110,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 			log.debug("Starting federator controller using endpoint URI {}", endpointUri);
 
-			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this, null);
 			jaxWsService.startAndWait();
 
 			log.debug("Adding federator controller endpoint to federated reservations");

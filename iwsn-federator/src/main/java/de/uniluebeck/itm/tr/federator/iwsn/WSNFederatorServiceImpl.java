@@ -138,7 +138,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 	protected void doStart() {
 		log.trace("WSNFederatorServiceImpl.doStart()");
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

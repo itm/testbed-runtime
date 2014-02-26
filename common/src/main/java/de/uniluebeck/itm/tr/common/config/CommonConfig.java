@@ -20,14 +20,24 @@ public class CommonConfig {
 	protected int port;
 
 	@PropConf(
-			usage = "Shiro INI file (if given, configures the Apache Shiro framework to do authentication and authorization for all published REST, SOAP & HTML services)",
-			defaultValue = ""
+			usage = "Username for the administrator",
+			defaultValue = "admin"
 	)
-	public static final String SHIRO_INI = "shiro.ini";
+	public static final String ADMIN_USERNAME = "admin";
 
-	@Inject(optional = true)
-	@Named(SHIRO_INI)
-	protected String shiroIni;
+	@Inject
+	@Named(ADMIN_USERNAME)
+	protected String adminUsername;
+
+	@PropConf(
+			usage = "Password for the administrator",
+			defaultValue = "secret"
+	)
+	public static final String ADMIN_PASSWORD = "secret";
+
+	@Inject
+	@Named(ADMIN_PASSWORD)
+	protected String adminPassword;
 
 	@PropConf(
 			usage = "The URN prefix of this testbed (e.g. \"urn:wisebed:uzl1:\")",
@@ -61,16 +71,8 @@ public class CommonConfig {
 		return urnPrefix;
 	}
 
-	public String getShiroIni() {
-		return shiroIni;
-	}
-
 	public void setPort(final int port) {
 		this.port = port;
-	}
-
-	public void setShiroIni(final String shiroIni) {
-		this.shiroIni = shiroIni;
 	}
 
 	public void setTimeZone(final String timeZone) {
@@ -79,5 +81,21 @@ public class CommonConfig {
 
 	public void setUrnPrefix(final NodeUrnPrefix urnPrefix) {
 		this.urnPrefix = urnPrefix;
+	}
+
+	public String getAdminUsername() {
+		return adminUsername;
+	}
+
+	public void setAdminUsername(final String adminUsername) {
+		this.adminUsername = adminUsername;
+	}
+
+	public String getAdminPassword() {
+		return adminPassword;
+	}
+
+	public void setAdminPassword(final String adminPassword) {
+		this.adminPassword = adminPassword;
 	}
 }

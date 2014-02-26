@@ -38,7 +38,7 @@ public class UserRegistrationWebAppServiceImpl extends AbstractService implement
 
 			params.put(PortalServerConfig.REST_API_CONTEXT_PATH, portalServerConfig.getRestApiContextPath());
 
-			webapp = servicePublisher.createServletService("/user_registration", resourceBase, params);
+			webapp = servicePublisher.createServletService("/user_registration", resourceBase, params, null);
 			webapp.startAndWait();
 
 			notifyStarted();

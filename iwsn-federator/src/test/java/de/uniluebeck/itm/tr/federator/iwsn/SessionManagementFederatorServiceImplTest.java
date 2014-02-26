@@ -4,10 +4,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
-import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.KeyValuePair;
@@ -15,6 +15,7 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.ChannelHandlerDescription;
 import eu.wisebed.api.v3.sm.SessionManagement;
+import org.apache.shiro.config.Ini;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -94,7 +96,8 @@ public class SessionManagementFederatorServiceImplTest {
 	@Before
 	public void setUp() throws Exception {
 		when(config.getFederatorSmEndpointUri()).thenReturn(URI.create("http://localhost/"));
-		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
+		when(servicePublisher.createJaxWsService(anyString(), anyObject(), any(Ini.class)))
+				.thenReturn(servicePublisherService);
 		federatorSM = new SessionManagementFederatorServiceImpl(
 				federatedEndpoints,
 				preconditionsFactory,

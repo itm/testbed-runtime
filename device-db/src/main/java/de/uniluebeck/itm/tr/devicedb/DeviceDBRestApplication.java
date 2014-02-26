@@ -15,16 +15,19 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class DeviceDBRestApplication extends Application {
 
-	private final DeviceDBRestResourceImpl resource;
+	private final DeviceDBRestResource resource;
+
+	private final DeviceDBRestAdminResource adminResource;
 
 	@Inject
-	public DeviceDBRestApplication(final DeviceDBRestResourceImpl resource) {
+	public DeviceDBRestApplication(final DeviceDBRestResource resource, final DeviceDBRestAdminResource adminResource) {
 		this.resource = resource;
+		this.adminResource = adminResource;
 	}
 
 	@Override
 	public Set<Object> getSingletons() {
-		return newHashSet(resource, createJaxbElementProvider(), createJsonProvider());
+		return newHashSet(resource, adminResource, createJaxbElementProvider(), createJsonProvider());
 	}
 
 	/**

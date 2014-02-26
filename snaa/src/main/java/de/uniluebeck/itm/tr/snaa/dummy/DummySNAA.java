@@ -110,7 +110,7 @@ public class DummySNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(config.getSnaaContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(config.getSnaaContextPath(), this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

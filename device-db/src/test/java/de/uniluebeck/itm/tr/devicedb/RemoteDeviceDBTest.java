@@ -45,7 +45,6 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 		properties.put(CommonConfig.URN_PREFIX, "urn:wisebed:uzl1:");
 		properties.put(CommonConfig.PORT, Integer.toString(port));
 		properties.put(DeviceDBConfig.DEVICEDB_TYPE, DeviceDBType.IN_MEMORY.toString());
-		properties.put(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH, "/rest");
 		properties.put(DeviceDBConfig.DEVICEDB_JPA_PROPERTIES, "");
 
 		final CommonConfig commonConfig = buildConfig(CommonConfig.class, properties);

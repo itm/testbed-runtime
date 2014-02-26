@@ -84,10 +84,7 @@ public class FederatorServerModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory) {
-		return factory.create(new ServicePublisherConfig(
-				federatorServerConfig.getFederatorPort(),
-				federatorServerConfig.getFederatorShiroIni()
-		));
+		return factory.create(new ServicePublisherConfig(federatorServerConfig.getFederatorPort()));
 	}
 
 	@Provides
@@ -143,7 +140,6 @@ public class FederatorServerModule extends AbstractModule {
 	CommonConfig provideCommonConfig(final FederatorServerConfig config) {
 		final CommonConfig commonConfig = new CommonConfig();
 		commonConfig.setPort(config.getFederatorPort());
-		commonConfig.setShiroIni(config.getFederatorShiroIni());
 		return commonConfig;
 	}
 }

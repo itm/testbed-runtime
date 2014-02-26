@@ -52,6 +52,6 @@ public class DeviceDBServerModule extends AbstractModule {
 	@Provides
 	@Singleton
 	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory, final CommonConfig commonConfig) {
-		return factory.create(new ServicePublisherConfig(commonConfig.getPort(), commonConfig.getShiroIni()));
+		return factory.create(new ServicePublisherConfig(commonConfig.getPort()));
 	}
 }

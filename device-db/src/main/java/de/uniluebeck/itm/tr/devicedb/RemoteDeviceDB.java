@@ -10,6 +10,7 @@ import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.common.dto.DeviceConfigDto;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryPlus;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -25,7 +26,6 @@ import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.devicedb.DeviceConfigHelper.fromEntity;
 
 public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
@@ -39,9 +39,21 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 	private final URI remoteDeviceDBUri;
 
+	private final URI remoteDeviceDBAdminUri;
+
+	private final String adminUsername;
+
+	private final String adminPassword;
+
 	@Inject
-	public RemoteDeviceDB(@Named(DeviceDBConfig.DEVICEDB_REMOTE_URI) final URI remoteDeviceDBUri) {
+	public RemoteDeviceDB(@Named(DeviceDBConfig.DEVICEDB_REMOTE_URI) final URI remoteDeviceDBUri,
+						  @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_URI) final URI remoteDeviceDBAdminUri,
+						  @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_USERNAME) final String adminUsername,
+						  @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_PASSWORD) final String adminPassword) {
 		this.remoteDeviceDBUri = remoteDeviceDBUri;
+		this.remoteDeviceDBAdminUri = remoteDeviceDBAdminUri;
+		this.adminUsername = adminUsername;
+		this.adminPassword = adminPassword;
 	}
 
 	@Override
@@ -149,7 +161,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 		try {
 
 			final DeviceConfigDto config = DeviceConfigHelper.toDto(deviceConfig);
-			client().add(config, config.getNodeUrn());
+			adminClient().add(config, config.getNodeUrn());
 
 		} catch (Exception e) {
 			throw propagate(e);
@@ -163,7 +175,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 		try {
 
-			client().update(DeviceConfigHelper.toDto(deviceConfig), deviceConfig.getNodeUrn().toString());
+			adminClient().update(DeviceConfigHelper.toDto(deviceConfig), deviceConfig.getNodeUrn().toString());
 
 		} catch (Exception e) {
 			throw propagate(e);
@@ -178,7 +190,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 		try {
 
-			client().delete(nodeUrn.toString());
+			adminClient().delete(nodeUrn.toString());
 			return true;
 
 		} catch (Exception e) {
@@ -193,7 +205,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 		try {
 
-			client().delete(Lists.<String>newArrayList());
+			adminClient().delete(Lists.<String>newArrayList());
 
 		} catch (Exception e) {
 			throw propagate(e);
@@ -215,6 +227,16 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 				remoteDeviceDBUri.toString(),
 				DeviceDBRestResource.class,
 				newArrayList(new JacksonJsonProvider(new ObjectMapper()))
+		);
+	}
+
+	private DeviceDBRestAdminResource adminClient() {
+		return JAXRSClientFactoryPlus.create(
+				remoteDeviceDBAdminUri.toString(),
+				DeviceDBRestAdminResource.class,
+				newArrayList(new JacksonJsonProvider(new ObjectMapper())),
+				adminUsername,
+				adminPassword
 		);
 	}
 }

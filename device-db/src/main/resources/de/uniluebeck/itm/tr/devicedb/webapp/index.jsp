@@ -1,5 +1,6 @@
-<%@ page import="de.uniluebeck.itm.tr.devicedb.DeviceDBConfig" %>
-<%@ page import="de.uniluebeck.itm.tr.common.config.CommonConfig" %>
+<%@ page import="static de.uniluebeck.itm.tr.devicedb.DeviceDBConstants.DEVICEDB_REST_API_CONTEXT_PATH" %>
+<%@ page import="static de.uniluebeck.itm.tr.devicedb.DeviceDBConstants.DEVICEDB_WEBAPP_CONTEXT_PATH" %>
+<%@ page import="static de.uniluebeck.itm.tr.common.config.CommonConfig.URN_PREFIX" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,9 +21,9 @@
     <script src="js/templates.js"></script>   
     <script>
 
-		var nodeUrnPrefix = "<%= getServletConfig().getInitParameter(CommonConfig.URN_PREFIX) %>";
-		var deviceDBRestApiContextPath = "<%= getServletConfig().getInitParameter(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH) %>";
-		var deviceDBWebappContextPath = "<%= getServletConfig().getInitParameter(DeviceDBConfig.DEVICEDB_WEBAPP_CONTEXT_PATH) %>";
+		var nodeUrnPrefix = "<%= getServletConfig().getInitParameter(URN_PREFIX) %>";
+		var deviceDBRestApiContextPath = "<%= DEVICEDB_REST_API_CONTEXT_PATH %>";
+		var deviceDBWebappContextPath = "<%= DEVICEDB_WEBAPP_CONTEXT_PATH %>";
 
 		$(document).ready(function() {
 			'use strict';

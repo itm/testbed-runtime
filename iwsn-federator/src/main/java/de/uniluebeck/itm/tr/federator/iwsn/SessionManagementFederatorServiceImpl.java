@@ -141,7 +141,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 		log.trace("SessionManagementFederatorServiceImpl.doStart()");
 		try {
 
-			jaxWsService = servicePublisher.createJaxWsService(config.getFederatorSmEndpointUri().getPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(config.getFederatorSmEndpointUri().getPath(), this, null);
 			jaxWsService.startAndWait();
 
 			notifyStarted();

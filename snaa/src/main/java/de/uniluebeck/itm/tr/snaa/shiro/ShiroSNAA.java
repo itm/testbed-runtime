@@ -179,7 +179,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	protected void doStart() {
 		try {
 			SecurityUtils.setSecurityManager(securityManager);
-			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this, null);
 			jaxWsService.startAndWait();
 			restService.startAndWait();
 			notifyStarted();
