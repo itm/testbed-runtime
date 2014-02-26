@@ -47,9 +47,9 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 	@Inject
 	public RemoteDeviceDB(@Named(DeviceDBConfig.DEVICEDB_REMOTE_URI) final URI remoteDeviceDBUri,
-						  @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_URI) final URI remoteDeviceDBAdminUri,
-						  @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_USERNAME) final String adminUsername,
-						  @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_PASSWORD) final String adminPassword) {
+						  @Nullable @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_URI) final URI remoteDeviceDBAdminUri,
+						  @Nullable @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_USERNAME) final String adminUsername,
+						  @Nullable @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_PASSWORD) final String adminPassword) {
 		this.remoteDeviceDBUri = remoteDeviceDBUri;
 		this.remoteDeviceDBAdminUri = remoteDeviceDBAdminUri;
 		this.adminUsername = adminUsername;

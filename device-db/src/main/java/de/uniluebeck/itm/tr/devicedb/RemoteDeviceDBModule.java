@@ -5,6 +5,7 @@ import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -30,11 +31,14 @@ public class RemoteDeviceDBModule extends PrivateModule {
 		this.adminPassword = deviceDBConfig.getDeviceDBRemoteAdminPassword();
 	}
 
-	public RemoteDeviceDBModule(final URI uri) {
+	public RemoteDeviceDBModule(final URI uri,
+								@Nullable final URI adminUri,
+								@Nullable final String adminUsername,
+								@Nullable final String adminPassword) {
 		this.uri = checkNotNull(uri, ERROR_MESSAGE);
-		this.adminUri = null;
-		this.adminUsername = null;
-		this.adminPassword = null;
+		this.adminUri = adminUri;
+		this.adminUsername = adminUsername;
+		this.adminPassword = adminPassword;
 	}
 
 	@Override

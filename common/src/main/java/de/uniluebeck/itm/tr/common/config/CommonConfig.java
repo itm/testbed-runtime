@@ -23,7 +23,7 @@ public class CommonConfig {
 			usage = "Username for the administrator",
 			defaultValue = "admin"
 	)
-	public static final String ADMIN_USERNAME = "admin";
+	public static final String ADMIN_USERNAME = "admin.username";
 
 	@Inject
 	@Named(ADMIN_USERNAME)
@@ -33,7 +33,7 @@ public class CommonConfig {
 			usage = "Password for the administrator",
 			defaultValue = "secret"
 	)
-	public static final String ADMIN_PASSWORD = "secret";
+	public static final String ADMIN_PASSWORD = "admin.password";
 
 	@Inject
 	@Named(ADMIN_PASSWORD)
