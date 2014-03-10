@@ -32,7 +32,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
     }
 
     @Override
-    public IEventStore createAndConfigureEventStore(String serializedReservationKey) throws FileNotFoundException {
+    public IEventStore createAndConfigureEventStore(final String serializedReservationKey) throws FileNotFoundException {
 
         Map<Class<?>, Function<?, byte[]>> serializers = new HashMap<Class<?>, Function<?, byte[]>>();
         Map<Class<?>, Function<byte[], ?>> deserializers = new HashMap<Class<?>, Function<byte[], ?>>();

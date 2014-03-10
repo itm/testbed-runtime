@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageOrBuilder;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
@@ -43,13 +44,13 @@ class ReservationEventStoreImpl implements ReservationEventStore {
     }
 
     @Subscribe
-    public void on(Message message) {
+    public void on(MessageOrBuilder message) {
         if (message.getType() != Message.Type.PROGRESS) {
             storeEvent(message);
         }
     }
 
-    private void storeEvent(Message event) {
+    private void storeEvent(final MessageOrBuilder event) {
         try {
             eventStore.storeEvent(event, Message.class);
         } catch (IOException e) {
