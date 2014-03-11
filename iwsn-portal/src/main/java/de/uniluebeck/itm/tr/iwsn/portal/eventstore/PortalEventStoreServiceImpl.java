@@ -77,7 +77,7 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
     private IEventStore getEventStore(String serializedReservationKey) throws IOException {
         ReservationEventStore reservationEventStore = reservationStores.get(serializedReservationKey);
         IEventStore eventStore = null;
-        if (reservationEventStore != null) {
+        if (reservationEventStore != null) { // ongoing reservation
             eventStore = reservationEventStore.getEventStore();
         } else {
             eventStore = portalEventStoreHelper.createAndConfigureEventStore(serializedReservationKey);
@@ -93,12 +93,14 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
     @Override
     public Iterator<IEventContainer> getEventsBetween(String serializedReservationKey, long startTime, long endTime) throws IOException{
         IEventStore store = getEventStore(serializedReservationKey);
+        // TODO think about event store closing
         return store.getEventsBetweenTimestamps(startTime, endTime);
     }
 
     @Override
     public Iterator<IEventContainer> getEvents(String serializedReservationKey) throws IOException {
         IEventStore store = getEventStore(serializedReservationKey);
+        // TODO think about event store closing
         return store.getAllEvents();
     }
 }

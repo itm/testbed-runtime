@@ -3,7 +3,8 @@ package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 import com.google.common.base.Function;
 import com.google.inject.Inject;
 import com.google.protobuf.InvalidProtocolBufferException;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import com.google.protobuf.MessageLite;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
@@ -36,13 +37,21 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 
         Map<Class<?>, Function<?, byte[]>> serializers = new HashMap<Class<?>, Function<?, byte[]>>();
         Map<Class<?>, Function<byte[], ?>> deserializers = new HashMap<Class<?>, Function<byte[], ?>>();
-        serializers.put(Message.class, new Function<Message, byte[]>() {
+
+        Function<MessageLite, byte[]> messageSerializer = new Function<MessageLite, byte[]>() {
             @Nullable
             @Override
-            public byte[] apply(@Nullable Message message) {
-                return message.toByteArray();
+            public byte[] apply(@Nullable MessageLite input) {
+                return input.toByteArray();
             }
-        });
+        };
+
+        serializers.put(DevicesAttachedEvent.class, messageSerializer);
+        serializers.put(DevicesDetachedEvent.class, messageSerializer);
+        serializers.put(UpstreamMessageEvent.class, messageSerializer);
+        serializers.put(NotificationEvent.class, messageSerializer);
+        serializers.put(SingleNodeResponse.class, messageSerializer);
+        serializers.put(GetChannelPipelinesResponse.class, messageSerializer);
 
         serializers.put(ReservationStartedEvent.class, new Function<ReservationStartedEvent, byte[]>() {
             @Nullable
@@ -90,15 +99,67 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
             }
         });
 
-        deserializers.put(Message.class, new Function<byte[], Object>() {
+        deserializers.put(DevicesAttachedEvent.class, new Function<byte[], DevicesAttachedEvent>() {
             @Nullable
             @Override
-            public Object apply(@Nullable byte[] input) {
-                Message message = Message.getDefaultInstance();
+            public DevicesAttachedEvent apply(@Nullable byte[] input) {
                 try {
-                    return message.newBuilderForType().mergeFrom(input).build();
+                    return DevicesAttachedEvent.getDefaultInstance().parseFrom(input);
                 } catch (InvalidProtocolBufferException e) {
-                    log.error("Can't deserialize protobuf message", e);
+                    log.error("Can't deserialize event");
+                    return null;
+                }
+            }
+        });
+
+        deserializers.put(DevicesDetachedEvent.class, new Function<byte[], DevicesDetachedEvent>() {
+            @Nullable
+            @Override
+            public DevicesDetachedEvent apply(@Nullable byte[] input) {
+                try {
+                    return DevicesDetachedEvent.getDefaultInstance().parseFrom(input);
+                } catch (InvalidProtocolBufferException e) {
+                    log.error("Can't deserialize event");
+                    return null;
+                }
+            }
+        });
+
+
+        deserializers.put(NotificationEvent.class, new Function<byte[], NotificationEvent>() {
+            @Nullable
+            @Override
+            public NotificationEvent apply(@Nullable byte[] input) {
+                try {
+                    return NotificationEvent.getDefaultInstance().parseFrom(input);
+                } catch (InvalidProtocolBufferException e) {
+                    log.error("Can't deserialize event");
+                    return null;
+                }
+            }
+        });
+
+        deserializers.put(SingleNodeResponse.class, new Function<byte[], SingleNodeResponse>() {
+            @Nullable
+            @Override
+            public SingleNodeResponse apply(@Nullable byte[] input) {
+                try {
+                    return SingleNodeResponse.getDefaultInstance().parseFrom(input);
+                } catch (InvalidProtocolBufferException e) {
+                    log.error("Can't deserialize event");
+                    return null;
+                }
+            }
+        });
+
+        deserializers.put(GetChannelPipelinesResponse.class, new Function<byte[], GetChannelPipelinesResponse>() {
+            @Nullable
+            @Override
+            public GetChannelPipelinesResponse apply(@Nullable byte[] input) {
+                try {
+                    return GetChannelPipelinesResponse.getDefaultInstance().parseFrom(input);
+                } catch (InvalidProtocolBufferException e) {
+                    log.error("Can't deserialize event");
                     return null;
                 }
             }
@@ -107,4 +168,5 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
         String baseName = new File(serializedReservationKey, portalServerConfig.getEventStorePath()).getAbsolutePath();
         return new ChronicleBasedEventStore(baseName, serializers, deserializers);
     }
+
 }

@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class PortalEventStoreHelperImplTest {
 
-private PortalEventStoreHelperImpl helper;
+    private PortalEventStoreHelperImpl helper;
 
     @Mock
     private ReservationManager reservationManager;
@@ -29,7 +29,7 @@ private PortalEventStoreHelperImpl helper;
 
     @Before
     public void setUp() throws Exception {
-        helper = new PortalEventStoreHelperImpl(reservationManager,config);
+        helper = new PortalEventStoreHelperImpl(reservationManager, config);
         when(config.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
     }
 

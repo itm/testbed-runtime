@@ -14,5 +14,5 @@ public interface EventStoreResource {
     @Path("{secretReservationKeyBase64}")
     @Produces("text/json")
     Response getEventsBetweenTimestamps(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64,
-                       @QueryParam("from") long fromTimestamp, @QueryParam("to") long toTimestamp);
+                                        @QueryParam("from") long fromTimestamp, @QueryParam("to") long toTimestamp);
 }

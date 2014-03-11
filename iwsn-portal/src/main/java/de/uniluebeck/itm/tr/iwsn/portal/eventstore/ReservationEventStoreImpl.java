@@ -3,8 +3,8 @@ package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
-import de.uniluebeck.itm.tr.iwsn.messages.MessageOrBuilder;
+import com.google.protobuf.MessageLite;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
@@ -44,15 +44,38 @@ class ReservationEventStoreImpl implements ReservationEventStore {
     }
 
     @Subscribe
-    public void on(MessageOrBuilder message) {
-        if (message.getType() != Message.Type.PROGRESS) {
-            storeEvent(message);
-        }
+    public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
+        storeEvent(event);
     }
 
-    private void storeEvent(final MessageOrBuilder event) {
+    @Subscribe
+    public void onUpstreamMessageEventFromPortalEventBus(final UpstreamMessageEvent event) {
+        storeEvent(event);
+    }
+
+    @Subscribe
+    public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
+        storeEvent(event);
+    }
+
+    @Subscribe
+    public void onNotificationEventFromPortalEventBus(final NotificationEvent event) {
+        storeEvent(event);
+    }
+
+    @Subscribe
+    public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
+        storeEvent(response);
+    }
+
+    @Subscribe
+    public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
+        storeEvent(response);
+    }
+
+    private void storeEvent(final MessageLite event) {
         try {
-            eventStore.storeEvent(event, Message.class);
+            eventStore.storeEvent(event, event.getClass());
         } catch (IOException e) {
             log.error("Failed to store event", e);
         }

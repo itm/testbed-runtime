@@ -10,10 +10,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationEventStoreImplTest {
@@ -46,7 +43,7 @@ public class ReservationEventStoreImplTest {
         when(reservationManager.getReservation("abcd")).thenReturn(reservation);
         when(helper.createAndConfigureEventStore("abcd")).thenReturn(eventStore);
 
-        store = new ReservationEventStoreImpl(reservation,helper);
+        store = new ReservationEventStoreImpl(reservation, helper);
     }
 
 
@@ -63,6 +60,8 @@ public class ReservationEventStoreImplTest {
 
         store.reservationEnded(reservationEndedEvent);
         verify(reservationEventBus).unregister(store);
+
+        verify(eventStore).close();
     }
 
     @Test

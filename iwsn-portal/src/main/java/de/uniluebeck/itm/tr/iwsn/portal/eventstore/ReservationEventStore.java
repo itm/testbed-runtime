@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import eventstore.IEventStore;
