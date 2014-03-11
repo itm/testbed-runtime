@@ -1,7 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import com.google.protobuf.Message;
+import com.googlecode.protobuf.format.JsonFormat;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
@@ -116,9 +117,8 @@ public class EventStoreResourceImpl implements EventStoreResource {
             return toJSON(new ReservationStartedMessage(((ReservationStartedEvent) event).getReservation()));
         } else if (event instanceof ReservationEndedEvent) {
             return toJSON(new ReservationEndedMessage(((ReservationEndedEvent) event).getReservation()));
-        } else if (event instanceof Message) {
-            // TODO serialize
-            return null;
+        } else if (event instanceof com.google.protobuf.Message) {
+            return JsonFormat.printToString((Message) event);
         } else {
             throw new IllegalArgumentException("Unknown event type. Can't generate JSON");
         }
