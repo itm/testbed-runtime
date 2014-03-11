@@ -52,6 +52,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
         serializers.put(NotificationEvent.class, messageSerializer);
         serializers.put(SingleNodeResponse.class, messageSerializer);
         serializers.put(GetChannelPipelinesResponse.class, messageSerializer);
+        serializers.put(Request.class, messageSerializer);
 
         serializers.put(ReservationStartedEvent.class, new Function<ReservationStartedEvent, byte[]>() {
             @Nullable
@@ -158,6 +159,19 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
             public GetChannelPipelinesResponse apply(@Nullable byte[] input) {
                 try {
                     return GetChannelPipelinesResponse.getDefaultInstance().parseFrom(input);
+                } catch (InvalidProtocolBufferException e) {
+                    log.error("Can't deserialize event");
+                    return null;
+                }
+            }
+        });
+
+        deserializers.put(Request.class, new Function<byte[], Request>() {
+            @Nullable
+            @Override
+            public Request apply(@Nullable byte[] input) {
+                try {
+                    return Request.getDefaultInstance().parseFrom(input);
                 } catch (InvalidProtocolBufferException e) {
                     log.error("Can't deserialize event");
                     return null;

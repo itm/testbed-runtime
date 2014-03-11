@@ -73,6 +73,11 @@ class ReservationEventStoreImpl implements ReservationEventStore {
         storeEvent(response);
     }
 
+    @Subscribe
+    public void onRequest(final Request request) {
+        storeEvent(request);
+    }
+
     private void storeEvent(final MessageLite event) {
         try {
             eventStore.storeEvent(event, event.getClass());
