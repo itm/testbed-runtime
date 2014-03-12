@@ -1,7 +1,9 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
+import com.google.protobuf.GeneratedMessage;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.messages.MessageOrBuilder;
+import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
 import eventstore.IEventStore;
 import org.junit.Before;
@@ -62,16 +64,6 @@ public class ReservationEventStoreImplTest {
         verify(reservationEventBus).unregister(store);
 
         verify(eventStore).close();
-    }
-
-    @Test
-    public void testIfCustomEventCanBeStored() throws Exception {
-
-        final MessageOrBuilder message = mock(MessageOrBuilder.class);
-        when(message.getType()).thenReturn(Message.Type.RESPONSE);
-        store.on(message);
-        verify(eventStore).storeEvent(message, Message.class);
-
     }
 
 

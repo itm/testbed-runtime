@@ -126,6 +126,19 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
             }
         });
 
+        deserializers.put(UpstreamMessageEvent.class, new Function<byte[], UpstreamMessageEvent>() {
+            @Nullable
+            @Override
+            public UpstreamMessageEvent apply(@Nullable byte[] input) {
+                try {
+                    return UpstreamMessageEvent.getDefaultInstance().parseFrom(input);
+                } catch (InvalidProtocolBufferException e) {
+                    log.error("Can't deserialize event");
+                    return null;
+                }
+            }
+        });
+
 
         deserializers.put(NotificationEvent.class, new Function<byte[], NotificationEvent>() {
             @Nullable
@@ -139,6 +152,8 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
                 }
             }
         });
+
+
 
         deserializers.put(SingleNodeResponse.class, new Function<byte[], SingleNodeResponse>() {
             @Nullable
@@ -179,8 +194,13 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
             }
         });
 
-        String baseName = new File(serializedReservationKey, portalServerConfig.getEventStorePath()).getAbsolutePath();
+        String baseName = suggestedEventStoreBaseNameForReservation(serializedReservationKey);
+        log.trace("Creating new chronicle at {}", baseName);
         return new ChronicleBasedEventStore(baseName, serializers, deserializers);
     }
 
+    @Override
+    public String suggestedEventStoreBaseNameForReservation(String serializedReservationKey) {
+        return portalServerConfig.getEventStorePath() +"/"+serializedReservationKey;
+    }
 }

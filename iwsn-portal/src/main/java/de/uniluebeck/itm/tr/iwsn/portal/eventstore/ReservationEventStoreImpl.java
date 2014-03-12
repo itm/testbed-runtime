@@ -44,32 +44,32 @@ class ReservationEventStoreImpl implements ReservationEventStore {
     }
 
     @Subscribe
-    public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
+    public void onEvent(final DevicesAttachedEvent event) {
         storeEvent(event);
     }
 
     @Subscribe
-    public void onUpstreamMessageEventFromPortalEventBus(final UpstreamMessageEvent event) {
+    public void onEvent(final UpstreamMessageEvent event) {
         storeEvent(event);
     }
 
     @Subscribe
-    public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
+    public void onEvent(final DevicesDetachedEvent event) {
         storeEvent(event);
     }
 
     @Subscribe
-    public void onNotificationEventFromPortalEventBus(final NotificationEvent event) {
+    public void onEvent(final NotificationEvent event) {
         storeEvent(event);
     }
 
     @Subscribe
-    public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
+    public void onEvent(final SingleNodeResponse response) {
         storeEvent(response);
     }
 
     @Subscribe
-    public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
+    public void onEvent(final GetChannelPipelinesResponse response) {
         storeEvent(response);
     }
 
@@ -79,6 +79,7 @@ class ReservationEventStoreImpl implements ReservationEventStore {
     }
 
     private void storeEvent(final MessageLite event) {
+        log.trace("Storing Event: {}", event);
         try {
             eventStore.storeEvent(event, event.getClass());
         } catch (IOException e) {

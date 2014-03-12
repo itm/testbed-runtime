@@ -70,7 +70,7 @@ public class PortalServerConfig {
             usage = "The directory in which to save json event files to download",
             example = "/var/log/tr.iwsn-portal/eventdownloads"
     )
-    public static final String EVENTSTORE_DOWNLOAD_PATH = "eventstore.download.path";
+    public static final String EVENTSTORE_DOWNLOAD_PATH = "eventstore.download_path";
 
     @Inject
     @Named(EVENTSTORE_DOWNLOAD_PATH)

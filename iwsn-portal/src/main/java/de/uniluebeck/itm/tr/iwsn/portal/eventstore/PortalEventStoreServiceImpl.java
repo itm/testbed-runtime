@@ -4,7 +4,6 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import eventstore.IEventContainer;
@@ -12,6 +11,7 @@ import eventstore.IEventStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,6 +23,7 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
     private final PortalEventBus portalEventBus;
     private final ReservationEventStoreFactory reservationEventStoreFactory;
     private final PortalEventStoreHelper portalEventStoreHelper;
+    private final Object reservationStoresLock = new Object();
 
     @Inject
     public PortalEventStoreServiceImpl(final PortalEventBus portalEventBus,
@@ -47,7 +48,7 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
     protected void doStop() {
         log.trace("PortalEventStoreServiceImpl.doStop()");
         try {
-            for(ReservationEventStore store : reservationStores.values()) {
+            for (ReservationEventStore store : reservationStores.values()) {
                 store.stop();
             }
             portalEventBus.unregister(this);
@@ -59,28 +60,43 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
 
     @Subscribe
     public void onReservationStarted(final ReservationStartedEvent event) {
-        log.trace("PortalEventStoreServiceImpl.onReservationStarted()"); // TODO remove when working
         ReservationEventStore reservationEventStore = reservationEventStoreFactory.create(event.getReservation());
-        reservationStores.put(event.getReservation().getSerializedKey(), reservationEventStore);
+        log.trace("PortalEventStoreServiceImpl.onReservationStarted(): ReservationEventStore: {}", reservationEventStore); // TODO remove when working
+        synchronized (reservationStoresLock) {
+            reservationStores.put(event.getReservation().getSerializedKey(), reservationEventStore);
+        }
+        log.info("Reservation Key is {}", event.getReservation().getSerializedKey()); // TODO remove later
         reservationEventStore.reservationStarted(event);
     }
 
     @Subscribe
     public void onReservationEnded(final ReservationEndedEvent event) {
         log.trace("PortalEventStoreServiceImpl.onReservationEnded()"); // TODO remove when working
-        ReservationEventStore reservationEventStore = reservationStores.remove(event.getReservation().getSerializedKey());
+        ReservationEventStore reservationEventStore;
+        synchronized (reservationStoresLock) {
+            reservationEventStore = reservationStores.remove(event.getReservation().getSerializedKey());
+        }
         if (reservationEventStore != null) {
             reservationEventStore.reservationEnded(event);
         }
     }
 
     private IEventStore getEventStore(String serializedReservationKey) throws IOException {
-        ReservationEventStore reservationEventStore = reservationStores.get(serializedReservationKey);
+        ReservationEventStore reservationEventStore;
+        synchronized (reservationStoresLock) {
+            reservationEventStore = reservationStores.get(serializedReservationKey);
+        }
         IEventStore eventStore = null;
         if (reservationEventStore != null) { // ongoing reservation
             eventStore = reservationEventStore.getEventStore();
         } else {
-            eventStore = portalEventStoreHelper.createAndConfigureEventStore(serializedReservationKey);
+            String totalName = portalEventStoreHelper.suggestedEventStoreBaseNameForReservation(serializedReservationKey) + ".data";
+            log.trace("Reservation NOT ongoing. total path to chronicle = {}", totalName);
+            if (new File(totalName).exists()) {
+                eventStore = portalEventStoreHelper.createAndConfigureEventStore(serializedReservationKey);
+            } else {
+                log.warn("Can't open chronicle with base {}", portalEventStoreHelper.suggestedEventStoreBaseNameForReservation(serializedReservationKey));
+            }
         }
 
         if (eventStore == null) {
@@ -91,7 +107,7 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
     }
 
     @Override
-    public Iterator<IEventContainer> getEventsBetween(String serializedReservationKey, long startTime, long endTime) throws IOException{
+    public Iterator<IEventContainer> getEventsBetween(String serializedReservationKey, long startTime, long endTime) throws IOException {
         IEventStore store = getEventStore(serializedReservationKey);
         // TODO think about event store closing
         return store.getEventsBetweenTimestamps(startTime, endTime);

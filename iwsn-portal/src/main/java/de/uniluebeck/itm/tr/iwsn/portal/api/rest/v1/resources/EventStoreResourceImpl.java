@@ -41,16 +41,19 @@ public class EventStoreResourceImpl implements EventStoreResource {
     public Response getEvents(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64) {
 
         try {
+            log.trace("EventStoreResourceImpl.getEvents({})", secretReservationKeyBase64);
             Iterator<IEventContainer> iterator = eventStoreService.getEvents(secretReservationKeyBase64);
             String path = portalServerConfig.getEventStoreDownloadPath() + "/"
                     + secretReservationKeyBase64 + "/allEvents-"
                     + System.currentTimeMillis() + ".json";
 
+            log.trace("EventStorePath: {}", path);
             File file = buildJsonFile(path, iterator);
             return buildJsonResponse(file);
 
 
         } catch (IOException e) {
+            log.warn("Can't generate json response!");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("No events found for given reservation key!").build();
         }
@@ -81,6 +84,11 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
     private File buildJsonFile(String filePath, Iterator<IEventContainer> iterator) throws IOException {
         File file = new File(filePath);
+        file.getParentFile().mkdirs();
+        file.getParentFile().deleteOnExit();
+        file.delete();
+        file.createNewFile();
+        file.deleteOnExit();
         FileWriter fw = new FileWriter(file);
         BufferedWriter out = new BufferedWriter(fw);
         out.write("[");
@@ -107,8 +115,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
         if (file == null || !file.exists()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return Response.ok(file)
-                .header("Content-Disposition", "attachment; filename=" + file.getName()).build();
+        return Response.ok(file).build();
     }
 
 
@@ -120,7 +127,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
         } else if (event instanceof com.google.protobuf.Message) {
             return JsonFormat.printToString((Message) event);
         } else {
-            throw new IllegalArgumentException("Unknown event type. Can't generate JSON");
+            throw new IllegalArgumentException("Unknown event type. Can't generate JSON for type "+ event.getClass());
         }
     }
 }

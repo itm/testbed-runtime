@@ -7,4 +7,6 @@ import java.io.FileNotFoundException;
 public interface PortalEventStoreHelper {
 
     IEventStore createAndConfigureEventStore(String serializedReservationKey) throws FileNotFoundException;
+
+    String suggestedEventStoreBaseNameForReservation(String serializedReservationKey);
 }
