@@ -91,10 +91,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 		checkState(isRunning(), "ReservationEventBus is not running");
 
-		if (event instanceof Request) {
-			assertNodesArePartOfReservation(extractNodeUrns((Request) event));
-			portalEventBus.post(event);
-		}
+        eventBus.post(event);
 	}
 
 	@Subscribe
@@ -204,15 +201,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 	@Override
 	public boolean isVirtualizationEnabled() {
 		return false;
-	}
-
-	private void assertNodesArePartOfReservation(final Set<NodeUrn> nodeUrns) {
-		if (!reservation.getNodeUrns().containsAll(nodeUrns)) {
-			final Set<NodeUrn> unreservedNodeUrns = Sets.filter(nodeUrns, not(in(reservation.getNodeUrns())));
-			throw new IllegalArgumentException("The node URNs [" + Joiner.on(",").join(unreservedNodeUrns) + "] "
-					+ "are not part of the reservation."
-			);
-		}
 	}
 
 	@Override

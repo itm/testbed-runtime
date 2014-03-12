@@ -1,11 +1,13 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.common.netty.ExceptionChannelHandler;
 import de.uniluebeck.itm.tr.iwsn.common.netty.KeepAliveHandler;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServer;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -63,7 +65,19 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 	@Override
 	public void post(final Object event) {
 		eventBus.post(event);
+
+        if (event instanceof ReservationStartedEvent) {
+            ((ReservationStartedEvent) event).getReservation().getReservationEventBus().register(this);
+        } else if(event instanceof ReservationEndedEvent) {
+            ((ReservationEndedEvent) event).getReservation().getReservationEventBus().unregister(this);
+        }
 	}
+
+
+    @Subscribe
+    public void onRequest(final Request request) {
+        eventBus.post(request);
+    }
 
 	@Override
 	protected void doStart() {
