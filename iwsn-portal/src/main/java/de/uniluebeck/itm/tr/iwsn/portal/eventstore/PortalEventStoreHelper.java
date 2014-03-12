@@ -8,5 +8,5 @@ public interface PortalEventStoreHelper {
 
     IEventStore createAndConfigureEventStore(String serializedReservationKey) throws FileNotFoundException;
 
-    String suggestedEventStoreBaseNameForReservation(String serializedReservationKey);
+    String eventstoreBasenameForReservation(String serializedReservationKey);
 }

@@ -7,6 +7,7 @@ import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import eventstore.IEventStore;
 import org.slf4j.Logger;
@@ -18,12 +19,14 @@ import java.io.IOException;
 class ReservationEventStoreImpl implements ReservationEventStore {
     private static final Logger log = LoggerFactory.getLogger(ReservationEventStoreImpl.class);
 
-    private Reservation reservation;
     private IEventStore eventStore;
+    private Reservation reservation;
+    private final ReservationEventBus reservationEventBus;
 
     @Inject
     public ReservationEventStoreImpl(
             @Assisted final Reservation reservation, final PortalEventStoreHelper portalEventStoreHelper) {
+        reservationEventBus = reservation.getReservationEventBus();
         this.reservation = reservation;
         try {
             eventStore = portalEventStoreHelper.createAndConfigureEventStore(reservation.getSerializedKey());
@@ -37,7 +40,7 @@ class ReservationEventStoreImpl implements ReservationEventStore {
     public void reservationStarted(final ReservationStartedEvent event) {
         try {
             eventStore.storeEvent(event);
-            reservation.getReservationEventBus().register(this);
+            reservationEventBus.register(this);
         } catch (IOException e) {
             log.error("Can't store event", e);
         }
@@ -79,7 +82,7 @@ class ReservationEventStoreImpl implements ReservationEventStore {
     }
 
     private void storeEvent(final MessageLite event) {
-        log.trace("Storing Event: {}", event);
+        log.trace("ReservationEventStoreImpl.storeEvent({})", event);
         try {
             eventStore.storeEvent(event, event.getClass());
         } catch (IOException e) {
@@ -104,7 +107,14 @@ class ReservationEventStoreImpl implements ReservationEventStore {
 
     @Override
     public void stop() {
-        this.reservation.getReservationEventBus().unregister(this);
+        log.trace("ReservationEventStoreImpl.stop()");
+
+        reservationEventBus.unregister(this);
         eventStore.close();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + "[" + reservation.getSerializedKey() + "]";
     }
 }

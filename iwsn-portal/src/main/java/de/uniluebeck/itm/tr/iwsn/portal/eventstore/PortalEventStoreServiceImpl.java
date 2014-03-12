@@ -90,12 +90,12 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
         if (reservationEventStore != null) { // ongoing reservation
             eventStore = reservationEventStore.getEventStore();
         } else {
-            String totalName = portalEventStoreHelper.suggestedEventStoreBaseNameForReservation(serializedReservationKey) + ".data";
+            String totalName = portalEventStoreHelper.eventstoreBasenameForReservation(serializedReservationKey) + ".data";
             log.trace("Reservation NOT ongoing. total path to chronicle = {}", totalName);
             if (new File(totalName).exists()) {
                 eventStore = portalEventStoreHelper.createAndConfigureEventStore(serializedReservationKey);
             } else {
-                log.warn("Can't open chronicle with base {}", portalEventStoreHelper.suggestedEventStoreBaseNameForReservation(serializedReservationKey));
+                log.warn("Can't open chronicle with base {}", portalEventStoreHelper.eventstoreBasenameForReservation(serializedReservationKey));
             }
         }
 
