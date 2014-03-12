@@ -103,7 +103,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
                     }
                 }
             } catch (IllegalArgumentException e) {
-                log.error("Unknown event type. Can't generate JSON");
+                log.error("Unknown event type {}. Can't generate JSON", event);
             }
         }
         out.write("]");
@@ -120,6 +120,9 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
 
     private String eventToJSON(Object event) throws IllegalArgumentException {
+        if (event == null) {
+            throw new IllegalArgumentException("Can't generate JSON from null");
+        }
         if (event instanceof ReservationStartedEvent) {
             return toJSON(new ReservationStartedMessage(((ReservationStartedEvent) event).getReservation()));
         } else if (event instanceof ReservationEndedEvent) {
