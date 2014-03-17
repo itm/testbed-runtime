@@ -71,6 +71,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -100,6 +102,9 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	 * Logs messages
 	 */
 	private static final Logger log = LoggerFactory.getLogger(ShiroSNAA.class);
+
+	public static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern
+			.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
 	/**
 	 * Access authorization for users is performed for nodes which uniform resource locator starts
@@ -398,6 +403,11 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	@Override
 	@Transactional
 	public void add(final String email, final String password) throws UserAlreadyExistsException {
+
+		checkNotNull(email, "User email may not be null");
+		checkNotNull(email, "User password may not be null");
+		checkArgument(VALID_EMAIL_ADDRESS_REGEX.matcher(email).matches(), "User email is not a valid email address");
+		checkArgument(password.length() >= 6, "User password needs to be at least 6 characters long");
 
 		final EntityManager em = emProvider.get();
 

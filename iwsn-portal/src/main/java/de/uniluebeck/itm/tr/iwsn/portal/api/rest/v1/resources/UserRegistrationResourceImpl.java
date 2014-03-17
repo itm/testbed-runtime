@@ -38,7 +38,11 @@ public class UserRegistrationResourceImpl implements UserRegistrationResource {
 			return Response.status(Response.Status.FORBIDDEN).entity(USER_REGISTRATION_UNSUPPORTED_MSG).build();
 		}
 
-		snaaService.add(userDto.getEmail(), userDto.getPassword());
+		try {
+			snaaService.add(userDto.getEmail(), userDto.getPassword());
+		} catch (IllegalArgumentException e) {
+			return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
 
 		final URI location = UriBuilder.fromUri(uriInfo.getBaseUri()).fragment(userDto.getEmail()).build();
 		final UserRegistrationDto responseDto = new UserRegistrationDto();
