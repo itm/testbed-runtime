@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
+import eventstore.CloseableIterator;
 import eventstore.IEventContainer;
 import eventstore.IEventStore;
 import org.slf4j.Logger;
@@ -93,7 +94,7 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
             String totalName = portalEventStoreHelper.eventstoreBasenameForReservation(serializedReservationKey) + ".data";
             log.trace("Reservation NOT ongoing. total path to chronicle = {}", totalName);
             if (new File(totalName).exists()) {
-                eventStore = portalEventStoreHelper.createAndConfigureEventStore(serializedReservationKey);
+                eventStore = portalEventStoreHelper.createAndConfigureEventStore(serializedReservationKey, true);
             } else {
                 log.warn("Can't open chronicle with base {}", portalEventStoreHelper.eventstoreBasenameForReservation(serializedReservationKey));
             }
@@ -107,16 +108,14 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
     }
 
     @Override
-    public Iterator<IEventContainer> getEventsBetween(String serializedReservationKey, long startTime, long endTime) throws IOException {
+    public CloseableIterator<IEventContainer> getEventsBetween(String serializedReservationKey, long startTime, long endTime) throws IOException {
         IEventStore store = getEventStore(serializedReservationKey);
-        // TODO think about event store closing
         return store.getEventsBetweenTimestamps(startTime, endTime);
     }
 
     @Override
-    public Iterator<IEventContainer> getEvents(String serializedReservationKey) throws IOException {
+    public CloseableIterator<IEventContainer> getEvents(String serializedReservationKey) throws IOException {
         IEventStore store = getEventStore(serializedReservationKey);
-        // TODO think about event store closing
         return store.getAllEvents();
     }
 }

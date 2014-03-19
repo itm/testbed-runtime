@@ -31,8 +31,14 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
         this.portalServerConfig = portalServerConfig;
     }
 
+
     @Override
-    public IEventStore createAndConfigureEventStore(final String serializedReservationKey) throws FileNotFoundException {
+    public IEventStore createAndConfigureEventStore(String serializedReservationKey) throws FileNotFoundException {
+        return createAndConfigureEventStore(serializedReservationKey, false);
+    }
+
+    @Override
+    public IEventStore createAndConfigureEventStore(final String serializedReservationKey, boolean readOnly) throws FileNotFoundException {
 
         Map<Class<?>, Function<?, byte[]>> serializers = new HashMap<Class<?>, Function<?, byte[]>>();
         Map<Class<?>, Function<byte[], ?>> deserializers = new HashMap<Class<?>, Function<byte[], ?>>();
@@ -195,6 +201,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 
         String baseName = eventstoreBasenameForReservation(serializedReservationKey);
         log.trace("Creating new chronicle at {}", baseName);
+        // TODO use readOnly flag
         return new ChronicleBasedEventStore(baseName, serializers, deserializers);
     }
 

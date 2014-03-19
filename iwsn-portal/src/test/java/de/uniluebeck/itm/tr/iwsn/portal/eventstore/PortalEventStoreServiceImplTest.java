@@ -1,8 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
-import eventstore.IEventContainer;
 import eventstore.IEventStore;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,13 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Iterator;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PortalEventStoreServiceImplTest {
@@ -89,23 +81,4 @@ public class PortalEventStoreServiceImplTest {
         verify(reservationEventStore).reservationEnded(endedEvent);
     }
 
-    @Test
-    public void testIfFinishedReservationCanBeLoaded() throws Exception {
-        when(reservation.getSerializedKey()).thenReturn("123");
-        when(reservationManager.getReservation("123")).thenReturn(reservation);
-        when(portalEventStoreHelper.createAndConfigureEventStore("123")).thenReturn(eventStore);
-
-        final ReservationStartedEvent startedEvent = mock(ReservationStartedEvent.class);
-        when(startedEvent.getReservation()).thenReturn(reservation);
-        store.onReservationStarted(startedEvent);
-
-        final ReservationEndedEvent endedEvent = mock(ReservationEndedEvent.class);
-        when(endedEvent.getReservation()).thenReturn(reservation);
-        store.onReservationEnded(endedEvent);
-
-        Iterator<IEventContainer> events =  store.getEvents("123");
-        verify(eventStore).getAllEvents();
-
-
-    }
 }

@@ -9,6 +9,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ReservationEndedMessage;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ReservationStartedMessage;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreService;
+import eventstore.CloseableIterator;
 import eventstore.IEventContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,16 +40,18 @@ public class EventStoreResourceImpl implements EventStoreResource {
     @GET
     @Path("{secretReservationKeyBase64}")
     public Response getEvents(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64) {
-
         try {
             log.trace("EventStoreResourceImpl.getEvents({})", secretReservationKeyBase64);
-            Iterator<IEventContainer> iterator = eventStoreService.getEvents(secretReservationKeyBase64);
+
+            CloseableIterator<IEventContainer> iterator = eventStoreService.getEvents(secretReservationKeyBase64);
+
             String path = portalServerConfig.getEventStoreDownloadPath() + "/"
                     + secretReservationKeyBase64 + "/allEvents-"
                     + System.currentTimeMillis() + ".json";
 
             log.trace("EventStorePath: {}", path);
             File file = buildJsonFile(path, iterator);
+            iterator.close();
             return buildJsonResponse(file);
 
 
@@ -56,6 +59,8 @@ public class EventStoreResourceImpl implements EventStoreResource {
             log.warn("Can't generate json response!");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("No events found for given reservation key!").build();
+        } finally {
+            iterator.close();
         }
     }
 
@@ -66,13 +71,14 @@ public class EventStoreResourceImpl implements EventStoreResource {
                                                @QueryParam("from") long fromTimestamp,
                                                @QueryParam("to") long toTimestamp) {
         try {
-            Iterator<IEventContainer> iterator = eventStoreService.getEventsBetween(secretReservationKeyBase64
+            CloseableIterator<IEventContainer> iterator = eventStoreService.getEventsBetween(secretReservationKeyBase64
                     , fromTimestamp, toTimestamp);
             String path = portalServerConfig.getEventStoreDownloadPath() + "/"
                     + secretReservationKeyBase64 + "/eventsBetween-"
                     + fromTimestamp + "-" + toTimestamp + ".json";
 
             File file = buildJsonFile(path, iterator);
+            iterator.close();
             return buildJsonResponse(file);
 
 
@@ -106,6 +112,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
                 log.error("Unknown event type {}. Can't generate JSON", event);
             }
         }
+        // TODO close iterator
         out.write("]");
         out.close();
         return file;
@@ -130,7 +137,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
         } else if (event instanceof com.google.protobuf.Message) {
             return JsonFormat.printToString((Message) event);
         } else {
-            throw new IllegalArgumentException("Unknown event type. Can't generate JSON for type "+ event.getClass());
+            throw new IllegalArgumentException("Unknown event type. Can't generate JSON for type " + event.getClass());
         }
     }
 }

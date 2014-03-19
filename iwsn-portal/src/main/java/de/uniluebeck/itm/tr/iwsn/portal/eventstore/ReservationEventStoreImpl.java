@@ -110,7 +110,11 @@ class ReservationEventStoreImpl implements ReservationEventStore {
         log.trace("ReservationEventStoreImpl.stop()");
 
         reservationEventBus.unregister(this);
-        eventStore.close();
+        try {
+            eventStore.close();
+        } catch (IOException e) {
+            log.warn("Exception on closing event store.", e);
+        }
     }
 
     @Override
