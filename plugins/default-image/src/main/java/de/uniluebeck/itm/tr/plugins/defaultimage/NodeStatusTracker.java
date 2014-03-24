@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.plugins.defaultimage;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.Service;
+import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import java.util.Set;
@@ -13,6 +15,8 @@ public interface NodeStatusTracker extends Runnable, Service {
 	void setFlashStatus(NodeUrn nodeUrn, FlashStatus flashStatus);
 
 	FlashStatus getFlashStatus(NodeUrn nodeUrn);
+
+	ImmutableMap<NodeUrn, Tuple<FlashStatus, ReservationStatus>> getStatusMap();
 
 	ReservationStatus getReservationStatus(NodeUrn nodeUrn);
 

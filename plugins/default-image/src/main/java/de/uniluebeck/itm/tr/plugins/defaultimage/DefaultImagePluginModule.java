@@ -14,12 +14,24 @@ public class DefaultImagePluginModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+
 		install(new RSHelperModule());
 		install(new FactoryModuleBuilder()
 				.implement(NodeStatusTracker.class, NodeStatusTrackerImpl.class)
 				.build(NodeStatusTrackerFactory.class)
 		);
-		bind(DefaultImagePlugin.class).to(DefaultImagePluginImpl.class).in(Scopes.SINGLETON);
+
+		bind(NodeStatusTrackerApplication.class);
+
+		bind(DefaultImagePlugin.class)
+				.to(DefaultImagePluginImpl.class)
+				.in(Scopes.SINGLETON);
+		bind(NodeStatusTrackerResource.class)
+				.to(NodeStatusTrackerResourceImpl.class)
+				.in(Scopes.SINGLETON);
+		bind(NodeStatusTrackerResourceService.class)
+				.to(NodeStatusTrackerResourceServiceImpl.class)
+				.in(Scopes.SINGLETON);
 	}
 
 	@Provides

@@ -1,14 +1,17 @@
 package de.uniluebeck.itm.tr.plugins.defaultimage;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.rs.RSHelper;
+import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.Duration;
 
@@ -32,12 +35,16 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 
 	private final Duration minUnreservedDuration;
 
+	private final ServedNodeUrnsProvider servedNodeUrnsProvider;
+
 	@Inject
 	public NodeStatusTrackerImpl(final RSHelper rsHelper,
 								 final EventBusService eventBusService,
+								 final ServedNodeUrnsProvider servedNodeUrnsProvider,
 								 @Assisted final Duration minUnreservedDuration) {
 		this.rsHelper = checkNotNull(rsHelper);
 		this.eventBusService = checkNotNull(eventBusService);
+		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
 		this.minUnreservedDuration = checkNotNull(minUnreservedDuration);
 	}
 
@@ -107,6 +114,29 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 			}
 			return flashStatusMap.get(nodeUrn);
 		}
+	}
+
+	@Override
+	public ImmutableMap<NodeUrn, Tuple<FlashStatus, ReservationStatus>> getStatusMap() {
+
+		checkState(isRunning());
+
+		final Set<NodeUrn> nodeUrns = servedNodeUrnsProvider.get();
+		final ImmutableMap.Builder<NodeUrn, Tuple<FlashStatus, ReservationStatus>> mapBuilder = ImmutableMap.builder();
+
+		synchronized (flashStatusMap) {
+			synchronized (reservationStatusMap) {
+				for (NodeUrn nodeUrn : nodeUrns) {
+					mapBuilder.put(nodeUrn, new Tuple<FlashStatus, ReservationStatus>(
+							getFlashStatus(nodeUrn),
+							getReservationStatus(nodeUrn)
+					)
+					);
+				}
+			}
+		}
+
+		return mapBuilder.build();
 	}
 
 	@Override

@@ -53,6 +53,7 @@
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Bundle-Activator>de.uniluebeck.itm.tr.plugins.defaultimage.DefaultImagePluginActivator</Bundle-Activator>
 						<Import-Package>*</Import-Package>
+						<Export-Package>de.uniluebeck.itm.tr.plugins.defaultimage</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

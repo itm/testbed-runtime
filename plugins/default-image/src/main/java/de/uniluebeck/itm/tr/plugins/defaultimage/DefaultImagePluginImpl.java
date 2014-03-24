@@ -62,6 +62,8 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 
 	private final ResponseTrackerFactory responseTrackerFactory;
 
+	private final NodeStatusTrackerResourceService nodeStatusTrackerResourceService;
+
 	private ScheduledExecutorService scheduler;
 
 	private Runnable defaultImageRunnable = new Runnable() {
@@ -86,10 +88,12 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 
 	@Inject
 	public DefaultImagePluginImpl(final NodeStatusTracker nodeStatusTracker,
+								  final NodeStatusTrackerResourceService nodeStatusTrackerResourceService,
 								  final PortalEventBus portalEventBus,
 								  final DeviceDBService deviceDBService,
 								  final ResponseTrackerFactory responseTrackerFactory) {
 		this.nodeStatusTracker = checkNotNull(nodeStatusTracker);
+		this.nodeStatusTrackerResourceService = checkNotNull(nodeStatusTrackerResourceService);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
@@ -100,6 +104,7 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 		try {
 			log.trace("DefaultImagePluginImpl.doStart()");
 			nodeStatusTracker.startAndWait();
+			nodeStatusTrackerResourceService.startAndWait();
 			scheduler = Executors.newScheduledThreadPool(1,
 					new ThreadFactoryBuilder().setNameFormat("DefaultImagePlugin %d").build()
 			);
@@ -116,6 +121,7 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 			log.trace("DefaultImagePluginImpl.doStop()");
 			schedule.cancel(false);
 			ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
+			nodeStatusTrackerResourceService.stopAndWait();
 			nodeStatusTracker.stopAndWait();
 			notifyStopped();
 		} catch (Exception e) {

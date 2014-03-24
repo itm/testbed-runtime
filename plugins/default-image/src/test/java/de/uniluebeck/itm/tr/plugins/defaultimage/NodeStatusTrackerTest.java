@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.plugins.defaultimage;
 
 import com.google.common.collect.Sets;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.iwsn.common.BasicEventBusService;
 import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
@@ -46,6 +47,9 @@ public class NodeStatusTrackerTest {
 	@Mock
 	private RSHelper rsHelper;
 
+	@Mock
+	private ServedNodeUrnsProvider servedNodeUrnsProvider;
+
 	private EventBusService eventBusService;
 
 	private NodeStatusTracker nodeStatusTracker;
@@ -55,11 +59,17 @@ public class NodeStatusTrackerTest {
 
 		when(rsHelper.getReservedNodes(eq(MIN_UNRESERVED_DURATION))).thenReturn(RESERVED_NODE_URNS);
 		when(rsHelper.getUnreservedNodes(eq(MIN_UNRESERVED_DURATION))).thenReturn(UNRESERVED_NODE_URNS);
+		when(servedNodeUrnsProvider.get()).thenReturn(NODE_URNS);
 
 		eventBusService = new BasicEventBusService();
 		eventBusService.startAndWait();
 
-		nodeStatusTracker = new NodeStatusTrackerImpl(rsHelper, eventBusService, MIN_UNRESERVED_DURATION);
+		nodeStatusTracker = new NodeStatusTrackerImpl(
+				rsHelper,
+				eventBusService,
+				servedNodeUrnsProvider,
+				MIN_UNRESERVED_DURATION
+		);
 		nodeStatusTracker.startAndWait();
 	}
 
