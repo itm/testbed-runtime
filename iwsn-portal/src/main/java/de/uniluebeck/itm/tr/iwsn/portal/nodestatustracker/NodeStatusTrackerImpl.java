@@ -1,19 +1,18 @@
-package de.uniluebeck.itm.tr.plugins.defaultimage;
+package de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.rs.RSHelper;
 import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
-import org.joda.time.Duration;
 
 import java.util.Map;
 import java.util.Set;
@@ -21,37 +20,39 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.*;
+import static com.google.common.collect.Sets.intersection;
+import static com.google.common.collect.Sets.newHashSet;
 
 public class NodeStatusTrackerImpl extends AbstractService implements NodeStatusTracker {
 
 	private final RSHelper rsHelper;
 
-	private final EventBusService eventBusService;
+	private final EventBusService portalEventBus;
 
 	private final Map<NodeUrn, FlashStatus> flashStatusMap = newHashMap();
 
 	private final Map<NodeUrn, ReservationStatus> reservationStatusMap = newHashMap();
 
-	private final Duration minUnreservedDuration;
-
 	private final ServedNodeUrnsProvider servedNodeUrnsProvider;
 
 	@Inject
 	public NodeStatusTrackerImpl(final RSHelper rsHelper,
-								 final EventBusService eventBusService,
-								 final ServedNodeUrnsProvider servedNodeUrnsProvider,
-								 @Assisted final Duration minUnreservedDuration) {
+								 final PortalEventBus portalEventBus,
+								 final ServedNodeUrnsProvider servedNodeUrnsProvider) {
 		this.rsHelper = checkNotNull(rsHelper);
-		this.eventBusService = checkNotNull(eventBusService);
+		this.portalEventBus = checkNotNull(portalEventBus);
 		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
-		this.minUnreservedDuration = checkNotNull(minUnreservedDuration);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
-			eventBusService.register(this);
+
+			portalEventBus.register(this);
+
+			initFlashStatusMap();
+			initReservationStatusMap();
+
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -61,7 +62,7 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 	@Override
 	protected void doStop() {
 		try {
-			eventBusService.unregister(this);
+			portalEventBus.unregister(this);
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -184,27 +185,20 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 		return intersection(getNodes(flashStatus), getNodes(reservationStatus));
 	}
 
-	@Override
-	public void run() {
-		checkState(isRunning());
-		updateFlashStatusMap();
-		updateReservationStatusMap();
-	}
-
-	private void updateFlashStatusMap() {
+	private void initFlashStatusMap() {
 		synchronized (flashStatusMap) {
-			for (NodeUrn unknownNodeUrn : difference(rsHelper.getNodes(), flashStatusMap.keySet())) {
-				flashStatusMap.put(unknownNodeUrn, FlashStatus.UNKNOWN);
+			for (NodeUrn nodeUrn : rsHelper.getNodes()) {
+				flashStatusMap.put(nodeUrn, FlashStatus.UNKNOWN);
 			}
 		}
 	}
 
-	private void updateReservationStatusMap() {
+	private void initReservationStatusMap() {
 		synchronized (reservationStatusMap) {
-			for (NodeUrn nodeUrn : rsHelper.getReservedNodes(minUnreservedDuration)) {
+			for (NodeUrn nodeUrn : rsHelper.getReservedNodes()) {
 				reservationStatusMap.put(nodeUrn, ReservationStatus.RESERVED);
 			}
-			for (NodeUrn nodeUrn : rsHelper.getUnreservedNodes(minUnreservedDuration)) {
+			for (NodeUrn nodeUrn : rsHelper.getUnreservedNodes()) {
 				reservationStatusMap.put(nodeUrn, ReservationStatus.UNRESERVED);
 			}
 		}

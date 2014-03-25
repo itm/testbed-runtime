@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.plugins.defaultimage;
+package de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker;
 
 public enum FlashStatus {
 

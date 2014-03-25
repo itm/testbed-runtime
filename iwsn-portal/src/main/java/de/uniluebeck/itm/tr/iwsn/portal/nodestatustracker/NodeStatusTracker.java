@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.plugins.defaultimage;
+package de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.Service;
@@ -8,9 +8,9 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import java.util.Set;
 
 /**
- * Helper class that tracks the status of testbed nodes regarding if they are reserved and with what type of image.
+ * Helper service that tracks the status of testbed nodes regarding if they are reserved and with what type of image.
  */
-public interface NodeStatusTracker extends Runnable, Service {
+public interface NodeStatusTracker extends Service {
 
 	void setFlashStatus(NodeUrn nodeUrn, FlashStatus flashStatus);
 

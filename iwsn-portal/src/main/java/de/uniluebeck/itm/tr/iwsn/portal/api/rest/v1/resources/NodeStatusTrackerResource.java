@@ -1,4 +1,6 @@
-package de.uniluebeck.itm.tr.plugins.defaultimage;
+package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
+
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.NodeStatusDto;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -6,7 +8,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-@Path("/")
+@Path("/node_status")
 public interface NodeStatusTrackerResource {
 
 	@GET

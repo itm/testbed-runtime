@@ -15,8 +15,12 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.FlashStatus;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTracker;
+import de.uniluebeck.itm.tr.rs.RSHelper;
 import de.uniluebeck.itm.util.concurrent.ExecutorUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
+import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +28,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -34,10 +38,11 @@ import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.filterValues;
 import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
-import static com.google.common.collect.Sets.union;
+import static com.google.common.collect.Sets.*;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newFlashImagesRequest;
+import static java.util.concurrent.Executors.newScheduledThreadPool;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class DefaultImagePluginImpl extends AbstractService implements DefaultImagePlugin {
 
@@ -52,6 +57,15 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 		}
 	};
 
+	private static final ThreadFactory SCHEDULER_THREAD_FACTORY =
+			new ThreadFactoryBuilder().setNameFormat("DefaultImagePlugin %d").build();
+
+	private static final int SCHEDULER_THREAD_POOL_SIZE = 1;
+
+	private static final int SCHEDULING_INTERVAL = 1;
+
+	private static final Duration UNRESERVED_DURATION_THRESHOLD = Duration.standardHours(1);
+
 	private final Random random = new Random();
 
 	private final NodeStatusTracker nodeStatusTracker;
@@ -62,20 +76,13 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 
 	private final ResponseTrackerFactory responseTrackerFactory;
 
-	private final NodeStatusTrackerResourceService nodeStatusTrackerResourceService;
+	private final RSHelper rsHelper;
 
 	private ScheduledExecutorService scheduler;
 
 	private Runnable defaultImageRunnable = new Runnable() {
 		@Override
 		public void run() {
-
-			try {
-				nodeStatusTracker.run();
-			} catch (Exception e) {
-				log.error("Exception while updating NodeStatusTracker: ", e);
-			}
-
 			try {
 				flashDefaultImages();
 			} catch (Exception e) {
@@ -88,27 +95,23 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 
 	@Inject
 	public DefaultImagePluginImpl(final NodeStatusTracker nodeStatusTracker,
-								  final NodeStatusTrackerResourceService nodeStatusTrackerResourceService,
 								  final PortalEventBus portalEventBus,
 								  final DeviceDBService deviceDBService,
-								  final ResponseTrackerFactory responseTrackerFactory) {
+								  final ResponseTrackerFactory responseTrackerFactory,
+								  final RSHelper rsHelper) {
 		this.nodeStatusTracker = checkNotNull(nodeStatusTracker);
-		this.nodeStatusTrackerResourceService = checkNotNull(nodeStatusTrackerResourceService);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
+		this.rsHelper = checkNotNull(rsHelper);
 	}
 
 	@Override
 	protected void doStart() {
 		try {
 			log.trace("DefaultImagePluginImpl.doStart()");
-			nodeStatusTracker.startAndWait();
-			nodeStatusTrackerResourceService.startAndWait();
-			scheduler = Executors.newScheduledThreadPool(1,
-					new ThreadFactoryBuilder().setNameFormat("DefaultImagePlugin %d").build()
-			);
-			schedule = scheduler.scheduleWithFixedDelay(defaultImageRunnable, 0, 1, TimeUnit.MINUTES);
+			scheduler = newScheduledThreadPool(SCHEDULER_THREAD_POOL_SIZE, SCHEDULER_THREAD_FACTORY);
+			schedule = scheduler.scheduleWithFixedDelay(defaultImageRunnable, 0, SCHEDULING_INTERVAL, MINUTES);
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -121,8 +124,6 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 			log.trace("DefaultImagePluginImpl.doStop()");
 			schedule.cancel(false);
 			ExecutorUtils.shutdown(scheduler, 1, TimeUnit.SECONDS);
-			nodeStatusTrackerResourceService.stopAndWait();
-			nodeStatusTracker.stopAndWait();
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -133,7 +134,7 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 
 		try {
 
-			final Set<NodeUrn> nodesToPotentiallyFlash = getUnreservedNodeUrnsThatDoNotAlreadyRunDefaultImage();
+			final Set<NodeUrn> nodesToPotentiallyFlash = getUnreservedNodeUrnsWithoutDefaultImage();
 			log.trace("nodesToPotentiallyFlash: {}", nodesToPotentiallyFlash);
 
 			if (nodesToPotentiallyFlash.isEmpty()) {
@@ -181,7 +182,7 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 					// an error occurred
 					if (entry.getValue().getStatusCode() < 0) {
 						nodeStatusTracker.setFlashStatus(entry.getKey(), FlashStatus.UNKNOWN);
-						log.trace("Flashing node \"{}\" did not work out: {}", entry.getKey(), entry.getValue());
+						log.trace("Flashing node \"{}\" failed: {}", entry.getKey(), entry.getValue());
 					} else {
 						nodeStatusTracker.setFlashStatus(entry.getKey(), FlashStatus.DEFAULT_IMAGE);
 						log.trace("Flashing node \"{}\" worked just fine :)", entry.getKey(), entry.getValue());
@@ -194,19 +195,13 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 		}
 	}
 
-	private Set<NodeUrn> getUnreservedNodeUrnsThatDoNotAlreadyRunDefaultImage() {
+	private Set<NodeUrn> getUnreservedNodeUrnsWithoutDefaultImage() {
 
-		final Set<NodeUrn> unknownUnreserved = nodeStatusTracker.getNodes(
-				FlashStatus.UNKNOWN,
-				ReservationStatus.UNRESERVED
-		);
+		final Set<NodeUrn> unknownImage = nodeStatusTracker.getNodes(FlashStatus.UNKNOWN);
+		final Set<NodeUrn> userImage = nodeStatusTracker.getNodes(FlashStatus.USER_IMAGE);
+		final Set<NodeUrn> unreserved = rsHelper.getUnreservedNodes(UNRESERVED_DURATION_THRESHOLD);
 
-		final Set<NodeUrn> userImageUnreserved = nodeStatusTracker.getNodes(
-				FlashStatus.USER_IMAGE,
-				ReservationStatus.UNRESERVED
-		);
-
-		return union(unknownUnreserved, userImageUnreserved);
+		return intersection(union(unknownImage, userImage), unreserved);
 	}
 
 	private Map<Set<NodeUrn>, byte[]> getNodesToImageMap(final Set<NodeUrn> potentialNodeUrns) throws IOException {

@@ -1,4 +1,7 @@
-package de.uniluebeck.itm.tr.plugins.defaultimage;
+package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto;
+
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.FlashStatus;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.ReservationStatus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

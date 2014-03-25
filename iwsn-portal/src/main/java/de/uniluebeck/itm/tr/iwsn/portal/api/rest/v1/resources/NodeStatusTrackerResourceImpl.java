@@ -1,7 +1,11 @@
-package de.uniluebeck.itm.tr.plugins.defaultimage;
+package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.NodeStatusDto;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.FlashStatus;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTracker;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.ReservationStatus;
 import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
 

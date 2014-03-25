@@ -1,15 +1,14 @@
-package de.uniluebeck.itm.tr.plugins.defaultimage;
+package de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker;
 
 import com.google.common.collect.Sets;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.iwsn.common.BasicEventBusService;
-import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.rs.RSHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
-import org.joda.time.Duration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +20,6 @@ import java.util.Set;
 import static com.google.common.collect.Sets.*;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newFlashImagesRequest;
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,53 +40,52 @@ public class NodeStatusTrackerTest {
 
 	private static final Set<NodeUrn> UNRESERVED_NODE_URNS = Sets.difference(NODE_URNS, RESERVED_NODE_URNS);
 
-	private static final Duration MIN_UNRESERVED_DURATION = Duration.standardHours(1);
-
 	@Mock
 	private RSHelper rsHelper;
 
 	@Mock
 	private ServedNodeUrnsProvider servedNodeUrnsProvider;
 
-	private EventBusService eventBusService;
+	private class MyPortalEventBus extends BasicEventBusService implements PortalEventBus {
+
+	}
+
+	private PortalEventBus portalEventBus;
 
 	private NodeStatusTracker nodeStatusTracker;
 
 	@Before
 	public void setUp() throws Exception {
 
-		when(rsHelper.getReservedNodes(eq(MIN_UNRESERVED_DURATION))).thenReturn(RESERVED_NODE_URNS);
-		when(rsHelper.getUnreservedNodes(eq(MIN_UNRESERVED_DURATION))).thenReturn(UNRESERVED_NODE_URNS);
+		when(rsHelper.getNodes()).thenReturn(NODE_URNS);
+		when(rsHelper.getReservedNodes()).thenReturn(RESERVED_NODE_URNS);
+		when(rsHelper.getUnreservedNodes()).thenReturn(UNRESERVED_NODE_URNS);
 		when(servedNodeUrnsProvider.get()).thenReturn(NODE_URNS);
 
-		eventBusService = new BasicEventBusService();
-		eventBusService.startAndWait();
+		portalEventBus = new MyPortalEventBus();
+		portalEventBus.startAndWait();
 
 		nodeStatusTracker = new NodeStatusTrackerImpl(
 				rsHelper,
-				eventBusService,
-				servedNodeUrnsProvider,
-				MIN_UNRESERVED_DURATION
+				portalEventBus,
+				servedNodeUrnsProvider
 		);
+
 		nodeStatusTracker.startAndWait();
 	}
 
 	@Test
-	public void testStatusIsUnknownBeforeBeingCalledForTheFirstTime() throws Exception {
+	public void testFlashStatusIsUnknownBeforeFirstFlashRequest() throws Exception {
 
 		for (NodeUrn nodeUrn : NODE_URNS) {
 			assertEquals(FlashStatus.UNKNOWN, nodeStatusTracker.getFlashStatus(nodeUrn));
-			assertEquals(ReservationStatus.UNKNOWN, nodeStatusTracker.getReservationStatus(nodeUrn));
 		}
 
-		assertEquals(Sets.<NodeUrn>newHashSet(), nodeStatusTracker.getNodes(FlashStatus.UNKNOWN));
-		assertEquals(Sets.<NodeUrn>newHashSet(), nodeStatusTracker.getNodes(ReservationStatus.UNKNOWN));
+		assertEquals(NODE_URNS, nodeStatusTracker.getNodes(FlashStatus.UNKNOWN));
 	}
 
 	@Test
 	public void testReservationStatusIsCorrectAfterBeingCalledForTheFirstTime() throws Exception {
-
-		nodeStatusTracker.run();
 
 		for (NodeUrn nodeUrn : RESERVED_NODE_URNS) {
 			assertEquals(ReservationStatus.RESERVED, nodeStatusTracker.getReservationStatus(nodeUrn));
@@ -104,23 +101,19 @@ public class NodeStatusTrackerTest {
 
 	@Test
 	public void testFlashStatusIsUpdatedAfterFlashOperation() throws Exception {
-		nodeStatusTracker.run();
-		eventBusService.post(newFlashImagesRequest(null, 123L, newHashSet(NODE_1), new byte[]{}));
+		portalEventBus.post(newFlashImagesRequest(null, 123L, newHashSet(NODE_1), new byte[]{}));
 		assertEquals(FlashStatus.USER_IMAGE, nodeStatusTracker.getFlashStatus(NODE_1));
 	}
 
 	@Test
 	public void testFlashStatusIsDefaultImageAfterSet() throws Exception {
-		nodeStatusTracker.run();
-		eventBusService.post(newFlashImagesRequest(null, 123L, newHashSet(NODE_1), new byte[]{}));
+		portalEventBus.post(newFlashImagesRequest(null, 123L, newHashSet(NODE_1), new byte[]{}));
 		nodeStatusTracker.setFlashStatus(NODE_1, FlashStatus.DEFAULT_IMAGE);
 		assertEquals(FlashStatus.DEFAULT_IMAGE, nodeStatusTracker.getFlashStatus(NODE_1));
 	}
 
 	@Test
 	public void testReservationStatusIsUpdatedAfterReservationStartedEvent() throws Exception {
-
-		nodeStatusTracker.run();
 
 		final ReservationStartedEvent event = mock(ReservationStartedEvent.class);
 		final Reservation reservation = mock(Reservation.class);
@@ -130,7 +123,7 @@ public class NodeStatusTrackerTest {
 		final Sets.SetView<NodeUrn> reservedAfterEvent = union(RESERVED_NODE_URNS, newHashSet(NODE_3));
 		final Sets.SetView<NodeUrn> unreservedAfterEvent = difference(UNRESERVED_NODE_URNS, newHashSet(NODE_3));
 
-		eventBusService.post(event);
+		portalEventBus.post(event);
 
 		for (NodeUrn nodeUrn : reservedAfterEvent) {
 			assertEquals(ReservationStatus.RESERVED, nodeStatusTracker.getReservationStatus(nodeUrn));
@@ -147,8 +140,6 @@ public class NodeStatusTrackerTest {
 	@Test
 	public void testReservationStatusIsUpdatedAfterReservationEndedEvent() throws Exception {
 
-		nodeStatusTracker.run();
-
 		final ReservationEndedEvent event = mock(ReservationEndedEvent.class);
 		final Reservation reservation = mock(Reservation.class);
 		when(event.getReservation()).thenReturn(reservation);
@@ -157,7 +148,7 @@ public class NodeStatusTrackerTest {
 		final Sets.SetView<NodeUrn> reservedAfterEvent = difference(RESERVED_NODE_URNS, newHashSet(NODE_2));
 		final Sets.SetView<NodeUrn> unreservedAfterEvent = union(UNRESERVED_NODE_URNS, newHashSet(NODE_2));
 
-		eventBusService.post(event);
+		portalEventBus.post(event);
 
 		for (NodeUrn nodeUrn : reservedAfterEvent) {
 			assertEquals(ReservationStatus.RESERVED, nodeStatusTracker.getReservationStatus(nodeUrn));

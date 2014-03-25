@@ -13,6 +13,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTracker;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -27,7 +28,7 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class PortalPluginBundleActivator implements BundleActivator {
 
-	public static final Set<Class<? extends Object>> SERVICES_AVAILABLE = Sets.newHashSet(
+	public static final Set<Class> SERVICES_AVAILABLE = Sets.<Class>newHashSet(
 			ReservationManager.class,
 			PortalEventBus.class,
 			SessionManagement.class,
@@ -38,7 +39,8 @@ public abstract class PortalPluginBundleActivator implements BundleActivator {
 			ResponseTrackerFactory.class,
 			ServicePublisher.class,
 			ServedNodeUrnsProvider.class,
-			ServedNodeUrnPrefixesProvider.class
+			ServedNodeUrnPrefixesProvider.class,
+			NodeStatusTracker.class
 	);
 
 	protected BundleContext bundleContext;

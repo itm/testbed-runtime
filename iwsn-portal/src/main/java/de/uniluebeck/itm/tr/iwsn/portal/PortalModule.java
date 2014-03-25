@@ -29,7 +29,10 @@ import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginModule;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginServiceConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTracker;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTrackerImpl;
 import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginModule;
+import de.uniluebeck.itm.tr.rs.RSHelperModule;
 import de.uniluebeck.itm.tr.rs.RSServiceConfig;
 import de.uniluebeck.itm.tr.rs.RSServiceModule;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
@@ -107,6 +110,7 @@ public class PortalModule extends AbstractModule {
 		bind(PortalEventBus.class).to(PortalEventBusImpl.class).in(Singleton.class);
 		bind(ReservationManager.class).to(ReservationManagerImpl.class).in(Singleton.class);
 		bind(UserRegistrationWebAppService.class).to(UserRegistrationWebAppServiceImpl.class).in(Singleton.class);
+		bind(NodeStatusTracker.class).to(NodeStatusTrackerImpl.class).in(Singleton.class);
 
 		install(new FactoryModuleBuilder()
 				.implement(Reservation.class, ReservationImpl.class)
@@ -124,6 +128,7 @@ public class PortalModule extends AbstractModule {
 				.build(ReservationEventBusFactory.class)
 		);
 
+		install(new RSHelperModule());
 		install(new SchedulerServiceModule());
 		install(new ServicePublisherCxfModule());
 		install(new ResponseTrackerModule());
