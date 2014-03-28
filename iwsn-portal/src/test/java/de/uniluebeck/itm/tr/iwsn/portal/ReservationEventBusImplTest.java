@@ -97,8 +97,8 @@ public class ReservationEventBusImplTest {
 	public void setUp() throws Exception {
 		when(reservation.getNodeUrns()).thenReturn(RESERVED_NODES);
 		when(reservation.getSerializedKey()).thenReturn(RESERVATION_ID);
-		when(eventBusFactory.create(anyString())).thenReturn(eventBus);
-		reservationEventBus = new ReservationEventBusImpl(portalEventBus, eventBusFactory, reservation);
+        when(eventBusFactory.create(anyString())).thenReturn(eventBus);
+        reservationEventBus = new ReservationEventBusImpl(portalEventBus, eventBusFactory, reservation);
 		reservationEventBus.startAndWait();
 	}
 
@@ -432,7 +432,7 @@ public class ReservationEventBusImplTest {
 
 	private void postRequestAndVerifyForwarded(final Request request) {
 		reservationEventBus.post(request);
-		verify(portalEventBus).post(eq(request));
+		verify(eventBus).post(eq(request));
 	}
 
 	private void postRequestAndVerifyException(final Request request) {
