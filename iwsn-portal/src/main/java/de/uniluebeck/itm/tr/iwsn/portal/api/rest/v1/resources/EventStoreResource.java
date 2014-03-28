@@ -9,11 +9,6 @@ public interface EventStoreResource {
     @GET
     @Path("{secretReservationKeyBase64}")
     @Produces(MediaType.APPLICATION_JSON)
-    Response getEvents(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64);
-
-    @GET
-    @Path("{secretReservationKeyBase64}")
-    @Produces(MediaType.APPLICATION_JSON)
-    Response getEventsBetweenTimestamps(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64,
+    Response getEvents(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64,
                                         @QueryParam("from") long fromTimestamp, @QueryParam("to") long toTimestamp);
 }

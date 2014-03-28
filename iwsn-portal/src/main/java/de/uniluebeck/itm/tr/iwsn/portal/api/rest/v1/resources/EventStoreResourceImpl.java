@@ -39,53 +39,38 @@ public class EventStoreResourceImpl implements EventStoreResource {
     @Override
     @GET
     @Path("{secretReservationKeyBase64}")
-    public Response getEvents(@PathParam("secretReservationKeyBase64") final String secretReservationKeyBase64) {
+    public Response getEvents(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
+                                               @DefaultValue("-1") @QueryParam("from") long fromTimestamp,
+                                               @DefaultValue("-1") @QueryParam("to") long toTimestamp) {
         try {
-            log.trace("EventStoreResourceImpl.getEvents({})", secretReservationKeyBase64);
-
-            CloseableIterator<IEventContainer> iterator = eventStoreService.getEvents(secretReservationKeyBase64);
-
+            CloseableIterator<IEventContainer> iterator = createIterator(secretReservationKeyBase64, fromTimestamp, toTimestamp);
             String path = portalServerConfig.getEventStoreDownloadPath() + "/"
-                    + secretReservationKeyBase64 + "/allEvents-"
+                    + secretReservationKeyBase64 + "/events-"
                     + System.currentTimeMillis() + ".json";
 
-            log.trace("EventStorePath: {}", path);
             File file = buildJsonFile(path, iterator);
             iterator.close();
             return buildJsonResponse(file);
 
 
         } catch (IOException e) {
-            log.warn("Can't generate json response!");
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("No events found for given reservation key!").build();
-        } finally {
-            iterator.close();
         }
     }
 
-    @Override
-    @GET
-    @Path("{secretReservationKeyBase64}")
-    public Response getEventsBetweenTimestamps(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
-                                               @QueryParam("from") long fromTimestamp,
-                                               @QueryParam("to") long toTimestamp) {
-        try {
-            CloseableIterator<IEventContainer> iterator = eventStoreService.getEventsBetween(secretReservationKeyBase64
-                    , fromTimestamp, toTimestamp);
-            String path = portalServerConfig.getEventStoreDownloadPath() + "/"
-                    + secretReservationKeyBase64 + "/eventsBetween-"
-                    + fromTimestamp + "-" + toTimestamp + ".json";
-
-            File file = buildJsonFile(path, iterator);
-            iterator.close();
-            return buildJsonResponse(file);
-
-
-        } catch (IOException e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("No events found for given reservation key!").build();
+    private CloseableIterator<IEventContainer> createIterator(String secretReservationKeyBase64, long fromTimestamp, long toTimestamp) throws IOException {
+        CloseableIterator<IEventContainer> iterator;
+        if (fromTimestamp == -1 && toTimestamp == -1) {
+            iterator = eventStoreService.getEvents(secretReservationKeyBase64);
+        } else if (toTimestamp == -1) {
+            iterator = eventStoreService.getEventsBetween(secretReservationKeyBase64, fromTimestamp, System.currentTimeMillis());
+        }  else if(fromTimestamp == -1){
+            iterator = eventStoreService.getEventsBetween(secretReservationKeyBase64,0,toTimestamp);
+        } else {
+            iterator = eventStoreService.getEventsBetween(secretReservationKeyBase64,fromTimestamp,toTimestamp);
         }
+        return iterator;
     }
 
     private File buildJsonFile(String filePath, Iterator<IEventContainer> iterator) throws IOException {
