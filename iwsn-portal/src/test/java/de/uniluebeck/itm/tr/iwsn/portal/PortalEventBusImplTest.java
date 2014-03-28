@@ -38,7 +38,6 @@ public class PortalEventBusImplTest {
     public void setUp() throws Exception {
         when(eventBusFactory.create(anyString())).thenReturn(eventBus);
         portalEventBus = new PortalEventBusImpl(portalServerConfig, eventBusFactory, nettyServerFactory, portalChannelHandler, schedulerService);
-        //portalEventBus.startAndWait();
     }
 
 
