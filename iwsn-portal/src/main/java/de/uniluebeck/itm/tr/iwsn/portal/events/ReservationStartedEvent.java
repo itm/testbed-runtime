@@ -1,12 +1,14 @@
-package de.uniluebeck.itm.tr.iwsn.portal;
+package de.uniluebeck.itm.tr.iwsn.portal.events;
+
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ReservationEndedEvent {
+public class ReservationStartedEvent {
 
 	private final Reservation reservation;
 
-	public ReservationEndedEvent(final Reservation reservation) {
+	public ReservationStartedEvent(final Reservation reservation) {
 		this.reservation = checkNotNull(reservation);
 	}
 
@@ -25,7 +27,7 @@ public class ReservationEndedEvent {
 			return false;
 		}
 
-		final ReservationEndedEvent that = (ReservationEndedEvent) o;
+		final ReservationStartedEvent that = (ReservationStartedEvent) o;
 		return reservation.equals(that.reservation);
 	}
 

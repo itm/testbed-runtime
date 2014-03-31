@@ -8,6 +8,8 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
