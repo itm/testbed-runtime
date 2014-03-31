@@ -201,8 +201,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 
         String baseName = eventstoreBasenameForReservation(serializedReservationKey);
         log.trace("Creating new chronicle at {}", baseName);
-        // TODO use readOnly flag
-        return new ChronicleBasedEventStore(baseName, serializers, deserializers);
+        return new ChronicleBasedEventStore(baseName, serializers, deserializers, readOnly);
     }
 
     @Override

@@ -62,17 +62,14 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
     @Subscribe
     public void onReservationStarted(final ReservationStartedEvent event) {
         ReservationEventStore reservationEventStore = reservationEventStoreFactory.create(event.getReservation());
-        log.trace("PortalEventStoreServiceImpl.onReservationStarted(): ReservationEventStore: {}", reservationEventStore); // TODO remove when working
         synchronized (reservationStoresLock) {
             reservationStores.put(event.getReservation().getSerializedKey(), reservationEventStore);
         }
-        log.info("Reservation Key is {}", event.getReservation().getSerializedKey()); // TODO remove later
         reservationEventStore.reservationStarted(event);
     }
 
     @Subscribe
     public void onReservationEnded(final ReservationEndedEvent event) {
-        log.trace("PortalEventStoreServiceImpl.onReservationEnded()"); // TODO remove when working
         ReservationEventStore reservationEventStore;
         synchronized (reservationStoresLock) {
             reservationEventStore = reservationStores.remove(event.getReservation().getSerializedKey());
