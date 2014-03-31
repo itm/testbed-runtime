@@ -97,7 +97,6 @@ public class EventStoreResourceImpl implements EventStoreResource {
                 log.error("Unknown event type {}. Can't generate JSON", event);
             }
         }
-        // TODO close iterator
         out.write("]");
         out.close();
         return file;
