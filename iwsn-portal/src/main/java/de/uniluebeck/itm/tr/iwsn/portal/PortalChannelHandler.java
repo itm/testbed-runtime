@@ -464,14 +464,14 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	@Override
 	public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 		log.trace("PortalChannelHandler.channelDisconnected(ctx={}, event={})", ctx, e);
+		super.channelDisconnected(ctx, e);
 		synchronized (contextToNodeUrnsMap) {
 			final Collection<NodeUrn> nodeUrns = contextToNodeUrnsMap.get(ctx);
+			contextToNodeUrnsMap.removeAll(ctx);
 			if (!nodeUrns.isEmpty()) {
 				portalEventBus.post(newDevicesDetachedEvent(nodeUrns));
 			}
-			contextToNodeUrnsMap.removeAll(ctx);
 		}
-		super.channelDisconnected(ctx, e);
 	}
 
 	private void sendEventAck(final ChannelHandlerContext ctx, final Event event) {
