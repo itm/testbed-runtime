@@ -44,8 +44,8 @@ import de.uniluebeck.itm.util.concurrent.ProgressListenableFuture;
 import de.uniluebeck.itm.util.concurrent.ProgressSettableFuture;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
-import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationAdapter;
+import de.uniluebeck.itm.wsn.drivers.core.operation.OperationFuture;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -62,10 +62,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -209,15 +206,15 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 			final ClientBootstrap bootstrap = new ClientBootstrap(new IOStreamChannelFactory(deviceExecutor));
 			bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-				@Override
-				public ChannelPipeline getPipeline() throws Exception {
-					currentPipeline = deviceConfig.getDefaultChannelPipeline();
-					return setPipeline(
-							pipeline(),
-							createPipelineHandlers(createHandlers(currentPipeline))
-					);
-				}
-			}
+											 @Override
+											 public ChannelPipeline getPipeline() throws Exception {
+												 currentPipeline = deviceConfig.getDefaultChannelPipeline();
+												 return setPipeline(
+														 pipeline(),
+														 createPipelineHandlers(createHandlers(currentPipeline))
+												 );
+											 }
+										 }
 			);
 
 			final IOStreamAddress address = new IOStreamAddress(device.getInputStream(), device.getOutputStream());
@@ -242,19 +239,38 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 	}
 
 	private void checkForBrokenMacAndRepair() throws ExecutionException, InterruptedException {
-		final MacAddress actualMacAddress = device.readMac(TIMEOUT_READMAC_MILLIS, null).get();
-		final MacAddress configuredMacAddress = new MacAddress(deviceConfig.getNodeUrn().getSuffix());
-		if (!actualMacAddress.equals(configuredMacAddress)) {
-			log.warn("Found device with broken MAC address ({}), trying to reset it to ({}) as configured in DeviceDB",
-					actualMacAddress, configuredMacAddress
-			);
+		deviceLock.lock();
+		try {
+
+			final MacAddress actualMacAddress;
+
 			try {
-				device.writeMac(configuredMacAddress, TIMEOUT_WRITEMAC_MILLIS, null).get();
-			} catch (Exception e) {
-				throw new RuntimeException(
-						"Failed resetting broken device MAC address to configured MAC address " + configuredMacAddress
-				);
+				actualMacAddress =
+						device.readMac(TIMEOUT_READMAC_MILLIS, null).get(TIMEOUT_READMAC_MILLIS, TimeUnit.MILLISECONDS);
+			} catch (TimeoutException e) {
+				log.warn("TimeoutException while reading MAC address");
+				return;
 			}
+
+			final MacAddress configuredMacAddress = new MacAddress(deviceConfig.getNodeUrn().getSuffix());
+
+			if (!actualMacAddress.equals(configuredMacAddress)) {
+				log.warn(
+						"Found device with broken MAC address ({}), trying to reset it to ({}) as configured in DeviceDB",
+						actualMacAddress, configuredMacAddress
+				);
+				try {
+					device.writeMac(configuredMacAddress, TIMEOUT_WRITEMAC_MILLIS, null).get();
+				} catch (Exception e) {
+					throw new RuntimeException(
+							"Failed resetting broken device MAC address to configured MAC address " + configuredMacAddress
+					);
+				}
+			} else if (log.isTraceEnabled()) {
+				log.trace("Checked for broken MAC address but everything is fine :-)");
+			}
+		} finally {
+			deviceLock.unlock();
 		}
 	}
 
@@ -335,84 +351,108 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 				deviceLock.lock();
 				try {
-					device.program(binaryImage, deviceConfig.getTimeoutFlashMillis(),
-							new OperationAdapter<Void>() {
 
-								private RateLimiter rateLimiter = RateLimiter.create(4);
+					final OperationAdapter<Void> progressListener = new OperationAdapter<Void>() {
 
-								@Override
-								public void onExecute() {
-									future.setProgress(0f);
+						private RateLimiter rateLimiter = RateLimiter.create(4);
+
+						@Override
+						public void onExecute() {
+							future.setProgress(0f);
+						}
+
+						@Override
+						public void onCancel() {
+							// handled by other listener
+						}
+
+						@Override
+						public void onFailure(final Throwable throwable) {
+							// handled by other listener
+						}
+
+						@Override
+						public void onProgressChange(final float fraction) {
+
+							if (rateLimiter.tryAcquire(0, TimeUnit.SECONDS)) {
+
+								log.debug("{} => Flashing progress: {}%.",
+										deviceConfig.getNodeUrn(),
+										(int) (fraction * 100)
+								);
+
+								future.setProgress(fraction);
+							}
+						}
+
+						@Override
+						public void onSuccess(final Void result) {
+							// handled by other listener
+						}
+					};
+
+					final OperationFuture<Void> operationFuture = device.program(
+							binaryImage,
+							deviceConfig.getTimeoutFlashMillis(),
+							progressListener
+					);
+
+					final Runnable completionListener = new Runnable() {
+						@Override
+						public void run() {
+
+							if (operationFuture.isCancelled()) {
+
+								String msg = "Flash operation was canceled.";
+								log.error("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
+
+								try {
+									checkForBrokenMacAndRepair();
+								} catch (Exception e) {
+									log.error("", e);
 								}
 
-								@Override
-								public void onCancel() {
+								future.setException(new RuntimeException(msg));
+								flashOperationRunningOrEnqueued = false;
 
-									String msg = "Flash operation was canceled.";
-									log.error("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
-									flashOperationRunningOrEnqueued = false;
-									future.setException(new RuntimeException(msg));
+							} else {
 
-									try {
-										checkForBrokenMacAndRepair();
-									} catch (Exception e) {
-										log.error("", e);
-									}
-								}
+								try {
 
-								@Override
-								public void onFailure(final Throwable throwable) {
-
-									String msg;
-
-									if (throwable instanceof ProgramChipMismatchException) {
-										msg = "Error reading binary image: " + throwable;
-									} else {
-										msg = "Failed flashing node. Reason: " + throwable;
-									}
-
-									log.warn("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
-									flashOperationRunningOrEnqueued = false;
-									future.setException(new RuntimeException(msg));
-
-									try {
-										checkForBrokenMacAndRepair();
-									} catch (Exception e) {
-										log.error("", e);
-									}
-								}
-
-								@Override
-								public void onProgressChange(final float fraction) {
-
-									if (rateLimiter.tryAcquire(0, TimeUnit.SECONDS)) {
-
-										log.debug("{} => Flashing progress: {}%.",
-												deviceConfig.getNodeUrn(),
-												(int) (fraction * 100)
-										);
-
-										future.setProgress(fraction);
-									}
-								}
-
-								@Override
-								public void onSuccess(final Void result) {
-
+									operationFuture.get();
 									log.debug("{} => Done flashing node.", deviceConfig.getNodeUrn());
-									flashOperationRunningOrEnqueued = false;
 
 									try {
 
 										checkForBrokenMacAndRepair();
 										future.set(null);
 
-									} catch (Exception e) {
-										future.setException(e);
+									} catch (Exception ex) {
+										future.setException(ex);
 									}
+
+									flashOperationRunningOrEnqueued = false;
+
+								} catch (Exception e) {
+
+									String msg = "Failed flashing node. Reason: " + e;
+									log.warn("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
+
+									try {
+										checkForBrokenMacAndRepair();
+									} catch (Exception ex) {
+										log.error("", ex);
+									}
+
+									flashOperationRunningOrEnqueued = false;
+									future.setException(new RuntimeException(msg));
 								}
 							}
-					);
+						}
+					};
+
+					operationFuture.addListener(completionListener, deviceExecutor);
+
 				} finally {
 					deviceLock.unlock();
 				}
@@ -440,31 +480,33 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			try {
 				device.isNodeAlive(deviceConfig.getTimeoutCheckAliveMillis(), new OperationAdapter<Boolean>() {
 
-					@Override
-					public void onExecute() {
-						// nothing to do
-					}
+							@Override
+							public void onExecute() {
+								// nothing to do
+							}
 
-					@Override
-					public void onSuccess(final Boolean result) {
-						log.debug("{} => Done checking node alive (result={}).", deviceConfig.getNodeUrn(), result);
-						future.set(result);
-					}
+							@Override
+							public void onSuccess(final Boolean result) {
+								log.debug("{} => Done checking node alive (result={}).", deviceConfig.getNodeUrn(),
+										result
+								);
+								future.set(result);
+							}
 
-					@Override
-					public void onCancel() {
-						final String msg = "Operation was cancelled.";
-						log.warn("{} => isNodeAlive(): {}", deviceConfig.getNodeUrn(), msg);
-						future.setException(new RuntimeException(msg));
-					}
+							@Override
+							public void onCancel() {
+								final String msg = "Operation was cancelled.";
+								log.warn("{} => isNodeAlive(): {}", deviceConfig.getNodeUrn(), msg);
+								future.setException(new RuntimeException(msg));
+							}
 
-					@Override
-					public void onFailure(final Throwable throwable) {
-						String msg = "Failed checking if node is alive. Reason: " + throwable;
-						log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
-						future.setException(new RuntimeException(msg));
-					}
-				}
+							@Override
+							public void onFailure(final Throwable throwable) {
+								String msg = "Failed checking if node is alive. Reason: " + throwable;
+								log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
+								future.setException(new RuntimeException(msg));
+							}
+						}
 				);
 			} finally {
 				deviceLock.unlock();
@@ -498,31 +540,31 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			try {
 				device.reset(deviceConfig.getTimeoutResetMillis(), new OperationAdapter<Void>() {
 
-					@Override
-					public void onExecute() {
-						// nothing to do
-					}
+							@Override
+							public void onExecute() {
+								// nothing to do
+							}
 
-					@Override
-					public void onSuccess(final Void result) {
-						log.debug("{} => Done resetting node.", deviceConfig.getNodeUrn());
-						future.set(null);
-					}
+							@Override
+							public void onSuccess(final Void result) {
+								log.debug("{} => Done resetting node.", deviceConfig.getNodeUrn());
+								future.set(null);
+							}
 
-					@Override
-					public void onCancel() {
-						final String msg = "Operation was cancelled.";
-						log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
-						future.setException(new RuntimeException(msg));
-					}
+							@Override
+							public void onCancel() {
+								final String msg = "Operation was cancelled.";
+								log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
+								future.setException(new RuntimeException(msg));
+							}
 
-					@Override
-					public void onFailure(final Throwable throwable) {
-						String msg = "Failed resetting node. Reason: " + throwable;
-						log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
-						future.setException(new RuntimeException(msg));
-					}
-				}
+							@Override
+							public void onFailure(final Throwable throwable) {
+								String msg = "Failed resetting node. Reason: " + throwable;
+								log.warn("{} => resetNode(): {}", deviceConfig.getNodeUrn(), msg);
+								future.setException(new RuntimeException(msg));
+							}
+						}
 				);
 			} finally {
 				deviceLock.unlock();
@@ -562,28 +604,34 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 		deviceChannel.write(buffer).addListener(new ChannelFutureListener() {
 
-			@Override
-			public void operationComplete(final ChannelFuture channelFuture) throws Exception {
+													@Override
+													public void operationComplete(final ChannelFuture channelFuture)
+															throws Exception {
 
-				if (channelFuture.isSuccess()) {
+														if (channelFuture.isSuccess()) {
 
-					future.set(null);
+															future.set(null);
 
-				} else if (channelFuture.isCancelled()) {
+														} else if (channelFuture.isCancelled()) {
 
-					final String msg = "Sending message was canceled.";
-					log.warn("{} => sendMessage(): {}", deviceConfig.getNodeUrn(), msg);
-					future.setException(new RuntimeException(msg));
+															final String msg = "Sending message was canceled.";
+															log.warn("{} => sendMessage(): {}",
+																	deviceConfig.getNodeUrn(), msg
+															);
+															future.setException(new RuntimeException(msg));
 
-				} else {
+														} else {
 
-					final Throwable cause = channelFuture.getCause();
-					final String msg = "Failed sending message. Reason: " + cause;
-					log.warn("{} => sendMessage(): {}", deviceConfig.getNodeUrn(), msg);
-					future.setException(new RuntimeException(cause));
-				}
-			}
-		}
+															final Throwable cause = channelFuture.getCause();
+															final String msg =
+																	"Failed sending message. Reason: " + cause;
+															log.warn("{} => sendMessage(): {}",
+																	deviceConfig.getNodeUrn(), msg
+															);
+															future.setException(new RuntimeException(cause));
+														}
+													}
+												}
 		);
 
 		return future;
