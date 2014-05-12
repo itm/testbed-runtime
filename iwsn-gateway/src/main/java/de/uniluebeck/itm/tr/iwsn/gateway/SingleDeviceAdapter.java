@@ -67,6 +67,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Throwables.propagate;
 import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static de.uniluebeck.itm.tr.iwsn.pipeline.PipelineHelper.setPipeline;
 import static de.uniluebeck.itm.util.StringUtils.toPrintableString;
@@ -247,6 +248,15 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			try {
 				actualMacAddress =
 						device.readMac(TIMEOUT_READMAC_MILLIS, null).get(TIMEOUT_READMAC_MILLIS, TimeUnit.MILLISECONDS);
+			} catch (ExecutionException e) {
+				if (e.getCause() instanceof UnsupportedOperationException) {
+					log.trace(
+							"Reading MAC addresses is not supported on device type \"{}\". Omitting MAC address check.",
+							deviceType
+					);
+					return;
+				}
+				throw propagate(e);
 			} catch (TimeoutException e) {
 				log.warn("TimeoutException while reading MAC address");
 				return;
