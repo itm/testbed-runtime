@@ -181,8 +181,10 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 									deviceFoundEvent.getDevicePort(),
 									((PortInUseException) e.getCause().getCause()).currentOwner
 							);
+							return false;
 						} else {
 							log.error("Could not connect to {}: {}", deviceFoundEvent, getStackTraceAsString(e));
+							return false;
 						}
 					}
 

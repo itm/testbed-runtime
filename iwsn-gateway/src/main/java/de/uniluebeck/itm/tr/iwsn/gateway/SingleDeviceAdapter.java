@@ -62,6 +62,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -91,6 +92,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 	public static final int PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE = 5000;
 
 	private static final Logger log = LoggerFactory.getLogger(DeviceAdapter.class);
+
+	private static final int TIMEOUT_READMAC_MILLIS = 60 * 1000;
+
+	private static final int TIMEOUT_WRITEMAC_MILLIS = 60 * 1000;
 
 	private final TimeDiff pipelineMisconfigurationTimeDiff = new TimeDiff(PIPELINE_MISCONFIGURATION_NOTIFICATION_RATE);
 
@@ -189,6 +194,8 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 			device.connect(devicePort);
 
+			checkForBrokenMacAndRepair();
+
 			log.info("{} => Successfully connected to {} device on serial port {}",
 					deviceConfig.getNodeUrn(), deviceConfig.getNodeType(), devicePort
 			);
@@ -232,6 +239,23 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		}
 
 		notifyStarted();
+	}
+
+	private void checkForBrokenMacAndRepair() throws ExecutionException, InterruptedException {
+		final MacAddress actualMacAddress = device.readMac(TIMEOUT_READMAC_MILLIS, null).get();
+		final MacAddress configuredMacAddress = new MacAddress(deviceConfig.getNodeUrn().getSuffix());
+		if (!actualMacAddress.equals(configuredMacAddress)) {
+			log.warn("Found device with broken MAC address ({}), trying to reset it to ({}) as configured in DeviceDB",
+					actualMacAddress, configuredMacAddress
+			);
+			try {
+				device.writeMac(configuredMacAddress, TIMEOUT_WRITEMAC_MILLIS, null).get();
+			} catch (Exception e) {
+				throw new RuntimeException(
+						"Failed resetting broken device MAC address to configured MAC address " + configuredMacAddress
+				);
+			}
+		}
 	}
 
 	@Override
@@ -328,6 +352,12 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 									log.error("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
 									flashOperationRunningOrEnqueued = false;
 									future.setException(new RuntimeException(msg));
+
+									try {
+										checkForBrokenMacAndRepair();
+									} catch (Exception e) {
+										log.error("", e);
+									}
 								}
 
 								@Override
@@ -344,6 +374,12 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 									log.warn("{} => flashProgram: {}", deviceConfig.getNodeUrn(), msg);
 									flashOperationRunningOrEnqueued = false;
 									future.setException(new RuntimeException(msg));
+
+									try {
+										checkForBrokenMacAndRepair();
+									} catch (Exception e) {
+										log.error("", e);
+									}
 								}
 
 								@Override
@@ -365,14 +401,21 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 									log.debug("{} => Done flashing node.", deviceConfig.getNodeUrn());
 									flashOperationRunningOrEnqueued = false;
-									future.set(null);
+
+									try {
+
+										checkForBrokenMacAndRepair();
+										future.set(null);
+
+									} catch (Exception e) {
+										future.setException(e);
+									}
 								}
 							}
 					);
 				} finally {
 					deviceLock.unlock();
 				}
-
 			}
 
 		} else {
