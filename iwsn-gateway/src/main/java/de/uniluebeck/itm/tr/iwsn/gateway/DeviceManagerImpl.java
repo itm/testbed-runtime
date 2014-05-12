@@ -586,11 +586,21 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 	@Nullable
 	private DeviceConfig getDeviceConfigFromDeviceDB(final DeviceFoundEvent deviceFoundEvent) {
 		try {
-			if (deviceFoundEvent.getMacAddress() != null) {
-				return deviceDBService.getConfigByMacAddress(deviceFoundEvent.getMacAddress().toLong());
-			} else if (deviceFoundEvent.getReference() != null) {
-				return deviceDBService.getConfigByUsbChipId(deviceFoundEvent.getReference());
+
+			DeviceConfig config = null;
+
+			// try with reference first (MAC addresses can be corrupted!)
+			if (deviceFoundEvent.getReference() != null) {
+				config = deviceDBService.getConfigByUsbChipId(deviceFoundEvent.getReference());
 			}
+
+			// if not found try to find config using MAC address
+			if (config == null && deviceFoundEvent.getMacAddress() != null) {
+				config = deviceDBService.getConfigByMacAddress(deviceFoundEvent.getMacAddress().toLong());
+			}
+
+			return config;
+
 		} catch (ClientException e) {
 			if (e.getCause() instanceof Fault && e.getCause().getCause() instanceof ConnectException) {
 				log.trace("Not able to connect to DeviceDB while trying to fetch DeviceConfig");
@@ -599,7 +609,6 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 			}
 			return null;
 		}
-		return null;
 	}
 
 }
