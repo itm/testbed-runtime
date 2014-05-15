@@ -30,7 +30,10 @@ import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreModule;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginModule;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginServiceConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTracker;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTrackerImpl;
 import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginModule;
+import de.uniluebeck.itm.tr.rs.RSHelperModule;
 import de.uniluebeck.itm.tr.rs.RSServiceConfig;
 import de.uniluebeck.itm.tr.rs.RSServiceModule;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
@@ -50,161 +53,164 @@ import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class PortalModule extends AbstractModule {
 
-    private final DeviceDBConfig deviceDBConfig;
+	private final DeviceDBConfig deviceDBConfig;
 
-    private final PortalServerConfig portalServerConfig;
+	private final PortalServerConfig portalServerConfig;
 
-    private final CommonConfig commonConfig;
+	private final CommonConfig commonConfig;
 
-    private final RSServiceConfig rsServiceConfig;
+	private final RSServiceConfig rsServiceConfig;
 
-    private final SNAAServiceConfig snaaServiceConfig;
+	private final SNAAServiceConfig snaaServiceConfig;
 
-    private final WiseGuiServiceConfig wiseGuiServiceConfig;
+	private final WiseGuiServiceConfig wiseGuiServiceConfig;
 
-    private final WisemlProviderConfig wisemlProviderConfig;
+	private final WisemlProviderConfig wisemlProviderConfig;
 
-    private final ExternalPluginServiceConfig externalPluginServiceConfig;
+	private final ExternalPluginServiceConfig externalPluginServiceConfig;
 
-    @Inject
-    public PortalModule(final CommonConfig commonConfig,
-                        final DeviceDBConfig deviceDBConfig,
-                        final PortalServerConfig portalServerConfig,
-                        final RSServiceConfig rsServiceConfig,
-                        final SNAAServiceConfig snaaServiceConfig,
-                        final WiseGuiServiceConfig wiseGuiServiceConfig,
-                        final WisemlProviderConfig wisemlProviderConfig,
-                        final ExternalPluginServiceConfig externalPluginServiceConfig) {
-        this.commonConfig = commonConfig;
-        this.deviceDBConfig = deviceDBConfig;
-        this.portalServerConfig = portalServerConfig;
-        this.rsServiceConfig = rsServiceConfig;
-        this.snaaServiceConfig = snaaServiceConfig;
-        this.wiseGuiServiceConfig = wiseGuiServiceConfig;
-        this.wisemlProviderConfig = wisemlProviderConfig;
-        this.externalPluginServiceConfig = externalPluginServiceConfig;
-    }
+	@Inject
+	public PortalModule(final CommonConfig commonConfig,
+						final DeviceDBConfig deviceDBConfig,
+						final PortalServerConfig portalServerConfig,
+						final RSServiceConfig rsServiceConfig,
+						final SNAAServiceConfig snaaServiceConfig,
+						final WiseGuiServiceConfig wiseGuiServiceConfig,
+						final WisemlProviderConfig wisemlProviderConfig,
+						final ExternalPluginServiceConfig externalPluginServiceConfig) {
+		this.commonConfig = commonConfig;
+		this.deviceDBConfig = deviceDBConfig;
+		this.portalServerConfig = portalServerConfig;
+		this.rsServiceConfig = rsServiceConfig;
+		this.snaaServiceConfig = snaaServiceConfig;
+		this.wiseGuiServiceConfig = wiseGuiServiceConfig;
+		this.wisemlProviderConfig = wisemlProviderConfig;
+		this.externalPluginServiceConfig = externalPluginServiceConfig;
+	}
 
-    @Override
-    protected void configure() {
+	@Override
+	protected void configure() {
 
-        bind(CommonConfig.class).toProvider(of(commonConfig));
-        bind(PortalServerConfig.class).toProvider(of(portalServerConfig));
-        bind(DeviceDBConfig.class).toProvider(of(deviceDBConfig));
-        bind(RSServiceConfig.class).toProvider(of(rsServiceConfig));
-        bind(SNAAServiceConfig.class).toProvider(of(snaaServiceConfig));
-        bind(WiseGuiServiceConfig.class).toProvider(of(wiseGuiServiceConfig));
-        bind(WisemlProviderConfig.class).toProvider(of(wisemlProviderConfig));
-        bind(ExternalPluginServiceConfig.class).toProvider(of(externalPluginServiceConfig));
+		bind(CommonConfig.class).toProvider(of(commonConfig));
+		bind(PortalServerConfig.class).toProvider(of(portalServerConfig));
+		bind(DeviceDBConfig.class).toProvider(of(deviceDBConfig));
+		bind(RSServiceConfig.class).toProvider(of(rsServiceConfig));
+		bind(SNAAServiceConfig.class).toProvider(of(snaaServiceConfig));
+		bind(WiseGuiServiceConfig.class).toProvider(of(wiseGuiServiceConfig));
+		bind(WisemlProviderConfig.class).toProvider(of(wisemlProviderConfig));
+		bind(ExternalPluginServiceConfig.class).toProvider(of(externalPluginServiceConfig));
 
-        install(new SNAAServiceModule(commonConfig, snaaServiceConfig));
-        install(new RSServiceModule(commonConfig, rsServiceConfig));
-        install(new DeviceDBServiceModule(deviceDBConfig));
+		install(new SNAAServiceModule(commonConfig, snaaServiceConfig));
+		install(new RSServiceModule(commonConfig, rsServiceConfig));
+		install(new DeviceDBServiceModule(deviceDBConfig));
 
-        bind(ServedNodeUrnsProvider.class).to(DeviceDBServedNodeUrnsProvider.class);
-        bind(ServedNodeUrnPrefixesProvider.class).to(CommonConfigServedNodeUrnPrefixesProvider.class);
+		bind(ServedNodeUrnsProvider.class).to(DeviceDBServedNodeUrnsProvider.class);
+		bind(ServedNodeUrnPrefixesProvider.class).to(CommonConfigServedNodeUrnPrefixesProvider.class);
 
-        bind(EventBusFactory.class).to(EventBusFactoryImpl.class);
-        bind(PortalEventBus.class).to(PortalEventBusImpl.class).in(Singleton.class);
-        bind(ReservationManager.class).to(ReservationManagerImpl.class).in(Singleton.class);
+		bind(EventBusFactory.class).to(EventBusFactoryImpl.class);
+		bind(PortalEventBus.class).to(PortalEventBusImpl.class).in(Singleton.class);
+		bind(ReservationManager.class).to(ReservationManagerImpl.class).in(Singleton.class);
+		bind(UserRegistrationWebAppService.class).to(UserRegistrationWebAppServiceImpl.class).in(Singleton.class);
+		bind(NodeStatusTracker.class).to(NodeStatusTrackerImpl.class).in(Singleton.class);
 
-        install(new PortalEventStoreModule());
+		install(new FactoryModuleBuilder()
+						.implement(Reservation.class, ReservationImpl.class)
+						.build(ReservationFactory.class)
+		);
 
-        install(new FactoryModuleBuilder()
-                .implement(Reservation.class, ReservationImpl.class)
-                .build(ReservationFactory.class)
-        );
+		install(new NettyServerModule(
+						new ThreadFactoryBuilder().setNameFormat("Portal-OverlayBossExecutor %d").build(),
+						new ThreadFactoryBuilder().setNameFormat("Portal-OverlayWorkerExecutor %d").build()
+				)
+		);
 
-        install(new NettyServerModule(
-                new ThreadFactoryBuilder().setNameFormat("Portal-OverlayBossExecutor %d").build(),
-                new ThreadFactoryBuilder().setNameFormat("Portal-OverlayWorkerExecutor %d").build()
-        )
-        );
+		install(new PortalEventStoreModule());
 
-        install(new FactoryModuleBuilder()
-                .implement(ReservationEventBus.class, ReservationEventBusImpl.class)
-                .build(ReservationEventBusFactory.class)
-        );
+		install(new FactoryModuleBuilder()
+						.implement(ReservationEventBus.class, ReservationEventBusImpl.class)
+						.build(ReservationEventBusFactory.class)
+		);
 
-        install(new SchedulerServiceModule());
-        install(new ServicePublisherCxfModule());
-        install(new ResponseTrackerModule());
-        install(new NettyProtocolsModule());
+		install(new RSHelperModule());
+		install(new SchedulerServiceModule());
+		install(new ServicePublisherCxfModule());
+		install(new ResponseTrackerModule());
+		install(new NettyProtocolsModule());
 
-        install(new DeviceDBRestServiceModule());
-        install(new SoapApiModule());
-        install(new RestApiModule(false));
-        install(new WiseGuiServiceModule());
+		install(new DeviceDBRestServiceModule());
+		install(new SoapApiModule());
+		install(new RestApiModule(false));
+		install(new WiseGuiServiceModule());
 
-        install(new PortalPluginModule());
-        install(new ExternalPluginModule());
-    }
+		install(new PortalPluginModule());
+		install(new ExternalPluginModule());
+	}
 
-    @Provides
-    @Singleton
-    SchedulerService provideSchedulerService(SchedulerServiceFactory factory) {
-        return factory.create(-1, "PortalScheduler");
-    }
+	@Provides
+	@Singleton
+	SchedulerService provideSchedulerService(SchedulerServiceFactory factory) {
+		return factory.create(-1, "PortalScheduler");
+	}
 
-    @Provides
-    @Singleton
-    ServicePublisher provideServicePublisher(final ServicePublisherFactory factory, final CommonConfig commonConfig) {
-        return factory.create(new ServicePublisherConfig(commonConfig.getPort(), commonConfig.getShiroIni()));
-    }
+	@Provides
+	@Singleton
+	ServicePublisher provideServicePublisher(final ServicePublisherFactory factory, final CommonConfig commonConfig) {
+		return factory.create(new ServicePublisherConfig(commonConfig.getPort()));
+	}
 
-    @Provides
-    TimeLimiter provideTimeLimiter() {
-        final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("TimeLimiter %d").build();
-        return new SimpleTimeLimiter(
-                getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool(threadFactory))
-        );
-    }
+	@Provides
+	TimeLimiter provideTimeLimiter() {
+		final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("TimeLimiter %d").build();
+		return new SimpleTimeLimiter(
+				getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool(threadFactory))
+		);
+	}
 
-    @Provides
-    EndpointManager provideEndpointManager(final PortalServerConfig portalServerConfig) {
+	@Provides
+	EndpointManager provideEndpointManager(final PortalServerConfig portalServerConfig) {
 
-        return new EndpointManager() {
+		return new EndpointManager() {
 
-            @Override
-            public URI getSnaaEndpointUri() {
-                return assertNonEmpty(
-                        portalServerConfig.getConfigurationSnaaEndpointUri(),
-                        CONFIGURATION_SNAA_ENDPOINT_URI
-                );
-            }
+			@Override
+			public URI getSnaaEndpointUri() {
+				return assertNonEmpty(
+						portalServerConfig.getConfigurationSnaaEndpointUri(),
+						CONFIGURATION_SNAA_ENDPOINT_URI
+				);
+			}
 
-            @Override
-            public URI getRsEndpointUri() {
-                return assertNonEmpty(
-                        portalServerConfig.getConfigurationRsEndpointUri(),
-                        CONFIGURATION_RS_ENDPOINT_URI
-                );
-            }
+			@Override
+			public URI getRsEndpointUri() {
+				return assertNonEmpty(
+						portalServerConfig.getConfigurationRsEndpointUri(),
+						CONFIGURATION_RS_ENDPOINT_URI
+				);
+			}
 
-            @Override
-            public URI getSmEndpointUri() {
-                return assertNonEmpty(
-                        portalServerConfig.getConfigurationSmEndpointUri(),
-                        CONFIGURATION_SM_ENDPOINT_URI
-                );
-            }
+			@Override
+			public URI getSmEndpointUri() {
+				return assertNonEmpty(
+						portalServerConfig.getConfigurationSmEndpointUri(),
+						CONFIGURATION_SM_ENDPOINT_URI
+				);
+			}
 
-            @Override
-            public URI getWsnEndpointUriBase() {
-                return assertNonEmpty(
-                        portalServerConfig.getConfigurationWsnEndpointUriBase(),
-                        CONFIGURATION_WSN_ENDPOINT_URI_BASE
-                );
-            }
+			@Override
+			public URI getWsnEndpointUriBase() {
+				return assertNonEmpty(
+						portalServerConfig.getConfigurationWsnEndpointUriBase(),
+						CONFIGURATION_WSN_ENDPOINT_URI_BASE
+				);
+			}
 
-            private URI assertNonEmpty(final URI uri, final String paramName) {
-                if (uri == null || uri.toString().isEmpty()) {
-                    throw new IllegalArgumentException(
-                            "Configuration parameter " + paramName + " must be set!"
-                    );
-                }
-                return uri;
-            }
-        };
-    }
+			private URI assertNonEmpty(final URI uri, final String paramName) {
+				if (uri == null || uri.toString().isEmpty()) {
+					throw new IllegalArgumentException(
+							"Configuration parameter " + paramName + " must be set!"
+					);
+				}
+				return uri;
+			}
+		};
+	}
 }

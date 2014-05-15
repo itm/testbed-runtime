@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.plugins.defaultimage;
 
+import de.uniluebeck.itm.tr.common.plugins.PluginContainer;
 import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginBundleActivator;
 
 public class DefaultImagePluginActivator extends PortalPluginBundleActivator {
@@ -12,13 +13,13 @@ public class DefaultImagePluginActivator extends PortalPluginBundleActivator {
 		defaultImagePlugin = createInjector(new DefaultImagePluginModule()).getInstance(DefaultImagePlugin.class);
 		defaultImagePlugin.startAndWait();
 
-		pluginContainer.registerService(DefaultImagePlugin.class, defaultImagePlugin);
+		getService(PluginContainer.class).registerService(DefaultImagePlugin.class, defaultImagePlugin);
 	}
 
 	@Override
 	protected void doStop() throws Exception {
 
-		pluginContainer.unregisterService(DefaultImagePlugin.class);
+		getService(PluginContainer.class).unregisterService(DefaultImagePlugin.class);
 
 		defaultImagePlugin.stopAndWait();
 	}

@@ -5,15 +5,18 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.DecoratedImpl;
-import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
+import de.uniluebeck.itm.tr.snaa.*;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
+import org.omg.CORBA.UnknownUserException;
 
+import javax.annotation.Nullable;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -45,7 +48,7 @@ public class RemoteSNAA extends AbstractService implements SNAAService {
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
@@ -89,5 +92,27 @@ public class RemoteSNAA extends AbstractService implements SNAAService {
 			List<SecretAuthenticationKey> secretAuthenticationKeys) throws SNAAFault_Exception {
 		checkState(isRunning());
 		return snaa.isValid(secretAuthenticationKeys);
+	}
+
+	@Override
+	public boolean isUserRegistrationSupported() {
+		return false;
+	}
+
+	@Override
+	public void add(final String email, final String password) throws UserAlreadyExistsException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void update(final String email, final String oldPassword, final String newPassword)
+			throws UserUnknownException, UserPwdMismatchException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void delete(final String email, final String password)
+			throws UserUnknownException, UserPwdMismatchException {
+		throw new UnsupportedOperationException();
 	}
 }

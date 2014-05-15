@@ -31,7 +31,7 @@ public class RestApiServiceImpl extends AbstractService implements RestApiServic
 	protected void doStart() {
 		try {
 
-			restApi = servicePublisher.createJaxRsService("/rest/v1.0", application);
+			restApi = servicePublisher.createJaxRsService("/rest/v1.0", application, null);
 			restApi.startAndWait();
 
 			wsnWebSocketService = servicePublisher.createWebSocketService("/ws/v1.0", webSocketServlet);

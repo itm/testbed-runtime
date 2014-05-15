@@ -21,5 +21,6 @@ public class ShiroSNAARestModule extends PrivateModule {
 		bind(ResourceGroupsResource.class).to(ResourceGroupsResourceImpl.class).in(Scopes.SINGLETON);
 
 		expose(ShiroSNAARestService.class);
+		expose(UserResource.class);
 	}
 }

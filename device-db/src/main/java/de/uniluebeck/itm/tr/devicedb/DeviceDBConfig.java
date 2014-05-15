@@ -13,28 +13,6 @@ import java.util.Properties;
 public class DeviceDBConfig {
 
 	@PropConf(
-			usage = "The context path on which to run the device database REST API",
-			example = "/rest/v1.0/devicedb",
-			defaultValue = "/rest/v1.0/devicedb"
-	)
-	public static final String DEVICEDB_REST_API_CONTEXT_PATH = "devicedb.rest_api.context_path";
-
-	@Inject
-	@Named(DEVICEDB_REST_API_CONTEXT_PATH)
-	private String deviceDBRestApiContextPath;
-
-	@PropConf(
-			usage = "The context path on which to run the device database web frontend",
-			example = "/devicedb",
-			defaultValue = "/devicedb"
-	)
-	public static final String DEVICEDB_WEBAPP_CONTEXT_PATH = "devicedb.webapp.context_path";
-
-	@Inject
-	@Named(DEVICEDB_WEBAPP_CONTEXT_PATH)
-	private String deviceDBWebappContextPath;
-
-	@PropConf(
 			usage = ".properties file to initialize JPA backend for the device database",
 			typeConverter = PropertiesTypeConverter.class
 	)
@@ -64,6 +42,36 @@ public class DeviceDBConfig {
 	@Inject(optional = true)
 	@Named(DEVICEDB_REMOTE_URI)
 	private URI deviceDBRemoteUri;
+
+	@PropConf(
+			usage = "The URI the DeviceDB ADMIN REST service runs on",
+			typeConverter = URITypeConverter.class
+	)
+	public static final String DEVICEDB_REMOTE_ADMIN_URI = "devicedb.remote.admin_uri";
+
+	@Inject(optional = true)
+	@Named(DEVICEDB_REMOTE_ADMIN_URI)
+	private URI deviceDBRemoteAdminUri;
+
+	@PropConf(
+			usage = "The username to authenticate on the DeviceDB ADMIN REST service",
+			typeConverter = URITypeConverter.class
+	)
+	public static final String DEVICEDB_REMOTE_ADMIN_USERNAME = "devicedb.remote.admin_username";
+
+	@Inject(optional = true)
+	@Named(DEVICEDB_REMOTE_ADMIN_USERNAME)
+	private String deviceDBRemoteAdminUsername;
+
+	@PropConf(
+			usage = "The password to authenticate on the DeviceDB ADMIN REST service",
+			typeConverter = URITypeConverter.class
+	)
+	public static final String DEVICEDB_REMOTE_ADMIN_PASSWORD = "devicedb.remote.admin_password";
+
+	@Inject(optional = true)
+	@Named(DEVICEDB_REMOTE_ADMIN_PASSWORD)
+	private String deviceDBRemoteAdminPassword;
 
 	@PropConf(
 			usage = "If used in the SmartSantander context: the URI of the Resource Directory (RD)"
@@ -98,16 +106,8 @@ public class DeviceDBConfig {
 		return smartSantanderRDUri;
 	}
 
-	public String getDeviceDBWebappContextPath() {
-		return deviceDBWebappContextPath;
-	}
-
 	public Properties getDeviceDBJPAProperties() {
 		return deviceDBJPAProperties;
-	}
-
-	public String getDeviceDBRestApiContextPath() {
-		return deviceDBRestApiContextPath;
 	}
 
 	public DeviceDBType getDeviceDBType() {
@@ -120,6 +120,11 @@ public class DeviceDBConfig {
 	}
 
 	@Nullable
+	public URI getDeviceDBRemoteAdminUri() {
+		return deviceDBRemoteAdminUri;
+	}
+
+	@Nullable
 	public String getSmartSantanderRDPortalId() {
 		return smartSantanderRDPortalId;
 	}
@@ -127,5 +132,15 @@ public class DeviceDBConfig {
 	@Nullable
 	public URI getSmartSantanderEventBrokerUri() {
 		return smartSantanderEventBrokerUri;
+	}
+
+	@Nullable
+	public String getDeviceDBRemoteAdminUsername() {
+		return deviceDBRemoteAdminUsername;
+	}
+
+	@Nullable
+	public String getDeviceDBRemoteAdminPassword() {
+		return deviceDBRemoteAdminPassword;
 	}
 }

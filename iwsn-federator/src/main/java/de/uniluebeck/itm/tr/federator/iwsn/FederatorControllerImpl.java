@@ -26,15 +26,14 @@ package de.uniluebeck.itm.tr.federator.iwsn;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.google.protobuf.GeneratedMessage;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -110,7 +109,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 			log.debug("Starting federator controller using endpoint URI {}", endpointUri);
 
-			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this, null);
 			jaxWsService.startAndWait();
 
 			log.debug("Adding federator controller endpoint to federated reservations");

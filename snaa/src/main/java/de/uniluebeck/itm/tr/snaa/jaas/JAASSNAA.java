@@ -29,20 +29,26 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
+import de.uniluebeck.itm.tr.snaa.UserAlreadyExistsException;
+import de.uniluebeck.itm.tr.snaa.UserPwdMismatchException;
+import de.uniluebeck.itm.tr.snaa.UserUnknownException;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
+import org.omg.CORBA.UnknownUserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.jws.WebService;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -87,7 +93,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 	protected void doStart() {
 		try {
 			System.setProperty("java.security.auth.login.config", snaaServiceConfig.getJaasConfigFile());
-			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
@@ -106,6 +112,28 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
+	}
+
+	@Override
+	public boolean isUserRegistrationSupported() {
+		return false;
+	}
+
+	@Override
+	public void add(final String email, final String password) throws UserAlreadyExistsException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void update(final String email, final String oldPassword, final String newPassword)
+			throws UserUnknownException, UserPwdMismatchException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void delete(final String email, final String password)
+			throws UserUnknownException, UserPwdMismatchException {
+		throw new UnsupportedOperationException();
 	}
 
 	static class AuthData {

@@ -2,8 +2,6 @@ package de.uniluebeck.itm.tr.snaa.shiro.dto;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @XmlRootElement
 public class PermissionDto {
 
@@ -12,12 +10,6 @@ public class PermissionDto {
 	private String actionName;
 
 	private String resourceGroupName;
-
-	public PermissionDto(String roleName, String actionName, String resourceGroupName) {
-		this.roleName = checkNotNull(roleName);
-		this.actionName = checkNotNull(actionName);
-		this.resourceGroupName = checkNotNull(resourceGroupName);
-	}
 
 	public String getRoleName() {
 		return roleName;

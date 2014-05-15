@@ -14,6 +14,8 @@ public class DeviceDBRestServiceModule extends PrivateModule {
 		requireBinding(ServicePublisher.class);
 
 		bind(DeviceDBRestService.class).to(DeviceDBRestServiceImpl.class).in(Scopes.SINGLETON);
+		bind(DeviceDBRestResource.class).to(DeviceDBRestResourceImpl.class).in(Scopes.SINGLETON);
+		bind(DeviceDBRestAdminResource.class).to(DeviceDBRestAdminResourceImpl.class).in(Scopes.SINGLETON);
 
 		expose(DeviceDBRestService.class);
 	}

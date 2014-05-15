@@ -122,8 +122,8 @@ public class DeviceDBServer extends AbstractService {
 
 		log.info(
 				"DeviceDB started at {} (REST API: {})",
-				"http://localhost:" + commonConfig.getPort() + deviceDBConfig.getDeviceDBWebappContextPath(),
-				"http://localhost:" + commonConfig.getPort() + deviceDBConfig.getDeviceDBRestApiContextPath()
+				"http://localhost:" + commonConfig.getPort() + DeviceDBConstants.DEVICEDB_WEBAPP_CONTEXT_PATH,
+				"http://localhost:" + commonConfig.getPort() + DeviceDBConstants.DEVICEDB_REST_API_CONTEXT_PATH
 		);
 	}
 }

@@ -50,6 +50,8 @@ public class RestApiModule extends AbstractModule {
 		bind(SnaaResource.class).to(SnaaResourceImpl.class);
 		bind(EventStoreResource.class).to(EventStoreResourceImpl.class);
 		bind(RootResource.class).to(RootResourceImpl.class);
+		bind(UserRegistrationResource.class).to(UserRegistrationResourceImpl.class);
+		bind(NodeStatusTrackerResource.class).to(NodeStatusTrackerResourceImpl.class);
 
 		bindConstant().annotatedWith(Names.named(IS_FEDERATOR)).to(federator);
 

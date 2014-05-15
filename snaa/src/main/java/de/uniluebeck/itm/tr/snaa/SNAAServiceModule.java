@@ -7,7 +7,6 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.snaa.dummy.DummySNAAModule;
 import de.uniluebeck.itm.tr.snaa.jaas.JAASSNAAModule;
 import de.uniluebeck.itm.tr.snaa.remote.RemoteSNAAModule;
-import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethSNAAModule;
 import de.uniluebeck.itm.tr.snaa.shiro.JpaModule;
 import de.uniluebeck.itm.tr.snaa.shiro.ShiroSNAAModule;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -37,9 +36,6 @@ public class SNAAServiceModule extends PrivateModule {
 				break;
 			case JAAS:
 				install(new JAASSNAAModule(commonConfig, snaaServiceConfig));
-				break;
-			case SHIBBOLETH:
-				install(new ShibbolethSNAAModule(snaaServiceConfig));
 				break;
 			case SHIRO:
 				install(new JpaModule("ShiroSNAA", snaaServiceConfig.getShiroJpaProperties()));

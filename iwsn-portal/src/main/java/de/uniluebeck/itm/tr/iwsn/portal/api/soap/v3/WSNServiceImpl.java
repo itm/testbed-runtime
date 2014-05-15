@@ -44,7 +44,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 						  @Assisted final Reservation reservation,
 						  @Assisted final WSN wsn) {
 		this.endpointUri = URI.create(endpointManager.getWsnEndpointUriBase().toString() + "/" + reservation.getSerializedKey());
-		this.jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this);
+		this.jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this, null);
 		this.wsn = wsn;
 	}
 

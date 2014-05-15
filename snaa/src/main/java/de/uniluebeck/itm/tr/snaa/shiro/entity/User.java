@@ -10,8 +10,8 @@ import static javax.persistence.FetchType.LAZY;
 public class User implements java.io.Serializable {
 
 	@Id
-	@Column(name = "NAME", unique = true, nullable = false, length = 150)
-	private String name;
+	@Column(name = "EMAIL", unique = true, nullable = false, length = 150)
+	private String email;
 
 	@Column(name = "PASSWORD", length = 1500)
 	private String password;
@@ -21,7 +21,7 @@ public class User implements java.io.Serializable {
 
 	@ManyToMany(fetch = LAZY)
 	@JoinTable(name = "USERS_ROLES", joinColumns = {
-			@JoinColumn(name = "USER_NAME", nullable = false, updatable = false)
+			@JoinColumn(name = "USER_EMAIL", nullable = false, updatable = false)
 	}, inverseJoinColumns = {
 			@JoinColumn(name = "ROLE_NAME", nullable = false, updatable = false)
 	})
@@ -30,23 +30,23 @@ public class User implements java.io.Serializable {
 	public User() {
 	}
 
-	public User(String name) {
-		this.name = name;
+	public User(String email) {
+		this.email = email;
 	}
 
-	public User(String name, String password, String salt, Set<Role> roles) {
-		this.name = name;
+	public User(String email, String password, String salt, Set<Role> roles) {
+		this.email = email;
 		this.password = password;
 		this.salt = salt;
 		this.roles = roles;
 	}
 
-	public String getName() {
-		return this.name;
+	public String getEmail() {
+		return this.email;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getPassword() {
@@ -82,12 +82,12 @@ public class User implements java.io.Serializable {
 			return false;
 		}
 		final User user = (User) o;
-		return name.equals(user.name);
+		return email.equals(user.email);
 	}
 
 	@Override
 	public int hashCode() {
-		return name.hashCode();
+		return email.hashCode();
 	}
 }
 

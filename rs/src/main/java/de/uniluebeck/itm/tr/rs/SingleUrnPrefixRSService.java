@@ -123,7 +123,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(rsServiceConfig.getRsContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(rsServiceConfig.getRsContextPath(), this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

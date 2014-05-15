@@ -1,5 +1,3 @@
-<%@ page import="static de.uniluebeck.itm.tr.snaa.SNAAServiceConfig.SHIRO_ADMIN_REST_API_CONTEXTPATH" %>
-<%@ page import="static de.uniluebeck.itm.tr.snaa.SNAAServiceConfig.SHIRO_ADMIN_WEBAPP_CONTEXTPATH" %>
 <%@ page import="static de.uniluebeck.itm.tr.snaa.SNAAServiceConfig.SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH" %>
 <!DOCTYPE html>
 <html>
@@ -23,8 +21,8 @@
 
 		var app = app || {};
 
-		app.rest_api_context_path = "<%= getServletConfig().getInitParameter(SHIRO_ADMIN_REST_API_CONTEXTPATH) %>";
-		app.webapp_context_path   = "<%= getServletConfig().getInitParameter(SHIRO_ADMIN_WEBAPP_CONTEXTPATH) %>";
+		app.rest_api_context_path = "/admin/shiro-snaa/rest";
+		app.webapp_context_path   = "/admin/shiro-snaa";
 		app.device_db_rest_api_context_path = "<%= getServletConfig().getInitParameter(SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH) %>";
 
 		$(document).ready(function() {
@@ -54,14 +52,14 @@
 	<ul class="nav nav-tabs" id="navigation">
 		<li><a href="#users" data-toggle="tab" data-nav="users">Users</a></li>
 		<li><a href="#roles" data-toggle="tab" data-nav="roles">Roles</a></li>
-		<li><a href="#actions" data-toggle="tab" data-nav="actions">Actions</a></li>
 		<li><a href="#resource_groups" data-toggle="tab" data-nav="resource_groups">Resource Groups</a></li>
+		<li><a href="#permissions" data-toggle="tab" data-nav="permissions">Permissions</a></li>
 	</ul>
 	<div class="tab-content">
 		<div class="tab-pane" id="users"></div>
 		<div class="tab-pane" id="roles"></div>
-		<div class="tab-pane" id="actions"></div>
 		<div class="tab-pane" id="resource_groups"></div>
+		<div class="tab-pane" id="permissions"></div>
 	</div>
 </div>
 </body>

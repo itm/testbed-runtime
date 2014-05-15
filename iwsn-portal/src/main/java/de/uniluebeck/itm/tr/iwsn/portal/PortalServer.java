@@ -14,6 +14,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreService;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginServiceConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTracker;
 import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginService;
 import de.uniluebeck.itm.tr.rs.RSService;
 import de.uniluebeck.itm.tr.rs.RSServiceConfig;
@@ -65,6 +66,10 @@ public class PortalServer extends AbstractService {
 
 	private final PortalEventStoreService portalEventStoreService;
 
+	private final UserRegistrationWebAppService userRegistrationWebAppService;
+
+	private final NodeStatusTracker nodeStatusTracker;
+
 	@Inject
 	public PortalServer(final SchedulerService schedulerService,
 						final ServicePublisher servicePublisher,
@@ -78,7 +83,9 @@ public class PortalServer extends AbstractService {
 						final RestApiService restApiService,
 						final WiseGuiService wiseGuiService,
 						final PortalPluginService portalPluginService,
-						final PortalEventStoreService portalEventStoreService) {
+						final PortalEventStoreService portalEventStoreService,
+						final UserRegistrationWebAppService userRegistrationWebAppService,
+						final NodeStatusTracker nodeStatusTracker) {
 
 		this.schedulerService = checkNotNull(schedulerService);
 		this.servicePublisher = checkNotNull(servicePublisher);
@@ -95,6 +102,8 @@ public class PortalServer extends AbstractService {
 		this.soapApiService = checkNotNull(soapApiService);
 		this.restApiService = checkNotNull(restApiService);
 		this.wiseGuiService = checkNotNull(wiseGuiService);
+		this.userRegistrationWebAppService = checkNotNull(userRegistrationWebAppService);
+		this.nodeStatusTracker = checkNotNull(nodeStatusTracker);
 
 		this.portalPluginService = checkNotNull(portalPluginService);
 	}
@@ -117,12 +126,14 @@ public class PortalServer extends AbstractService {
 			portalEventBus.startAndWait();
 			portalEventStoreService.startAndWait();
 			reservationManager.startAndWait();
+			nodeStatusTracker.startAndWait();
 
 			// services that the portal exposes to clients
 			deviceDBRestService.startAndWait();
 			soapApiService.startAndWait();
 			restApiService.startAndWait();
 			wiseGuiService.startAndWait();
+			userRegistrationWebAppService.startAndWait();
 
 			portalPluginService.startAndWait();
 
@@ -140,12 +151,14 @@ public class PortalServer extends AbstractService {
 			portalPluginService.stopAndWait();
 
 			// services that the portal server exposes to clients
+			userRegistrationWebAppService.stopAndWait();
 			wiseGuiService.stopAndWait();
 			restApiService.stopAndWait();
 			soapApiService.stopAndWait();
 			deviceDBRestService.stopAndWait();
 
 			// internal components
+			nodeStatusTracker.stopAndWait();
 			reservationManager.stopAndWait();
 			portalEventStoreService.stopAndWait();
 			portalEventBus.stopAndWait();

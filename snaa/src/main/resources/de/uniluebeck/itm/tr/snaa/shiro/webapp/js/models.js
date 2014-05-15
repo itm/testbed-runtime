@@ -26,14 +26,14 @@ $(function() {
 	});
 
 	app.UserModel = Backbone.Model.extend({
-		idAttribute : 'name',
+		idAttribute : 'email',
 		urlRoot : app.rest_api_context_path + '/users'
 	});
 
 	var UserCollection = Backbone.Collection.extend({
 		model : app.UserModel,
 		url : app.rest_api_context_path + '/users',
-		comparator : 'name'
+		comparator : 'email'
 	});
 
 	app.ResourceGroupModel = Backbone.Model.extend({
@@ -48,20 +48,42 @@ $(function() {
 	});
 
 	app.NodeModel = Backbone.Model.extend({
-		idAttribute: 'nodeUrn',
-		urlRoot: app.device_db_rest_api_context_path + '/deviceConfigs'
+		idAttribute : 'nodeUrn',
+		urlRoot : app.device_db_rest_api_context_path + '/deviceConfigs'
 	});
 
 	var NodeCollection = Backbone.Collection.extend({
-		model: app.NodeModel,
-		url: app.device_db_rest_api_context_path + '/deviceConfigs',
-		toJSON: function(list) {
+		model : app.NodeModel,
+		url : app.device_db_rest_api_context_path + '/deviceConfigs',
+		toJSON : function(list) {
 			return { "configs" : list };
 		},
-		parse: function(response) {
+		parse : function(response) {
 			return response.configs;
 		},
 		comparator : 'nodeUrn'
+	});
+
+	app.PermissionModel = Backbone.Model.extend({
+		idAttribute : ['roleName', 'actionName', 'resourceGroupName'],
+		parse : function(resp) {
+			this.id = resp.roleName + "_" + resp.actionName + "_" + resp.resourceGroupName;
+			return resp;
+		},
+		urlRoot : app.rest_api_context_path + '/permissions',
+		url : function() {
+			return app.rest_api_context_path + '/permissions' +
+					'?role=' + this.get('roleName') +
+					'&resourceGroup=' + this.get('resourceGroupName') +
+					'&action=' + this.get('actionName');
+
+		}
+	});
+
+	var PermissionCollection = Backbone.Collection.extend({
+		model : app.PermissionModel,
+		url : app.rest_api_context_path + '/permissions',
+		comparator : 'actionName'
 	});
 
 	app.Roles = new RoleCollection();
@@ -69,4 +91,5 @@ $(function() {
 	app.Actions = new ActionCollection();
 	app.ResourceGroups = new ResourceGroupCollection();
 	app.Nodes = new NodeCollection();
+	app.Permissions = new PermissionCollection();
 });

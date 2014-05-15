@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.snaa.shiro.dto;
 import com.google.common.base.Function;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.*;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ public class DtoConverter {
 		@Override
 		public UserDto apply(final User user) {
 			final UserDto userDto = new UserDto();
-			userDto.setName(user.getName());
+			userDto.setEmail(user.getEmail());
 			userDto.setRoles(convertRoleSet(user.getRoles()));
 			return userDto;
 		}
@@ -51,10 +52,11 @@ public class DtoConverter {
 			new Function<Permission, PermissionDto>() {
 				@Override
 				public PermissionDto apply(final Permission permission) {
-					return new PermissionDto(permission.getRole().getName(),
-							permission.getAction().getName(),
-							permission.getResourceGroup().getName()
-					);
+					final PermissionDto dto = new PermissionDto();
+					dto.setRoleName(permission.getRole().getName());
+					dto.setActionName(permission.getAction().getName());
+					dto.setResourceGroupName(permission.getResourceGroup().getName());
+					return dto;
 				}
 			};
 
@@ -72,13 +74,26 @@ public class DtoConverter {
 				public ResourceGroupDto apply(final ResourceGroup input) {
 					final ResourceGroupDto dto = new ResourceGroupDto();
 					dto.setName(input.getName());
-					dto.setNodeUrns(newArrayList(
-							transform(input.getUrnResourceGroups(), URN_RESOURCE_GROUP_TO_URN_STRING_FUNCTION)
-					)
-					);
+					if (input.getUrnResourceGroups() != null) {
+						dto.setNodeUrns(newArrayList(
+								transform(
+										input.getUrnResourceGroups(),
+										URN_RESOURCE_GROUP_TO_URN_STRING_FUNCTION
+								)
+						)
+						);
+					}
 					return dto;
 				}
 			};
+
+	public static final Function<String, RoleDto> STRING_TO_ROLE_DTO_FUNCTION = new Function<String, RoleDto>() {
+		@Nullable
+		@Override
+		public RoleDto apply(@Nullable final String input) {
+			return new RoleDto(input);
+		}
+	};
 
 	public static Set<RoleDto> convertRoleSet(final Set<Role> roles) {
 		return newHashSet(transform(roles, ROLE_TO_DTO_FUNCTION));

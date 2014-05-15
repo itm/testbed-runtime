@@ -1,0 +1,66 @@
+<div class="row">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-4">
+		{{#if attributes.email}}
+            <h2>Update password</h2>
+		{{else}}
+            <h2>Register for an account</h2>
+		{{/if}}
+    </div>
+    <div class="col-sm-1"></div>
+</div>
+<form class="form-horizontal" role="form" id="user-edit-form">
+    <div class="form-group">
+        <label for="name" class="col-sm-3 control-label">Email Address</label>
+
+        <div class="col-sm-4">
+            <input type="text" class="form-control" id="email" placeholder="enter an email address..."
+				{{#if attributes.email}} value="{{attributes.email}}" disabled="disabled"{{/if}}>
+
+        </div>
+        <div class="col-sm-1">
+            <span class="help-block">*</span>
+        </div>
+    </div>
+	{{#if attributes.email}}
+        <div class="form-group">
+            <label for="old_password" class="col-sm-3 control-label">Old Password</label>
+
+            <div class="col-sm-4">
+                <input type="password" class="form-control" id="old_password" value="">
+            </div>
+            <div class="col-sm-1">
+                <span class="help-block">*</span>
+            </div>
+        </div>
+	{{/if}}
+    <div class="form-group">
+        <label for="password" class="col-sm-3 control-label">{{#if attributes.email}}New {{/if}}Password</label>
+
+        <div class="col-sm-4">
+            <input type="password" class="form-control" id="password" value="">
+        </div>
+        <div class="col-sm-1">
+            <span class="help-block">*</span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="repeat_password" class="col-sm-3 control-label">Repeat {{#if attributes.email}}new {{/if}}password</label>
+
+        <div class="col-sm-4">
+            <input type="password" class="form-control" id="repeat_password" value="">
+        </div>
+        <div class="col-sm-1">
+            <span class="help-block">*</span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-4">
+            <button type="button" class="btn btn-primary edit-user-save pull-right">
+				{{#if attributes.email}}Save{{else}}Register{{/if}}
+            </button>
+        </div>
+        <div class="col-sm-1"></div>
+    </div>
+</form>

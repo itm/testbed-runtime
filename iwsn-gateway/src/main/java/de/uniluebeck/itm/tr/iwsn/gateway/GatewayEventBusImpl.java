@@ -54,7 +54,6 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 			lock.lock();
 			try {
 				if (connected) {
-					log.trace("Already connected to portal server");
 					return;
 				}
 			} finally {
@@ -88,8 +87,6 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 				nettyClient = nettyClientFactory.create(portalAddress, pipelineFactory);
 				nettyClient.start().get(5, TimeUnit.SECONDS);
-
-				log.info("Successfully connected to portal server.");
 
 			} catch (Exception e) {
 				nettyClient = null;
@@ -159,6 +156,8 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 			} finally {
 				lock.unlock();
 			}
+
+			log.info("Successfully connected to portal server");
 
 			super.channelConnected(ctx, e);
 		}

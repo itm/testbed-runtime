@@ -4,7 +4,9 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
+import org.apache.shiro.config.Ini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,8 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 
 	private final SNAAServiceConfig config;
 
+	private final CommonConfig commonConfig;
+
 	private ServicePublisherService jaxRsService;
 
 	private ServicePublisherService webApp;
@@ -30,10 +34,12 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 	@Inject
 	public ShiroSNAARestServiceImpl(final ServicePublisher servicePublisher,
 									final ShiroSNAARestApplication application,
-									final SNAAServiceConfig config) {
+									final SNAAServiceConfig config,
+									final CommonConfig commonConfig) {
 		this.servicePublisher = servicePublisher;
 		this.application = application;
 		this.config = config;
+		this.commonConfig = commonConfig;
 	}
 
 	@Override
@@ -41,7 +47,17 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 		log.debug("ShiroSNAARestServiceImpl.doStart()");
 		try {
 
-			jaxRsService = servicePublisher.createJaxRsService(config.getShiroAdminRestApiContextPath(), application);
+			final Ini shiroIni = new Ini();
+			shiroIni.addSection("urls");
+			shiroIni.getSection("urls").put("/**", "authcBasic");
+			shiroIni.addSection("users");
+			shiroIni.getSection("users").put(commonConfig.getAdminUsername(), commonConfig.getAdminPassword());
+
+			jaxRsService = servicePublisher.createJaxRsService(
+					"/admin/shiro-snaa/rest",
+					application,
+					shiroIni
+			);
 			jaxRsService.startAndWait();
 
 			String webAppResourceBase =
@@ -50,24 +66,15 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 			final Map<String, String> webAppInitParams = newHashMap();
 
 			webAppInitParams.put(
-					SHIRO_ADMIN_REST_API_CONTEXTPATH,
-					config.getShiroAdminRestApiContextPath()
-			);
-
-			webAppInitParams.put(
-					SHIRO_ADMIN_WEBAPP_CONTEXTPATH,
-					config.getShiroAdminWebappContextPath()
-			);
-
-			webAppInitParams.put(
 					SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH,
 					config.getShiroAdminDeviceDBRestApiContextPath()
 			);
 
 			webApp = servicePublisher.createServletService(
-					config.getShiroAdminWebappContextPath(),
+					"/admin/shiro-snaa",
 					webAppResourceBase,
-					webAppInitParams
+					webAppInitParams,
+					shiroIni
 			);
 			webApp.startAndWait();
 

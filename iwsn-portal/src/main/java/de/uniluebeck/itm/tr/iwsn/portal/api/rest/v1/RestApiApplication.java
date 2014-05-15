@@ -26,6 +26,10 @@ public class RestApiApplication extends RestApplicationBase {
 
 	private final EventStoreResource eventStoreResource;
 
+	private final UserRegistrationResource userRegistrationResource;
+
+	private final NodeStatusTrackerResource nodeStatusTrackerResource;
+
 	@Inject
 	public RestApiApplication(final ExperimentResource experimentResource,
 							  final CookieResource cookieResource,
@@ -33,8 +37,9 @@ public class RestApiApplication extends RestApplicationBase {
 							  final RsResource rsResource,
 							  final SnaaResource snaaResource,
 							  final RootResource testbedsResource,
-							  final EventStoreResource eventStoreResource) {
-
+							  final EventStoreResource eventStoreResource,
+							  final UserRegistrationResource userRegistrationResource,
+							  final NodeStatusTrackerResource nodeStatusTrackerResource) {
 		this.experimentResource = checkNotNull(experimentResource);
 		this.cookieResource = checkNotNull(cookieResource);
 		this.remoteExperimentConfigurationResource = checkNotNull(remoteExperimentConfigurationResource);
@@ -42,6 +47,8 @@ public class RestApiApplication extends RestApplicationBase {
 		this.snaaResource = checkNotNull(snaaResource);
 		this.rootResource = checkNotNull(testbedsResource);
 		this.eventStoreResource = checkNotNull(eventStoreResource);
+		this.userRegistrationResource = checkNotNull(userRegistrationResource);
+		this.nodeStatusTrackerResource = checkNotNull(nodeStatusTrackerResource);
 	}
 
 	@Override
@@ -54,6 +61,8 @@ public class RestApiApplication extends RestApplicationBase {
 				snaaResource,
 				rootResource,
 				eventStoreResource,
+				userRegistrationResource,
+				nodeStatusTrackerResource,
 				new Base64ExceptionMapper(),
 				new SNAAFaultExceptionMapper(),
 				new RSFaultExceptionMapper(),
@@ -65,7 +74,10 @@ public class RestApiApplication extends RestApplicationBase {
 				new RSUnknownSecretReservationKeyFaultExceptionMapper(),
 				new RuntimeExceptionMapper(),
 				new SMUnknownSecretReservationKeyFaultExceptionMapper(),
-				new WebServiceExceptionMapper()
+				new WebServiceExceptionMapper(),
+				new UserAlreadyExistsExceptionMapper(),
+				new UserPwdMismatchExceptionMapper(),
+				new UserUnknownExceptionMapper()
 		);
 	}
 }

@@ -51,7 +51,7 @@ public class RemoteRSService extends AbstractService implements RSService {
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(rsServiceConfig.getRsContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(rsServiceConfig.getRsContextPath(), this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

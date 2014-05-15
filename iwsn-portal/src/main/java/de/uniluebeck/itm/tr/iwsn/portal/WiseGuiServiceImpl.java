@@ -81,6 +81,7 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 					wiseGuiServiceConfig.getWiseGuiContextPath(),
 					resourceBase,
 					params,
+					null,
 					new CrossOriginFilter()
 			);
 

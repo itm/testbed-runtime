@@ -3,6 +3,9 @@ package de.uniluebeck.itm.tr.iwsn.portal.plugins;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.plugins.PluginContainer;
 import de.uniluebeck.itm.tr.common.plugins.PluginContainerFactory;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
@@ -10,6 +13,7 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTracker;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -46,6 +50,14 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 
 	private final ResponseTrackerFactory responseTrackerFactory;
 
+	private final ServicePublisher servicePublisher;
+
+	private final ServedNodeUrnsProvider servedNodeUrnsProvider;
+
+	private final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
+
+	private final NodeStatusTracker nodeStatusTracker;
+
 	private PluginContainer pluginContainer;
 
 	@Inject
@@ -57,7 +69,11 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 								   final PortalEventBus portalEventBus,
 								   final ReservationManager reservationManager,
 								   final DeviceDBService deviceDBService,
-								   final ResponseTrackerFactory responseTrackerFactory) {
+								   final ResponseTrackerFactory responseTrackerFactory,
+								   final ServicePublisher servicePublisher,
+								   final ServedNodeUrnsProvider servedNodeUrnsProvider,
+								   final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
+								   final NodeStatusTracker nodeStatusTracker) {
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.reservationManager = checkNotNull(reservationManager);
 		this.rs = checkNotNull(rs);
@@ -67,6 +83,10 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 		this.portalServerConfig = checkNotNull(portalServerConfig);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
+		this.servicePublisher = checkNotNull(servicePublisher);
+		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
+		this.servedNodeUrnPrefixesProvider = checkNotNull(servedNodeUrnPrefixesProvider);
+		this.nodeStatusTracker = checkNotNull(nodeStatusTracker);
 	}
 
 	@Override
@@ -104,6 +124,10 @@ class PortalPluginServiceImpl extends AbstractService implements PortalPluginSer
 				pluginContainer.registerService(ReservationManager.class, reservationManager);
 				pluginContainer.registerService(DeviceDBService.class, deviceDBService);
 				pluginContainer.registerService(ResponseTrackerFactory.class, responseTrackerFactory);
+				pluginContainer.registerService(ServicePublisher.class, servicePublisher);
+				pluginContainer.registerService(ServedNodeUrnsProvider.class, servedNodeUrnsProvider);
+				pluginContainer.registerService(ServedNodeUrnPrefixesProvider.class, servedNodeUrnPrefixesProvider);
+				pluginContainer.registerService(NodeStatusTracker.class, nodeStatusTracker);
 			}
 
 			notifyStarted();

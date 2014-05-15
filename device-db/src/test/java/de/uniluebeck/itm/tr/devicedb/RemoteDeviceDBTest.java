@@ -45,15 +45,16 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 		properties.put(CommonConfig.URN_PREFIX, "urn:wisebed:uzl1:");
 		properties.put(CommonConfig.PORT, Integer.toString(port));
 		properties.put(DeviceDBConfig.DEVICEDB_TYPE, DeviceDBType.IN_MEMORY.toString());
-		properties.put(DeviceDBConfig.DEVICEDB_REST_API_CONTEXT_PATH, "/rest");
 		properties.put(DeviceDBConfig.DEVICEDB_JPA_PROPERTIES, "");
 
 		final CommonConfig commonConfig = buildConfig(CommonConfig.class, properties);
 		final DeviceDBConfig deviceDBConfig = buildConfig(DeviceDBConfig.class, properties);
 		final WisemlProviderConfig wisemlProviderConfig = buildConfig(WisemlProviderConfig.class, properties);
 
-		final DeviceDBServerModule module = new DeviceDBServerModule(commonConfig, deviceDBConfig, wisemlProviderConfig);
+		final DeviceDBServerModule module =
+				new DeviceDBServerModule(commonConfig, deviceDBConfig, wisemlProviderConfig);
 		final Injector injector = Guice.createInjector(module);
+
 		deviceDBServer = injector.getInstance(DeviceDBServer.class);
 		deviceDBServer.startAndWait();
 		deviceDBService = injector.getInstance(DeviceDBService.class);
@@ -63,8 +64,13 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 	public void setUp() throws Exception {
 
 		remoteDeviceDBService = Guice
-				.createInjector(new RemoteDeviceDBModule(URI.create("http://localhost:" + port + "/rest")))
-				.getInstance(DeviceDBService.class);
+				.createInjector(new RemoteDeviceDBModule(
+						URI.create("http://localhost:" + port + DeviceDBConstants.DEVICEDB_REST_API_CONTEXT_PATH),
+						URI.create("http://localhost:" + port + DeviceDBConstants.DEVICEDB_REST_API_CONTEXT_PATH),
+						"admin",
+						"secret"
+				)
+				).getInstance(DeviceDBService.class);
 
 		super.setUp(remoteDeviceDBService);
 	}
@@ -83,8 +89,13 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 	public void testIfGetByMacAddressThrowsExceptionIfRemoteUriDoesNotRunAService() {
 
 		DeviceDBService db = Guice.createInjector(
-				new RemoteDeviceDBModule(URI.create("http://localhost:" + portWithoutService + "/rest/wrong/uri"))
-		).getInstance(DeviceDBService.class);
+				new RemoteDeviceDBModule(
+						URI.create("http://localhost:" + portWithoutService + "/rest/wrong/uri"),
+						URI.create("http://localhost:" + portWithoutService + "/rest/wrong/uri"),
+						"admin",
+						"secret"
+				)).getInstance(DeviceDBService.class);
+
 		db.startAndWait();
 
 		assertNull(db.getConfigByMacAddress(0x1234L));

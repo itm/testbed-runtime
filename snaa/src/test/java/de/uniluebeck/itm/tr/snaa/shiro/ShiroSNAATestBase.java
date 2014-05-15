@@ -21,10 +21,11 @@ import eu.wisebed.api.v3.snaa.Authenticate;
 import eu.wisebed.api.v3.snaa.AuthenticationFault;
 import eu.wisebed.api.v3.snaa.AuthenticationTriple;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
+import org.apache.shiro.config.Ini;
 import org.apache.shiro.crypto.hash.Sha512Hash;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Application;
@@ -43,7 +44,7 @@ public abstract class ShiroSNAATestBase {
 		Logging.setLoggingDefaults(LogLevel.WARN);
 	}
 
-	protected static final org.slf4j.Logger log = LoggerFactory.getLogger(ShiroSNAATestBase.class);
+	protected static final Logger log = LoggerFactory.getLogger(ShiroSNAATestBase.class);
 
 	protected static final String EXPERIMENTER1_PASS = "Exp1Pass";
 
@@ -110,9 +111,9 @@ public abstract class ShiroSNAATestBase {
 
 	public void setUp(final Module jpaModule) throws Exception {
 
-		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(jaxWsService);
-		when(servicePublisher.createJaxRsService(anyString(), any(Application.class))).thenReturn(jaxRsService);
-		when(servicePublisher.createServletService(anyString(), anyString(), Matchers.anyMap()))
+		when(servicePublisher.createJaxWsService(anyString(), anyObject(), any(Ini.class))).thenReturn(jaxWsService);
+		when(servicePublisher.createJaxRsService(anyString(), any(Application.class), any(Ini.class))).thenReturn(jaxRsService);
+		when(servicePublisher.createServletService(anyString(), anyString(), anyMapOf(String.class, String.class), any(Ini.class)))
 				.thenReturn(servletService);
 
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX_1);

@@ -35,6 +35,7 @@ import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
+import org.apache.shiro.config.Ini;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -51,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
@@ -89,7 +91,8 @@ public class RSFederatorServiceImplTest {
 
 	@Before
 	public void setUp() throws Exception {
-		when(servicePublisher.createJaxWsService(anyString(), anyObject())).thenReturn(servicePublisherService);
+		when(servicePublisher.createJaxWsService(anyString(), anyObject(), any(Ini.class)))
+				.thenReturn(servicePublisherService);
 		federatorRSExecutorService = Executors.newSingleThreadExecutor();
 		federatorRS = new RSFederatorServiceImpl(
 				federatorRSExecutorService,

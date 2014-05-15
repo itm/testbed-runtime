@@ -15,6 +15,8 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;

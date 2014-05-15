@@ -8,18 +8,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @XmlRootElement
 public class UserDto {
 
-	private String name;
+	private String email;
 
 	private Set<RoleDto> roles;
 
 	private String password;
 
-	public String getName() {
-		return name;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setName(String name) {
-		this.name = checkNotNull(name);
+	public void setEmail(String email) {
+		this.email = checkNotNull(email);
 	}
 
 	public Set<RoleDto> getRoles() {

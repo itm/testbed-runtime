@@ -6,11 +6,11 @@ $(function() {
 
 		routes : {
 			'users' : 'users',
-			'users/:name' : 'edit_user',
+			'users/:email' : 'edit_user',
 			'roles' : 'roles',
-			'actions' : 'actions',
 			'resource_groups' : 'resource_groups',
 			'resource_groups/:name' : 'edit_resource_group',
+			'permissions' : 'permissions',
 			'.*' : 'users'
 		},
 
@@ -32,17 +32,18 @@ $(function() {
 			});
 		},
 
-		actions : function() {
-			this.fetchActions();
-			app.actionsView = app.actionsView || new app.ActionsView({
-				el : $("div.tab-content div#actions")
-			});
-		},
-
 		resource_groups : function() {
-			this.fetchResourceGroups();
-			app.resourceGroupsView = app.resourceGroupsView || new app.ResourceGroupsView({
-				el : $("div.tab-content div#resource_groups")
+			var self = this;
+			self.fetchResourceGroups({
+				success : function() {
+					self.fetchNodes({
+						success : function() {
+							app.resourceGroupsView = app.resourceGroupsView || new app.ResourceGroupsView({
+								el : $("div.tab-content div#resource_groups")
+							});
+						}
+					});
+				}
 			});
 		},
 
@@ -66,15 +67,34 @@ $(function() {
 			});
 		},
 
-		edit_user : function(name) {
-			var view = new app.EditUserView({
-				el : $("#edit-view"),
-				model : {
-					user : app.Users.get(name),
-					roles : app.Roles
+		permissions : function() {
+			this.fetchRoles();
+			this.fetchResourceGroups();
+			this.fetchActions();
+			this.fetchPermissions();
+			app.permissionsView = app.permissionsView || new app.PermissionsView({
+				el : $("div.tab-content div#permissions")
+			});
+		},
+
+		edit_user : function(email) {
+			var self = this;
+			self.fetchRoles({
+				success : function() {
+					self.fetchUsers({
+						success : function() {
+							var view = new app.EditUserView({
+								el : $("#edit-view"),
+								model : {
+									user : app.Users.get(email),
+									roles : app.Roles
+								}
+							});
+							view.show();
+						}
+					})
 				}
 			});
-			view.show();
 		},
 
 		fetchActions : function(options) {
@@ -83,6 +103,14 @@ $(function() {
 				alert('Error fetching actions list');
 			};
 			app.Actions.fetch(options);
+		},
+
+		fetchPermissions : function(options) {
+			options = options || {};
+			options.error = function() {
+				alert('Error fetching permissions');
+			};
+			app.Permissions.fetch(options);
 		},
 
 		fetchRoles : function(options) {

@@ -1,12 +1,14 @@
 package de.uniluebeck.itm.tr.snaa.shiro;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Properties;
 
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class ShiroSNAAMySQLIntegrationTesting extends ShiroSNAATestBase {
 
 	@Before

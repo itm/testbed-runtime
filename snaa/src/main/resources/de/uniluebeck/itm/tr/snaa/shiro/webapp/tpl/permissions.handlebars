@@ -1,0 +1,45 @@
+<form role="form">
+    <div class="row">
+        <div class="col-sm-5">
+            <h4>Select role</h4>
+            <select size="5" name="role" id="role" class="form-control">
+				{{#each roles}}
+                    <option value="{{this.name}}">{{this.name}}</option>
+				{{/each}}
+            </select>
+        </div>
+        <div class="col-sm-1">&nbsp;</div>
+        <div class="col-sm-5">
+            <h4>Select resource group</h4>
+            <select size="5" name="resourceGroup" id="resourceGroup" class="form-control">
+				{{#each resourceGroups}}
+                    <option value="{{this.name}}">{{this.name}}</option>
+				{{/each}}
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-5"><h4>Permissions granted</h4></div>
+        <div class="col-sm-1">&nbsp;</div>
+        <div class="col-sm-5"><h4>Permissions available</h4></div>
+    </div>
+    <div class="row">
+        <div class="col-sm-5">
+            <select size="10" name="permissionsGranted" id="permissionsGranted" class="form-control"
+                    multiple="multiple"></select>
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="btn btn-default btn-sm permission-add disabled">
+                <span class="glyphicon glyphicon-arrow-left"></span>
+            </button>
+            <br/>
+            <button type="button" class="btn btn-default btn-sm permission-remove disabled">
+                <span class="glyphicon glyphicon-arrow-right"></span>
+            </button>
+        </div>
+        <div class="col-sm-5">
+            <select size="10" name="permissionsAvailable" id="permissionsAvailable" class="form-control"
+                    multiple="multiple"></select>
+        </div>
+    </div>
+</form>

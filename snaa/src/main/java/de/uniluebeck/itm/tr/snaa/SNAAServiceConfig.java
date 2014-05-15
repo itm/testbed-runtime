@@ -1,16 +1,12 @@
 package de.uniluebeck.itm.tr.snaa;
 
-import com.google.common.net.HostAndPort;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.util.propconf.converters.HostAndPortTypeConverter;
+import de.uniluebeck.itm.util.propconf.PropConf;
 import de.uniluebeck.itm.util.propconf.converters.PropertiesTypeConverter;
 import de.uniluebeck.itm.util.propconf.converters.URITypeConverter;
-import de.uniluebeck.itm.tr.snaa.shibboleth.ShibbolethAuthorizationType;
-import de.uniluebeck.itm.util.propconf.PropConf;
 import org.apache.shiro.crypto.hash.Sha512Hash;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Properties;
 
@@ -29,7 +25,7 @@ public class SNAAServiceConfig {
 
 	@PropConf(
 			usage = "The authentication backend of the SNAA service",
-			example = "DUMMY/JAAS/SHIBBOLETH/SHIRO/REMOTE"
+			example = "DUMMY/JAAS/SHIRO/REMOTE"
 	)
 	public static final String SNAA_TYPE = "snaa.type";
 
@@ -68,92 +64,6 @@ public class SNAAServiceConfig {
 	private String jaasConfigFile;
 
 	@PropConf(
-			usage = "The URL of the Shibboleth authentication service (only if SHIBBOLETH is used)",
-			example = "https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php"
-	)
-	public static final String SHIBBOLETH_URL = "snaa.shibboleth.url";
-
-	@Inject(optional = true)
-	@Named(SHIBBOLETH_URL)
-	private URI shibbolethUrl;
-
-	@PropConf(
-			usage = "A proxy server to be used for the Shibboleth authentication service (only if SHIBBOLETH is used)",
-			typeConverter = HostAndPortTypeConverter.class
-	)
-	public static final String SHIBBOLETH_PROXY = "snaa.shibboleth.proxy";
-
-	@Inject(optional = true)
-	@Named(SHIBBOLETH_PROXY)
-	private HostAndPort shibbolethProxy;
-
-	@PropConf(
-			usage = "The type of authorization backend to be used together with Shibboleth authentication (only if SHIBBOLETH is used)",
-			example = "ALWAYS_ALLOW/ALWAYS_DENY/ATTRIBUTE_BASED",
-			defaultValue = "ALWAYS_ALLOW"
-	)
-	public static final String SHIBBOLETH_AUTHORIZATION_TYPE = "snaa.shibboleth.authorization.type";
-
-	@Inject(optional = true)
-	@Named(SHIBBOLETH_AUTHORIZATION_TYPE)
-	private ShibbolethAuthorizationType shibbolethAuthorizationType;
-
-	@PropConf(
-			usage = "The username for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)"
-	)
-	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_USERNAME =
-			"snaa.shibboleth.authorization.attribute_based.username";
-
-	@Inject(optional = true)
-	@Named(SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_USERNAME)
-	private String shibbolethAuthorizationAttributeBasedDatasourceUsername;
-
-	@PropConf(
-			usage = "The password for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)"
-	)
-	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_PASSWORD =
-			"snaa.shibboleth.authorization.attribute_based.password";
-
-	@Inject(optional=true)
-	@Named(SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_PASSWORD)
-	private String shibbolethAuthorizationAttributeBasedDatasourcePassword;
-
-	@PropConf(
-			usage = "The URL for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)",
-			example = "jdbc:mysql://localhost:3306/snaportal",
-			typeConverter = URITypeConverter.class
-	)
-	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_URL =
-			"snaa.shibboleth.authorization.attribute_based.datasource.url";
-
-	@Inject(optional = true)
-	@Named(SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_DATASOURCE_URL)
-	private URI shibbolethAuthorizationAttributeBasedDatasourceUrl;
-
-	@PropConf(
-			usage = "The key for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)",
-			example = "homeOrganization",
-			defaultValue = "homeOrganization"
-	)
-	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_KEY =
-			"snaa.shibboleth.authorization.attribute_based.key";
-
-	@Inject(optional=true)
-	@Named(SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_KEY)
-	private String shibbolethAuthorizationAttributeBasedKey;
-
-	@PropConf(
-			usage = "The value for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)",
-			example = "wisebed1.itm.uni-luebeck.de"
-	)
-	public static final String SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_VALUE =
-			"snaa.shibboleth.authorization.attribute_based.value";
-
-	@Inject(optional=true)
-	@Named(SHIBBOLETH_AUTHORIZATION_ATTRIBUTE_BASED_VALUE)
-	private String shibbolethAuthorizationAttributeBasedValue;
-
-	@PropConf(
 			usage = "The JPA (Hibernate) .properties file for the Shiro authentication and authorization backend (only if SHIRO is used)",
 			typeConverter = PropertiesTypeConverter.class
 	)
@@ -186,28 +96,6 @@ public class SNAAServiceConfig {
 	private int shiroHashAlgorithmIterations;
 
 	@PropConf(
-			usage = "The context path of the ShiroSNAA admin frontend REST API",
-			example = "/rest/v1/shirosnaa/admin",
-			defaultValue = "/rest/v1/shirosnaa/admin"
-	)
-	public static final String SHIRO_ADMIN_REST_API_CONTEXTPATH = "snaa.shiro.admin.rest_api.contextpath";
-
-	@Inject
-	@Named(SHIRO_ADMIN_REST_API_CONTEXTPATH)
-	private String shiroAdminRestApiContextPath;
-
-	@PropConf(
-			usage = "The context path of the ShiroSNAA admin frontend webapp",
-			example = "/shirosnaa",
-			defaultValue = "/shirosnaa"
-	)
-	public static final String SHIRO_ADMIN_WEBAPP_CONTEXTPATH = "snaa.shiro.admin.webapp.contextpath";
-
-	@Inject
-	@Named(SHIRO_ADMIN_WEBAPP_CONTEXTPATH)
-	private String shiroAdminWebappContextPath;
-
-	@PropConf(
 			usage = "The context path on which to run the device database REST API",
 			example = "/rest/v1.0/devicedb",
 			defaultValue = "/rest/v1.0/devicedb"
@@ -218,16 +106,23 @@ public class SNAAServiceConfig {
 	@Named(SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH)
 	private String shiroAdminDeviceDBRestApiContextPath;
 
-	public String getShiroAdminWebappContextPath() {
-		return shiroAdminWebappContextPath;
+	@PropConf(
+			usage = "Comma-separated list of roles that shall be automatically assigned to users registering themselves",
+			example = "EXPERIMENTER,SERVICE_PROVIDER",
+			defaultValue = "EXPERIMENTER"
+	)
+	public static final String SHIRO_USER_REGISTRATION_AUTO_ROLES = "snaa.shiro.user_registration.auto_roles";
+
+	@Inject
+	@Named(SHIRO_USER_REGISTRATION_AUTO_ROLES)
+	private String getShiroUserRegistrationAutoRoles;
+
+	public String getGetShiroUserRegistrationAutoRoles() {
+		return getShiroUserRegistrationAutoRoles;
 	}
 
 	public String getShiroAdminDeviceDBRestApiContextPath() {
 		return shiroAdminDeviceDBRestApiContextPath;
-	}
-
-	public String getShiroAdminRestApiContextPath() {
-		return shiroAdminRestApiContextPath;
 	}
 
 	public String getShiroHashAlgorithmName() {
@@ -248,39 +143,6 @@ public class SNAAServiceConfig {
 
 	public String getJaasLoginModule() {
 		return jaasLoginModule;
-	}
-
-	public String getShibbolethAuthorizationAttributeBasedDatasourcePassword() {
-		return shibbolethAuthorizationAttributeBasedDatasourcePassword;
-	}
-
-	public URI getShibbolethAuthorizationAttributeBasedDatasourceUrl() {
-		return shibbolethAuthorizationAttributeBasedDatasourceUrl;
-	}
-
-	public String getShibbolethAuthorizationAttributeBasedDatasourceUsername() {
-		return shibbolethAuthorizationAttributeBasedDatasourceUsername;
-	}
-
-	public String getShibbolethAuthorizationAttributeBasedKey() {
-		return shibbolethAuthorizationAttributeBasedKey;
-	}
-
-	public String getShibbolethAuthorizationAttributeBasedValue() {
-		return shibbolethAuthorizationAttributeBasedValue;
-	}
-
-	public ShibbolethAuthorizationType getShibbolethAuthorizationType() {
-		return shibbolethAuthorizationType;
-	}
-
-	@Nullable
-	public HostAndPort getShibbolethProxy() {
-		return shibbolethProxy;
-	}
-
-	public URI getShibbolethUrl() {
-		return shibbolethUrl;
 	}
 
 	public String getSnaaContextPath() {

@@ -28,16 +28,23 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
+import de.uniluebeck.itm.tr.snaa.UserAlreadyExistsException;
+import de.uniluebeck.itm.tr.snaa.UserPwdMismatchException;
+import de.uniluebeck.itm.tr.snaa.UserUnknownException;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
+import org.omg.CORBA.UnknownUserException;
 
+import javax.annotation.Nullable;
 import javax.jws.WebService;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 @WebService(
 		name = "SNAA",
@@ -103,7 +110,7 @@ public class DummySNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(config.getSnaaContextPath(), this);
+			jaxWsService = servicePublisher.createJaxWsService(config.getSnaaContextPath(), this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
@@ -126,5 +133,28 @@ public class DummySNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 		return "DummySNAA{" +
 				"config=" + config +
 				"}@" + Integer.toHexString(hashCode());
+	}
+
+	@Override
+	public boolean isUserRegistrationSupported() {
+		return true;
+	}
+
+	@Override
+	public void add(final String email, final String password)
+			throws UserAlreadyExistsException {
+		// nothing to do
+	}
+
+	@Override
+	public void update(final String email, final String oldPassword, final String newPassword)
+			throws UserUnknownException, UserPwdMismatchException {
+		// nothing to do
+	}
+
+	@Override
+	public void delete(final String email, final String password)
+			throws UserUnknownException, UserPwdMismatchException {
+		// nothing to do
 	}
 }

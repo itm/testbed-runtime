@@ -111,7 +111,7 @@ public class Gateway extends AbstractService {
 			if (gatewayConfig.isRestAPI()) {
 
 				servicePublisher = servicePublisherFactory.create(servicePublisherConfig);
-				servicePublisher.createJaxRsService("/devices", restApplication);
+				servicePublisher.createJaxRsService("/devices", restApplication, null);
 				servicePublisher.startAndWait();
 			}
 

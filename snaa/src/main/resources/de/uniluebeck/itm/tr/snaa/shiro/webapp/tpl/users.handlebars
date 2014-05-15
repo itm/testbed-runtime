@@ -11,8 +11,8 @@
     </thead>
     <tbody>
 	{{#each users}}
-        <tr data-id="{{name}}">
-            <td>{{name}}</td>
+        <tr data-id="{{email}}">
+            <td>{{email}}</td>
             <td>
 				{{#each roles}}
                     <span class="label label-default">{{this.name}}</span>
@@ -23,7 +23,7 @@
                     <span class="glyphicon glyphicon-edit"></span>
                 </button>
                 <button type="button" class="btn btn-default btn-sm user-remove"
-                        data-confirm="Really remove user '{{name}}'?">
+                        data-confirm="Really remove user '{{email}}'?">
                     <span class="glyphicon glyphicon-remove"></span>
                 </button>
             </td>

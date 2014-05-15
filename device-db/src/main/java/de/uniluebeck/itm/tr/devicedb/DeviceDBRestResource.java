@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import de.uniluebeck.itm.tr.common.dto.DeviceConfigDto;
 import de.uniluebeck.itm.tr.common.dto.DeviceConfigListDto;
 
 import javax.ws.rs.*;
@@ -35,27 +34,4 @@ public interface DeviceDBRestResource {
 	@Path("byMacAddress")
 	@Produces(MediaType.APPLICATION_JSON)
 	Response getByMacAddress(@QueryParam("macAddress") long macAddress);
-
-	@POST
-	@Path("deviceConfigs/{nodeUrn}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	Response add(DeviceConfigDto deviceConfig, @PathParam("nodeUrn") String nodeUrnString);
-
-	@PUT
-	@Path("deviceConfigs/{nodeUrn}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	Response update(DeviceConfigDto deviceConfig, @PathParam("nodeUrn") String nodeUrnString);
-
-	@DELETE
-	@Path("deviceConfigs/{nodeUrn}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	Response delete(@PathParam("nodeUrn") String nodeUrnString);
-
-	@DELETE
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	Response delete(@QueryParam("nodeUrn") List<String> nodeUrnStrings);
 }

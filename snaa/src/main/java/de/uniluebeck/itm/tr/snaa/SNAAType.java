@@ -4,7 +4,6 @@ public enum SNAAType {
 
 	DUMMY,
 	JAAS,
-	SHIBBOLETH,
 	SHIRO,
 	REMOTE
 }

@@ -8,6 +8,8 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
