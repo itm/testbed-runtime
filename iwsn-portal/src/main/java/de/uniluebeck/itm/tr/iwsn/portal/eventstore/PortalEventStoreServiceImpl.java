@@ -6,9 +6,9 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
-import eventstore.CloseableIterator;
-import eventstore.IEventContainer;
-import eventstore.IEventStore;
+import de.uniluebeck.itm.eventstore.CloseableIterator;
+import de.uniluebeck.itm.eventstore.IEventContainer;
+import de.uniluebeck.itm.eventstore.IEventStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

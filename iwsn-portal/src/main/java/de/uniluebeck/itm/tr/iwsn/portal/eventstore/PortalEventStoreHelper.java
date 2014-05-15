@@ -1,8 +1,9 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
-import eventstore.IEventStore;
+import de.uniluebeck.itm.eventstore.IEventStore;
 
 import java.io.FileNotFoundException;
+import java.security.InvalidParameterException;
 
 public interface PortalEventStoreHelper {
 

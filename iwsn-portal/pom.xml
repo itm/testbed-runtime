@@ -81,7 +81,7 @@
 
         <dependency>
             <groupId>de.uniluebeck.itm</groupId>
-            <artifactId>eventstore</artifactId>
+            <artifactId>de.uniluebeck.itm.eventstore</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 

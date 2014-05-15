@@ -1,11 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
-import com.google.protobuf.GeneratedMessage;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
-import de.uniluebeck.itm.tr.iwsn.messages.MessageOrBuilder;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
-import eventstore.IEventStore;
+import de.uniluebeck.itm.eventstore.IEventStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

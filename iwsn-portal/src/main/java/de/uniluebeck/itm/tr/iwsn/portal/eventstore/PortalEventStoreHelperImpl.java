@@ -9,8 +9,8 @@ import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
-import eventstore.ChronicleBasedEventStore;
-import eventstore.IEventStore;
+import de.uniluebeck.itm.eventstore.ChronicleBasedEventStore;
+import de.uniluebeck.itm.eventstore.IEventStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
 import de.uniluebeck.itm.tr.iwsn.portal.*;
-import eventstore.IEventStore;
+import de.uniluebeck.itm.eventstore.IEventStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
