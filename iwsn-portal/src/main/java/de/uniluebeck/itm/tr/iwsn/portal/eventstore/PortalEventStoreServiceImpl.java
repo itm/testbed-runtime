@@ -6,16 +6,14 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
-import eventstore.CloseableIterator;
-import eventstore.IEventContainer;
-import eventstore.IEventStore;
+import de.uniluebeck.itm.eventstore.CloseableIterator;
+import de.uniluebeck.itm.eventstore.IEventContainer;
+import de.uniluebeck.itm.eventstore.IEventStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 
 class PortalEventStoreServiceImpl extends AbstractService implements PortalEventStoreService {
 
@@ -49,9 +47,6 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
     protected void doStop() {
         log.trace("PortalEventStoreServiceImpl.doStop()");
         try {
-            for (ReservationEventStore store : reservationStores.values()) {
-                store.stop();
-            }
             portalEventBus.unregister(this);
             notifyStopped();
         } catch (Exception e) {
@@ -61,47 +56,48 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
 
     @Subscribe
     public void onReservationStarted(final ReservationStartedEvent event) {
-        ReservationEventStore reservationEventStore = reservationEventStoreFactory.create(event.getReservation());
         synchronized (reservationStoresLock) {
+            ReservationEventStore reservationEventStore = reservationEventStoreFactory.create(event.getReservation());
+            reservationEventStore.startAndWait();
             reservationStores.put(event.getReservation().getSerializedKey(), reservationEventStore);
+            reservationEventStore.reservationStarted(event);
         }
-        reservationEventStore.reservationStarted(event);
     }
 
     @Subscribe
     public void onReservationEnded(final ReservationEndedEvent event) {
-        ReservationEventStore reservationEventStore;
         synchronized (reservationStoresLock) {
+            ReservationEventStore reservationEventStore;
             reservationEventStore = reservationStores.remove(event.getReservation().getSerializedKey());
-        }
-        if (reservationEventStore != null) {
-            reservationEventStore.reservationEnded(event);
+            if (reservationEventStore != null) {
+                reservationEventStore.reservationEnded(event);
+                reservationEventStore.stop();
+            }
         }
     }
 
     private IEventStore getEventStore(String serializedReservationKey) throws IOException {
-        ReservationEventStore reservationEventStore;
         synchronized (reservationStoresLock) {
+            ReservationEventStore reservationEventStore;
             reservationEventStore = reservationStores.get(serializedReservationKey);
-        }
-        IEventStore eventStore = null;
-        if (reservationEventStore != null) { // ongoing reservation
-            eventStore = reservationEventStore.getEventStore();
-        } else {
-            String totalName = portalEventStoreHelper.eventstoreBasenameForReservation(serializedReservationKey) + ".data";
-            log.trace("Reservation NOT ongoing. total path to chronicle = {}", totalName);
-            if (new File(totalName).exists()) {
-                eventStore = portalEventStoreHelper.createAndConfigureEventStore(serializedReservationKey, true);
+            IEventStore eventStore = null;
+            if (reservationEventStore != null) { // ongoing reservation
+                eventStore = reservationEventStore;
             } else {
-                log.warn("Can't open chronicle with base {}", portalEventStoreHelper.eventstoreBasenameForReservation(serializedReservationKey));
+                log.trace("Reservation {} NOT ongoing. Loading persisted event store", serializedReservationKey);
+                if (portalEventStoreHelper.eventStoreExistsForReservation(serializedReservationKey)) {
+                    eventStore = portalEventStoreHelper.loadEventStore(serializedReservationKey);
+                } else {
+                    log.warn("Event Store isn't existing for reservation {}", serializedReservationKey);
+                }
             }
-        }
 
-        if (eventStore == null) {
-            throw new IOException("Can't open event store for key " + serializedReservationKey);
-        }
+            if (eventStore == null) {
+                throw new IOException("Can't open event store for key " + serializedReservationKey);
+            }
 
-        return eventStore;
+            return eventStore;
+        }
     }
 
     @Override

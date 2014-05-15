@@ -1,11 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
-import com.google.protobuf.GeneratedMessage;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
-import de.uniluebeck.itm.tr.iwsn.messages.MessageOrBuilder;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
-import eventstore.IEventStore;
+import de.uniluebeck.itm.eventstore.IEventStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,22 +41,17 @@ public class ReservationEventStoreImplTest {
         when(reservationManager.getReservation("abcd")).thenReturn(reservation);
         when(helper.createAndConfigureEventStore("abcd")).thenReturn(eventStore);
 
-        store = new ReservationEventStoreImpl(reservation, helper);
+        store = new ReservationEventStoreImpl(helper, reservation);
     }
 
 
     @Test
     public void testIfBusObserversAreRegistered() throws Exception {
-        final ReservationStartedEvent reservationStartedEvent = mock(ReservationStartedEvent.class);
-        when(reservationStartedEvent.getReservation()).thenReturn(reservation);
 
-        store.reservationStarted(reservationStartedEvent);
+        store.startAndWait();
         verify(reservationEventBus).register(store);
 
-        final ReservationEndedEvent reservationEndedEvent = mock(ReservationEndedEvent.class);
-        when(reservationEndedEvent.getReservation()).thenReturn(reservation);
-
-        store.reservationEnded(reservationEndedEvent);
+        store.stopAndWait();
         verify(reservationEventBus).unregister(store);
 
         verify(eventStore).close();

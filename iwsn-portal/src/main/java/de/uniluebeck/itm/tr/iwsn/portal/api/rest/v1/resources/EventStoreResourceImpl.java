@@ -9,8 +9,8 @@ import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ReservationEndedMessage;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ReservationStartedMessage;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreService;
-import eventstore.CloseableIterator;
-import eventstore.IEventContainer;
+import de.uniluebeck.itm.eventstore.CloseableIterator;
+import de.uniluebeck.itm.eventstore.IEventContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
