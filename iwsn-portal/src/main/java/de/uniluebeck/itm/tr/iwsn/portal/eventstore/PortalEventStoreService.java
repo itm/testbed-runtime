@@ -5,7 +5,6 @@ import de.uniluebeck.itm.eventstore.CloseableIterator;
 import de.uniluebeck.itm.eventstore.IEventContainer;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 public interface PortalEventStoreService extends Service {
     public CloseableIterator<IEventContainer> getEvents(final String serializedReservationKey) throws IOException;

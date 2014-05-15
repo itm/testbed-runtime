@@ -15,7 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,11 +36,26 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 
     @Override
     public IEventStore createAndConfigureEventStore(String serializedReservationKey) throws FileNotFoundException {
-        return createAndConfigureEventStore(serializedReservationKey, false);
+        return configureEventStore(serializedReservationKey, false);
     }
 
     @Override
-    public IEventStore createAndConfigureEventStore(final String serializedReservationKey, boolean readOnly) throws FileNotFoundException {
+    public IEventStore loadEventStore(String serializedReservationKey) throws InvalidParameterException {
+        IEventStore store = null;
+        try {
+            store = configureEventStore(serializedReservationKey, true);
+        } catch (FileNotFoundException e) {
+            throw new InvalidParameterException("Failed to load event store for reservation " + serializedReservationKey);
+        }
+        return store;
+    }
+
+    @Override
+    public boolean eventStoreExistsForReservation(String serializedReservationKey) {
+        return new File(eventstoreBasenameForReservation(serializedReservationKey) + ".data").exists();
+    }
+
+    private IEventStore configureEventStore(final String serializedReservationKey, boolean readOnly) throws FileNotFoundException {
 
         Map<Class<?>, Function<?, byte[]>> serializers = new HashMap<Class<?>, Function<?, byte[]>>();
         Map<Class<?>, Function<byte[], ?>> deserializers = new HashMap<Class<?>, Function<byte[], ?>>();
@@ -159,7 +176,6 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
         });
 
 
-
         deserializers.put(SingleNodeResponse.class, new Function<byte[], SingleNodeResponse>() {
             @Nullable
             @Override
@@ -204,8 +220,9 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
         return new ChronicleBasedEventStore(baseName, serializers, deserializers, readOnly);
     }
 
-    @Override
-    public String eventstoreBasenameForReservation(String serializedReservationKey) {
-        return portalServerConfig.getEventStorePath() +"/"+serializedReservationKey;
+
+    private String eventstoreBasenameForReservation(String serializedReservationKey) {
+        return portalServerConfig.getEventStorePath() + "/" + serializedReservationKey;
     }
+
 }
