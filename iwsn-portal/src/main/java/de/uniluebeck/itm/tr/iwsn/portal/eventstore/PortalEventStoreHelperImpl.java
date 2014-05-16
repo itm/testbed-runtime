@@ -173,20 +173,22 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 
 
 	@Override
-	public IEventStore createAndConfigureEventStore(String serializedReservationKey) throws FileNotFoundException {
+	public IEventStore createAndConfigureEventStore(String serializedReservationKey) throws FileNotFoundException, ClassNotFoundException {
 		return configureEventStore(serializedReservationKey, false);
 	}
 
 	@Override
 	public IEventStore loadEventStore(String serializedReservationKey) throws InvalidParameterException {
-		IEventStore store;
+		IEventStore store = null;
 		try {
 			store = configureEventStore(serializedReservationKey, true);
 		} catch (FileNotFoundException e) {
 			throw new InvalidParameterException(
 					"Failed to load event store for reservation " + serializedReservationKey
 			);
-		}
+		} catch (ClassNotFoundException e) {
+            log.error("Unable to load event store.", e);
+        }
 		return store;
 	}
 
@@ -196,7 +198,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 	}
 
 	private IEventStore configureEventStore(final String serializedReservationKey, boolean readOnly)
-			throws FileNotFoundException {
+			throws FileNotFoundException, ClassNotFoundException {
 
 		Map<Class<?>, Function<?, byte[]>> serializers = new HashMap<Class<?>, Function<?, byte[]>>();
 		Map<Class<?>, Function<byte[], ?>> deserializers = new HashMap<Class<?>, Function<byte[], ?>>();
@@ -230,8 +232,8 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 
 		String baseName = getEventStoreBasenameForReservation(serializedReservationKey);
 		log.trace("Creating new chronicle at {}", baseName);
-		//noinspection unchecked
-		return new ChronicleBasedEventStore(baseName, serializers, deserializers, readOnly);
+		    //noinspection unchecked
+            return new ChronicleBasedEventStore(baseName, serializers, deserializers, readOnly);
 	}
 
 

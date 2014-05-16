@@ -30,7 +30,7 @@ public class PortalEventStoreHelperImplTest {
     @Before
     public void setUp() throws Exception {
         helper = new PortalEventStoreHelperImpl(reservationManager, config);
-        when(config.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
+        when(config.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir")+"/portal_event_store_helper_test");
     }
 
     @Test

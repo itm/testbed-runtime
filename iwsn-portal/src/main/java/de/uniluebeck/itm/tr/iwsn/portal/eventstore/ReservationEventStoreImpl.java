@@ -45,6 +45,9 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
         } catch (FileNotFoundException e) {
             log.error("Can't create event store at this location!", e);
             notifyFailed(e);
+        } catch (ClassNotFoundException e) {
+            log.error("Error in the mapping file. Can't create event store.", e);
+            notifyFailed(e);
         }
     }
 
