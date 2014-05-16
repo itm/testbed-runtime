@@ -21,9 +21,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
 
@@ -51,7 +52,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
 	@Override
 	@GET
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{secretReservationKeyBase64}.json")
 	public Response getEvents(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
 							  @DefaultValue("-1") @QueryParam("from") long fromTimestamp,
@@ -62,15 +63,20 @@ public class EventStoreResourceImpl implements EventStoreResource {
 					createIterator(secretReservationKeyBase64, fromTimestamp, toTimestamp);
 
 			String filename = secretReservationKeyBase64 + "-" + System.currentTimeMillis() + ".json";
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+			//response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
 			final StreamingOutput stream = new StreamingOutput() {
 				@Override
 				public void write(OutputStream output) throws IOException, WebApplicationException {
-					final BufferedOutputStream out = new BufferedOutputStream(output);
+					final BufferedWriter out = new BufferedWriter(new OutputStreamWriter(output));
+					out.write("[");
 					while (iterator.hasNext()) {
-						out.write(eventToJSON(iterator.next()).getBytes());
+						out.write(eventToJSON(iterator.next().getEvent()));
+						if (iterator.hasNext()) {
+							out.write(",");
+						}
 					}
+					out.write("]");
 					out.flush();
 					out.close();
 					iterator.close();
