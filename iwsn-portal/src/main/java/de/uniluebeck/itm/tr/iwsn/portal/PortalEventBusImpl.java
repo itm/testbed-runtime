@@ -8,6 +8,8 @@ import de.uniluebeck.itm.tr.iwsn.common.netty.ExceptionChannelHandler;
 import de.uniluebeck.itm.tr.iwsn.common.netty.KeepAliveHandler;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServer;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -66,18 +68,18 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 	public void post(final Object event) {
 		eventBus.post(event);
 
-        if (event instanceof ReservationStartedEvent) {
-            ((ReservationStartedEvent) event).getReservation().getReservationEventBus().register(this);
-        } else if(event instanceof ReservationEndedEvent) {
-            ((ReservationEndedEvent) event).getReservation().getReservationEventBus().unregister(this);
-        }
+		if (event instanceof ReservationStartedEvent) {
+			((ReservationStartedEvent) event).getReservation().getReservationEventBus().register(this);
+		} else if (event instanceof ReservationEndedEvent) {
+			((ReservationEndedEvent) event).getReservation().getReservationEventBus().unregister(this);
+		}
 	}
 
 
-    @Subscribe
-    public void onRequest(final Request request) {
-        eventBus.post(request);
-    }
+	@Subscribe
+	public void onRequest(final Request request) {
+		eventBus.post(request);
+	}
 
 	@Override
 	protected void doStart() {

@@ -4,8 +4,8 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
 import de.uniluebeck.itm.eventstore.IEventContainer;
 import de.uniluebeck.itm.eventstore.IEventStore;
@@ -103,12 +103,14 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
     @Override
     public CloseableIterator<IEventContainer> getEventsBetween(String serializedReservationKey, long startTime, long endTime) throws IOException {
         IEventStore store = getEventStore(serializedReservationKey);
-        return store.getEventsBetweenTimestamps(startTime, endTime);
+		//noinspection unchecked
+		return store.getEventsBetweenTimestamps(startTime, endTime);
     }
 
     @Override
     public CloseableIterator<IEventContainer> getEvents(String serializedReservationKey) throws IOException {
         IEventStore store = getEventStore(serializedReservationKey);
-        return store.getAllEvents();
+		//noinspection unchecked
+		return store.getAllEvents();
     }
 }

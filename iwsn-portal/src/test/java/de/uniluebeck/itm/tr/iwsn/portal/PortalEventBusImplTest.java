@@ -1,5 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.junit.Before;

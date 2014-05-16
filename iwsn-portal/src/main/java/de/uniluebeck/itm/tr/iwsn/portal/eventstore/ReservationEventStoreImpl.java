@@ -7,9 +7,9 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
 import de.uniluebeck.itm.eventstore.IEventContainer;
 import de.uniluebeck.itm.eventstore.IEventStore;
@@ -132,27 +132,32 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
     @Override
     public void storeEvent(@Nonnull Object object) throws IOException {
-        eventStore.storeEvent(object);
+		//noinspection unchecked
+		eventStore.storeEvent(object);
     }
 
     @Override
     public void storeEvent(@Nonnull Object object, Class type) throws IOException {
-        eventStore.storeEvent(object, type);
+		//noinspection unchecked
+		eventStore.storeEvent(object, type);
     }
 
     @Override
     public CloseableIterator<IEventContainer> getEventsBetweenTimestamps(long fromTime, long toTime) throws IOException {
-        return eventStore.getEventsBetweenTimestamps(fromTime, toTime);
+		//noinspection unchecked
+		return eventStore.getEventsBetweenTimestamps(fromTime, toTime);
     }
 
     @Override
     public CloseableIterator<IEventContainer> getEventsFromTimestamp(long fromTime) throws IOException {
-        return eventStore.getEventsFromTimestamp(fromTime);
+		//noinspection unchecked
+		return eventStore.getEventsFromTimestamp(fromTime);
     }
 
     @Override
     public CloseableIterator<IEventContainer> getAllEvents() throws IOException {
-        return eventStore.getAllEvents();
+		//noinspection unchecked
+		return eventStore.getAllEvents();
     }
 
     @Override

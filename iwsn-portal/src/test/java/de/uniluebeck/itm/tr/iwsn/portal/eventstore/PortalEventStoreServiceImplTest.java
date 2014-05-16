@@ -1,7 +1,12 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
-import de.uniluebeck.itm.tr.iwsn.portal.*;
 import de.uniluebeck.itm.eventstore.IEventStore;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

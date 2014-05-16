@@ -4,17 +4,16 @@ import com.google.common.base.Function;
 import com.google.inject.Inject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
-import de.uniluebeck.itm.tr.iwsn.messages.*;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
 import de.uniluebeck.itm.eventstore.ChronicleBasedEventStore;
 import de.uniluebeck.itm.eventstore.IEventStore;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.security.InvalidParameterException;
@@ -23,206 +22,221 @@ import java.util.Map;
 
 public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 
-    private static final Logger log = LoggerFactory.getLogger(PortalEventStoreHelperImpl.class);
-    private final ReservationManager reservationManager;
-    private final PortalServerConfig portalServerConfig;
+	private static final Logger log = LoggerFactory.getLogger(PortalEventStoreHelperImpl.class);
 
-    @Inject
-    public PortalEventStoreHelperImpl(final ReservationManager reservationManager, final PortalServerConfig portalServerConfig) {
-        this.reservationManager = reservationManager;
-        this.portalServerConfig = portalServerConfig;
-    }
+	private static final Function<ReservationEndedEvent, byte[]>
+			RESERVATION_ENDED_EVENT_SERIALIZER = new Function<ReservationEndedEvent, byte[]>() {
+		@Override
+		public byte[] apply(ReservationEndedEvent input) {
+			return input.getReservation().getSerializedKey().getBytes();
+		}
+	};
 
+	private static final Function<ReservationStartedEvent, byte[]>
+			RESERVATION_STARTED_EVENT_SERIALIZER = new Function<ReservationStartedEvent, byte[]>() {
+		@Override
+		public byte[] apply(ReservationStartedEvent input) {
+			return input.getReservation().getSerializedKey().getBytes();
+		}
+	};
 
-    @Override
-    public IEventStore createAndConfigureEventStore(String serializedReservationKey) throws FileNotFoundException {
-        return configureEventStore(serializedReservationKey, false);
-    }
+	private final ReservationManager reservationManager;
 
-    @Override
-    public IEventStore loadEventStore(String serializedReservationKey) throws InvalidParameterException {
-        IEventStore store = null;
-        try {
-            store = configureEventStore(serializedReservationKey, true);
-        } catch (FileNotFoundException e) {
-            throw new InvalidParameterException("Failed to load event store for reservation " + serializedReservationKey);
-        }
-        return store;
-    }
+	private final PortalServerConfig portalServerConfig;
 
-    @Override
-    public boolean eventStoreExistsForReservation(String serializedReservationKey) {
-        return new File(eventstoreBasenameForReservation(serializedReservationKey) + ".data").exists();
-    }
+	private Function<byte[], ReservationStartedEvent> RESERVATION_STARTED_EVENT_DESERIALIZER =
+			new Function<byte[], ReservationStartedEvent>() {
+				@Override
+				public ReservationStartedEvent apply(byte[] input) {
+					try {
+						String json = new String(input, "UTF-8");
+						return new ReservationStartedEvent(reservationManager.getReservation(json));
+					} catch (Exception e) {
+						log.error("Can't deserialize the ReservationStartedEvent", e);
+						return null;
+					}
 
-    private IEventStore configureEventStore(final String serializedReservationKey, boolean readOnly) throws FileNotFoundException {
+				}
+			};
 
-        Map<Class<?>, Function<?, byte[]>> serializers = new HashMap<Class<?>, Function<?, byte[]>>();
-        Map<Class<?>, Function<byte[], ?>> deserializers = new HashMap<Class<?>, Function<byte[], ?>>();
+	private Function<byte[], ReservationEndedEvent>
+			RESERVATION_ENDED_EVENT_DESERIALIZER = new Function<byte[], ReservationEndedEvent>() {
+				@Override
+				public ReservationEndedEvent apply(byte[] input) {
+					try {
+						String json = new String(input, "UTF-8");
+						return new ReservationEndedEvent(reservationManager.getReservation(json));
+					} catch (Exception e) {
+						log.error("Can't deserialize the ReservationEndedEvent", e);
+						return null;
+					}
 
-        Function<MessageLite, byte[]> messageSerializer = new Function<MessageLite, byte[]>() {
-            @Nullable
-            @Override
-            public byte[] apply(@Nullable MessageLite input) {
-                return input.toByteArray();
-            }
-        };
+				}
+			};
 
-        serializers.put(DevicesAttachedEvent.class, messageSerializer);
-        serializers.put(DevicesDetachedEvent.class, messageSerializer);
-        serializers.put(UpstreamMessageEvent.class, messageSerializer);
-        serializers.put(NotificationEvent.class, messageSerializer);
-        serializers.put(SingleNodeResponse.class, messageSerializer);
-        serializers.put(GetChannelPipelinesResponse.class, messageSerializer);
-        serializers.put(Request.class, messageSerializer);
+	private Function<byte[], DevicesAttachedEvent>
+			DEVICES_ATTACHED_EVENT_DESERIALIZER = new Function<byte[], DevicesAttachedEvent>() {
+				@Override
+				public DevicesAttachedEvent apply(byte[] input) {
+					try {
+						return DevicesAttachedEvent.parseFrom(input);
+					} catch (InvalidProtocolBufferException e) {
+						log.error("Can't deserialize event");
+						return null;
+					}
+				}
+			};
 
-        serializers.put(ReservationStartedEvent.class, new Function<ReservationStartedEvent, byte[]>() {
-            @Nullable
-            @Override
-            public byte[] apply(@Nullable ReservationStartedEvent input) {
-                return input.getReservation().getSerializedKey().getBytes();
-            }
-        });
+	private Function<byte[], DevicesDetachedEvent>
+			DEVICES_DETACHED_EVENT_DESERIALIZER = new Function<byte[], DevicesDetachedEvent>() {
+				@Override
+				public DevicesDetachedEvent apply(byte[] input) {
+					try {
+						return DevicesDetachedEvent.parseFrom(input);
+					} catch (InvalidProtocolBufferException e) {
+						log.error("Can't deserialize event");
+						return null;
+					}
+				}
+			};
 
-        serializers.put(ReservationEndedEvent.class, new Function<ReservationEndedEvent, byte[]>() {
-            @Nullable
-            @Override
-            public byte[] apply(@Nullable ReservationEndedEvent input) {
-                return input.getReservation().getSerializedKey().getBytes();
-            }
-        });
+	private Function<byte[], UpstreamMessageEvent>
+			UPSTREAM_MESSAGE_EVENT_DESERIALIZER = new Function<byte[], UpstreamMessageEvent>() {
+				@Override
+				public UpstreamMessageEvent apply(byte[] input) {
+					try {
+						return UpstreamMessageEvent.parseFrom(input);
+					} catch (InvalidProtocolBufferException e) {
+						log.error("Can't deserialize event");
+						return null;
+					}
+				}
+			};
 
-        deserializers.put(ReservationStartedEvent.class, new Function<byte[], ReservationStartedEvent>() {
-            @Nullable
-            @Override
-            public ReservationStartedEvent apply(@Nullable byte[] input) {
-                try {
-                    String json = new String(input, "UTF-8");
-                    return new ReservationStartedEvent(reservationManager.getReservation(json));
-                } catch (Exception e) {
-                    log.error("Can't deserialize the ReservationStartedEvent", e);
-                    return null;
-                }
+	private Function<byte[], NotificationEvent>
+			NOTIFICATION_EVENT_DESERIALIZER = new Function<byte[], NotificationEvent>() {
+				@Override
+				public NotificationEvent apply(byte[] input) {
+					try {
+						return NotificationEvent.parseFrom(input);
+					} catch (InvalidProtocolBufferException e) {
+						log.error("Can't deserialize event");
+						return null;
+					}
+				}
+			};
 
-            }
-        });
+	private Function<byte[], SingleNodeResponse>
+			SINGLE_NODE_RESPONSE_DESERIALIZER = new Function<byte[], SingleNodeResponse>() {
+				@Override
+				public SingleNodeResponse apply(byte[] input) {
+					try {
+						return SingleNodeResponse.parseFrom(input);
+					} catch (InvalidProtocolBufferException e) {
+						log.error("Can't deserialize event");
+						return null;
+					}
+				}
+			};
 
-        deserializers.put(ReservationEndedEvent.class, new Function<byte[], ReservationEndedEvent>() {
-            @Nullable
-            @Override
-            public ReservationEndedEvent apply(@Nullable byte[] input) {
-                try {
-                    String json = new String(input, "UTF-8");
-                    return new ReservationEndedEvent(reservationManager.getReservation(json));
-                } catch (Exception e) {
-                    log.error("Can't deserialize the ReservationEndedEvent", e);
-                    return null;
-                }
+	private Function<byte[], GetChannelPipelinesResponse>
+			GET_CHANNEL_PIPELINES_RESPONSE_DESERIALIZER = new Function<byte[], GetChannelPipelinesResponse>() {
+				@Override
+				public GetChannelPipelinesResponse apply(byte[] input) {
+					try {
+						return GetChannelPipelinesResponse.parseFrom(input);
+					} catch (InvalidProtocolBufferException e) {
+						log.error("Can't deserialize event");
+						return null;
+					}
+				}
+			};
 
-            }
-        });
+	private Function<byte[], Request> REQUEST_DESERIALIZER = new Function<byte[], Request>() {
+		@Override
+		public Request apply(byte[] input) {
+			try {
+				return Request.parseFrom(input);
+			} catch (InvalidProtocolBufferException e) {
+				log.error("Can't deserialize event");
+				return null;
+			}
+		}
+	};
 
-        deserializers.put(DevicesAttachedEvent.class, new Function<byte[], DevicesAttachedEvent>() {
-            @Nullable
-            @Override
-            public DevicesAttachedEvent apply(@Nullable byte[] input) {
-                try {
-                    return DevicesAttachedEvent.getDefaultInstance().parseFrom(input);
-                } catch (InvalidProtocolBufferException e) {
-                    log.error("Can't deserialize event");
-                    return null;
-                }
-            }
-        });
-
-        deserializers.put(DevicesDetachedEvent.class, new Function<byte[], DevicesDetachedEvent>() {
-            @Nullable
-            @Override
-            public DevicesDetachedEvent apply(@Nullable byte[] input) {
-                try {
-                    return DevicesDetachedEvent.getDefaultInstance().parseFrom(input);
-                } catch (InvalidProtocolBufferException e) {
-                    log.error("Can't deserialize event");
-                    return null;
-                }
-            }
-        });
-
-        deserializers.put(UpstreamMessageEvent.class, new Function<byte[], UpstreamMessageEvent>() {
-            @Nullable
-            @Override
-            public UpstreamMessageEvent apply(@Nullable byte[] input) {
-                try {
-                    return UpstreamMessageEvent.getDefaultInstance().parseFrom(input);
-                } catch (InvalidProtocolBufferException e) {
-                    log.error("Can't deserialize event");
-                    return null;
-                }
-            }
-        });
-
-
-        deserializers.put(NotificationEvent.class, new Function<byte[], NotificationEvent>() {
-            @Nullable
-            @Override
-            public NotificationEvent apply(@Nullable byte[] input) {
-                try {
-                    return NotificationEvent.getDefaultInstance().parseFrom(input);
-                } catch (InvalidProtocolBufferException e) {
-                    log.error("Can't deserialize event");
-                    return null;
-                }
-            }
-        });
+	@Inject
+	public PortalEventStoreHelperImpl(final ReservationManager reservationManager,
+									  final PortalServerConfig portalServerConfig) {
+		this.reservationManager = reservationManager;
+		this.portalServerConfig = portalServerConfig;
+	}
 
 
-        deserializers.put(SingleNodeResponse.class, new Function<byte[], SingleNodeResponse>() {
-            @Nullable
-            @Override
-            public SingleNodeResponse apply(@Nullable byte[] input) {
-                try {
-                    return SingleNodeResponse.getDefaultInstance().parseFrom(input);
-                } catch (InvalidProtocolBufferException e) {
-                    log.error("Can't deserialize event");
-                    return null;
-                }
-            }
-        });
+	@Override
+	public IEventStore createAndConfigureEventStore(String serializedReservationKey) throws FileNotFoundException {
+		return configureEventStore(serializedReservationKey, false);
+	}
 
-        deserializers.put(GetChannelPipelinesResponse.class, new Function<byte[], GetChannelPipelinesResponse>() {
-            @Nullable
-            @Override
-            public GetChannelPipelinesResponse apply(@Nullable byte[] input) {
-                try {
-                    return GetChannelPipelinesResponse.getDefaultInstance().parseFrom(input);
-                } catch (InvalidProtocolBufferException e) {
-                    log.error("Can't deserialize event");
-                    return null;
-                }
-            }
-        });
+	@Override
+	public IEventStore loadEventStore(String serializedReservationKey) throws InvalidParameterException {
+		IEventStore store;
+		try {
+			store = configureEventStore(serializedReservationKey, true);
+		} catch (FileNotFoundException e) {
+			throw new InvalidParameterException(
+					"Failed to load event store for reservation " + serializedReservationKey
+			);
+		}
+		return store;
+	}
 
-        deserializers.put(Request.class, new Function<byte[], Request>() {
-            @Nullable
-            @Override
-            public Request apply(@Nullable byte[] input) {
-                try {
-                    return Request.getDefaultInstance().parseFrom(input);
-                } catch (InvalidProtocolBufferException e) {
-                    log.error("Can't deserialize event");
-                    return null;
-                }
-            }
-        });
+	@Override
+	public boolean eventStoreExistsForReservation(String serializedReservationKey) {
+		return new File(getEventStoreBasenameForReservation(serializedReservationKey) + ".data").exists();
+	}
 
-        String baseName = eventstoreBasenameForReservation(serializedReservationKey);
-        log.trace("Creating new chronicle at {}", baseName);
-        return new ChronicleBasedEventStore(baseName, serializers, deserializers, readOnly);
-    }
+	private IEventStore configureEventStore(final String serializedReservationKey, boolean readOnly)
+			throws FileNotFoundException {
+
+		Map<Class<?>, Function<?, byte[]>> serializers = new HashMap<Class<?>, Function<?, byte[]>>();
+		Map<Class<?>, Function<byte[], ?>> deserializers = new HashMap<Class<?>, Function<byte[], ?>>();
+
+		Function<MessageLite, byte[]> messageSerializer = new Function<MessageLite, byte[]>() {
+			@Override
+			public byte[] apply(MessageLite input) {
+				return input.toByteArray();
+			}
+		};
+
+		serializers.put(DevicesAttachedEvent.class, messageSerializer);
+		serializers.put(DevicesDetachedEvent.class, messageSerializer);
+		serializers.put(UpstreamMessageEvent.class, messageSerializer);
+		serializers.put(NotificationEvent.class, messageSerializer);
+		serializers.put(SingleNodeResponse.class, messageSerializer);
+		serializers.put(GetChannelPipelinesResponse.class, messageSerializer);
+		serializers.put(Request.class, messageSerializer);
+		serializers.put(ReservationStartedEvent.class, RESERVATION_STARTED_EVENT_SERIALIZER);
+		serializers.put(ReservationEndedEvent.class, RESERVATION_ENDED_EVENT_SERIALIZER);
+
+		deserializers.put(ReservationStartedEvent.class, RESERVATION_STARTED_EVENT_DESERIALIZER);
+		deserializers.put(ReservationEndedEvent.class, RESERVATION_ENDED_EVENT_DESERIALIZER);
+		deserializers.put(DevicesAttachedEvent.class, DEVICES_ATTACHED_EVENT_DESERIALIZER);
+		deserializers.put(DevicesDetachedEvent.class, DEVICES_DETACHED_EVENT_DESERIALIZER);
+		deserializers.put(UpstreamMessageEvent.class, UPSTREAM_MESSAGE_EVENT_DESERIALIZER);
+		deserializers.put(NotificationEvent.class, NOTIFICATION_EVENT_DESERIALIZER);
+		deserializers.put(SingleNodeResponse.class, SINGLE_NODE_RESPONSE_DESERIALIZER);
+		deserializers.put(GetChannelPipelinesResponse.class, GET_CHANNEL_PIPELINES_RESPONSE_DESERIALIZER);
+		deserializers.put(Request.class, REQUEST_DESERIALIZER);
+
+		String baseName = getEventStoreBasenameForReservation(serializedReservationKey);
+		log.trace("Creating new chronicle at {}", baseName);
+		//noinspection unchecked
+		return new ChronicleBasedEventStore(baseName, serializers, deserializers, readOnly);
+	}
 
 
-    private String eventstoreBasenameForReservation(String serializedReservationKey) {
-        return portalServerConfig.getEventStorePath() + "/" + serializedReservationKey;
-    }
+	private String getEventStoreBasenameForReservation(String serializedReservationKey) {
+		return portalServerConfig.getEventStorePath() + "/" + serializedReservationKey;
+	}
 
 }

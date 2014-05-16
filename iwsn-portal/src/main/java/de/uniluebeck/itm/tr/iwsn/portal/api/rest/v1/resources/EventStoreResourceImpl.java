@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import com.google.protobuf.Message;
 import com.googlecode.protobuf.format.JsonFormat;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ReservationEndedMessage;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ReservationStartedMessage;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreService;
@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -38,7 +39,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
     @Override
     @GET
-    @Path("{secretReservationKeyBase64}")
+    @Path("{secretReservationKeyBase64}.json")
     public Response getEvents(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
                                                @DefaultValue("-1") @QueryParam("from") long fromTimestamp,
                                                @DefaultValue("-1") @QueryParam("to") long toTimestamp) {
@@ -51,7 +52,6 @@ public class EventStoreResourceImpl implements EventStoreResource {
             File file = buildJsonFile(path, iterator);
             iterator.close();
             return buildJsonResponse(file);
-
 
         } catch (IOException e) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -106,7 +106,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
         if (file == null || !file.exists()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        return Response.ok(file).build();
+        return Response.ok(file, MediaType.APPLICATION_JSON).build();
     }
 
 
