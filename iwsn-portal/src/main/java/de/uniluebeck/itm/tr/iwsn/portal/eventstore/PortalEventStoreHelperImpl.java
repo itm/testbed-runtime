@@ -52,7 +52,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 						String json = new String(input, "UTF-8");
 						return new ReservationStartedEvent(reservationManager.getReservation(json));
 					} catch (Exception e) {
-						log.error("Can't deserialize the ReservationStartedEvent", e);
+						log.error("Can't deserialize RESERVATION_STARTED_EVENT", e);
 						return null;
 					}
 
@@ -67,7 +67,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 						String json = new String(input, "UTF-8");
 						return new ReservationEndedEvent(reservationManager.getReservation(json));
 					} catch (Exception e) {
-						log.error("Can't deserialize the ReservationEndedEvent", e);
+						log.error("Can't deserialize RESERVATION_ENDED_EVENT", e);
 						return null;
 					}
 
@@ -81,7 +81,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 					try {
 						return DevicesAttachedEvent.parseFrom(input);
 					} catch (InvalidProtocolBufferException e) {
-						log.error("Can't deserialize event");
+						log.error("Can't deserialize DEVICES_ATTACHED_EVENT");
 						return null;
 					}
 				}
@@ -94,7 +94,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 					try {
 						return DevicesDetachedEvent.parseFrom(input);
 					} catch (InvalidProtocolBufferException e) {
-						log.error("Can't deserialize event");
+						log.error("Can't deserialize DEVICES_DETACHED_EVENT");
 						return null;
 					}
 				}
@@ -107,7 +107,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 					try {
 						return UpstreamMessageEvent.parseFrom(input);
 					} catch (InvalidProtocolBufferException e) {
-						log.error("Can't deserialize event");
+						log.error("Can't deserialize UPSTREAM_MESSAGE_EVENT");
 						return null;
 					}
 				}
@@ -120,7 +120,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 					try {
 						return NotificationEvent.parseFrom(input);
 					} catch (InvalidProtocolBufferException e) {
-						log.error("Can't deserialize event");
+						log.error("Can't deserialize NOTIFICATION_EVENT");
 						return null;
 					}
 				}
@@ -133,7 +133,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 					try {
 						return SingleNodeResponse.parseFrom(input);
 					} catch (InvalidProtocolBufferException e) {
-						log.error("Can't deserialize event");
+						log.error("Can't deserialize SINGLE_NODE_RESPONSE");
 						return null;
 					}
 				}
@@ -146,7 +146,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 					try {
 						return GetChannelPipelinesResponse.parseFrom(input);
 					} catch (InvalidProtocolBufferException e) {
-						log.error("Can't deserialize event");
+						log.error("Can't deserialize GET_CHANNEL_PIPELINES_RESPONSE");
 						return null;
 					}
 				}
@@ -158,7 +158,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 			try {
 				return Request.parseFrom(input);
 			} catch (InvalidProtocolBufferException e) {
-				log.error("Can't deserialize event");
+				log.error("Can't deserialize REQUEST");
 				return null;
 			}
 		}
