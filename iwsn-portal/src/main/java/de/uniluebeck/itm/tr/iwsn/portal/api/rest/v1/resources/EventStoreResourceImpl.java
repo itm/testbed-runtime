@@ -1,8 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.inject.Inject;
-import com.google.protobuf.Message;
-import com.googlecode.protobuf.format.JsonFormat;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
 import de.uniluebeck.itm.eventstore.IEventContainer;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
@@ -93,9 +91,11 @@ public class EventStoreResourceImpl implements EventStoreResource {
 						out.write(eventToJSON(iterator.next().getEvent()));
 						if (iterator.hasNext()) {
 							out.write(",");
+							out.write("\n");
 						}
 					}
 					out.write("]");
+					out.write("\n");
 					out.flush();
 					out.close();
 					iterator.close();
@@ -136,28 +136,28 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
 		if (event instanceof UpstreamMessageEvent) {
 
-			return toJSON(new WebSocketUpstreamMessage((UpstreamMessageEvent) event));
+			return toJSON(new WebSocketUpstreamMessage((UpstreamMessageEvent) event), true);
 
 		}
 		if (event instanceof ReservationStartedEvent) {
 
 			final String serializedKey = ((ReservationStartedEvent) event).getSerializedKey();
 			final Reservation reservation = reservationManager.getReservation(serializedKey);
-			return toJSON(new ReservationStartedMessage(reservation));
+			return toJSON(new ReservationStartedMessage(reservation), true);
 
 		} else if (event instanceof ReservationEndedEvent) {
 
 			final String serializedKey = ((ReservationEndedEvent) event).getSerializedKey();
 			final Reservation reservation = reservationManager.getReservation(serializedKey);
-			return toJSON(new ReservationEndedMessage(reservation));
+			return toJSON(new ReservationEndedMessage(reservation), true);
 
 		} else if (event instanceof SingleNodeResponse) {
 
-			return toJSON(new SingleNodeResponseMessage((SingleNodeResponse) event));
+			return toJSON(new SingleNodeResponseMessage((SingleNodeResponse) event), true);
 
 		} else if (event instanceof Request) {
 
-			return toJSON(new RequestMessage((Request) event));
+			return toJSON(new RequestMessage((Request) event), true);
 
 		} else if (event instanceof GetChannelPipelinesResponse.GetChannelPipelineResponse) {
 
@@ -165,23 +165,19 @@ public class EventStoreResourceImpl implements EventStoreResource {
 					(GetChannelPipelinesResponse.GetChannelPipelineResponse) event;
 			Map<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse> map = newHashMap();
 			map.put(new NodeUrn(response.getNodeUrn()), response);
-			return toJSON(Converters.convert(map));
+			return toJSON(Converters.convert(map), true);
 
 		} else if (event instanceof DevicesAttachedEvent) {
 
-			return toJSON(new DevicesAttachedMessage((DevicesAttachedEvent) event));
+			return toJSON(new DevicesAttachedMessage((DevicesAttachedEvent) event), true);
 
 		} else if (event instanceof DevicesDetachedEvent) {
 
-			return toJSON(new DevicesDetachedMessage((DevicesDetachedEvent) event));
+			return toJSON(new DevicesDetachedMessage((DevicesDetachedEvent) event), true);
 
 		} else if (event instanceof NotificationEvent) {
 
-			return toJSON(new WebSocketNotificationMessage((NotificationEvent) event));
-
-		} else if (event instanceof com.google.protobuf.Message) {
-
-			return JsonFormat.printToString((Message) event);
+			return toJSON(new WebSocketNotificationMessage((NotificationEvent) event), true);
 
 		} else {
 			throw new IllegalArgumentException("Unknown event type. Can't generate JSON for type " + event.getClass());

@@ -91,26 +91,13 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
 	}
 
 	private IEventStore getEventStore(String serializedReservationKey) throws IOException {
-		synchronized (reservationStoresLock) {
-			ReservationEventStore reservationEventStore;
-			reservationEventStore = reservationStores.get(serializedReservationKey);
-			IEventStore eventStore = null;
-			if (reservationEventStore != null) { // ongoing reservation
-				eventStore = reservationEventStore;
-			} else {
-				log.trace("Reservation {} NOT ongoing. Loading persisted event store", serializedReservationKey);
-				if (portalEventStoreHelper.eventStoreExistsForReservation(serializedReservationKey)) {
-					eventStore = portalEventStoreHelper.loadEventStore(serializedReservationKey);
-				} else {
-					log.warn("Event Store isn't existing for reservation {}", serializedReservationKey);
-				}
+		final Reservation reservation = reservationManager.getReservation(serializedReservationKey);
+		if (reservation.isRunning()) {
+			synchronized (reservationStoresLock) {
+				return reservationStores.get(reservation.getSerializedKey());
 			}
-
-			if (eventStore == null) {
-				throw new IOException("Can't open event store for key " + serializedReservationKey);
-			}
-
-			return eventStore;
+		} else {
+			return portalEventStoreHelper.loadEventStore(serializedReservationKey);
 		}
 	}
 
