@@ -22,10 +22,8 @@ import java.util.Set;
 
 import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.filter;
-import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static de.uniluebeck.itm.tr.iwsn.messages.RequestHelper.extractNodeUrns;
 import static org.jboss.netty.channel.Channels.write;
@@ -291,16 +289,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 			default:
 				throw new RuntimeException("Unknown request type received!");
 		}
-	}
-
-	private void sendUnconnectedResponsesString(final String reservationId, final long requestId, final int statusCode,
-												final Iterable<String> unconnectedNodeUrns) {
-		sendUnconnectedResponses(
-				reservationId,
-				requestId,
-				statusCode,
-				transform(unconnectedNodeUrns, STRING_TO_NODE_URN)
-		);
 	}
 
 	private void sendUnconnectedResponses(final String reservationId, final long requestId, final int statusCode,

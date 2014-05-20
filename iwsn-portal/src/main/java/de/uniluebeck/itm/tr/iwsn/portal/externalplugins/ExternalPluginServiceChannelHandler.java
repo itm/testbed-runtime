@@ -4,8 +4,9 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
@@ -26,9 +27,13 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 
 	private final PortalEventBus portalEventBus;
 
+	private final ReservationManager reservationManager;
+
 	@Inject
-	public ExternalPluginServiceChannelHandler(final PortalEventBus portalEventBus) {
+	public ExternalPluginServiceChannelHandler(final PortalEventBus portalEventBus,
+											   final ReservationManager reservationManager) {
 		this.portalEventBus = portalEventBus;
+		this.reservationManager = reservationManager;
 	}
 
 	@Override
@@ -80,8 +85,8 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 		final ExternalPluginMessage externalPluginMessage = ExternalPluginMessage.newBuilder()
 				.setType(ExternalPluginMessage.Type.IWSN_MESSAGE)
 				.setIwsnMessage(Message.newBuilder()
-						.setType(Message.Type.REQUEST)
-						.setRequest(request)
+								.setType(Message.Type.REQUEST)
+								.setRequest(request)
 				).build();
 		allChannels.write(externalPluginMessage);
 	}
@@ -90,8 +95,8 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 		final ExternalPluginMessage externalPluginMessage = ExternalPluginMessage.newBuilder()
 				.setType(ExternalPluginMessage.Type.IWSN_MESSAGE)
 				.setIwsnMessage(Message.newBuilder()
-						.setType(Message.Type.EVENT)
-						.setEvent(event)
+								.setType(Message.Type.EVENT)
+								.setEvent(event)
 				).build();
 		allChannels.write(externalPluginMessage);
 	}
@@ -100,8 +105,8 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 		final ExternalPluginMessage externalPluginMessage = ExternalPluginMessage.newBuilder()
 				.setType(ExternalPluginMessage.Type.IWSN_MESSAGE)
 				.setIwsnMessage(Message.newBuilder()
-						.setType(Message.Type.EVENT_ACK)
-						.setEventAck(eventAck)
+								.setType(Message.Type.EVENT_ACK)
+								.setEventAck(eventAck)
 				).build();
 		allChannels.write(externalPluginMessage);
 	}
@@ -110,8 +115,8 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 		final ExternalPluginMessage externalPluginMessage = ExternalPluginMessage.newBuilder()
 				.setType(ExternalPluginMessage.Type.IWSN_MESSAGE)
 				.setIwsnMessage(Message.newBuilder()
-						.setType(Message.Type.GET_CHANNELPIPELINES_RESPONSE)
-						.setGetChannelPipelinesResponse(response)
+								.setType(Message.Type.GET_CHANNELPIPELINES_RESPONSE)
+								.setGetChannelPipelinesResponse(response)
 				).build();
 		allChannels.write(externalPluginMessage);
 	}
@@ -120,8 +125,8 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 		final ExternalPluginMessage externalPluginMessage = ExternalPluginMessage.newBuilder()
 				.setType(ExternalPluginMessage.Type.IWSN_MESSAGE)
 				.setIwsnMessage(Message.newBuilder()
-						.setType(Message.Type.RESPONSE)
-						.setResponse(response)
+								.setType(Message.Type.RESPONSE)
+								.setResponse(response)
 				).build();
 		allChannels.write(externalPluginMessage);
 	}
@@ -130,18 +135,20 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 		final ExternalPluginMessage externalPluginMessage = ExternalPluginMessage.newBuilder()
 				.setType(ExternalPluginMessage.Type.IWSN_MESSAGE)
 				.setIwsnMessage(Message.newBuilder()
-						.setType(Message.Type.PROGRESS)
-						.setProgress(progress)
+								.setType(Message.Type.PROGRESS)
+								.setProgress(progress)
 				).build();
 		allChannels.write(externalPluginMessage);
 	}
 
 	public void onReservationStartedEvent(final ReservationStartedEvent event) {
-		allChannels.write(createReservationEvent(event.getReservation(), ReservationEvent.Type.STARTED));
+		final Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
+		allChannels.write(createReservationEvent(reservation, ReservationEvent.Type.STARTED));
 	}
 
 	public void onReservationEndedEvent(final ReservationEndedEvent event) {
-		allChannels.write(createReservationEvent(event.getReservation(), ReservationEvent.Type.ENDED));
+		final Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
+		allChannels.write(createReservationEvent(reservation, ReservationEvent.Type.ENDED));
 	}
 
 	private ExternalPluginMessage createReservationEvent(final Reservation reservation,
@@ -157,16 +164,17 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 
 		for (Reservation.Entry entry : reservation.getEntries()) {
 			reservationEvent.addSecretReservationKeys(ReservationEvent.SecretReservationKey.newBuilder()
-					.setKey(entry.getKey())
-					.setUsername(entry.getUsername())
-					.setNodeUrnPrefix(entry.getNodeUrnPrefix().toString()));
+							.setKey(entry.getKey())
+							.setUsername(entry.getUsername())
+							.setNodeUrnPrefix(entry.getNodeUrnPrefix().toString())
+			);
 		}
 
 		return ExternalPluginMessage.newBuilder()
 				.setType(ExternalPluginMessage.Type.INTERNAL_MESSAGE)
 				.setInternalMessage(InternalMessage.newBuilder()
-						.setType(InternalMessage.Type.RESERVATION_EVENT)
-						.setReservationEvent(reservationEvent)
+								.setType(InternalMessage.Type.RESERVATION_EVENT)
+								.setReservationEvent(reservationEvent)
 				).build();
 	}
 }

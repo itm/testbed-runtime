@@ -1,7 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.junit.Before;
@@ -16,62 +16,79 @@ import static org.mockito.Mockito.*;
 public class PortalEventBusImplTest {
 
 
-    private PortalEventBusImpl portalEventBus;
+	private static final String SERIALIZED_KEY = "BLABLABLA";
 
-    @Mock
-    private SchedulerService schedulerService;
+	private static final ReservationEndedEvent RESERVATION_ENDED_EVENT = ReservationEndedEvent
+			.newBuilder()
+			.setSerializedKey(SERIALIZED_KEY)
+			.build();
 
-    @Mock
-    private PortalChannelHandler portalChannelHandler;
+	private static final ReservationStartedEvent RESERVATION_STARTED_EVENT = ReservationStartedEvent
+			.newBuilder()
+			.setSerializedKey(SERIALIZED_KEY)
+			.build();
 
-    @Mock
-    private NettyServerFactory nettyServerFactory;
+	private PortalEventBusImpl portalEventBus;
 
-    @Mock
-    private EventBusFactory eventBusFactory;
+	@Mock
+	private SchedulerService schedulerService;
 
-    @Mock
-    private PortalServerConfig portalServerConfig;
+	@Mock
+	private PortalChannelHandler portalChannelHandler;
 
-    @Mock
-    private com.google.common.eventbus.EventBus eventBus;
+	@Mock
+	private NettyServerFactory nettyServerFactory;
 
-    @Before
-    public void setUp() throws Exception {
-        when(eventBusFactory.create(anyString())).thenReturn(eventBus);
-        portalEventBus = new PortalEventBusImpl(portalServerConfig, eventBusFactory, nettyServerFactory, portalChannelHandler, schedulerService);
-    }
+	@Mock
+	private EventBusFactory eventBusFactory;
 
+	@Mock
+	private PortalServerConfig portalServerConfig;
 
-    @Test
-    public void testIfEventBusRegistersOnReservationStarted() throws Exception {
+	@Mock
+	private com.google.common.eventbus.EventBus eventBus;
 
-        ReservationEventBus reservationEventBus = mock(ReservationEventBus.class);
-        ReservationStartedEvent event = mock(ReservationStartedEvent.class);
-        Reservation reservation = mock(Reservation.class);
-        when(reservation.getReservationEventBus()).thenReturn(reservationEventBus);
-        when(event.getReservation()).thenReturn(reservation);
+	@Mock
+	private ReservationManager reservationManager;
 
-        portalEventBus.post(event);
-        verify(reservationEventBus).register(portalEventBus);
+	@Before
+	public void setUp() throws Exception {
+		when(eventBusFactory.create(anyString())).thenReturn(eventBus);
+		portalEventBus = new PortalEventBusImpl(
+				portalServerConfig,
+				eventBusFactory,
+				nettyServerFactory,
+				portalChannelHandler,
+				schedulerService,
+				reservationManager
+		);
+	}
 
+	@Test
+	public void testIfEventBusRegistersOnReservationStarted() throws Exception {
 
-    }
+		ReservationEventBus reservationEventBus = mock(ReservationEventBus.class);
+		Reservation reservation = mock(Reservation.class);
 
-    @Test
-    public void testIfEventBusUnregisteredOnReservationEnded() throws Exception {
+		when(reservationManager.getReservation(eq(SERIALIZED_KEY))).thenReturn(reservation);
+		when(reservation.getReservationEventBus()).thenReturn(reservationEventBus);
 
-        ReservationEventBus reservationEventBus = mock(ReservationEventBus.class);
-        ReservationEndedEvent event = mock(ReservationEndedEvent.class);
-        Reservation reservation = mock(Reservation.class);
-        when(reservation.getReservationEventBus()).thenReturn(reservationEventBus);
-        when(event.getReservation()).thenReturn(reservation);
+		portalEventBus.post(RESERVATION_STARTED_EVENT);
 
-        portalEventBus.post(event);
-        verify(reservationEventBus).unregister(portalEventBus);
+		verify(reservationEventBus).register(portalEventBus);
+	}
 
+	@Test
+	public void testIfEventBusUnregisteredOnReservationEnded() throws Exception {
 
-    }
+		ReservationEventBus reservationEventBus = mock(ReservationEventBus.class);
+		Reservation reservation = mock(Reservation.class);
 
+		when(reservationManager.getReservation(SERIALIZED_KEY)).thenReturn(reservation);
+		when(reservation.getReservationEventBus()).thenReturn(reservationEventBus);
 
+		portalEventBus.post(RESERVATION_ENDED_EVENT);
+
+		verify(reservationEventBus).unregister(portalEventBus);
+	}
 }

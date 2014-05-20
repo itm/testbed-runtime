@@ -36,12 +36,16 @@ public  final class Event extends
     DEVICES_ATTACHED(1, 2),
     DEVICES_DETACHED(2, 3),
     NOTIFICATION(3, 4),
+    RESERVATION_STARTED(4, 5),
+    RESERVATION_ENDED(5, 6),
     ;
     
     public static final int UPSTREAM_MESSAGE_VALUE = 1;
     public static final int DEVICES_ATTACHED_VALUE = 2;
     public static final int DEVICES_DETACHED_VALUE = 3;
     public static final int NOTIFICATION_VALUE = 4;
+    public static final int RESERVATION_STARTED_VALUE = 5;
+    public static final int RESERVATION_ENDED_VALUE = 6;
     
     
     public final int getNumber() { return value; }
@@ -52,6 +56,8 @@ public  final class Event extends
         case 2: return DEVICES_ATTACHED;
         case 3: return DEVICES_DETACHED;
         case 4: return NOTIFICATION;
+        case 5: return RESERVATION_STARTED;
+        case 6: return RESERVATION_ENDED;
         default: return null;
       }
     }
@@ -82,7 +88,7 @@ public  final class Event extends
     }
     
     private static final Type[] VALUES = {
-      UPSTREAM_MESSAGE, DEVICES_ATTACHED, DEVICES_DETACHED, NOTIFICATION, 
+      UPSTREAM_MESSAGE, DEVICES_ATTACHED, DEVICES_DETACHED, NOTIFICATION, RESERVATION_STARTED, RESERVATION_ENDED, 
     };
     
     public static Type valueOf(
@@ -178,6 +184,32 @@ public  final class Event extends
     return notificationEvent_;
   }
   
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent reservationStartedEvent = 105;
+  public static final int RESERVATIONSTARTEDEVENT_FIELD_NUMBER = 105;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent reservationStartedEvent_;
+  public boolean hasReservationStartedEvent() {
+    return ((bitField0_ & 0x00000040) == 0x00000040);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent getReservationStartedEvent() {
+    return reservationStartedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder getReservationStartedEventOrBuilder() {
+    return reservationStartedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent reservationEndedEvent = 106;
+  public static final int RESERVATIONENDEDEVENT_FIELD_NUMBER = 106;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent reservationEndedEvent_;
+  public boolean hasReservationEndedEvent() {
+    return ((bitField0_ & 0x00000080) == 0x00000080);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent getReservationEndedEvent() {
+    return reservationEndedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder getReservationEndedEventOrBuilder() {
+    return reservationEndedEvent_;
+  }
+  
   private void initFields() {
     eventId_ = 0L;
     type_ = de.uniluebeck.itm.tr.iwsn.messages.Event.Type.UPSTREAM_MESSAGE;
@@ -185,6 +217,8 @@ public  final class Event extends
     devicesAttachedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.getDefaultInstance();
     devicesDetachedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.getDefaultInstance();
     notificationEvent_ = de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.getDefaultInstance();
+    reservationStartedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance();
+    reservationEndedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
   }
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
@@ -223,6 +257,18 @@ public  final class Event extends
         return false;
       }
     }
+    if (hasReservationStartedEvent()) {
+      if (!getReservationStartedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationEndedEvent()) {
+      if (!getReservationEndedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
     memoizedIsInitialized = 1;
     return true;
   }
@@ -247,6 +293,12 @@ public  final class Event extends
     }
     if (((bitField0_ & 0x00000020) == 0x00000020)) {
       output.writeMessage(104, notificationEvent_);
+    }
+    if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      output.writeMessage(105, reservationStartedEvent_);
+    }
+    if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      output.writeMessage(106, reservationEndedEvent_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -280,6 +332,14 @@ public  final class Event extends
     if (((bitField0_ & 0x00000020) == 0x00000020)) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(104, notificationEvent_);
+    }
+    if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(105, reservationStartedEvent_);
+    }
+    if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(106, reservationEndedEvent_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -401,6 +461,8 @@ public  final class Event extends
         getDevicesAttachedEventFieldBuilder();
         getDevicesDetachedEventFieldBuilder();
         getNotificationEventFieldBuilder();
+        getReservationStartedEventFieldBuilder();
+        getReservationEndedEventFieldBuilder();
       }
     }
     private static Builder create() {
@@ -437,6 +499,18 @@ public  final class Event extends
         notificationEventBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000020);
+      if (reservationStartedEventBuilder_ == null) {
+        reservationStartedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance();
+      } else {
+        reservationStartedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000040);
+      if (reservationEndedEventBuilder_ == null) {
+        reservationEndedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
+      } else {
+        reservationEndedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000080);
       return this;
     }
     
@@ -515,6 +589,22 @@ public  final class Event extends
       } else {
         result.notificationEvent_ = notificationEventBuilder_.build();
       }
+      if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+        to_bitField0_ |= 0x00000040;
+      }
+      if (reservationStartedEventBuilder_ == null) {
+        result.reservationStartedEvent_ = reservationStartedEvent_;
+      } else {
+        result.reservationStartedEvent_ = reservationStartedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        to_bitField0_ |= 0x00000080;
+      }
+      if (reservationEndedEventBuilder_ == null) {
+        result.reservationEndedEvent_ = reservationEndedEvent_;
+      } else {
+        result.reservationEndedEvent_ = reservationEndedEventBuilder_.build();
+      }
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -549,6 +639,12 @@ public  final class Event extends
       if (other.hasNotificationEvent()) {
         mergeNotificationEvent(other.getNotificationEvent());
       }
+      if (other.hasReservationStartedEvent()) {
+        mergeReservationStartedEvent(other.getReservationStartedEvent());
+      }
+      if (other.hasReservationEndedEvent()) {
+        mergeReservationEndedEvent(other.getReservationEndedEvent());
+      }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
     }
@@ -582,6 +678,18 @@ public  final class Event extends
       }
       if (hasNotificationEvent()) {
         if (!getNotificationEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationStartedEvent()) {
+        if (!getReservationStartedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationEndedEvent()) {
+        if (!getReservationEndedEvent().isInitialized()) {
           
           return false;
         }
@@ -662,6 +770,24 @@ public  final class Event extends
             }
             input.readMessage(subBuilder, extensionRegistry);
             setNotificationEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 842: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.newBuilder();
+            if (hasReservationStartedEvent()) {
+              subBuilder.mergeFrom(getReservationStartedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationStartedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 850: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.newBuilder();
+            if (hasReservationEndedEvent()) {
+              subBuilder.mergeFrom(getReservationEndedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationEndedEvent(subBuilder.buildPartial());
             break;
           }
         }
@@ -1073,6 +1199,186 @@ public  final class Event extends
         notificationEvent_ = null;
       }
       return notificationEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent reservationStartedEvent = 105;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent reservationStartedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder> reservationStartedEventBuilder_;
+    public boolean hasReservationStartedEvent() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent getReservationStartedEvent() {
+      if (reservationStartedEventBuilder_ == null) {
+        return reservationStartedEvent_;
+      } else {
+        return reservationStartedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationStartedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent value) {
+      if (reservationStartedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationStartedEvent_ = value;
+        onChanged();
+      } else {
+        reservationStartedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000040;
+      return this;
+    }
+    public Builder setReservationStartedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder builderForValue) {
+      if (reservationStartedEventBuilder_ == null) {
+        reservationStartedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationStartedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000040;
+      return this;
+    }
+    public Builder mergeReservationStartedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent value) {
+      if (reservationStartedEventBuilder_ == null) {
+        if (((bitField0_ & 0x00000040) == 0x00000040) &&
+            reservationStartedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance()) {
+          reservationStartedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.newBuilder(reservationStartedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationStartedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationStartedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000040;
+      return this;
+    }
+    public Builder clearReservationStartedEvent() {
+      if (reservationStartedEventBuilder_ == null) {
+        reservationStartedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationStartedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000040);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder getReservationStartedEventBuilder() {
+      bitField0_ |= 0x00000040;
+      onChanged();
+      return getReservationStartedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder getReservationStartedEventOrBuilder() {
+      if (reservationStartedEventBuilder_ != null) {
+        return reservationStartedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationStartedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder> 
+        getReservationStartedEventFieldBuilder() {
+      if (reservationStartedEventBuilder_ == null) {
+        reservationStartedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder>(
+                reservationStartedEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationStartedEvent_ = null;
+      }
+      return reservationStartedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent reservationEndedEvent = 106;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent reservationEndedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder> reservationEndedEventBuilder_;
+    public boolean hasReservationEndedEvent() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent getReservationEndedEvent() {
+      if (reservationEndedEventBuilder_ == null) {
+        return reservationEndedEvent_;
+      } else {
+        return reservationEndedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationEndedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent value) {
+      if (reservationEndedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationEndedEvent_ = value;
+        onChanged();
+      } else {
+        reservationEndedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000080;
+      return this;
+    }
+    public Builder setReservationEndedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder builderForValue) {
+      if (reservationEndedEventBuilder_ == null) {
+        reservationEndedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationEndedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000080;
+      return this;
+    }
+    public Builder mergeReservationEndedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent value) {
+      if (reservationEndedEventBuilder_ == null) {
+        if (((bitField0_ & 0x00000080) == 0x00000080) &&
+            reservationEndedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance()) {
+          reservationEndedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.newBuilder(reservationEndedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationEndedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationEndedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000080;
+      return this;
+    }
+    public Builder clearReservationEndedEvent() {
+      if (reservationEndedEventBuilder_ == null) {
+        reservationEndedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationEndedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000080);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder getReservationEndedEventBuilder() {
+      bitField0_ |= 0x00000080;
+      onChanged();
+      return getReservationEndedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder getReservationEndedEventOrBuilder() {
+      if (reservationEndedEventBuilder_ != null) {
+        return reservationEndedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationEndedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder> 
+        getReservationEndedEventFieldBuilder() {
+      if (reservationEndedEventBuilder_ == null) {
+        reservationEndedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder>(
+                reservationEndedEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationEndedEvent_ = null;
+      }
+      return reservationEndedEventBuilder_;
     }
     
     // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.Event)

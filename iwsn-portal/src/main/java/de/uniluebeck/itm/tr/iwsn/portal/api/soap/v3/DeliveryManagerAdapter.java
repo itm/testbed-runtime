@@ -6,8 +6,8 @@ import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Notification;
@@ -78,13 +78,19 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 	@Subscribe
 	public void onReservationStartedEvent(final ReservationStartedEvent event) {
 		log.trace("DeliveryManagerAdapter.onReservationStartedEvent({})", event);
-		reservationStarted(event.getReservation().getInterval().getStart());
+		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+			throw new RuntimeException("This should not be possible!");
+		}
+		reservationStarted(reservation.getInterval().getStart());
 	}
 
 	@Subscribe
 	public void onReservationEndedEvent(final ReservationEndedEvent event) {
 		log.trace("DeliveryManagerAdapter.onReservationEndedEvent({})", event);
-		reservationEnded(event.getReservation().getInterval().getEnd());
+		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+			throw new RuntimeException("This should not be possible!");
+		}
+		reservationEnded(reservation.getInterval().getEnd());
 	}
 
 	private RequestStatus convert(final SingleNodeProgress progress) {

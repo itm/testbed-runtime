@@ -184,23 +184,34 @@ message NotificationEvent {
     required string message   = 3;
 }
 
+message ReservationStartedEvent {
+	required string serializedKey = 1;
+}
+
+message ReservationEndedEvent {
+	required string serializedKey = 1;
+}
+
 message Event {
 
 	enum Type {
-		UPSTREAM_MESSAGE   = 1;
-		DEVICES_ATTACHED   = 2;
-        DEVICES_DETACHED   = 3;
-		NOTIFICATION       = 4;
-		
+		UPSTREAM_MESSAGE    = 1;
+		DEVICES_ATTACHED    = 2;
+        DEVICES_DETACHED    = 3;
+		NOTIFICATION        = 4;
+		RESERVATION_STARTED = 5;
+		RESERVATION_ENDED   = 6;
 	}
 
 	required int64                eventId              = 1;
 	required Type                 type                 = 2;
 
-	optional UpstreamMessageEvent upstreamMessageEvent = 101;
-	optional DevicesAttachedEvent devicesAttachedEvent = 102;
-	optional DevicesDetachedEvent devicesDetachedEvent = 103;
-	optional NotificationEvent    notificationEvent    = 104;
+	optional UpstreamMessageEvent    upstreamMessageEvent    = 101;
+	optional DevicesAttachedEvent    devicesAttachedEvent    = 102;
+	optional DevicesDetachedEvent    devicesDetachedEvent    = 103;
+	optional NotificationEvent       notificationEvent       = 104;
+	optional ReservationStartedEvent reservationStartedEvent = 105;
+	optional ReservationEndedEvent   reservationEndedEvent   = 106;
 }
 
 message EventAck {

@@ -10,8 +10,9 @@ public class SnaaSecretAuthenticationKeyList {
 
 	public List<SecretAuthenticationKey> secretAuthenticationKeys;
 
+	@SuppressWarnings("UnusedDeclaration")
 	public SnaaSecretAuthenticationKeyList() {
-
+		// for reflection purposes
 	}
 
 	public SnaaSecretAuthenticationKeyList(List<SecretAuthenticationKey> secretAuthenticationKeys) {

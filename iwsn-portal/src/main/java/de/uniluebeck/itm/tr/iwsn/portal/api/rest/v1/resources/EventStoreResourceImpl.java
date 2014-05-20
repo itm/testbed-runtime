@@ -5,12 +5,15 @@ import com.google.protobuf.Message;
 import com.googlecode.protobuf.format.JsonFormat;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
 import de.uniluebeck.itm.eventstore.IEventContainer;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ReservationEndedMessage;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.ReservationStartedMessage;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
+import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreService;
+import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +28,9 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
 
 @Path("/events/")
@@ -37,6 +42,8 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
 	private final PortalServerConfig portalServerConfig;
 
+	private final ReservationManager reservationManager;
+
 	@Context
 	private ServletContext ctx;
 
@@ -45,9 +52,11 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
 	@Inject
 	public EventStoreResourceImpl(final PortalEventStoreService eventStoreService,
-								  final PortalServerConfig portalServerConfig) {
+								  final PortalServerConfig portalServerConfig,
+								  final ReservationManager reservationManager) {
 		this.eventStoreService = eventStoreService;
 		this.portalServerConfig = portalServerConfig;
+		this.reservationManager = reservationManager;
 	}
 
 	@Override
@@ -57,12 +66,22 @@ public class EventStoreResourceImpl implements EventStoreResource {
 	public Response getEvents(@PathParam("secretReservationKeyBase64") String secretReservationKeyBase64,
 							  @DefaultValue("-1") @QueryParam("from") long fromTimestamp,
 							  @DefaultValue("-1") @QueryParam("to") long toTimestamp) {
+
+		// check if reservation is (still) known to RS (could have been deleted in the meantime, or given key is invalid)
+		try {
+			reservationManager.getReservation(secretReservationKeyBase64);
+		} catch (ReservationUnknownException e) {
+			return Response
+					.status(Response.Status.NOT_FOUND)
+					.entity("No reservation with secret reservation key \"" + secretReservationKeyBase64 + "\" found!")
+					.build();
+		}
+
 		try {
 
 			final CloseableIterator<IEventContainer> iterator =
 					createIterator(secretReservationKeyBase64, fromTimestamp, toTimestamp);
 
-			String filename = secretReservationKeyBase64 + "-" + System.currentTimeMillis() + ".json";
 			//response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
 			final StreamingOutput stream = new StreamingOutput() {
@@ -87,8 +106,8 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
 		} catch (IOException e) {
 			return Response
-					.status(Response.Status.BAD_REQUEST)
-					.entity("No events found for given reservation key!")
+					.status(Response.Status.INTERNAL_SERVER_ERROR)
+					.entity(e.getMessage())
 					.build();
 		}
 	}
@@ -110,15 +129,60 @@ public class EventStoreResourceImpl implements EventStoreResource {
 	}
 
 	private String eventToJSON(Object event) throws IllegalArgumentException {
+
 		if (event == null) {
 			throw new IllegalArgumentException("Can't generate JSON from null");
 		}
+
+		if (event instanceof UpstreamMessageEvent) {
+
+			return toJSON(new WebSocketUpstreamMessage((UpstreamMessageEvent) event));
+
+		}
 		if (event instanceof ReservationStartedEvent) {
-			return toJSON(new ReservationStartedMessage(((ReservationStartedEvent) event).getReservation()));
+
+			final String serializedKey = ((ReservationStartedEvent) event).getSerializedKey();
+			final Reservation reservation = reservationManager.getReservation(serializedKey);
+			return toJSON(new ReservationStartedMessage(reservation));
+
 		} else if (event instanceof ReservationEndedEvent) {
-			return toJSON(new ReservationEndedMessage(((ReservationEndedEvent) event).getReservation()));
+
+			final String serializedKey = ((ReservationEndedEvent) event).getSerializedKey();
+			final Reservation reservation = reservationManager.getReservation(serializedKey);
+			return toJSON(new ReservationEndedMessage(reservation));
+
+		} else if (event instanceof SingleNodeResponse) {
+
+			return toJSON(new SingleNodeResponseMessage((SingleNodeResponse) event));
+
+		} else if (event instanceof Request) {
+
+			return toJSON(new RequestMessage((Request) event));
+
+		} else if (event instanceof GetChannelPipelinesResponse.GetChannelPipelineResponse) {
+
+			final GetChannelPipelinesResponse.GetChannelPipelineResponse response =
+					(GetChannelPipelinesResponse.GetChannelPipelineResponse) event;
+			Map<NodeUrn, GetChannelPipelinesResponse.GetChannelPipelineResponse> map = newHashMap();
+			map.put(new NodeUrn(response.getNodeUrn()), response);
+			return toJSON(Converters.convert(map));
+
+		} else if (event instanceof DevicesAttachedEvent) {
+
+			return toJSON(new DevicesAttachedMessage((DevicesAttachedEvent) event));
+
+		} else if (event instanceof DevicesDetachedEvent) {
+
+			return toJSON(new DevicesDetachedMessage((DevicesDetachedEvent) event));
+
+		} else if (event instanceof NotificationEvent) {
+
+			return toJSON(new WebSocketNotificationMessage((NotificationEvent) event));
+
 		} else if (event instanceof com.google.protobuf.Message) {
+
 			return JsonFormat.printToString((Message) event);
+
 		} else {
 			throw new IllegalArgumentException("Unknown event type. Can't generate JSON for type " + event.getClass());
 		}

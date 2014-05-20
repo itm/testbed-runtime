@@ -1,17 +1,14 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto;
 
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
-import org.apache.shiro.codec.Base64;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.encode;
-
 @XmlRootElement
 public class SingleNodeResponseMessage {
 
-    @XmlElement
+    @XmlElement(required = true)
     public final String type = "singleNodeResponse";
 
     @XmlElement(required = true)
@@ -20,22 +17,22 @@ public class SingleNodeResponseMessage {
     @XmlElement(required = true)
     public String nodeUrn;
 
-    @XmlElement(name = "responseBase64")
+    @XmlElement(required = false)
     public String response;
 
-    @XmlElement
+    @XmlElement(required = true)
     public int statusCode;
 
-    @XmlElement
+    @XmlElement(required = false)
     public String errorMessage;
 
 
     public SingleNodeResponseMessage(SingleNodeResponse response) {
-        requestId = response.getRequestId();
-        nodeUrn = response.getNodeUrn();
-        this.response = encode(response.getResponse().toByteArray());
-        statusCode = response.getStatusCode();
-        errorMessage = response.getErrorMessage();
+        this.requestId = response.getRequestId();
+        this.nodeUrn = response.getNodeUrn();
+        this.response = response.hasResponse() ? new String(response.getResponse().toByteArray()) : null;
+        this.statusCode = response.getStatusCode();
+        this.errorMessage = response.getErrorMessage();
     }
 
     @Override

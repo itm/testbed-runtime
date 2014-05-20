@@ -8,8 +8,6 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,9 +148,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
     @Subscribe
     public void onSingleNodeProgressFromPortalEventBus(final SingleNodeProgress progress) {
-
         log.trace("ReservationEventBus[{}].onSingleNodeProgressFromPortalEventBus({})", reservationId, progress);
-
         if (reservationId.equals(progress.getReservationId())) {
             eventBus.post(progress);
         }
@@ -160,9 +156,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
     @Subscribe
     public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
-
         log.trace("ReservationEventBus[{}].onSingleNodeResponseFromPortalEventBus({})", reservationId, response);
-
         if (reservationId.equals(response.getReservationId())) {
             eventBus.post(response);
         }
@@ -171,7 +165,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
     @Subscribe
     public void onReservationStartedEventFromPortalEventBus(final ReservationStartedEvent event) {
         log.trace("ReservationEventBus[{}].onReservationStartedEventFromPortalEventBus({})", reservationId, event);
-        if (event.getReservation() == reservation) {
+        if (reservation.getSerializedKey().equals(event.getSerializedKey())) {
             eventBus.post(event);
         }
     }
@@ -179,7 +173,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
     @Subscribe
     public void onReservationEndedEventFromPortalEventBus(final ReservationEndedEvent event) {
         log.trace("ReservationEventBus[{}].onReservationEndedEventFromPortalEventBus({})", reservationId, event);
-        if (event.getReservation() == reservation) {
+        if (reservation.getSerializedKey().equals(event.getSerializedKey())) {
             eventBus.post(event);
         }
     }

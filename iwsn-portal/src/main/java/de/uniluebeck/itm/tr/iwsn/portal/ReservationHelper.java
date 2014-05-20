@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import org.codehaus.jackson.type.TypeReference;
 
 import java.util.Comparator;
@@ -37,6 +38,14 @@ public abstract class ReservationHelper {
 
 	public static String serialize(final Set<SecretReservationKey> secretReservationKeySet) {
 		return serializeInternal(newArrayList(secretReservationKeySet));
+	}
+
+	public static String serialize(final List<ConfidentialReservationData> crds) {
+		final List<SecretReservationKey> srks = newArrayList();
+		for (ConfidentialReservationData crd : crds) {
+			srks.add(crd.getSecretReservationKey());
+		}
+		return serializeInternal(srks);
 	}
 
 	public static Set<SecretReservationKey> deserialize(final String secretReservationKeysBase64) {
