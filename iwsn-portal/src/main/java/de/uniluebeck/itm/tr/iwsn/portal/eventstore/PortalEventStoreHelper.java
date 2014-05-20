@@ -10,7 +10,7 @@ import java.security.InvalidParameterException;
  */
 public interface PortalEventStoreHelper {
 
-    IEventStore createAndConfigureEventStore(final String serializedReservationKey) throws FileNotFoundException;
+    IEventStore createAndConfigureEventStore(final String serializedReservationKey) throws FileNotFoundException, ClassNotFoundException;
 
 
     /**

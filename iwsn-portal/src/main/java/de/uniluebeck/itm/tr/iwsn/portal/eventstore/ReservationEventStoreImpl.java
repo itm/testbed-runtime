@@ -46,7 +46,10 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 			reservationEventBus.register(this);
 			notifyStarted();
 		} catch (FileNotFoundException e) {
-			log.error("Can't create event store at this location!", e);
+			log.error("Exception while starting reservation event store: ", e);
+			notifyFailed(e);
+		} catch (ClassNotFoundException e) {
+			log.error("Exception while starting reservation event store: ", e);
 			notifyFailed(e);
 		}
 	}
@@ -156,6 +159,6 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
 	@Override
 	public String toString() {
-		return getClass().getName() + "[" + reservation.getSerializedKey() + "]";
+		return ReservationEventStoreImpl.class.getName() + "[" + reservation.getSerializedKey() + "]";
 	}
 }
