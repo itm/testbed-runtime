@@ -32,8 +32,8 @@ import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -206,7 +206,12 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		portalEventBus.post(scope(new ReservationStartedEvent(reservation)));
+		final ReservationStartedEvent event = ReservationStartedEvent
+				.newBuilder()
+				.setSerializedKey(reservation.getSerializedKey())
+				.build();
+
+		portalEventBus.post(scope(event));
 	}
 
 	@Override
@@ -217,7 +222,12 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		portalEventBus.post(scope(new ReservationEndedEvent(reservation)));
+		final ReservationEndedEvent event = ReservationEndedEvent
+				.newBuilder()
+				.setSerializedKey(reservation.getSerializedKey())
+				.build();
+
+		portalEventBus.post(scope(event));
 	}
 
 	@Override

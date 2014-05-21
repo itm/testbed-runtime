@@ -15,12 +15,9 @@ public class WebSocketDownstreamMessage {
 	@XmlElement(name = "targetNodeUrn")
 	public String targetNodeUrn;
 
+	@SuppressWarnings("UnusedDeclaration")
 	public WebSocketDownstreamMessage() {
-	}
-
-	public WebSocketDownstreamMessage(final String targetNodeUrn, final String payloadBase64) {
-		this.targetNodeUrn = targetNodeUrn;
-		this.payloadBase64 = payloadBase64;
+		// for reflection purposes
 	}
 
 	@Override

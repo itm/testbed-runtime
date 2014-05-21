@@ -5,8 +5,7 @@ import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.iwsn.common.BasicEventBusService;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.rs.RSHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.junit.Before;
@@ -20,6 +19,7 @@ import java.util.Set;
 import static com.google.common.collect.Sets.*;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newFlashImagesRequest;
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,11 +40,28 @@ public class NodeStatusTrackerTest {
 
 	private static final Set<NodeUrn> UNRESERVED_NODE_URNS = Sets.difference(NODE_URNS, RESERVED_NODE_URNS);
 
+	private static final String SERIALIZED_KEY = "BLABLABLA";
+
+	private static final de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent
+			RESERVATION_ENDED_EVENT = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent
+			.newBuilder()
+			.setSerializedKey(SERIALIZED_KEY)
+			.build();
+
+	private static final de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent
+			RESERVATION_STARTED_EVENT = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent
+			.newBuilder()
+			.setSerializedKey(SERIALIZED_KEY)
+			.build();
+
 	@Mock
 	private RSHelper rsHelper;
 
 	@Mock
 	private ServedNodeUrnsProvider servedNodeUrnsProvider;
+
+	@Mock
+	private ReservationManager reservationManager;
 
 	private class MyPortalEventBus extends BasicEventBusService implements PortalEventBus {
 
@@ -68,7 +85,8 @@ public class NodeStatusTrackerTest {
 		nodeStatusTracker = new NodeStatusTrackerImpl(
 				rsHelper,
 				portalEventBus,
-				servedNodeUrnsProvider
+				servedNodeUrnsProvider,
+				reservationManager
 		);
 
 		nodeStatusTracker.startAndWait();
@@ -115,15 +133,14 @@ public class NodeStatusTrackerTest {
 	@Test
 	public void testReservationStatusIsUpdatedAfterReservationStartedEvent() throws Exception {
 
-		final ReservationStartedEvent event = mock(ReservationStartedEvent.class);
 		final Reservation reservation = mock(Reservation.class);
-		when(event.getReservation()).thenReturn(reservation);
+		when(reservationManager.getReservation(eq(SERIALIZED_KEY))).thenReturn(reservation);
 		when(reservation.getNodeUrns()).thenReturn(newHashSet(NODE_3));
 
 		final Sets.SetView<NodeUrn> reservedAfterEvent = union(RESERVED_NODE_URNS, newHashSet(NODE_3));
 		final Sets.SetView<NodeUrn> unreservedAfterEvent = difference(UNRESERVED_NODE_URNS, newHashSet(NODE_3));
 
-		portalEventBus.post(event);
+		portalEventBus.post(RESERVATION_STARTED_EVENT);
 
 		for (NodeUrn nodeUrn : reservedAfterEvent) {
 			assertEquals(ReservationStatus.RESERVED, nodeStatusTracker.getReservationStatus(nodeUrn));
@@ -140,15 +157,14 @@ public class NodeStatusTrackerTest {
 	@Test
 	public void testReservationStatusIsUpdatedAfterReservationEndedEvent() throws Exception {
 
-		final ReservationEndedEvent event = mock(ReservationEndedEvent.class);
 		final Reservation reservation = mock(Reservation.class);
-		when(event.getReservation()).thenReturn(reservation);
+		when(reservationManager.getReservation(eq(SERIALIZED_KEY))).thenReturn(reservation);
 		when(reservation.getNodeUrns()).thenReturn(newHashSet(NODE_2));
 
 		final Sets.SetView<NodeUrn> reservedAfterEvent = difference(RESERVED_NODE_URNS, newHashSet(NODE_2));
 		final Sets.SetView<NodeUrn> unreservedAfterEvent = union(UNRESERVED_NODE_URNS, newHashSet(NODE_2));
 
-		portalEventBus.post(event);
+		portalEventBus.post(RESERVATION_ENDED_EVENT);
 
 		for (NodeUrn nodeUrn : reservedAfterEvent) {
 			assertEquals(ReservationStatus.RESERVED, nodeStatusTracker.getReservationStatus(nodeUrn));

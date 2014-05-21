@@ -1,16 +1,14 @@
 package de.uniluebeck.itm.tr.iwsn.common.json;
 
 import com.google.common.base.Throwables;
-import de.uniluebeck.itm.tr.iwsn.common.json.NodeUrnDeserializer;
-import de.uniluebeck.itm.tr.iwsn.common.json.NodeUrnPrefixDeserializer;
-import de.uniluebeck.itm.tr.iwsn.common.json.NodeUrnPrefixSerializer;
-import de.uniluebeck.itm.tr.iwsn.common.json.NodeUrnSerializer;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.codehaus.jackson.map.module.SimpleModule;
 import org.codehaus.jackson.type.TypeReference;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -21,27 +19,35 @@ public class JSONHelper {
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	static {
+
 		final SimpleModule module = new SimpleModule(
 				"TR REST API Custom Serialization Module",
 				new Version(1, 0, 0, null)
 		);
+
 		module.addSerializer(NodeUrnPrefix.class, new NodeUrnPrefixSerializer());
 		module.addDeserializer(NodeUrnPrefix.class, new NodeUrnPrefixDeserializer());
+
 		module.addSerializer(NodeUrn.class, new NodeUrnSerializer());
 		module.addDeserializer(NodeUrn.class, new NodeUrnDeserializer());
+
+		module.addSerializer(DateTime.class, new DateTimeSerializer());
+		module.addDeserializer(DateTime.class, new DateTimeDeserializer());
+
 		mapper.registerModule(module);
 	}
 
-	public static String toXML(Object o) {
-		StringWriter writer = new StringWriter();
-		javax.xml.bind.JAXB.marshal(o, writer);
-		return writer.toString();
+	public static String toJSON(Object o) {
+		return toJSON(o, false);
 	}
 
-	public static String toJSON(Object o) {
+	public static String toJSON(Object o, boolean formatJson) {
 		StringWriter stringWriter = new StringWriter();
 		try {
-			mapper.typedWriter(o.getClass()).writeValue(stringWriter, o);
+			final ObjectWriter writer = formatJson ?
+					mapper.typedWriter(o.getClass()).withDefaultPrettyPrinter() :
+					mapper.typedWriter(o.getClass());
+			writer.writeValue(stringWriter, o);
 		} catch (IOException e) {
 			// should not happen because of StringWriter
 		} catch (ArrayIndexOutOfBoundsException e) {

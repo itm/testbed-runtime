@@ -15,8 +15,8 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -80,9 +80,9 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final DeliveryManagerFactory deliveryManagerFactory;
 
-	private final Map<Reservation, WSNService> wsnInstances = newHashMap();
+	private final Map<String, WSNService> wsnInstances = newHashMap();
 
-	private final Map<Reservation, DeliveryManager> deliveryManagers = newHashMap();
+	private final Map<String, DeliveryManager> deliveryManagers = newHashMap();
 
 	private final RequestIdProvider requestIdProvider;
 
@@ -251,19 +251,19 @@ public class SessionManagementImpl implements SessionManagement {
 		synchronized (wsnInstances) {
 			synchronized (deliveryManagers) {
 
-				wsnService = wsnInstances.get(reservation);
+				wsnService = wsnInstances.get(reservation.getSerializedKey());
 
 				if (wsnService != null) {
 					return wsnService;
 				}
 
 				deliveryManager = deliveryManagerFactory.create(reservation);
-				deliveryManagers.put(reservation, deliveryManager);
+				deliveryManagers.put(reservation.getSerializedKey(), deliveryManager);
 
 				wsn = wsnFactory.create(reservation, deliveryManager);
 				authorizingWSN = authorizingWSNFactory.create(reservation, wsn);
 				wsnService = wsnServiceFactory.create(reservation, authorizingWSN);
-				wsnInstances.put(reservation, wsnService);
+				wsnInstances.put(reservation.getSerializedKey(), wsnService);
 			}
 		}
 
@@ -284,12 +284,12 @@ public class SessionManagementImpl implements SessionManagement {
 		synchronized (wsnInstances) {
 			synchronized (deliveryManagers) {
 
-				final WSNService wsnService = wsnInstances.get(event.getReservation());
+				final WSNService wsnService = wsnInstances.get(event.getSerializedKey());
 				if (wsnService != null && !wsnService.isRunning()) {
 					wsnService.startAndWait();
 				}
 
-				final DeliveryManager deliveryManager = deliveryManagers.get(event.getReservation());
+				final DeliveryManager deliveryManager = deliveryManagers.get(event.getSerializedKey());
 				if (deliveryManager != null && !deliveryManager.isRunning()) {
 					deliveryManager.startAndWait();
 				}
@@ -303,12 +303,12 @@ public class SessionManagementImpl implements SessionManagement {
 		synchronized (wsnInstances) {
 			synchronized (deliveryManagers) {
 
-				final WSNService wsnService = wsnInstances.get(event.getReservation());
+				final WSNService wsnService = wsnInstances.get(event.getSerializedKey());
 				if (wsnService != null && wsnService.isRunning()) {
 					wsnService.stopAndWait();
 				}
 
-				final DeliveryManager deliveryManager = deliveryManagers.get(event.getReservation());
+				final DeliveryManager deliveryManager = deliveryManagers.get(event.getSerializedKey());
 				if (deliveryManager != null && deliveryManager.isRunning()) {
 					deliveryManager.stopAndWait();
 				}

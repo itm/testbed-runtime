@@ -26,6 +26,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreModule;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginModule;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginServiceConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerModule;
@@ -113,19 +114,21 @@ public class PortalModule extends AbstractModule {
 		bind(NodeStatusTracker.class).to(NodeStatusTrackerImpl.class).in(Singleton.class);
 
 		install(new FactoryModuleBuilder()
-				.implement(Reservation.class, ReservationImpl.class)
-				.build(ReservationFactory.class)
+						.implement(Reservation.class, ReservationImpl.class)
+						.build(ReservationFactory.class)
 		);
 
 		install(new NettyServerModule(
-				new ThreadFactoryBuilder().setNameFormat("Portal-OverlayBossExecutor %d").build(),
-				new ThreadFactoryBuilder().setNameFormat("Portal-OverlayWorkerExecutor %d").build()
-		)
+						new ThreadFactoryBuilder().setNameFormat("Portal-OverlayBossExecutor %d").build(),
+						new ThreadFactoryBuilder().setNameFormat("Portal-OverlayWorkerExecutor %d").build()
+				)
 		);
 
+		install(new PortalEventStoreModule());
+
 		install(new FactoryModuleBuilder()
-				.implement(ReservationEventBus.class, ReservationEventBusImpl.class)
-				.build(ReservationEventBusFactory.class)
+						.implement(ReservationEventBus.class, ReservationEventBusImpl.class)
+						.build(ReservationEventBusFactory.class)
 		);
 
 		install(new RSHelperModule());

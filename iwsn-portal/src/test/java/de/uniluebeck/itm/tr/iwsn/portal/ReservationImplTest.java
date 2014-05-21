@@ -3,8 +3,8 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import org.joda.time.DateTime;
@@ -89,13 +89,21 @@ public class ReservationImplTest {
 	@Test
 	public void testThatReservationStartedEventIsPostedOnPortalEventBusWhenStartingReservation() throws Exception {
 		reservation.startAndWait();
-		verify(portalEventBus).post(eq(new ReservationStartedEvent(reservation)));
+		final ReservationStartedEvent event = ReservationStartedEvent
+				.newBuilder()
+				.setSerializedKey(reservation.getSerializedKey())
+				.build();
+		verify(portalEventBus).post(eq(event));
 	}
 
 	@Test
 	public void testThatReservationEndedEventIsPostedOnPortalEventBusWhenStoppingReservation() throws Exception {
 		reservation.startAndWait();
 		reservation.stopAndWait();
-		verify(portalEventBus).post(eq(new ReservationEndedEvent(reservation)));
+		final ReservationEndedEvent event = ReservationEndedEvent
+				.newBuilder()
+				.setSerializedKey(reservation.getSerializedKey())
+				.build();
+		verify(portalEventBus).post(eq(event));
 	}
 }

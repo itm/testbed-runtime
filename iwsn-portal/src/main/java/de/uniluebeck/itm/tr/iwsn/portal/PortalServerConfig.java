@@ -57,6 +57,27 @@ public class PortalServerConfig {
 	private String websocketContextPath;
 
 	@PropConf(
+			usage = "The directory in which to save experiment outputs and events",
+			example = "/var/log/tr.iwsn-portal/events"
+	)
+	public static final String EVENTSTORE_PATH = "eventstore.path";
+
+	@Inject
+	@Named(EVENTSTORE_PATH)
+	private String eventStorePath;
+
+    @PropConf(
+            usage = "The directory in which to save json event files to download",
+            example = "/var/log/tr.iwsn-portal/eventdownloads"
+    )
+    public static final String EVENTSTORE_DOWNLOAD_PATH = "eventstore.download_path";
+
+    @Inject
+    @Named(EVENTSTORE_DOWNLOAD_PATH)
+    private String eventStoreDownloadPath;
+
+
+	@PropConf(
 			usage = "The DNS-resolvable endpoint URI of the reservation system (RS) service (to be returned by SessionManagement.getConfiguration())",
 			example = "http://portal.mydomain.tld/soap/v3/rs",
 			typeConverter = URITypeConverter.class
@@ -128,6 +149,12 @@ public class PortalServerConfig {
 	public int getProtobufApiPort() {
 		return protobufApiPort;
 	}
+
+	public String getEventStorePath() {
+		return eventStorePath;
+	}
+
+    public String getEventStoreDownloadPath() { return eventStoreDownloadPath; }
 
 	public URI getConfigurationRsEndpointUri() {
 		return configurationRsEndpointUri;

@@ -9,9 +9,9 @@ import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.eclipse.jetty.websocket.WebSocket;
@@ -24,10 +24,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSendDownstreamMessageRequest;
 import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.decodeBytes;
 import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.fromJSON;
 import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSendDownstreamMessageRequest;
 
 public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
@@ -108,12 +108,18 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	@Subscribe
 	public void onReservationStarted(final ReservationStartedEvent event) {
-		sendMessage(toJSON(new ReservationStartedMessage(event.getReservation())));
+		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+			throw new RuntimeException("This should not be possible!");
+		}
+		sendMessage(toJSON(new ReservationStartedMessage(reservation)));
 	}
 
 	@Subscribe
 	public void onReservationEnded(final ReservationEndedEvent event) {
-		sendMessage(toJSON(new ReservationEndedMessage(event.getReservation())));
+		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+			throw new RuntimeException("This should not be possible!");
+		}
+		sendMessage(toJSON(new ReservationEndedMessage(reservation)));
 	}
 
 	@Override

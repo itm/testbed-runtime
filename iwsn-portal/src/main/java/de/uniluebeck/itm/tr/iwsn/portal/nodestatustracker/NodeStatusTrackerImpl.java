@@ -8,8 +8,10 @@ import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.rs.RSHelper;
 import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -35,13 +37,17 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 
 	private final ServedNodeUrnsProvider servedNodeUrnsProvider;
 
+	private final ReservationManager reservationManager;
+
 	@Inject
 	public NodeStatusTrackerImpl(final RSHelper rsHelper,
 								 final PortalEventBus portalEventBus,
-								 final ServedNodeUrnsProvider servedNodeUrnsProvider) {
+								 final ServedNodeUrnsProvider servedNodeUrnsProvider,
+								 final ReservationManager reservationManager) {
 		this.rsHelper = checkNotNull(rsHelper);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
+		this.reservationManager = checkNotNull(reservationManager);
 	}
 
 	@Override
@@ -71,8 +77,9 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 
 	@Subscribe
 	public void onReservationStartedEvent(final ReservationStartedEvent event) {
+		final Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
 		synchronized (reservationStatusMap) {
-			for (NodeUrn nodeUrn : event.getReservation().getNodeUrns()) {
+			for (NodeUrn nodeUrn : reservation.getNodeUrns()) {
 				reservationStatusMap.put(nodeUrn, ReservationStatus.RESERVED);
 			}
 		}
@@ -80,8 +87,9 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 
 	@Subscribe
 	public void onReservationEndedEvent(final ReservationEndedEvent event) {
+		final Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
 		synchronized (reservationStatusMap) {
-			for (NodeUrn nodeUrn : event.getReservation().getNodeUrns()) {
+			for (NodeUrn nodeUrn : reservation.getNodeUrns()) {
 				reservationStatusMap.put(nodeUrn, ReservationStatus.UNRESERVED);
 			}
 		}
@@ -129,9 +137,9 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 			synchronized (reservationStatusMap) {
 				for (NodeUrn nodeUrn : nodeUrns) {
 					mapBuilder.put(nodeUrn, new Tuple<FlashStatus, ReservationStatus>(
-							getFlashStatus(nodeUrn),
-							getReservationStatus(nodeUrn)
-					)
+									getFlashStatus(nodeUrn),
+									getReservationStatus(nodeUrn)
+							)
 					);
 				}
 			}

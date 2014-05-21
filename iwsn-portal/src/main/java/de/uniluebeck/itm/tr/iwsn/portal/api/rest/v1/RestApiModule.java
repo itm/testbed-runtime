@@ -48,6 +48,7 @@ public class RestApiModule extends AbstractModule {
 		bind(RemoteExperimentConfigurationResource.class).to(RemoteExperimentConfigurationResourceImpl.class);
 		bind(RsResource.class).to(RsResourceImpl.class);
 		bind(SnaaResource.class).to(SnaaResourceImpl.class);
+		bind(EventStoreResource.class).to(EventStoreResourceImpl.class);
 		bind(RootResource.class).to(RootResourceImpl.class);
 		bind(UserRegistrationResource.class).to(UserRegistrationResourceImpl.class);
 		bind(NodeStatusTrackerResource.class).to(NodeStatusTrackerResourceImpl.class);

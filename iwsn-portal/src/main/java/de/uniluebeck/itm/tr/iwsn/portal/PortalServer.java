@@ -12,6 +12,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBRestService;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreService;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginServiceConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTracker;
 import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginService;
@@ -63,6 +64,8 @@ public class PortalServer extends AbstractService {
 
 	private final SchedulerService schedulerService;
 
+	private final PortalEventStoreService portalEventStoreService;
+
 	private final UserRegistrationWebAppService userRegistrationWebAppService;
 
 	private final NodeStatusTracker nodeStatusTracker;
@@ -80,6 +83,7 @@ public class PortalServer extends AbstractService {
 						final RestApiService restApiService,
 						final WiseGuiService wiseGuiService,
 						final PortalPluginService portalPluginService,
+						final PortalEventStoreService portalEventStoreService,
 						final UserRegistrationWebAppService userRegistrationWebAppService,
 						final NodeStatusTracker nodeStatusTracker) {
 
@@ -91,6 +95,7 @@ public class PortalServer extends AbstractService {
 		this.deviceDBService = checkNotNull(deviceDBService);
 
 		this.portalEventBus = checkNotNull(portalEventBus);
+		this.portalEventStoreService = checkNotNull(portalEventStoreService);
 		this.reservationManager = checkNotNull(reservationManager);
 
 		this.deviceDBRestService = checkNotNull(deviceDBRestService);
@@ -119,6 +124,7 @@ public class PortalServer extends AbstractService {
 
 			// internal components of the portal server
 			portalEventBus.startAndWait();
+			portalEventStoreService.startAndWait();
 			reservationManager.startAndWait();
 			nodeStatusTracker.startAndWait();
 
@@ -154,6 +160,7 @@ public class PortalServer extends AbstractService {
 			// internal components
 			nodeStatusTracker.stopAndWait();
 			reservationManager.stopAndWait();
+			portalEventStoreService.stopAndWait();
 			portalEventBus.stopAndWait();
 
 			// services that the portal depends on (either embedded or remote, depends on binding)

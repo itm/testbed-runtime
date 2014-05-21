@@ -1,11 +1,15 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.common.netty.ExceptionChannelHandler;
 import de.uniluebeck.itm.tr.iwsn.common.netty.KeepAliveHandler;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServer;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -29,6 +33,8 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	private final SchedulerService schedulerService;
 
+	private final ReservationManager reservationManager;
+
 	private final EventBus eventBus;
 
 	private final NettyServerFactory nettyServerFactory;
@@ -42,9 +48,11 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 							  final EventBusFactory eventBusFactory,
 							  final NettyServerFactory nettyServerFactory,
 							  final PortalChannelHandler portalChannelHandler,
-							  final SchedulerService schedulerService) {
+							  final SchedulerService schedulerService,
+							  final ReservationManager reservationManager) {
 		this.config = config;
 		this.schedulerService = schedulerService;
+		this.reservationManager = reservationManager;
 		this.eventBus = eventBusFactory.create("PortalEventBus");
 		this.nettyServerFactory = nettyServerFactory;
 		this.portalChannelHandler = portalChannelHandler;
@@ -63,6 +71,19 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 	@Override
 	public void post(final Object event) {
 		eventBus.post(event);
+
+		if (event instanceof ReservationStartedEvent) {
+			final String serializedKey = ((ReservationStartedEvent) event).getSerializedKey();
+			reservationManager.getReservation(serializedKey).getReservationEventBus().register(this);
+		} else if (event instanceof ReservationEndedEvent) {
+			final String serializedKey = ((ReservationEndedEvent) event).getSerializedKey();
+			reservationManager.getReservation(serializedKey).getReservationEventBus().unregister(this);
+		}
+	}
+
+	@Subscribe
+	public void onRequest(final Request request) {
+		eventBus.post(request);
 	}
 
 	@Override

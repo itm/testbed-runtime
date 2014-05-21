@@ -5,7 +5,7 @@ import eu.wisebed.api.v3.common.SecretReservationKey;
 
 import java.util.Set;
 
-public class ReservationUnknownException extends Exception {
+public class ReservationUnknownException extends RuntimeException {
 
 	private final Set<SecretReservationKey> secretReservationKeys;
 

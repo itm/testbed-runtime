@@ -8,8 +8,6 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.events.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,197 +26,195 @@ import static de.uniluebeck.itm.tr.iwsn.messages.RequestHelper.extractNodeUrns;
 
 public class ReservationEventBusImpl extends AbstractService implements ReservationEventBus {
 
-	private static final Logger log = LoggerFactory.getLogger(ReservationEventBus.class);
+    private static final Logger log = LoggerFactory.getLogger(ReservationEventBus.class);
 
-	protected final PortalEventBus portalEventBus;
+    protected final PortalEventBus portalEventBus;
 
-	protected final EventBus eventBus;
+    protected final EventBus eventBus;
 
-	protected final Reservation reservation;
+    protected final Reservation reservation;
 
-	protected final String reservationId;
+    protected final String reservationId;
 
-	@Inject
-	public ReservationEventBusImpl(final PortalEventBus portalEventBus,
-								   final EventBusFactory eventBusFactory,
-								   @Assisted final Reservation reservation) {
-		this.portalEventBus = portalEventBus;
-		this.eventBus = eventBusFactory.create("ReservationEventBus[" + reservation.getSerializedKey() + "]");
-		this.reservation = reservation;
-		this.reservationId = reservation.getSerializedKey();
-	}
+    @Inject
+    public ReservationEventBusImpl(final PortalEventBus portalEventBus,
+                                   final EventBusFactory eventBusFactory,
+                                   @Assisted final Reservation reservation) {
+        this.portalEventBus = portalEventBus;
+        this.eventBus = eventBusFactory.create("ReservationEventBus[" + reservation.getSerializedKey() + "]");
+        this.reservation = reservation;
+        this.reservationId = reservation.getSerializedKey();
+    }
 
-	@Override
-	protected void doStart() {
+    @Override
+    protected void doStart() {
 
-		log.trace("ReservationEventBus[{}].doStart()", reservationId);
+        log.trace("ReservationEventBus[{}].doStart()", reservationId);
 
-		try {
-			portalEventBus.register(this);
-			notifyStarted();
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
+        try {
+            portalEventBus.register(this);
+            notifyStarted();
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
+    }
 
-	@Override
-	protected void doStop() {
+    @Override
+    protected void doStop() {
 
-		log.trace("ReservationEventBus[{}].doStop()", reservationId);
+        log.trace("ReservationEventBus[{}].doStop()", reservationId);
 
-		try {
-			portalEventBus.unregister(this);
-			notifyStopped();
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
+        try {
+            portalEventBus.unregister(this);
+            notifyStopped();
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
+    }
 
-	@Override
-	public void register(final Object object) {
-		log.trace("ReservationEventBus[{}].register(object={})", reservationId, object);
-		eventBus.register(object);
-	}
+    @Override
+    public void register(final Object object) {
+        log.trace("ReservationEventBus[{}].register(object={})", reservationId, object);
+        eventBus.register(object);
+    }
 
-	@Override
-	public void unregister(final Object object) {
-		log.trace("ReservationEventBus[{}].unregister(object={})", reservationId, object);
-		eventBus.unregister(object);
-	}
+    @Override
+    public void unregister(final Object object) {
+        log.trace("ReservationEventBus[{}].unregister(object={})", reservationId, object);
+        eventBus.unregister(object);
+    }
 
-	@Override
-	public void post(final Object event) {
+    @Override
+    public void post(final Object event) {
 
-		log.trace("ReservationEventBus[{}].post({})", reservationId, event);
+        log.trace("ReservationEventBus[{}].post({})", reservationId, event);
 
-		checkState(isRunning(), "ReservationEventBus is not running");
+        checkState(isRunning(), "ReservationEventBus is not running");
 
-		if (event instanceof Request) {
-			assertNodesArePartOfReservation(extractNodeUrns((Request) event));
-			portalEventBus.post(event);
-		}
-	}
+        if (event instanceof Request) {
+            assertNodesArePartOfReservation(extractNodeUrns((Request) event));
+        }
 
-	@Subscribe
-	public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
+        eventBus.post(event);
+    }
 
-		log.trace("ReservationEventBus[{}].onDevicesAttachedEventFromPortalEventBus({})", reservationId, event);
+    @Subscribe
+    public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
 
-		final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
-		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
+        log.trace("ReservationEventBus[{}].onDevicesAttachedEventFromPortalEventBus({})", reservationId, event);
 
-		if (!reservedNodeUrnsOfEvent.isEmpty()) {
-			eventBus.post(newDevicesAttachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
-		}
-	}
+        final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
+        final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
 
-	@Subscribe
-	public void onUpstreamMessageEventFromPortalEventBus(final UpstreamMessageEvent event) {
+        if (!reservedNodeUrnsOfEvent.isEmpty()) {
+            eventBus.post(newDevicesAttachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
+        }
+    }
 
-		log.trace("ReservationEventBus[{}].onUpstreamMessageEventFromPortalEventBus({})", reservationId, event);
+    @Subscribe
+    public void onUpstreamMessageEventFromPortalEventBus(final UpstreamMessageEvent event) {
 
-		final NodeUrn sourceNodeUrn = new NodeUrn(event.getSourceNodeUrn());
+        log.trace("ReservationEventBus[{}].onUpstreamMessageEventFromPortalEventBus({})", reservationId, event);
 
-		if (reservation.getNodeUrns().contains(sourceNodeUrn)) {
-			eventBus.post(event);
-		}
-	}
+        final NodeUrn sourceNodeUrn = new NodeUrn(event.getSourceNodeUrn());
 
-	@Subscribe
-	public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
+        if (reservation.getNodeUrns().contains(sourceNodeUrn)) {
+            eventBus.post(event);
+        }
+    }
 
-		log.trace("ReservationEventBus[{}].onDevicesDetachedEventFromPortalEventBus({})", reservationId, event);
+    @Subscribe
+    public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
 
-		final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
-		final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
+        log.trace("ReservationEventBus[{}].onDevicesDetachedEventFromPortalEventBus({})", reservationId, event);
 
-		if (!reservedNodeUrnsOfEvent.isEmpty()) {
-			eventBus.post(newDevicesDetachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
-		}
-	}
+        final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
+        final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
 
-	@Subscribe
-	public void onNotificationEventFromPortalEventBus(final NotificationEvent event) {
+        if (!reservedNodeUrnsOfEvent.isEmpty()) {
+            eventBus.post(newDevicesDetachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
+        }
+    }
 
-		log.trace("ReservationEventBus[{}].onNotificationEventFromPortalEventBus({})", reservationId, event);
+    @Subscribe
+    public void onNotificationEventFromPortalEventBus(final NotificationEvent event) {
 
-		if (!event.hasNodeUrn() || reservation.getNodeUrns().contains(new NodeUrn(event.getNodeUrn()))) {
-			eventBus.post(event);
-		}
-	}
+        log.trace("ReservationEventBus[{}].onNotificationEventFromPortalEventBus({})", reservationId, event);
 
-	@Subscribe
-	public void onSingleNodeProgressFromPortalEventBus(final SingleNodeProgress progress) {
+        if (!event.hasNodeUrn() || reservation.getNodeUrns().contains(new NodeUrn(event.getNodeUrn()))) {
+            eventBus.post(event);
+        }
+    }
 
-		log.trace("ReservationEventBus[{}].onSingleNodeProgressFromPortalEventBus({})", reservationId, progress);
+    @Subscribe
+    public void onSingleNodeProgressFromPortalEventBus(final SingleNodeProgress progress) {
+        log.trace("ReservationEventBus[{}].onSingleNodeProgressFromPortalEventBus({})", reservationId, progress);
+        if (reservationId.equals(progress.getReservationId())) {
+            eventBus.post(progress);
+        }
+    }
 
-		if (reservationId.equals(progress.getReservationId())) {
-			eventBus.post(progress);
-		}
-	}
+    @Subscribe
+    public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
+        log.trace("ReservationEventBus[{}].onSingleNodeResponseFromPortalEventBus({})", reservationId, response);
+        if (reservationId.equals(response.getReservationId())) {
+            eventBus.post(response);
+        }
+    }
 
-	@Subscribe
-	public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
+    @Subscribe
+    public void onReservationStartedEventFromPortalEventBus(final ReservationStartedEvent event) {
+        log.trace("ReservationEventBus[{}].onReservationStartedEventFromPortalEventBus({})", reservationId, event);
+        if (reservation.getSerializedKey().equals(event.getSerializedKey())) {
+            eventBus.post(event);
+        }
+    }
 
-		log.trace("ReservationEventBus[{}].onSingleNodeResponseFromPortalEventBus({})", reservationId, response);
+    @Subscribe
+    public void onReservationEndedEventFromPortalEventBus(final ReservationEndedEvent event) {
+        log.trace("ReservationEventBus[{}].onReservationEndedEventFromPortalEventBus({})", reservationId, event);
+        if (reservation.getSerializedKey().equals(event.getSerializedKey())) {
+            eventBus.post(event);
+        }
+    }
 
-		if (reservationId.equals(response.getReservationId())) {
-			eventBus.post(response);
-		}
-	}
+    @Subscribe
+    public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
 
-	@Subscribe
-	public void onReservationStartedEventFromPortalEventBus(final ReservationStartedEvent event) {
-		log.trace("ReservationEventBus[{}].onReservationStartedEventFromPortalEventBus({})", reservationId, event);
-		if (event.getReservation() == reservation) {
-			eventBus.post(event);
-		}
-	}
+        log.trace("ReservationEventBusImpl.onGetChannelPipelinesResponse({})", reservationId, response);
 
-	@Subscribe
-	public void onReservationEndedEventFromPortalEventBus(final ReservationEndedEvent event) {
-		log.trace("ReservationEventBus[{}].onReservationEndedEventFromPortalEventBus({})", reservationId, event);
-		if (event.getReservation() == reservation) {
-			eventBus.post(event);
-		}
-	}
+        if (reservationId.equals(response.getReservationId())) {
+            eventBus.post(response);
+        }
+    }
 
-	@Subscribe
-	public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
+    @Override
+    public void enableVirtualization() {
+        throw new RuntimeException("Virtualization features are not yet implemented!");
+    }
 
-		log.trace("ReservationEventBusImpl.onGetChannelPipelinesResponse({})", reservationId, response);
+    @Override
+    public void disableVirtualization() {
+        throw new RuntimeException("Virtualization features are not yet implemented!");
+    }
 
-		if (reservationId.equals(response.getReservationId())) {
-			eventBus.post(response);
-		}
-	}
+    @Override
+    public boolean isVirtualizationEnabled() {
+        return false;
+    }
 
-	@Override
-	public void enableVirtualization() {
-		throw new RuntimeException("Virtualization features are not yet implemented!");
-	}
+    @Override
+    public String toString() {
+        return getClass().getName() + "[" + reservationId + "]";
+    }
 
-	@Override
-	public void disableVirtualization() {
-		throw new RuntimeException("Virtualization features are not yet implemented!");
-	}
+    private void assertNodesArePartOfReservation(final Set<NodeUrn> nodeUrns) {
+        if (!reservation.getNodeUrns().containsAll(nodeUrns)) {
+            final Set<NodeUrn> unreservedNodeUrns = Sets.filter(nodeUrns, not(in(reservation.getNodeUrns())));
+            throw new IllegalArgumentException("The node URNs [" + Joiner.on(",").join(unreservedNodeUrns) + "] "
+                    + "are not part of the reservation."
+            );
+        }
 
-	@Override
-	public boolean isVirtualizationEnabled() {
-		return false;
-	}
-
-	private void assertNodesArePartOfReservation(final Set<NodeUrn> nodeUrns) {
-		if (!reservation.getNodeUrns().containsAll(nodeUrns)) {
-			final Set<NodeUrn> unreservedNodeUrns = Sets.filter(nodeUrns, not(in(reservation.getNodeUrns())));
-			throw new IllegalArgumentException("The node URNs [" + Joiner.on(",").join(unreservedNodeUrns) + "] "
-					+ "are not part of the reservation."
-			);
-		}
-	}
-
-	@Override
-	public String toString() {
-		return getClass().getName() + "[" + reservationId + "]";
-	}
+    }
 }

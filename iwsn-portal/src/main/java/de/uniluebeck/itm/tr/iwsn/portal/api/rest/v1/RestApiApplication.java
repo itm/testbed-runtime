@@ -24,6 +24,8 @@ public class RestApiApplication extends RestApplicationBase {
 
 	private final CookieResource cookieResource;
 
+	private final EventStoreResource eventStoreResource;
+
 	private final UserRegistrationResource userRegistrationResource;
 
 	private final NodeStatusTrackerResource nodeStatusTrackerResource;
@@ -35,6 +37,7 @@ public class RestApiApplication extends RestApplicationBase {
 							  final RsResource rsResource,
 							  final SnaaResource snaaResource,
 							  final RootResource testbedsResource,
+							  final EventStoreResource eventStoreResource,
 							  final UserRegistrationResource userRegistrationResource,
 							  final NodeStatusTrackerResource nodeStatusTrackerResource) {
 		this.experimentResource = checkNotNull(experimentResource);
@@ -43,6 +46,7 @@ public class RestApiApplication extends RestApplicationBase {
 		this.rsResource = checkNotNull(rsResource);
 		this.snaaResource = checkNotNull(snaaResource);
 		this.rootResource = checkNotNull(testbedsResource);
+		this.eventStoreResource = checkNotNull(eventStoreResource);
 		this.userRegistrationResource = checkNotNull(userRegistrationResource);
 		this.nodeStatusTrackerResource = checkNotNull(nodeStatusTrackerResource);
 	}
@@ -56,6 +60,7 @@ public class RestApiApplication extends RestApplicationBase {
 				rsResource,
 				snaaResource,
 				rootResource,
+				eventStoreResource,
 				userRegistrationResource,
 				nodeStatusTrackerResource,
 				new Base64ExceptionMapper(),
