@@ -81,7 +81,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
 			final CloseableIterator<IEventContainer> iterator =
 					createIterator(secretReservationKeyBase64, fromTimestamp, toTimestamp);
 
-			final String filename = secretReservationKeyBase64 + "_" + DateTime.now().toString() + ".log";
+			final String filename = secretReservationKeyBase64 + "_" + DateTime.now().toString() + ".json";
 
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
