@@ -152,7 +152,17 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 		return eventStore.getAllEvents();
 	}
 
-	@Override
+    @Override
+    public long actualPayloadByteSize() throws IOException {
+        return eventStore.actualPayloadByteSize();
+    }
+
+    @Override
+    public long size() {
+        return eventStore.size();
+    }
+
+    @Override
 	public void close() throws IOException {
 		stop();
 	}
