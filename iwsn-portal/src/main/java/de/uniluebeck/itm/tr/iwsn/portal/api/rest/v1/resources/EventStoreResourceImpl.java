@@ -12,6 +12,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreService;
 import eu.wisebed.api.v3.common.NodeUrn;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,11 +154,11 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
 		} else if (event instanceof SingleNodeResponse) {
 
-			return toJSON(new SingleNodeResponseMessage((SingleNodeResponse) event), true);
+			return toJSON(new SingleNodeResponseMessage((SingleNodeResponse) event, DateTime.now()), true);
 
 		} else if (event instanceof Request) {
 
-			return toJSON(new RequestMessage((Request) event), true);
+			return toJSON(new RequestMessage((Request) event, DateTime.now()), true);
 
 		} else if (event instanceof GetChannelPipelinesResponse.GetChannelPipelineResponse) {
 

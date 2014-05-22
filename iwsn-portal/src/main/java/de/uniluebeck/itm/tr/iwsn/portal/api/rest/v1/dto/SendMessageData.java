@@ -16,7 +16,7 @@ public class SendMessageData {
 	public String toString() {
 		return "SendMessageData{" +
 				"sourceNodeUrn='" + sourceNodeUrn + '\'' +
-				", targetNodeUrns=" + targetNodeUrns +
+				", nodeUrns=" + targetNodeUrns +
 				", bytesBase64='" + bytesBase64 + '\'' +
 				'}';
 	}

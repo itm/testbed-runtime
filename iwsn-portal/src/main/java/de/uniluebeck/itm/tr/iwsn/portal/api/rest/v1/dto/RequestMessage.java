@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto;
 
 import de.uniluebeck.itm.tr.iwsn.messages.*;
+import org.joda.time.DateTime;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -162,13 +163,13 @@ public class RequestMessage {
 	public static class SendDownstream {
 
 		@XmlElement
-		public List<String> targetNodeUrns;
+		public List<String> nodeUrns;
 
 		@XmlElement(required = true)
 		public String messageBytesBase64;
 
 		public SendDownstream(SendDownstreamMessagesRequest request) {
-			targetNodeUrns = request.getTargetNodeUrnsList();
+			nodeUrns = request.getTargetNodeUrnsList();
 			messageBytesBase64 = encode(request.getMessageBytes().toByteArray());
 		}
 	}
@@ -267,8 +268,14 @@ public class RequestMessage {
 	@XmlElement(required = true)
 	public String type;
 
-	public RequestMessage(Request request) throws IllegalArgumentException {
-		requestId = request.getRequestId();
+	@XmlElement(required = true)
+	public DateTime timestamp;
+
+	public RequestMessage(final Request request, final DateTime timestamp) throws IllegalArgumentException {
+
+		this.requestId = request.getRequestId();
+		this.timestamp = timestamp;
+
 		switch (request.getType()) {
 			case ARE_NODES_ALIVE:
 				areNodesAliveRequest = new AreNodesAlive(request.getAreNodesAliveRequest());
