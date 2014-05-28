@@ -37,7 +37,7 @@ import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserialize;
+import static de.uniluebeck.itm.tr.common.ReservationHelper.deserialize;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createSMUnknownSecretReservationKeyFault;
 
 public class FederatedReservationManager extends AbstractService implements ReservationManager {

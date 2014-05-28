@@ -17,7 +17,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserializeToList;
+import static de.uniluebeck.itm.tr.common.ReservationHelper.deserializeToList;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookieOrHeader;
 
 @Path("/reservations/")

@@ -5,8 +5,11 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.common.events.ReservationDeletedEvent;
+import de.uniluebeck.itm.tr.common.events.ReservationMadeEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -21,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -52,15 +56,19 @@ public class SingleUrnPrefixRS implements RS {
 
 	private final SNAA snaa;
 
+	private final EventBusService eventBus;
+
 	@Inject
 	public SingleUrnPrefixRS(final CommonConfig commonConfig,
 							 final RSPersistence persistence,
 							 final ServedNodeUrnsProvider servedNodeUrnsProvider,
-							 final SNAA snaa) {
+							 final SNAA snaa,
+							 final EventBusService eventBus) {
 		this.commonConfig = checkNotNull(commonConfig);
 		this.persistence = checkNotNull(persistence);
 		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
 		this.snaa = checkNotNull(snaa);
+		this.eventBus = checkNotNull(eventBus);
 	}
 
 	@Override
@@ -144,6 +152,7 @@ public class SingleUrnPrefixRS implements RS {
 			checkNotAlreadyStarted(reservationToDelete);
 			persistence.deleteReservation(relevantSRK);
 			log.debug("Deleted reservation {}", reservationToDelete);
+			eventBus.post(new ReservationDeletedEvent(relevantSRKs));
 		}
 	}
 
@@ -174,7 +183,12 @@ public class SingleUrnPrefixRS implements RS {
 				options
 		);
 
-		return newArrayList(confidentialReservationData.getSecretReservationKey());
+		final ArrayList<SecretReservationKey> srks =
+				newArrayList(confidentialReservationData.getSecretReservationKey());
+
+		eventBus.post(new ReservationMadeEvent(srks));
+
+		return srks;
 	}
 
 	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSFault_Exception {

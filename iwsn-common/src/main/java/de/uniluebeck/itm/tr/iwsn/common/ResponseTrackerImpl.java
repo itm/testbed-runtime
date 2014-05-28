@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.common;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;

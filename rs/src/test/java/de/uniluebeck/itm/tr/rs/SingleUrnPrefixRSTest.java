@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
@@ -136,6 +137,9 @@ public class SingleUrnPrefixRSTest {
 	@Mock
 	private CommonConfig config;
 
+	@Mock
+	private EventBusService eventBusService;
+
 	private RS rs;
 
 	@Before
@@ -144,7 +148,7 @@ public class SingleUrnPrefixRSTest {
 		when(snaaProvider.get()).thenReturn(snaa);
 		when(config.getUrnPrefix()).thenReturn(URN_PREFIX);
 
-		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider, snaa);
+		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider, snaa, eventBusService);
 	}
 
 	@Test

@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.common;
+package de.uniluebeck.itm.tr.common;
 
 
 import org.apache.cxf.common.util.Base64Exception;

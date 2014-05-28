@@ -24,7 +24,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.serialize;
+import static de.uniluebeck.itm.tr.common.ReservationHelper.serialize;
 
 public class ReservationImpl extends AbstractService implements Reservation {
 

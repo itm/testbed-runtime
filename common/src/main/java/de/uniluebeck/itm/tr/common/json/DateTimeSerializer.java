@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.common.json;
+package de.uniluebeck.itm.tr.common.json;
 
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.JsonSerializer;

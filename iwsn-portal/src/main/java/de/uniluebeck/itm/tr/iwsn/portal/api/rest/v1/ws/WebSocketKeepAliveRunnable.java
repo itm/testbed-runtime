@@ -5,7 +5,7 @@ import org.eclipse.jetty.websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
 
 public class WebSocketKeepAliveRunnable implements Runnable {
 
