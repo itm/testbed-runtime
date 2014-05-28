@@ -102,9 +102,11 @@ public class KeepAliveHandler extends SimpleChannelUpstreamHandler {
 					stopwatch.elapsed(TimeUnit.MILLISECONDS)
 			);
 
+			sendKeepAlive();
+
 			schedule = schedulerService.scheduleAtFixedRate(
 					checkLivelinessRunnable,
-					1, KEEP_ALIVE_INTERVAL_MS, TimeUnit.MILLISECONDS
+					KEEP_ALIVE_TOLERANCE_MS, KEEP_ALIVE_INTERVAL_MS, TimeUnit.MILLISECONDS
 			);
 
 		} catch (Exception e1) {
