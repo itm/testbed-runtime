@@ -261,7 +261,7 @@ public class WSNFederatorServiceImplTest {
 		);
 
 		verify(testbed1WSN).flashPrograms(anyLong(), argThat(new ListAsSetMatcher(testbed1ExpectedConfigurations)));
-		verify(testbed2WSN).flashPrograms(anyLong(), eq(testbed2ExpectedConfigurations));
+		verify(testbed2WSN).flashPrograms(anyLong(), argThat(new ListAsSetMatcher(testbed2ExpectedConfigurations)));
 
 		verify(testbed3WSN, never()).flashPrograms(anyLong(), Matchers.<List<FlashProgramsConfiguration>>any());
 	}
