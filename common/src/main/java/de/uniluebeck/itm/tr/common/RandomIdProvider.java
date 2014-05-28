@@ -1,8 +1,8 @@
-package de.uniluebeck.itm.tr.iwsn.portal;
+package de.uniluebeck.itm.tr.common;
 
 import java.util.Random;
 
-public class RandomRequestIdProvider implements RequestIdProvider {
+public class RandomIdProvider implements IdProvider {
 
 	private final Random random = new Random();
 

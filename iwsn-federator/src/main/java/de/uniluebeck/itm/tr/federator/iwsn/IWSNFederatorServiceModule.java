@@ -11,10 +11,7 @@ import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.tr.common.PreconditionsModule;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.common.WisemlProvider;
+import de.uniluebeck.itm.tr.common.*;
 import de.uniluebeck.itm.tr.federator.utils.*;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
@@ -73,7 +70,7 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 		bind(IWSNFederatorService.class).to(IWSNFederatorServiceImpl.class).in(Scopes.SINGLETON);
 		bind(PortalEventBus.class).to(FederatorPortalEventBus.class).in(Scopes.SINGLETON);
 		bind(ReservationManager.class).to(FederatedReservationManager.class).in(Scopes.SINGLETON);
-		bind(RequestIdProvider.class).to(RandomRequestIdProvider.class);
+		bind(IdProvider.class).to(IncrementalIdProvider.class).in(Scopes.SINGLETON);
 		bind(WisemlProvider.class).to(FederatorWiseMLProvider.class);
 
 		install(new FactoryModuleBuilder()

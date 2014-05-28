@@ -2,9 +2,9 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.util.NetworkUtils;
@@ -36,14 +36,14 @@ public class WSNImpl implements WSN {
 
 	private final DeliveryManager deliveryManager;
 
-	private final RequestIdProvider requestIdProvider;
+	private final IdProvider requestIdProvider;
 
 	private final WisemlProvider wisemlProvider;
 
 	private final SchedulerService schedulerService;
 
 	@Inject
-	public WSNImpl(final RequestIdProvider requestIdProvider,
+	public WSNImpl(final IdProvider requestIdProvider,
 				   final WisemlProvider wisemlProvider,
 				   final SchedulerService schedulerService,
 				   @Assisted final Reservation reservation,

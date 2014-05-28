@@ -7,16 +7,17 @@ import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
-import de.uniluebeck.itm.tr.iwsn.portal.*;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
+import de.uniluebeck.itm.tr.iwsn.portal.*;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -84,7 +85,7 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final Map<String, DeliveryManager> deliveryManagers = newHashMap();
 
-	private final RequestIdProvider requestIdProvider;
+	private final IdProvider requestIdProvider;
 
 	private final WSNFactory wsnFactory;
 
@@ -105,7 +106,7 @@ public class SessionManagementImpl implements SessionManagement {
 								 final AuthorizingWSNFactory authorizingWSNFactory,
 								 final WSNFactory wsnFactory,
 								 final DeliveryManagerFactory deliveryManagerFactory,
-								 final RequestIdProvider requestIdProvider,
+								 final IdProvider requestIdProvider,
 								 final Provider<SessionManagementPreconditions> preconditions,
 								 final Provider<Wiseml> wisemlProvider) {
 		this.commonConfig = checkNotNull(commonConfig);

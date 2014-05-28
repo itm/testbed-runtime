@@ -3,11 +3,11 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 import com.google.common.collect.Lists;
 import com.google.inject.*;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import de.uniluebeck.itm.tr.common.IdProvider;
+import de.uniluebeck.itm.tr.common.IncrementalIdProvider;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
-import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.util.NetworkUtils;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -96,7 +96,7 @@ public class WSNServiceImplAuthorizationTest {
 				bind(SNAA.class).toInstance(snaa);
 				bind(WisemlProvider.class).toProvider(of(wisemlProvider));
 				bind(CommonConfig.class).toProvider(of(commonConfig));
-				bind(RequestIdProvider.class).to(RandomRequestIdProvider.class);
+				bind(IdProvider.class).to(IncrementalIdProvider.class).in(Scopes.SINGLETON);
 			}
 
 			@Provides

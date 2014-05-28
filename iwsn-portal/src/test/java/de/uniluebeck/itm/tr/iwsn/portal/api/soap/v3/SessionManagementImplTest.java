@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 import com.google.common.collect.Sets;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
@@ -11,7 +12,10 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
-import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.sm.NodeConnectionStatus;
@@ -88,7 +92,7 @@ public class SessionManagementImplTest {
 	private DeliveryManager deliveryManager;
 
 	@Mock
-	private RequestIdProvider requestIdProvider;
+	private IdProvider requestIdProvider;
 
 	@Mock
 	private PortalServerConfig portalServerConfig;

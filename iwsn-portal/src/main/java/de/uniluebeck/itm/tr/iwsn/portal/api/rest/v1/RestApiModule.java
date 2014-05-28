@@ -4,10 +4,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Names;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws.EventWebSocketFactory;
@@ -39,7 +39,7 @@ public class RestApiModule extends AbstractModule {
 
 		// helpers
 		requireBinding(ResponseTrackerFactory.class);
-		requireBinding(RequestIdProvider.class);
+		requireBinding(IdProvider.class);
 		requireBinding(ServicePublisher.class);
 
 		bind(RestApiService.class).to(RestApiServiceImpl.class);

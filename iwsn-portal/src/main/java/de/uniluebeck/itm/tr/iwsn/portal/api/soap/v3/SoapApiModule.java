@@ -5,10 +5,8 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.tr.common.*;
-import de.uniluebeck.itm.tr.common.WisemlProvider;
-import de.uniluebeck.itm.tr.iwsn.common.*;
-import de.uniluebeck.itm.tr.iwsn.portal.RandomRequestIdProvider;
-import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.wsn.WSN;
 
@@ -46,7 +44,7 @@ public class SoapApiModule extends AbstractModule {
 		bind(DeliveryManager.class).to(DeliveryManagerImpl.class);
 		bind(SoapApiService.class).to(SoapApiServiceImpl.class).in(Singleton.class);
 		bind(SessionManagement.class).to(SessionManagementImpl.class).in(Singleton.class);
-		bind(RequestIdProvider.class).to(RandomRequestIdProvider.class).in(Singleton.class);
+		bind(IdProvider.class).to(IncrementalIdProvider.class).in(Singleton.class);
 	}
 
 	@Provides

@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.common.NodeUrnHelper;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
@@ -63,7 +64,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 	private final ReservationManager reservationManager;
 
-	private final RequestIdProvider requestIdProvider;
+	private final IdProvider requestIdProvider;
 
 	private final PortalEventBus portalEventBus;
 
@@ -77,7 +78,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 								  final PortalEventBus portalEventBus,
 								  final ResponseTrackerFactory responseTrackerFactory,
 								  final ReservationManager reservationManager,
-								  final RequestIdProvider requestIdProvider) {
+								  final IdProvider requestIdProvider) {
 		this.wisemlProvider = checkNotNull(wisemlProvider);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
@@ -202,6 +203,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 			sb.append(c.getName()).append(" ");
 		}
 
+		//noinspection ConstantConditions
 		if (c.getDatatype() != null && c.getDatatype() != null) {
 			sb.append(c.getDatatype()).append(" ");
 		}
@@ -210,6 +212,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 			sb.append(c.getDefault()).append(" ");
 		}
 
+		//noinspection ConstantConditions
 		if (c.getUnit() != null && c.getUnit() != null) {
 			sb.append(c.getUnit()).append(" ");
 		}

@@ -3,15 +3,10 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.RequestIdProvider;
+import de.uniluebeck.itm.tr.common.IdProvider;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.eclipse.jetty.websocket.WebSocket;
@@ -35,7 +30,7 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	private final Reservation reservation;
 
-	private final RequestIdProvider requestIdProvider;
+	private final IdProvider requestIdProvider;
 
 	private final SchedulerService schedulerService;
 
@@ -48,7 +43,7 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 	private ScheduledFuture<?> keepAliveSchedule;
 
 	@Inject
-	public WsnWebSocket(final RequestIdProvider requestIdProvider,
+	public WsnWebSocket(final IdProvider requestIdProvider,
 						final SchedulerService schedulerService,
 						@Assisted final Reservation reservation,
 						@Assisted("secretReservationKeysBase64") final String secretReservationKeysBase64,
