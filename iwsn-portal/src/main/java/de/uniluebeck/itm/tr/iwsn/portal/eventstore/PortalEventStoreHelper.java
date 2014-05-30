@@ -17,10 +17,11 @@ public interface PortalEventStoreHelper {
      * Loads the event store for the given reservation key if existing or throws an exception otherwise.
      *
      * @param serializedReservationKey the serialized key for the reservation to load the event store for.
-     * @return the ReservationEventStore for the given serializedReservationKey. This event store is in read only mode, so write operations will fail.
+     * @param readOnly
+	 * @return the ReservationEventStore for the given serializedReservationKey. This event store is in read only mode, so write operations will fail.
      * @throws InvalidParameterException if there isn't an event store for the provided serializedReservationKey
      */
-    IEventStore loadEventStore(final String serializedReservationKey) throws InvalidParameterException;
+    IEventStore loadEventStore(final String serializedReservationKey, final boolean readOnly) throws InvalidParameterException;
 
     /**
      * Checks if an event store is existing for the given reservation key

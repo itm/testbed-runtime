@@ -45,9 +45,9 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 	}
 
 	@Override
-	public IEventStore loadEventStore(String serializedReservationKey) {
+	public IEventStore loadEventStore(String serializedReservationKey, final boolean readOnly) {
 		try {
-			return configureEventStore(serializedReservationKey, true);
+			return configureEventStore(serializedReservationKey, readOnly);
 		} catch (FileNotFoundException e) {
 			throw new InvalidParameterException(
 					"Failed to load event store for reservation " + serializedReservationKey
