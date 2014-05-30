@@ -7,6 +7,7 @@ import de.uniluebeck.itm.tr.common.DecoratedImpl;
 import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistenceModule;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistenceModule;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAModule;
@@ -58,6 +59,7 @@ public class RSServiceModule extends PrivateModule {
 
 		expose(RS.class);
 		expose(RSService.class);
+		expose(RSPersistence.class);
 	}
 
 	private void bindToSingleUrnPrefixRS() {

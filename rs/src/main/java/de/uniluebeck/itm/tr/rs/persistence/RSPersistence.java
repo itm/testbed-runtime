@@ -52,6 +52,8 @@ public interface RSPersistence {
 			@Nullable final Integer amount)
 			throws RSFault_Exception;
 
+	List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception;
+
 	ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception;
 

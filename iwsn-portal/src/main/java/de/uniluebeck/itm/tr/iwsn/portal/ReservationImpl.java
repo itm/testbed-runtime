@@ -8,8 +8,6 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -79,11 +77,6 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		try {
 			reservationEventBus.startAndWait();
 			notifyStarted();
-			final ReservationStartedEvent event = ReservationStartedEvent
-					.newBuilder()
-					.setSerializedKey(getSerializedKey())
-					.build();
-			portalEventBus.post(event);
 		} catch (Exception e) {
 			notifyFailed(e);
 		}
@@ -93,11 +86,6 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	protected void doStop() {
 		log.trace("ReservationImpl.doStop()");
 		try {
-			final ReservationEndedEvent event = ReservationEndedEvent
-					.newBuilder()
-					.setSerializedKey(getSerializedKey())
-					.build();
-			portalEventBus.post(event);
 			reservationEventBus.stopAndWait();
 			notifyStopped();
 		} catch (Exception e) {

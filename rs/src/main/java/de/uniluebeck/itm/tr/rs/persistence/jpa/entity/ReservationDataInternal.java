@@ -47,6 +47,14 @@ import java.io.Serializable;
 
 		),
 		@NamedQuery(
+				name = ReservationDataInternal.QGetActive.QUERY_NAME,
+				query = "FROM ReservationDataInternal data WHERE"
+						+ " data.confidentialReservationData.fromDate <= :" + ReservationDataInternal.QGetActive.P_NOW
+						+ " AND "
+						+ " data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetActive.P_NOW
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
+		),
+		@NamedQuery(
 				name = ReservationDataInternal.QGetAll.QUERY_NAME,
 				query = "FROM ReservationDataInternal data"
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
@@ -80,6 +88,13 @@ public class ReservationDataInternal implements Serializable {
 		public static final String P_FROM = "from";
 
 		public static final String P_TO = "to";
+	}
+
+	public static class QGetActive {
+
+		public static final String QUERY_NAME = "getActiveReservations";
+
+		public static final String P_NOW = "now";
 	}
 
 	public static class QGetAll {
@@ -172,6 +187,4 @@ public class ReservationDataInternal implements Serializable {
 	public void unDelete() {
 		this.deleted = false;
 	}
-
-
 }

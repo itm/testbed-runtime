@@ -221,4 +221,20 @@ public class RSPersistenceJPA implements RSPersistence {
 			throw new RSFault_Exception(e.getMessage(), new RSFault());
 		}
 	}
+
+	@Override
+	public List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception {
+
+		@SuppressWarnings("unchecked")
+		final List<ReservationDataInternal> resultList = (List<ReservationDataInternal>) em.get()
+				.createNamedQuery(ReservationDataInternal.QGetActive.QUERY_NAME)
+				.setParameter(ReservationDataInternal.QGetActive.P_NOW, DateTime.now().getMillis())
+				.getResultList();
+
+		try {
+			return convertConfidentialReservationData(resultList, localTimeZone);
+		} catch (DatatypeConfigurationException e) {
+			throw new RSFault_Exception(e.getMessage(), new RSFault());
+		}
+	}
 }
