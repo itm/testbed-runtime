@@ -19,9 +19,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.decodeBytes;
-import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.fromJSON;
-import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.common.Base64Helper.decodeBytes;
+import static de.uniluebeck.itm.tr.common.json.JSONHelper.fromJSON;
+import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSendDownstreamMessageRequest;
 
 public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {

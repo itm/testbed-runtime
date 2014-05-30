@@ -4,8 +4,10 @@ import com.google.common.util.concurrent.TimeLimiter;
 import com.google.inject.PrivateModule;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.DecoratedImpl;
+import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistenceModule;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistenceModule;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAModule;
@@ -36,6 +38,8 @@ public class RSServiceModule extends PrivateModule {
 		requireBinding(TimeLimiter.class);
 		requireBinding(ServedNodeUrnsProvider.class);
 
+		requireBinding(EventBusService.class);
+
 		switch (rsServiceConfig.getRsType()) {
 			case GCAL:
 				install(new GCalRSPersistenceModule());
@@ -49,15 +53,13 @@ public class RSServiceModule extends PrivateModule {
 				install(new RSPersistenceJPAModule(commonConfig, rsServiceConfig));
 				bindToSingleUrnPrefixRS();
 				break;
-			case REMOTE:
-				install(new RemoteRSServiceModule());
-				break;
 			default:
 				throw new RuntimeException("Unknown RS persistence type: \"" + rsServiceConfig.getRsType() + "\"");
 		}
 
 		expose(RS.class);
 		expose(RSService.class);
+		expose(RSPersistence.class);
 	}
 
 	private void bindToSingleUrnPrefixRS() {

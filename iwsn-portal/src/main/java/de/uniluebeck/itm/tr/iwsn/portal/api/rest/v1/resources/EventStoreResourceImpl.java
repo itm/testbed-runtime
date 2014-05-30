@@ -30,7 +30,7 @@ import java.io.OutputStreamWriter;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
 
 @Path("/events/")
 public class EventStoreResourceImpl implements EventStoreResource {

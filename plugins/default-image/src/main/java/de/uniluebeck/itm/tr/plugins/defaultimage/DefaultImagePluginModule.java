@@ -4,7 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
-import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
+import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.rs.RSHelperModule;
 

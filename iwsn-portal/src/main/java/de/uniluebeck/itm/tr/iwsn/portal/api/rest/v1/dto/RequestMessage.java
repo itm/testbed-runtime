@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.encode;
+import static de.uniluebeck.itm.tr.common.Base64Helper.encode;
 
 @XmlRootElement
 public class RequestMessage {

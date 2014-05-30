@@ -2,7 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.iwsn.common.Base64Helper;
+import de.uniluebeck.itm.tr.common.Base64Helper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.LoginData;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.SnaaSecretAuthenticationKeyList;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.NotLoggedInException;
@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookie;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.ResourceHelper.getSAKsFromCookieOrHeader;
 

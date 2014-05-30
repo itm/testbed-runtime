@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.common.json;
+package de.uniluebeck.itm.tr.common.json;
 
 import com.google.common.base.Throwables;
 import eu.wisebed.api.v3.common.NodeUrn;

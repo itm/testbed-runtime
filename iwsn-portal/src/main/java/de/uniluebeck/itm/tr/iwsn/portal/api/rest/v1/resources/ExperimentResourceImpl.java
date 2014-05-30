@@ -44,9 +44,9 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
-import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.*;
-import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.fromJSON;
-import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.common.Base64Helper.*;
+import static de.uniluebeck.itm.tr.common.json.JSONHelper.fromJSON;
+import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 
 @Path("/experiments/")

@@ -1,9 +1,9 @@
 package de.uniluebeck.itm.tr.iwsn.common.rest;
 
-import de.uniluebeck.itm.tr.iwsn.common.json.NodeUrnDeserializer;
-import de.uniluebeck.itm.tr.iwsn.common.json.NodeUrnPrefixDeserializer;
-import de.uniluebeck.itm.tr.iwsn.common.json.NodeUrnPrefixSerializer;
-import de.uniluebeck.itm.tr.iwsn.common.json.NodeUrnSerializer;
+import de.uniluebeck.itm.tr.common.json.NodeUrnDeserializer;
+import de.uniluebeck.itm.tr.common.json.NodeUrnPrefixDeserializer;
+import de.uniluebeck.itm.tr.common.json.NodeUrnPrefixSerializer;
+import de.uniluebeck.itm.tr.common.json.NodeUrnSerializer;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;

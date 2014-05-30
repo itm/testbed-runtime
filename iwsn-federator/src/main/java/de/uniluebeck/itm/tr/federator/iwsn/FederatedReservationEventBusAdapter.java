@@ -6,7 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper;
+import de.uniluebeck.itm.tr.common.ReservationHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.*;

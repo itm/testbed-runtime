@@ -69,6 +69,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.rs.persistence.OffsetAmountHelper.limitResults;
 import static java.util.Collections.sort;
 
@@ -180,7 +181,6 @@ public class GCalRSPersistence implements RSPersistence {
 				// Update the event and check if the stored text is not truncated, otherwise: fail
 				{
 					// Re-retrieve from GCal
-					// TODO: Validate that this works!!!
 					CalendarEventEntry updatedEntry = eventEntry.getSelf();
 					String content = updatedEntry.getPlainTextContent();
 
@@ -265,6 +265,74 @@ public class GCalRSPersistence implements RSPersistence {
 
 	}
 
+	@Override
+	public List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception {
+
+		final List<ConfidentialReservationData> matching = newArrayList();
+
+		boolean foundEnd = false;
+		int startIndex = 0;
+
+		while (!foundEnd) {
+
+			try {
+
+				// as GCal API can only retrieve events by start and not by end time we query for all past events, sort them
+				// descending and fetch until the first reservation is returned that already ended.
+
+				final DateTime now =
+						new DateTime(new Date(System.currentTimeMillis() + (60 * 1000))); // a bit in the future
+
+				final CalendarQuery myQuery = new CalendarQuery(eventFeedUrl);
+				myQuery.setMaximumStartTime(now);
+				myQuery.addCustomParameter(new Query.CustomParameter("orderby", "starttime"));
+				myQuery.addCustomParameter(new Query.CustomParameter("sortorder", "descending"));
+				myQuery.setMaxResults(20);
+				myQuery.setStartIndex(startIndex);
+
+				final Feed feed = myService.query(myQuery, Feed.class);
+				final List<Entry> entries = feed.getEntries();
+
+				if (entries.size() == 0) {
+					break;
+				}
+
+				for (Entry entry : entries) {
+
+					final ConfidentialReservationData reservation = convert(entry).getReservation();
+
+					final boolean startsBeforeNow = reservation.getFrom().isBeforeNow() ||
+							reservation.getFrom().isEqualNow();
+					final boolean endsAfterNow = reservation.getTo().isAfterNow();
+
+					// if a reservation has started but not ended yet it is active
+					if (startsBeforeNow && endsAfterNow) {
+						matching.add(reservation);
+					}
+
+					// if a reservation has already ended this means that there are no more active reservations
+					if (reservation.getTo().isBeforeNow()) {
+						foundEnd = true;
+						break;
+					}
+				}
+
+				startIndex += entries.size();
+
+			} catch (IOException e) {
+				log.error("Error: " + e, e);
+				throw createRSFault("Internal Server Error");
+			} catch (ServiceException e) {
+				log.error("Error: " + e, e);
+				throw createRSFault("Internal Server Error");
+			}
+		}
+
+		sort(matching, new ConfidentialReservationDataComparator());
+
+		return matching;
+	}
+
 	private void fetchReservations(final List<ConfidentialReservationData> reservations,
 								   @Nullable final org.joda.time.DateTime from,
 								   @Nullable final org.joda.time.DateTime to,
@@ -321,16 +389,16 @@ public class GCalRSPersistence implements RSPersistence {
 			}
 
 			sort(reservations, new Comparator<ConfidentialReservationData>() {
-				@Override
-				public int compare(final ConfidentialReservationData first,
-								   final ConfidentialReservationData second) {
+						@Override
+						public int compare(final ConfidentialReservationData first,
+										   final ConfidentialReservationData second) {
 
-					Interval firstInterval = getReservationInterval(first);
-					Interval secondInterval = getReservationInterval(second);
+							Interval firstInterval = getReservationInterval(first);
+							Interval secondInterval = getReservationInterval(second);
 
-					return firstInterval.isBefore(secondInterval) ? -1 : 1;
-				}
-			}
+							return firstInterval.isBefore(secondInterval) ? -1 : 1;
+						}
+					}
 			);
 
 		} catch (IOException e) {

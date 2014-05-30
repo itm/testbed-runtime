@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.serialize;
+import static de.uniluebeck.itm.tr.common.ReservationHelper.serialize;
 
 public class FederatedReservationImpl extends AbstractService implements FederatedReservation {
 

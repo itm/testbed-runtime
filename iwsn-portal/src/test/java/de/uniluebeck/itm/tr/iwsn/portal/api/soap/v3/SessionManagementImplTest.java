@@ -7,7 +7,7 @@ import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.iwsn.common.EventBusService;
+import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;

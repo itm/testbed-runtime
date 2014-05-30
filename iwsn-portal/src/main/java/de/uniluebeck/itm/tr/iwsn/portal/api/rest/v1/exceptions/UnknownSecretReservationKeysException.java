@@ -5,7 +5,7 @@ import com.google.common.base.Joiner;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import static de.uniluebeck.itm.tr.iwsn.portal.ReservationHelper.deserialize;
+import static de.uniluebeck.itm.tr.common.ReservationHelper.deserialize;
 
 public class UnknownSecretReservationKeysException extends WebApplicationException {
 

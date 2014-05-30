@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.AbstractService;
+import de.uniluebeck.itm.tr.common.EventBusService;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;

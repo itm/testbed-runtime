@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.portal;
+package de.uniluebeck.itm.tr.common;
 
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
@@ -11,10 +11,10 @@ import java.util.Set;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.decode;
-import static de.uniluebeck.itm.tr.iwsn.common.Base64Helper.encode;
-import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.fromJSON;
-import static de.uniluebeck.itm.tr.iwsn.common.json.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.common.Base64Helper.decode;
+import static de.uniluebeck.itm.tr.common.Base64Helper.encode;
+import static de.uniluebeck.itm.tr.common.json.JSONHelper.fromJSON;
+import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
 import static java.util.Collections.sort;
 
 public abstract class ReservationHelper {
@@ -33,11 +33,11 @@ public abstract class ReservationHelper {
 
 
 	public static String serialize(final SecretReservationKey secretReservationKey) {
-		return serializeInternal(newArrayList(secretReservationKey));
+		return serializeSRKs(newArrayList(secretReservationKey));
 	}
 
 	public static String serialize(final Set<SecretReservationKey> secretReservationKeySet) {
-		return serializeInternal(newArrayList(secretReservationKeySet));
+		return serializeSRKs(newArrayList(secretReservationKeySet));
 	}
 
 	public static String serialize(final List<ConfidentialReservationData> crds) {
@@ -45,7 +45,7 @@ public abstract class ReservationHelper {
 		for (ConfidentialReservationData crd : crds) {
 			srks.add(crd.getSecretReservationKey());
 		}
-		return serializeInternal(srks);
+		return serializeSRKs(srks);
 	}
 
 	public static Set<SecretReservationKey> deserialize(final String secretReservationKeysBase64) {
@@ -67,7 +67,7 @@ public abstract class ReservationHelper {
 		return list;
 	}
 
-	private static String serializeInternal(final List<SecretReservationKey> secretReservationKeyList) {
+	public static String serializeSRKs(final List<SecretReservationKey> secretReservationKeyList) {
 		sort(secretReservationKeyList, secretReservationKeyComparator);
 		return encode(toJSON(secretReservationKeyList));
 	}

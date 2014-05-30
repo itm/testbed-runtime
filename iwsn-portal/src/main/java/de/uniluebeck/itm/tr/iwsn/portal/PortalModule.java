@@ -13,10 +13,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherFactory;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
-import de.uniluebeck.itm.tr.common.EndpointManager;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
+import de.uniluebeck.itm.tr.common.*;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfigServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
@@ -100,18 +97,22 @@ public class PortalModule extends AbstractModule {
 		bind(WisemlProviderConfig.class).toProvider(of(wisemlProviderConfig));
 		bind(ExternalPluginServiceConfig.class).toProvider(of(externalPluginServiceConfig));
 
-		install(new SNAAServiceModule(commonConfig, snaaServiceConfig));
-		install(new RSServiceModule(commonConfig, rsServiceConfig));
-		install(new DeviceDBServiceModule(deviceDBConfig));
-
 		bind(ServedNodeUrnsProvider.class).to(DeviceDBServedNodeUrnsProvider.class);
 		bind(ServedNodeUrnPrefixesProvider.class).to(CommonConfigServedNodeUrnPrefixesProvider.class);
 
 		bind(EventBusFactory.class).to(EventBusFactoryImpl.class);
-		bind(PortalEventBus.class).to(PortalEventBusImpl.class).in(Singleton.class);
+
+		bind(PortalEventBusImpl.class).in(Singleton.class);
+		bind(PortalEventBus.class).to(PortalEventBusImpl.class);
+		bind(EventBusService.class).to(PortalEventBusImpl.class); // for use in RS
+
 		bind(ReservationManager.class).to(ReservationManagerImpl.class).in(Singleton.class);
 		bind(UserRegistrationWebAppService.class).to(UserRegistrationWebAppServiceImpl.class).in(Singleton.class);
 		bind(NodeStatusTracker.class).to(NodeStatusTrackerImpl.class).in(Singleton.class);
+
+		install(new SNAAServiceModule(commonConfig, snaaServiceConfig));
+		install(new RSServiceModule(commonConfig, rsServiceConfig));
+		install(new DeviceDBServiceModule(deviceDBConfig));
 
 		install(new FactoryModuleBuilder()
 						.implement(Reservation.class, ReservationImpl.class)

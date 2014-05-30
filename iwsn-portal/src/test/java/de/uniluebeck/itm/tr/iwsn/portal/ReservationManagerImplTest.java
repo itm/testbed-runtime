@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
@@ -154,6 +155,12 @@ public class ReservationManagerImplTest {
 	private RS rs;
 
 	@Mock
+	private Provider<RSPersistence> rsPersistenceProvider;
+
+	@Mock
+	private RSPersistence rsPersistence;
+
+	@Mock
 	private DeviceDBService deviceDBService;
 
 	@Mock
@@ -177,6 +184,9 @@ public class ReservationManagerImplTest {
 	@Mock
 	private CommonConfig commonConfig;
 
+	@Mock
+	private PortalEventBus portalEventBus;
+
 	private ReservationManagerImpl reservationManager;
 
 	@Before
@@ -184,12 +194,15 @@ public class ReservationManagerImplTest {
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX);
 		when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
 		when(rsProvider.get()).thenReturn(rs);
+		when(rsPersistenceProvider.get()).thenReturn(rsPersistence);
 		reservationManager = new ReservationManagerImpl(
 				commonConfig,
 				rsProvider,
+				rsPersistenceProvider,
 				deviceDBService,
 				reservationFactory,
-				schedulerServiceFactory
+				schedulerServiceFactory,
+				portalEventBus
 		);
 		reservationManager.startAndWait();
 	}
