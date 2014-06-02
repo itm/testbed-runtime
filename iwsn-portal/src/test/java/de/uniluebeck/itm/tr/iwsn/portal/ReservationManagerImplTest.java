@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.junit.Assert.assertSame;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -213,22 +212,6 @@ public class ReservationManagerImplTest {
 	}
 
 	@Test
-	public void testThatReservationIsStartedAndReturnedIfKnown() throws Exception {
-
-		setUpReservation1();
-
-		assertSame(reservation1, reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1));
-		verify(reservationFactory).create(
-				anyListOf(ConfidentialReservationData.class),
-				eq(KNOWN_SECRET_RESERVATION_KEY_1.getKey()),
-				eq(USERNAME),
-				eq(RESERVATION_NODE_URNS_1),
-				eq(RESERVATION_INTERVAL_1)
-		);
-		verify(reservation1).startAndWait();
-	}
-
-	@Test
 	public void testThatNullIsReturnedAndNoReservationIsCreatedIfReservationIsUnknown() throws Exception {
 
 		setUpUnknownReservation();
@@ -254,19 +237,6 @@ public class ReservationManagerImplTest {
 
 		verify(reservation1).stopAndWait();
 		verify(reservation2).stopAndWait();
-	}
-
-	@Test
-	public void testThatReservationStartIsImmediatelyIfIntervalIsMet() throws Exception {
-
-		setUpReservation1();
-		when(reservation1.isRunning()).thenReturn(false);
-
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
-
-		verify(reservation1).isRunning();
-		verify(reservation1).startAndWait();
-		verify(schedulerService).schedule(any(ReservationStopCallable.class), anyLong(), any(TimeUnit.class));
 	}
 
 	@Test
