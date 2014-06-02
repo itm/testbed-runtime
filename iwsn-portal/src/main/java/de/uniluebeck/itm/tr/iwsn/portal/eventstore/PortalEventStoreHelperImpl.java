@@ -41,11 +41,13 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 	@Override
 	public IEventStore createAndConfigureEventStore(String serializedReservationKey)
 			throws FileNotFoundException, ClassNotFoundException {
+		log.trace("PortalEventStoreHelperImpl.createAndConfigureEventStore({})", serializedReservationKey);
 		return configureEventStore(serializedReservationKey, false);
 	}
 
 	@Override
 	public IEventStore loadEventStore(String serializedReservationKey, final boolean readOnly) {
+		log.trace("PortalEventStoreHelperImpl.loadEventStore(res={}, readOnly={})", serializedReservationKey, readOnly);
 		try {
 			return configureEventStore(serializedReservationKey, readOnly);
 		} catch (FileNotFoundException e) {
@@ -108,7 +110,6 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 		);
 
 		String baseName = getEventStoreBasenameForReservation(serializedReservationKey);
-		log.trace("Creating new chronicle at {}", baseName);
 
 		//noinspection unchecked
 		return new ChronicleBasedEventStore(baseName, serializers, deserializers, readOnly);

@@ -54,6 +54,10 @@ public interface RSPersistence {
 
 	List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception;
 
+	List<ConfidentialReservationData> getFutureReservations() throws RSFault_Exception;
+
+	List<ConfidentialReservationData> getActiveAndFutureReservations() throws RSFault_Exception;
+
 	ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception;
 

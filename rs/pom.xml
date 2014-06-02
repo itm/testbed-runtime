@@ -57,6 +57,10 @@
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.common</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.uniluebeck.itm</groupId>
+			<artifactId>tr.iwsn-common</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>de.uniluebeck.itm.service-publisher</groupId>

@@ -15,8 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import static com.google.common.base.Throwables.propagate;
 
 class ReservationEventStoreImpl extends AbstractService implements ReservationEventStore {
 
@@ -36,29 +37,28 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 		this.reservation = reservation;
 		this.reservationEventBus = reservation.getReservationEventBus();
 		this.helper = helper;
+		try {
+
+			// if service is restarted while a reservation is running (or after the store has been created but the
+			// reservation didn't start yet we might have to load an existing instead of creating a new store...
+			if (helper.eventStoreExistsForReservation(reservation.getSerializedKey())) {
+				eventStore = helper.loadEventStore(reservation.getSerializedKey(), false);
+			} else {
+				eventStore = helper.createAndConfigureEventStore(reservation.getSerializedKey());
+			}
+
+		} catch (Exception e) {
+			throw propagate(e);
+		}
 	}
 
 	@Override
 	protected void doStart() {
 		log.trace("ReservationEventStoreImpl.doStart()");
 		try {
-
-			// if service is restarted while a reservation is running (or after the store has been created but the
-			// reservation didn't start yet we might have to load an existing instead of creating a new store...
-			if (reservation.isRunning() && helper.eventStoreExistsForReservation(reservation.getSerializedKey())) {
-				eventStore = helper.loadEventStore(reservation.getSerializedKey(), false);
-			} else {
-				eventStore = helper.createAndConfigureEventStore(reservation.getSerializedKey());
-			}
-
 			reservationEventBus.register(this);
 			notifyStarted();
-
-		} catch (FileNotFoundException e) {
-			log.error("Exception while starting reservation event store: ", e);
-			notifyFailed(e);
-		} catch (ClassNotFoundException e) {
-			log.error("Exception while starting reservation event store: ", e);
+		} catch (Exception e) {
 			notifyFailed(e);
 		}
 	}

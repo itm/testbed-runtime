@@ -55,6 +55,24 @@ import java.io.Serializable;
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
 		@NamedQuery(
+				name = ReservationDataInternal.QGetFuture.QUERY_NAME,
+				query = "FROM ReservationDataInternal data WHERE"
+						+ " data.confidentialReservationData.fromDate > :" + ReservationDataInternal.QGetFuture.P_NOW
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
+		),
+		@NamedQuery(
+				name = ReservationDataInternal.QGetActiveAndFuture.QUERY_NAME,
+				query = "FROM ReservationDataInternal data WHERE"
+						+ " ("
+						+ "   data.confidentialReservationData.fromDate <= :" + ReservationDataInternal.QGetActiveAndFuture.P_NOW
+						+ "     AND "
+						+ "   data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetActive.P_NOW
+						+ " ) OR ("
+						+ "   data.confidentialReservationData.fromDate > :" + ReservationDataInternal.QGetFuture.P_NOW
+						+ " )"
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
+		),
+		@NamedQuery(
 				name = ReservationDataInternal.QGetAll.QUERY_NAME,
 				query = "FROM ReservationDataInternal data"
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
@@ -93,6 +111,20 @@ public class ReservationDataInternal implements Serializable {
 	public static class QGetActive {
 
 		public static final String QUERY_NAME = "getActiveReservations";
+
+		public static final String P_NOW = "now";
+	}
+
+	public static class QGetFuture {
+
+		public static final String QUERY_NAME = "getFutureReservations";
+
+		public static final String P_NOW = "now";
+	}
+
+	public static class QGetActiveAndFuture {
+
+		public static final String QUERY_NAME = "getActiveAndFutureReservations";
 
 		public static final String P_NOW = "now";
 	}

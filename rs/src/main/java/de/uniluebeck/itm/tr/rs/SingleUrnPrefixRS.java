@@ -6,10 +6,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.EventBusService;
+import de.uniluebeck.itm.tr.common.ReservationHelper;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.common.events.ReservationDeletedEvent;
-import de.uniluebeck.itm.tr.common.events.ReservationMadeEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -152,7 +153,8 @@ public class SingleUrnPrefixRS implements RS {
 			checkNotAlreadyStarted(reservationToDelete);
 			persistence.deleteReservation(relevantSRK);
 			log.debug("Deleted reservation {}", reservationToDelete);
-			eventBus.post(new ReservationDeletedEvent(relevantSRKs));
+			final String serializedKey = ReservationHelper.serializeSRKs(relevantSRKs);
+			eventBus.post(ReservationDeletedEvent.newBuilder().setSerializedKey(serializedKey).build());
 		}
 	}
 
@@ -186,7 +188,8 @@ public class SingleUrnPrefixRS implements RS {
 		final ArrayList<SecretReservationKey> srks =
 				newArrayList(confidentialReservationData.getSecretReservationKey());
 
-		eventBus.post(new ReservationMadeEvent(srks));
+		final String serializedKey = ReservationHelper.serializeSRKs(srks);
+		eventBus.post(ReservationMadeEvent.newBuilder().setSerializedKey(serializedKey).build());
 
 		return srks;
 	}

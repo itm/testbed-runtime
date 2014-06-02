@@ -192,6 +192,14 @@ message ReservationEndedEvent {
 	required string serializedKey = 1;
 }
 
+message ReservationMadeEvent {
+	required string serializedKey = 1;
+}
+
+message ReservationDeletedEvent {
+	required string serializedKey = 1;
+}
+
 message Event {
 
 	enum Type {
@@ -201,6 +209,8 @@ message Event {
 		NOTIFICATION        = 4;
 		RESERVATION_STARTED = 5;
 		RESERVATION_ENDED   = 6;
+		RESERVATION_MADE    = 7;
+		RESERVATION_DELETED = 8;
 	}
 
 	required int64                eventId              = 1;
@@ -212,6 +222,8 @@ message Event {
 	optional NotificationEvent       notificationEvent       = 104;
 	optional ReservationStartedEvent reservationStartedEvent = 105;
 	optional ReservationEndedEvent   reservationEndedEvent   = 106;
+	optional ReservationMadeEvent    reservationMadeEvent    = 107;
+	optional ReservationDeletedEvent reservationDeletedEvent = 108;
 }
 
 message EventAck {

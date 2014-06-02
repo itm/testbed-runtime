@@ -42,4 +42,14 @@ public interface EventOrBuilder
   boolean hasReservationEndedEvent();
   de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent getReservationEndedEvent();
   de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder getReservationEndedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent reservationMadeEvent = 107;
+  boolean hasReservationMadeEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent getReservationMadeEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEventOrBuilder getReservationMadeEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent = 108;
+  boolean hasReservationDeletedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent getReservationDeletedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder getReservationDeletedEventOrBuilder();
 }

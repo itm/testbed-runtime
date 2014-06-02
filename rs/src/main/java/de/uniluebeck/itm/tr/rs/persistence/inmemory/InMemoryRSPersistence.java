@@ -109,20 +109,31 @@ public class InMemoryRSPersistence implements RSPersistence {
 	}
 
 	@Override
-	public List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception {
-
+	public synchronized List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception {
 		final List<ConfidentialReservationData> matchingReservations = newLinkedList();
-
 		for (ConfidentialReservationData reservation : reservations) {
-
-			final boolean startsBeforeNow = reservation.getFrom().isBeforeNow() || reservation.getFrom().isEqualNow();
-			final boolean endsAfterNow = reservation.getTo().isAfterNow();
-
-			if (startsBeforeNow && endsAfterNow) {
+			if (new Interval(reservation.getFrom(), reservation.getTo()).containsNow()) {
 				matchingReservations.add(reservation);
 			}
 		}
+		return matchingReservations;
+	}
 
+	@Override
+	public synchronized List<ConfidentialReservationData> getFutureReservations() throws RSFault_Exception {
+		final List<ConfidentialReservationData> matchingReservations = newLinkedList();
+		for (ConfidentialReservationData reservation : reservations) {
+			if (new Interval(reservation.getFrom(), reservation.getTo()).isAfterNow()) {
+				matchingReservations.add(reservation);
+			}
+		}
+		return matchingReservations;
+	}
+
+	@Override
+	public synchronized List<ConfidentialReservationData> getActiveAndFutureReservations() throws RSFault_Exception {
+		final List<ConfidentialReservationData> matchingReservations = getActiveReservations();
+		matchingReservations.addAll(getFutureReservations());
 		return matchingReservations;
 	}
 

@@ -6,10 +6,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.ReservationHelper;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.common.events.ReservationDeletedEvent;
-import de.uniluebeck.itm.tr.common.events.ReservationMadeEvent;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
@@ -84,7 +84,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 		try {
 			portalEventBus.register(this);
 			schedulerService.startAndWait();
-			replayStartedEvents();
+			replayReservationMadeEvents();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -107,16 +107,18 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	/**
-	 * Replay all {@link de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent}s of reservations that are
-	 * currently active to drive all subscribers to the current state (cf. event-sourced architecture).
+	 * Replay all {@link de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent}s of reservations that are
+	 * currently active of in the future to drive all subscribers to the current state (cf. event-sourced architecture).
 	 */
-	private void replayStartedEvents() {
-		log.trace("ReservationManagerImpl.replayStartedEvents()");
+	private void replayReservationMadeEvents() {
+
+		log.trace("ReservationManagerImpl.replayReservationMadeEvents()");
+
 		try {
-			for (ConfidentialReservationData crd : rsPersistence.get().getActiveReservations()) {
+			for (ConfidentialReservationData crd : rsPersistence.get().getActiveAndFutureReservations()) {
 				final String serializedKey = ReservationHelper.serialize(crd.getSecretReservationKey());
-				log.trace("Replaying ReservationStartedEvent for {}", serializedKey);
-				getReservation(serializedKey);
+				log.trace("Replaying ReservationMadeEvent for {}", serializedKey);
+				portalEventBus.post(ReservationMadeEvent.newBuilder().setSerializedKey(serializedKey).build());
 			}
 		} catch (RSFault_Exception e) {
 			throw propagate(e);
@@ -127,7 +129,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	public void onReservationMadeEvent(final ReservationMadeEvent event) {
 		log.trace("ReservationManagerImpl.onReservationMadeEvent({})", event.getSerializedKey());
 		// getReservation will set up any internal state necessary
-		getReservation(ReservationHelper.deserialize(event.getSerializedKey()));
+		getReservation(deserialize(event.getSerializedKey()));
 	}
 
 	@Subscribe
@@ -150,50 +152,59 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 			}
 		}
 
+		final Set<SecretReservationKey> srkSet = newHashSet(srks);
+
 		synchronized (reservationMap) {
 
-			final Set<SecretReservationKey> srkSet = newHashSet(srks);
 			if (reservationMap.containsKey(srkSet)) {
 				return reservationMap.get(srkSet);
 			}
 
-			final List<ConfidentialReservationData> confidentialReservationDataList;
-			try {
-				confidentialReservationDataList = rs.get().getReservation(newArrayList(srkSet));
-			} catch (RSFault_Exception e) {
-				throw propagate(e);
-			} catch (UnknownSecretReservationKeyFault e) {
-				throw new ReservationUnknownException(srkSet, e);
-			}
-
-			if (confidentialReservationDataList.size() == 0) {
-				throw new ReservationUnknownException(srkSet);
-			}
-
-			checkArgument(
-					confidentialReservationDataList.size() == 1,
-					"There must be exactly one secret reservation key as this is a single URN-prefix implementation."
-			);
-
-			final ConfidentialReservationData data = confidentialReservationDataList.get(0);
-			final Set<NodeUrn> reservedNodes = newHashSet(data.getNodeUrns());
-
-			assertNodesInTestbed(reservedNodes);
-
-			final Reservation reservation = reservationFactory.create(
-					confidentialReservationDataList,
-					data.getSecretReservationKey().getKey(),
-					data.getUsername(),
-					reservedNodes,
-					new Interval(data.getFrom(), data.getTo())
-			);
-
-			reservationMap.put(srkSet, reservation);
-
-			scheduleStartStop(reservation);
-
-			return reservation;
+			return createAndInitReservation(srkSet);
 		}
+	}
+
+	/**
+	 * Only call when synchronized on reservationMap. Creates a new reservation and puts a reference into the map.
+	 */
+	private Reservation createAndInitReservation(final Set<SecretReservationKey> srkSet) {
+
+		final List<ConfidentialReservationData> confidentialReservationDataList;
+		try {
+			confidentialReservationDataList = rs.get().getReservation(newArrayList(srkSet));
+		} catch (RSFault_Exception e) {
+			throw propagate(e);
+		} catch (UnknownSecretReservationKeyFault e) {
+			throw new ReservationUnknownException(srkSet, e);
+		}
+
+		if (confidentialReservationDataList.size() == 0) {
+			throw new ReservationUnknownException(srkSet);
+		}
+
+		checkArgument(
+				confidentialReservationDataList.size() == 1,
+				"There must be exactly one secret reservation key as this is a single URN-prefix implementation."
+		);
+
+		final ConfidentialReservationData data = confidentialReservationDataList.get(0);
+		final Set<NodeUrn> reservedNodes = newHashSet(data.getNodeUrns());
+
+		assertNodesInTestbed(reservedNodes);
+
+		final Reservation reservation = reservationFactory.create(
+				confidentialReservationDataList,
+				data.getSecretReservationKey().getKey(),
+				data.getUsername(),
+				reservedNodes,
+				new Interval(data.getFrom(), data.getTo())
+		);
+
+		scheduleStartStop(reservation);
+
+		reservationMap.put(srkSet, reservation);
+
+		return reservation;
 	}
 
 	/**
@@ -206,7 +217,13 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	 */
 	private void scheduleStartStop(final Reservation reservation) {
 
-		if (!reservation.isRunning() && reservation.getInterval().containsNow()) {
+		log.trace("ReservationManagerImpl.scheduleStartStop({})", reservation.getSerializedKey());
+
+		if (reservation.isRunning()) {
+			throw new IllegalStateException("Reservation instance should not be running yet!");
+		}
+
+		if (reservation.getInterval().containsNow()) {
 
 			log.trace("ReservationManagerImpl.scheduleStartStop() for currently running reservation");
 

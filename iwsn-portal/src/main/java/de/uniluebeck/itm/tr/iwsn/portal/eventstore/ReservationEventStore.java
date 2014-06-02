@@ -7,7 +7,7 @@ import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 
 public interface ReservationEventStore extends IEventStore, Service{
 
-    public void reservationEnded(final ReservationEndedEvent event);
+	public void reservationStarted(final ReservationStartedEvent event);
 
-    public void reservationStarted(final ReservationStartedEvent event);
+    public void reservationEnded(final ReservationEndedEvent event);
 }

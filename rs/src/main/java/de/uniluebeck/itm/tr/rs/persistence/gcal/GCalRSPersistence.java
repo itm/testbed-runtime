@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.rs.persistence.gcal;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.gdata.client.Query;
 import com.google.gdata.client.calendar.CalendarQuery;
@@ -69,6 +70,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Iterators.filter;
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.rs.persistence.OffsetAmountHelper.limitResults;
 import static java.util.Collections.sort;
@@ -76,6 +78,21 @@ import static java.util.Collections.sort;
 public class GCalRSPersistence implements RSPersistence {
 
 	private static final Logger log = LoggerFactory.getLogger(GCalRSPersistence.class);
+
+	private static final Predicate<ConfidentialReservationData>
+			ACTIVE_RESERVATION_PREDICATE = new Predicate<ConfidentialReservationData>() {
+		@Override
+		public boolean apply(final ConfidentialReservationData reservation) {
+			return new Interval(reservation.getFrom(), reservation.getTo()).containsNow();
+		}
+	};
+	private static final Predicate<ConfidentialReservationData>
+			FUTURE_RESERVATION_PREDICATE = new Predicate<ConfidentialReservationData>() {
+		@Override
+		public boolean apply(final ConfidentialReservationData reservation) {
+			return new Interval(reservation.getFrom(), reservation.getTo()).isAfterNow();
+		}
+	};
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
@@ -267,11 +284,20 @@ public class GCalRSPersistence implements RSPersistence {
 
 	@Override
 	public List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception {
+		return newArrayList(filter(getActiveAndFutureReservations().iterator(), ACTIVE_RESERVATION_PREDICATE));
+	}
 
-		final List<ConfidentialReservationData> matching = newArrayList();
+	@Override
+	public List<ConfidentialReservationData> getFutureReservations() throws RSFault_Exception {
+		return newArrayList(filter(getActiveAndFutureReservations().iterator(), FUTURE_RESERVATION_PREDICATE));
+	}
+
+	@Override
+	public List<ConfidentialReservationData> getActiveAndFutureReservations() throws RSFault_Exception {
+
+		final List<ConfidentialReservationData> list = newArrayList();
 
 		boolean foundEnd = false;
-		int startIndex = 0;
 
 		while (!foundEnd) {
 
@@ -288,7 +314,7 @@ public class GCalRSPersistence implements RSPersistence {
 				myQuery.addCustomParameter(new Query.CustomParameter("orderby", "starttime"));
 				myQuery.addCustomParameter(new Query.CustomParameter("sortorder", "descending"));
 				myQuery.setMaxResults(20);
-				myQuery.setStartIndex(startIndex);
+				myQuery.setStartIndex(list.size());
 
 				final Feed feed = myService.query(myQuery, Feed.class);
 				final List<Entry> entries = feed.getEntries();
@@ -301,23 +327,14 @@ public class GCalRSPersistence implements RSPersistence {
 
 					final ConfidentialReservationData reservation = convert(entry).getReservation();
 
-					final boolean startsBeforeNow = reservation.getFrom().isBeforeNow() ||
-							reservation.getFrom().isEqualNow();
-					final boolean endsAfterNow = reservation.getTo().isAfterNow();
+					list.add(reservation);
 
-					// if a reservation has started but not ended yet it is active
-					if (startsBeforeNow && endsAfterNow) {
-						matching.add(reservation);
-					}
-
-					// if a reservation has already ended this means that there are no more active reservations
+					// if a reservation has already ended this means that there are no more active or future reservations
 					if (reservation.getTo().isBeforeNow()) {
 						foundEnd = true;
 						break;
 					}
 				}
-
-				startIndex += entries.size();
 
 			} catch (IOException e) {
 				log.error("Error: " + e, e);
@@ -328,9 +345,9 @@ public class GCalRSPersistence implements RSPersistence {
 			}
 		}
 
-		sort(matching, new ConfidentialReservationDataComparator());
+		sort(list, new ConfidentialReservationDataComparator());
 
-		return matching;
+		return list;
 	}
 
 	private void fetchReservations(final List<ConfidentialReservationData> reservations,
