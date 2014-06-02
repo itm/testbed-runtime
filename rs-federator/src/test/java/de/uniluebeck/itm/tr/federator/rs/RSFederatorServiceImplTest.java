@@ -45,6 +45,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -90,6 +91,7 @@ public class RSFederatorServiceImplTest {
 
 	@Before
 	public void setUp() throws Exception {
+		when(endpointManager.getRsEndpointUri()).thenReturn(URI.create("http://localhost/soap/v3/rs"));
 		when(servicePublisher.createJaxWsService(anyString(), anyObject(), any(Ini.class)))
 				.thenReturn(servicePublisherService);
 		federatorRSExecutorService = Executors.newSingleThreadExecutor();
