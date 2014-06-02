@@ -35,6 +35,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.federator.iwsn.async.*;
@@ -62,7 +63,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -92,6 +92,8 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 	private final URI endpointUri;
 
+	private final EndpointManager endpointManager;
+
 	private final FederatedReservation reservation;
 
 	private final DeliveryManager deliveryManager;
@@ -106,26 +108,21 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 								   final ListeningExecutorService executorService,
 								   final PreconditionsFactory preconditionsFactory,
 								   final PortalEventBus portalEventBus,
+								   final EndpointManager endpointManager,
 								   @Assisted final FederatedReservation reservation,
 								   @Assisted final DeliveryManager deliveryManager,
 								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints,
 								   @Assisted final Set<NodeUrnPrefix> nodeUrnPrefixes,
 								   @Assisted final Set<NodeUrn> nodeUrns) {
 		this.portalEventBus = portalEventBus;
+		this.endpointManager = endpointManager;
 		this.reservation = reservation;
 		this.deliveryManager = deliveryManager;
-		checkArgument(
-				config.getFederatorWsnEndpointUriBase() != null && !""
-						.equals(config.getFederatorWsnEndpointUriBase().toString()),
-				"Configuration parameter " + IWSNFederatorServiceConfig.FEDERATOR_WSN_ENDPOINT_URI_BASE + " must be set"
-		);
-		assert config.getFederatorWsnEndpointUriBase() != null;
-
 		this.servicePublisher = servicePublisher;
 		this.wsnPreconditions = preconditionsFactory.createWsnPreconditions(nodeUrnPrefixes, nodeUrns);
 
 		String uriString;
-		uriString = config.getFederatorWsnEndpointUriBase().toString();
+		uriString = endpointManager.getWsnEndpointUriBase().toString();
 		uriString += uriString.endsWith("/") ? "" : "/";
 		uriString += reservation.getSerializedKey();
 		this.endpointUri = URI.create(uriString);
@@ -295,11 +292,11 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 		for (final URI endpointUrl : endpointUrls) {
 			endpointUrlToCallableMap.put(endpointUrl, new Callable<String>() {
-				@Override
-				public String call() throws Exception {
-					return wsnFederatedEndpoints.getEndpointByEndpointUrl(endpointUrl).getNetwork();
-				}
-			}
+						@Override
+						public String call() throws Exception {
+							return wsnFederatedEndpoints.getEndpointByEndpointUrl(endpointUrl).getNetwork();
+						}
+					}
 			);
 		}
 
@@ -720,36 +717,36 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 	private void addErrorHandling(final ListenableFuture<Void> listenableFuture, final long requestId,
 								  final List<NodeUrn> nodeUrns) {
 		addCallback(listenableFuture, new FutureCallback<Void>() {
-			@Override
-			public void onSuccess(final Void result) {
-				// the result is ignored since this is about catching exceptions only
-			}
+					@Override
+					public void onSuccess(final Void result) {
+						// the result is ignored since this is about catching exceptions only
+					}
 
-			@Override
-			public void onFailure(final Throwable t) {
-				log.error(t.getMessage(), t);
+					@Override
+					public void onFailure(final Throwable t) {
+						log.error(t.getMessage(), t);
 
-				StringBuilder sb = new StringBuilder();
-				sb.append("An exception occurred calling WSNFederatorService#send using federatorRequestId '")
-						.append(requestId)
-						.append("': ")
-						.append(t.getCause())
-						.append(t.getMessage())
-						.append("\r\n")
-						.append(getStackTraceAsString(t));
+						StringBuilder sb = new StringBuilder();
+						sb.append("An exception occurred calling WSNFederatorService#send using federatorRequestId '")
+								.append(requestId)
+								.append("': ")
+								.append(t.getCause())
+								.append(t.getMessage())
+								.append("\r\n")
+								.append(getStackTraceAsString(t));
 
-				for (NodeUrn nodeUrn : nodeUrns) {
-					portalEventBus.post(newSingleNodeResponse(
-							reservation.getSerializedKey(),
-							requestId,
-							nodeUrn,
-							-1,
-							sb.toString()
-					)
-					);
+						for (NodeUrn nodeUrn : nodeUrns) {
+							portalEventBus.post(newSingleNodeResponse(
+											reservation.getSerializedKey(),
+											requestId,
+											nodeUrn,
+											-1,
+											sb.toString()
+									)
+							);
+						}
+					}
 				}
-			}
-		}
 		);
 	}
 

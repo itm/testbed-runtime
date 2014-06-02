@@ -75,16 +75,6 @@ public class GatewayConfig {
 	private String smartSantanderGatewayId;
 
 	@PropConf(
-			usage = "Shiro INI file (if given, configures the Apache Shiro framework to do authentication and authorization for all published REST, SOAP & HTML services)",
-			defaultValue = ""
-	)
-	public static final String SHIRO_INI = "shiro.ini";
-
-	@Inject(optional = true)
-	@Named(SHIRO_INI)
-	protected String shiroIni;
-
-	@PropConf(
 			usage = "Scan for devices supported by the built-in drivers (iSense, TelosB and Pacemate, default: true)."
 					+ " Set to false e.g., if you attach devices using your own (plugin-based) device drivers.",
 			defaultValue = "true"
@@ -118,10 +108,6 @@ public class GatewayConfig {
 
 	public String getSmartSantanderGatewayId() {
 		return smartSantanderGatewayId;
-	}
-
-	public String getShiroIni() {
-		return shiroIni;
 	}
 
 	public boolean isScanDevices() {

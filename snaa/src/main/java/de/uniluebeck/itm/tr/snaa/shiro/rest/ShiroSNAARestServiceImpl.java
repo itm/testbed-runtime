@@ -4,8 +4,8 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.Constants;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import org.apache.shiro.config.Ini;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.snaa.SNAAServiceConfig.*;
 
 public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSNAARestService {
 
@@ -22,8 +21,6 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 	private final ServicePublisher servicePublisher;
 
 	private final ShiroSNAARestApplication application;
-
-	private final SNAAServiceConfig config;
 
 	private final CommonConfig commonConfig;
 
@@ -34,11 +31,9 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 	@Inject
 	public ShiroSNAARestServiceImpl(final ServicePublisher servicePublisher,
 									final ShiroSNAARestApplication application,
-									final SNAAServiceConfig config,
 									final CommonConfig commonConfig) {
 		this.servicePublisher = servicePublisher;
 		this.application = application;
-		this.config = config;
 		this.commonConfig = commonConfig;
 	}
 
@@ -54,7 +49,7 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 			shiroIni.getSection("users").put(commonConfig.getAdminUsername(), commonConfig.getAdminPassword());
 
 			jaxRsService = servicePublisher.createJaxRsService(
-					"/admin/shiro-snaa/rest",
+					Constants.SHIRO_SNAA.ADMIN_REST_API_CONTEXT_PATH_VALUE,
 					application,
 					shiroIni
 			);
@@ -66,12 +61,22 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 			final Map<String, String> webAppInitParams = newHashMap();
 
 			webAppInitParams.put(
-					SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH,
-					config.getShiroAdminDeviceDBRestApiContextPath()
+					Constants.SHIRO_SNAA.ADMIN_REST_API_CONTEXT_PATH_KEY,
+					Constants.SHIRO_SNAA.ADMIN_REST_API_CONTEXT_PATH_VALUE
+			);
+
+			webAppInitParams.put(
+					Constants.SHIRO_SNAA.ADMIN_WEB_APP_CONTEXT_PATH_KEY,
+					Constants.SHIRO_SNAA.ADMIN_WEB_APP_CONTEXT_PATH_VALUE
+			);
+
+			webAppInitParams.put(
+					Constants.SHIRO_SNAA.DEVICEDB_REST_API_CONTEXT_PATH_KEY,
+					Constants.SHIRO_SNAA.DEVICEDB_REST_API_CONTEXT_PATH_VALUE
 			);
 
 			webApp = servicePublisher.createServletService(
-					"/admin/shiro-snaa",
+					Constants.SHIRO_SNAA.ADMIN_WEB_APP_CONTEXT_PATH_VALUE,
 					webAppResourceBase,
 					webAppInitParams,
 					shiroIni

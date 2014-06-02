@@ -7,7 +7,20 @@ import de.uniluebeck.itm.util.propconf.PropConf;
 public class FederatorServerConfig {
 
 	@PropConf(
-			usage = "Port on which to run the federator",
+			usage = "DNS-resolvable hostname on which this process and its services will be run"
+	)
+	public static final String FEDERATOR_HOSTNAME = "federator.hostname";
+
+	@Inject
+	@Named(FEDERATOR_HOSTNAME)
+	private String federatorHostname;
+
+	public String getFederatorHostname() {
+		return federatorHostname;
+	}
+
+	@PropConf(
+			usage = "Publicly accessible port under which this process and its services shall be available",
 			example = "8880",
 			defaultValue = "8880"
 	)

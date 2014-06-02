@@ -39,13 +39,11 @@ import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceModule;
 
-import java.net.URI;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.google.common.util.concurrent.MoreExecutors.getExitingExecutorService;
 import static com.google.inject.util.Providers.of;
-import static de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig.*;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class PortalModule extends AbstractModule {
@@ -109,6 +107,7 @@ public class PortalModule extends AbstractModule {
 		bind(ReservationManager.class).to(ReservationManagerImpl.class).in(Singleton.class);
 		bind(UserRegistrationWebAppService.class).to(UserRegistrationWebAppServiceImpl.class).in(Singleton.class);
 		bind(NodeStatusTracker.class).to(NodeStatusTrackerImpl.class).in(Singleton.class);
+		bind(EndpointManager.class).to(EndpointManagerImpl.class).in(Singleton.class);
 
 		install(new SNAAServiceModule(commonConfig, snaaServiceConfig));
 		install(new RSServiceModule(commonConfig, rsServiceConfig));
@@ -165,53 +164,5 @@ public class PortalModule extends AbstractModule {
 		return new SimpleTimeLimiter(
 				getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool(threadFactory))
 		);
-	}
-
-	@Provides
-	EndpointManager provideEndpointManager(final PortalServerConfig portalServerConfig) {
-
-		return new EndpointManager() {
-
-			@Override
-			public URI getSnaaEndpointUri() {
-				return assertNonEmpty(
-						portalServerConfig.getConfigurationSnaaEndpointUri(),
-						CONFIGURATION_SNAA_ENDPOINT_URI
-				);
-			}
-
-			@Override
-			public URI getRsEndpointUri() {
-				return assertNonEmpty(
-						portalServerConfig.getConfigurationRsEndpointUri(),
-						CONFIGURATION_RS_ENDPOINT_URI
-				);
-			}
-
-			@Override
-			public URI getSmEndpointUri() {
-				return assertNonEmpty(
-						portalServerConfig.getConfigurationSmEndpointUri(),
-						CONFIGURATION_SM_ENDPOINT_URI
-				);
-			}
-
-			@Override
-			public URI getWsnEndpointUriBase() {
-				return assertNonEmpty(
-						portalServerConfig.getConfigurationWsnEndpointUriBase(),
-						CONFIGURATION_WSN_ENDPOINT_URI_BASE
-				);
-			}
-
-			private URI assertNonEmpty(final URI uri, final String paramName) {
-				if (uri == null || uri.toString().isEmpty()) {
-					throw new IllegalArgumentException(
-							"Configuration parameter " + paramName + " must be set!"
-					);
-				}
-				return uri;
-			}
-		};
 	}
 }

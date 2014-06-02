@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 import com.google.common.collect.Sets;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
@@ -106,6 +107,9 @@ public class SessionManagementImplTest {
 	@Mock
 	private Provider<Wiseml> wisemlProvider;
 
+	@Mock
+	private EndpointManager endpointManager;
+
 	private SessionManagementImpl sessionManagement;
 
 	@Before
@@ -136,7 +140,8 @@ public class SessionManagementImplTest {
 				deliveryManagerFactory,
 				requestIdProvider,
 				sessionManagementPreconditionsProvider,
-				wisemlProvider
+				wisemlProvider,
+				endpointManager
 		);
 	}
 

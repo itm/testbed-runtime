@@ -1,4 +1,4 @@
-<%@ page import="static de.uniluebeck.itm.tr.snaa.SNAAServiceConfig.SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH" %>
+<%@ page import="de.uniluebeck.itm.tr.common.Constants" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,9 +21,12 @@
 
 		var app = app || {};
 
-		app.rest_api_context_path = "/admin/shiro-snaa/rest";
-		app.webapp_context_path   = "/admin/shiro-snaa";
-		app.device_db_rest_api_context_path = "<%= getServletConfig().getInitParameter(SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH) %>";
+		app.rest_api_context_path =
+				"<%= getServletConfig().getInitParameter(Constants.SHIRO_SNAA.ADMIN_REST_API_CONTEXT_PATH_KEY) %>";
+		app.webapp_context_path =
+				"<%= getServletConfig().getInitParameter(Constants.SHIRO_SNAA.ADMIN_WEB_APP_CONTEXT_PATH_KEY) %>";
+		app.device_db_rest_api_context_path =
+				"<%= getServletConfig().getInitParameter(Constants.SHIRO_SNAA.DEVICEDB_REST_API_CONTEXT_PATH_KEY) %>";
 
 		$(document).ready(function() {
 			'use strict';
@@ -37,7 +40,7 @@
 
 			// set up that route events in backbone.js will trigger clicks in bootstrap tabs
 			Backbone.history.on('route', function(router, event) {
-				$('#navigation a[href="#'+event+'"]').click();
+				$('#navigation a[href="#' + event + '"]').click();
 			});
 
 			Backbone.history.start();

@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.util.concurrent.AbstractService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,15 +18,11 @@ public class UserRegistrationWebAppServiceImpl extends AbstractService implement
 
 	private final ServicePublisher servicePublisher;
 
-	private final PortalServerConfig portalServerConfig;
-
 	private ServicePublisherService webapp;
 
 	@Inject
-	public UserRegistrationWebAppServiceImpl(final ServicePublisher servicePublisher,
-											 final PortalServerConfig portalServerConfig) {
+	public UserRegistrationWebAppServiceImpl(final ServicePublisher servicePublisher) {
 		this.servicePublisher = servicePublisher;
-		this.portalServerConfig = portalServerConfig;
 	}
 
 	@Override
@@ -36,7 +33,7 @@ public class UserRegistrationWebAppServiceImpl extends AbstractService implement
 			final String resourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/iwsn/portal/userregistration").toString();
 			final Map<String, String> params = newHashMap();
 
-			params.put(PORTAL_REST_API_CONTEXT_PATH, "/rest/v1.0");
+			params.put(Constants.REST_API_V1.REST_API_CONTEXT_PATH_KEY, Constants.REST_API_V1.REST_API_CONTEXT_PATH_VALUE);
 
 			webapp = servicePublisher.createServletService("/user_registration", resourceBase, params, null);
 			webapp.startAndWait();

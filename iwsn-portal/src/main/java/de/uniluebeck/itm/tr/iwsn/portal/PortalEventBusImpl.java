@@ -110,7 +110,7 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 				}
 			};
 
-			nettyServer = nettyServerFactory.create(new InetSocketAddress(config.getOverlayPort()), pipelineFactory);
+			nettyServer = nettyServerFactory.create(new InetSocketAddress(config.getGatewayPort()), pipelineFactory);
 			nettyServer.startAndWait();
 
 			notifyStarted();

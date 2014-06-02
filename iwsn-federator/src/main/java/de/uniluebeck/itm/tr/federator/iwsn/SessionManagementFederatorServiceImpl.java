@@ -32,10 +32,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
-import de.uniluebeck.itm.tr.common.PreconditionsFactory;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
-import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.common.*;
 import de.uniluebeck.itm.tr.federator.iwsn.async.GetSupportedChannelHandlersCallable;
 import de.uniluebeck.itm.tr.federator.iwsn.async.SMAreNodesAliveCallable;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
@@ -107,6 +104,8 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 
 	private final SessionManagementWisemlProvider wisemlProvider;
 
+	private final EndpointManager endpointManager;
+
 	/**
 	 * Preconditions instance to check method arguments sent by user.
 	 */
@@ -116,6 +115,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 
 	@Inject
 	public SessionManagementFederatorServiceImpl(
+			final EndpointManager endpointManager,
 			final FederatedEndpoints<SessionManagement> federatedEndpoints,
 			final PreconditionsFactory preconditionsFactory,
 			final IWSNFederatorServiceConfig config,
@@ -125,6 +125,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 			final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
 			final ServedNodeUrnsProvider servedNodeUrnsProvider,
 			final SessionManagementWisemlProvider wisemlProvider) {
+		this.endpointManager = checkNotNull(endpointManager);
 		this.preconditionsFactory = checkNotNull(preconditionsFactory);
 		this.servedNodeUrnPrefixesProvider = checkNotNull(servedNodeUrnPrefixesProvider);
 		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
@@ -141,7 +142,8 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 		log.trace("SessionManagementFederatorServiceImpl.doStart()");
 		try {
 
-			jaxWsService = servicePublisher.createJaxWsService(config.getFederatorSmEndpointUri().getPath(), this, null);
+			jaxWsService =
+					servicePublisher.createJaxWsService(endpointManager.getSmEndpointUri().getPath(), this, null);
 			jaxWsService.startAndWait();
 
 			notifyStarted();
@@ -258,12 +260,19 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 		log.debug("Invoking getFilters() on {}", endpointUrls);
 		for (final URI endpointUrl : endpointUrls) {
 			Future<ImmutableSet<String>> future = executorService.submit(new Callable<ImmutableSet<String>>() {
-				@Override
-				public ImmutableSet<String> call() throws Exception {
-					SessionManagement endpoint = federatedEndpoints.getEndpointByEndpointUrl(endpointUrl);
-					return ImmutableSet.copyOf(endpoint.getSupportedVirtualLinkFilters());
-				}
-			}
+																			 @Override
+																			 public ImmutableSet<String> call()
+																					 throws Exception {
+																				 SessionManagement endpoint =
+																						 federatedEndpoints
+																								 .getEndpointByEndpointUrl(
+																										 endpointUrl
+																								 );
+																				 return ImmutableSet.copyOf(endpoint
+																						 .getSupportedVirtualLinkFilters()
+																				 );
+																			 }
+																		 }
 			);
 			endpointUrlToResultsMapping.put(endpointUrl, future);
 		}
@@ -372,9 +381,9 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 			);
 
 			futures.add(new Tuple<Set<NodeUrn>, Future<List<NodeConnectionStatus>>>(
-					nodeUrnSubset,
-					executorService.submit(callable)
-			)
+							nodeUrnSubset,
+							executorService.submit(callable)
+					)
 			);
 		}
 
@@ -405,8 +414,8 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 		log.trace("SessionManagementFederatorServiceImpl.getConfiguration()");
 		checkState(isRunning());
 
-		rsEndpointUrl.value = config.getFederatorRsEndpointUri().toString();
-		snaaEndpointUrl.value = config.getFederatorSnaaEndpointUri().toString();
+		rsEndpointUrl.value = endpointManager.getRsEndpointUri().toString();
+		snaaEndpointUrl.value = endpointManager.getSnaaEndpointUri().toString();
 		servedUrnPrefixes.value = newArrayList();
 		for (Set<NodeUrnPrefix> nodeUrnPrefixes : config.getFederates().values()) {
 			servedUrnPrefixes.value.addAll(nodeUrnPrefixes);
@@ -414,7 +423,8 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 	}
 
 	/**
-	 * Returns a {@link Map} that maps Session Management Endpoint URLs to the subset of node URNs of {@code nodeUrns} for
+	 * Returns a {@link Map} that maps Session Management Endpoint URLs to the subset of node URNs of {@code nodeUrns}
+	 * for
 	 * which each map entry is responsible.
 	 *
 	 * @param nodeUrns

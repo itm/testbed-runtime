@@ -19,36 +19,6 @@ public class SNAAFederatorServiceConfig {
 	@Named(FEDERATOR_FEDERATES)
 	private URIToNodeUrnPrefixSetMap federates;
 
-	@PropConf(
-			usage = "Context path on which to run the SNAA federator",
-			example = "/soap/v3/snaa",
-			defaultValue = "/soap/v3/snaa"
-	)
-	public static final String FEDERATOR_CONTEXT_PATH = "federator.snaa.context_path";
-
-	@Inject
-	@Named(FEDERATOR_CONTEXT_PATH)
-	private String snaaContextPath;
-
-	@PropConf(
-			usage = "Type of federator to run (API is purely API-based)",
-			example = "API",
-			defaultValue = "API"
-	)
-	public static final String FEDERATOR_TYPE = "federator.snaa.type";
-
-	@Inject
-	@Named(FEDERATOR_TYPE)
-	private SNAAFederatorType snaaFederatorType;
-
-	public String getSnaaContextPath() {
-		return snaaContextPath;
-	}
-
-	public SNAAFederatorType getSnaaFederatorType() {
-		return snaaFederatorType;
-	}
-
 	public URIToNodeUrnPrefixSetMap getFederates() {
 		return federates;
 	}

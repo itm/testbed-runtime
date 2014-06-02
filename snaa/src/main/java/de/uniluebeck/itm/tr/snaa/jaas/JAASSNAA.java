@@ -27,6 +27,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.Constants;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.UserAlreadyExistsException;
@@ -93,7 +94,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 	protected void doStart() {
 		try {
 			System.setProperty("java.security.auth.login.config", snaaServiceConfig.getJaasConfigFile());
-			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this, null);
+			jaxWsService = servicePublisher.createJaxWsService(Constants.SOAP_API_V3.SNAA_CONTEXT_PATH, this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

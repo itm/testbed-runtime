@@ -19,21 +19,6 @@ public class RSFederatorServiceConfig {
 	@Named(FEDERATOR_FEDERATES)
 	private URIToNodeUrnPrefixSetMap federates;
 
-	@PropConf(
-			usage = "Context path on which to run the RS federator",
-			example = "/soap/v3/rs",
-			defaultValue = "/soap/v3/rs"
-	)
-	public static final String FEDERATOR_CONTEXT_PATH = "federator.rs.context_path";
-
-	@Inject
-	@Named(FEDERATOR_CONTEXT_PATH)
-	private String contextPath;
-
-	public String getContextPath() {
-		return contextPath;
-	}
-
 	public URIToNodeUrnPrefixSetMap getFederates() {
 		return federates;
 	}

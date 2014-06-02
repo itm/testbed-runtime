@@ -26,6 +26,7 @@ package de.uniluebeck.itm.tr.federator.rs;
 import com.google.common.collect.Lists;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.util.concurrent.ExecutorUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -52,9 +53,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -80,7 +79,7 @@ public class RSFederatorServiceImplTest {
 	private ServicePublisherService servicePublisherService;
 
 	@Mock
-	private RSFederatorServiceConfig config;
+	private EndpointManager endpointManager;
 
 	/**
 	 * The RS under test
@@ -96,9 +95,9 @@ public class RSFederatorServiceImplTest {
 		federatorRSExecutorService = Executors.newSingleThreadExecutor();
 		federatorRS = new RSFederatorServiceImpl(
 				federatorRSExecutorService,
+				endpointManager,
 				servicePublisher,
-				federatorRSFederatedEndpoints,
-				config
+				federatorRSFederatedEndpoints
 		);
 		federatorRS.startAndWait();
 	}
@@ -109,29 +108,23 @@ public class RSFederatorServiceImplTest {
 		ExecutorUtils.shutdown(federatorRSExecutorService, 0, TimeUnit.SECONDS);
 	}
 
-	@Test
+	@Test(expected = RSFault_Exception.class)
 	public void testGetReservationWithNullParameters() throws Exception {
-		try {
-			federatorRS.getReservation(null);
-			fail("Should have raised RSFault");
-		} catch (RSFault_Exception expected) {
-		}
+		federatorRS.getReservation(null);
+		fail("Should have raised RSFault");
 	}
 
-	@Test
+	@Test(expected = RSFault_Exception.class)
 	public void testGetReservationWithEmptySecretReservationKeyList() throws Exception {
 
 		when(federatorRSFederatedEndpoints.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_1)).thenReturn(testbed1RS);
 		when(federatorRSFederatedEndpoints.getEndpointByUrnPrefix(URN_PREFIX_TESTBED_2)).thenReturn(testbed2RS);
 
-		try {
-			federatorRS.getReservation(newArrayList(new SecretReservationKey()));
-			fail("Should have raised RSFault");
-		} catch (RSFault_Exception expected) {
-		}
+		federatorRS.getReservation(newArrayList(new SecretReservationKey()));
+		fail("Should have raised RSFault");
 	}
 
-	@Test
+	@Test(expected = UnknownSecretReservationKeyFault.class)
 	public void testGetReservationWithWrongSecretReservationKey() throws Exception {
 
 		SecretReservationKey key = new SecretReservationKey();
@@ -146,88 +139,61 @@ public class RSFederatorServiceImplTest {
 				)
 		);
 
-		try {
-
-			federatorRS.getReservation(secretReservationKeys);
-			fail("Should have raised ReservationNotFoundFault");
-
-		} catch (UnknownSecretReservationKeyFault expected) {
-		}
+		federatorRS.getReservation(secretReservationKeys);
+		fail("Should have raised ReservationNotFoundFault");
 	}
 
-	@Test
+	@Test(expected = RSFault_Exception.class)
 	public void testMakeReservationWithNullParameters() throws Exception {
-		try {
-
-			federatorRS.makeReservation(null, null, null, null, null, null);
-			fail("Should have raised an RSFault_Exception");
-
-		} catch (RSFault_Exception expected) {
-		}
+		federatorRS.makeReservation(null, null, null, null, null, null);
+		fail("Should have raised an RSFault_Exception");
 	}
 
-	@Test
+	@Test(expected = RSFault_Exception.class)
 	public void testMakeReservationWithInvalidParameters() throws Exception {
-		try {
-
-			List<SecretAuthenticationKey> data = new LinkedList<SecretAuthenticationKey>();
-
-			federatorRS.makeReservation(data, null, null, null, null, null);
-			fail("Should have raised an RSFault_Exception");
-
-		} catch (RSFault_Exception expected) {
-		}
+		List<SecretAuthenticationKey> data = new LinkedList<SecretAuthenticationKey>();
+		federatorRS.makeReservation(data, null, null, null, null, null);
+		fail("Should have raised an RSFault_Exception");
 	}
 
-	@Test
+	@Test(expected = RSFault_Exception.class)
 	public void testMakeReservationWithNotServedUrn() throws Exception {
-		try {
 
-			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
+		List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 
-			final DateTime from = DateTime.now();
-			final DateTime to = DateTime.now().plusHours(1);
+		final DateTime from = DateTime.now();
+		final DateTime to = DateTime.now().plusHours(1);
 
-			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:not:served:0x1234")), from, to, null,
-					null
-			);
-			fail("Should have raised an RSFault_Exception");
-
-		} catch (RSFault_Exception expected) {
-		}
+		federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:not:served:0x1234")), from, to, null,
+				null
+		);
+		fail("Should have raised an RSFault_Exception");
 	}
 
-	@Test
+	@Test(expected = RSFault_Exception.class)
 	public void testMakeReservationWithInvalidAuthenticationData() throws Exception {
-		try {
 
-			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
+		List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 
-			final DateTime from = DateTime.now();
-			final DateTime to = DateTime.now().plusHours(1);
+		final DateTime from = DateTime.now();
+		final DateTime to = DateTime.now().plusHours(1);
 
-			federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:wisebed1:testbed1:0x1234")), from, to,
-					null, null
-			);
-			fail("Should have raised an RSFault_Exception");
-
-		} catch (RSFault_Exception expected) {
-		}
+		federatorRS.makeReservation(authData, newArrayList(new NodeUrn("urn:wisebed1:testbed1:0x1234")), from, to,
+				null, null
+		);
+		fail("Should have raised an RSFault_Exception");
 	}
 
-	@Test
+	@Test(expected = RSFault_Exception.class)
 	public void testMakeReservationWithEmptyReservationAndAuthenticationDataReturnsEmptyList() throws Exception {
-		try {
-			List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 
-			final DateTime from = DateTime.now();
-			final DateTime to = DateTime.now().plusHours(1);
+		List<SecretAuthenticationKey> authData = new LinkedList<SecretAuthenticationKey>();
 
-			federatorRS.makeReservation(authData, Lists.<NodeUrn>newArrayList(), from, to, null, null);
-			fail();
+		final DateTime from = DateTime.now();
+		final DateTime to = DateTime.now().plusHours(1);
 
-		} catch (RSFault_Exception expected) {
-		}
+		federatorRS.makeReservation(authData, Lists.<NodeUrn>newArrayList(), from, to, null, null);
+		fail("Should have raised an RSFault_Exception");
 	}
 
 	/**
@@ -242,7 +208,8 @@ public class RSFederatorServiceImplTest {
 	}
 
 	/**
-	 * Tests if the call of {@link RS#getReservations(org.joda.time.DateTime, org.joda.time.DateTime, Integer, Integer)}
+	 * Tests if the call of {@link RS#getReservations(org.joda.time.DateTime, org.joda.time.DateTime, Integer,
+	 * Integer)}
 	 * is made on all federated RS instances and the results are merged correctly.
 	 *
 	 * @throws Exception

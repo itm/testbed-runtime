@@ -13,17 +13,6 @@ import java.util.Properties;
 public class SNAAServiceConfig {
 
 	@PropConf(
-			usage = "Context path on which to run the SNAA service",
-			example = "/soap/v3/snaa",
-			defaultValue = "/soap/v3/snaa"
-	)
-	public static final String SNAA_CONTEXT_PATH = "snaa.context_path";
-
-	@Inject
-	@Named(SNAA_CONTEXT_PATH)
-	private String snaaContextPath;
-
-	@PropConf(
 			usage = "The authentication backend of the SNAA service",
 			example = "DUMMY/JAAS/SHIRO/REMOTE"
 	)
@@ -96,17 +85,6 @@ public class SNAAServiceConfig {
 	private int shiroHashAlgorithmIterations;
 
 	@PropConf(
-			usage = "The context path on which to run the device database REST API",
-			example = "/rest/v1.0/devicedb",
-			defaultValue = "/rest/v1.0/devicedb"
-	)
-	public static final String SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH = "devicedb.rest_api.context_path";
-
-	@Inject
-	@Named(SHIRO_ADMIN_DEVICE_DB_REST_API_CONTEXTPATH)
-	private String shiroAdminDeviceDBRestApiContextPath;
-
-	@PropConf(
 			usage = "Comma-separated list of roles that shall be automatically assigned to users registering themselves",
 			example = "EXPERIMENTER,SERVICE_PROVIDER",
 			defaultValue = "EXPERIMENTER"
@@ -119,10 +97,6 @@ public class SNAAServiceConfig {
 
 	public String getGetShiroUserRegistrationAutoRoles() {
 		return getShiroUserRegistrationAutoRoles;
-	}
-
-	public String getShiroAdminDeviceDBRestApiContextPath() {
-		return shiroAdminDeviceDBRestApiContextPath;
 	}
 
 	public String getShiroHashAlgorithmName() {
@@ -143,10 +117,6 @@ public class SNAAServiceConfig {
 
 	public String getJaasLoginModule() {
 		return jaasLoginModule;
-	}
-
-	public String getSnaaContextPath() {
-		return snaaContextPath;
 	}
 
 	public SNAAType getSnaaType() {

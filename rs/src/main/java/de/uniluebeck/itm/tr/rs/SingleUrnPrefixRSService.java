@@ -27,6 +27,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.Constants;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
@@ -123,7 +124,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(rsServiceConfig.getRsContextPath(), this, null);
+			jaxWsService = servicePublisher.createJaxWsService(Constants.SOAP_API_V3.RS_CONTEXT_PATH, this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {

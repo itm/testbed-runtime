@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.Constants;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import java.io.File;
@@ -68,17 +69,18 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 
 			final Map<String, String> params = newHashMap();
 
-			params.put(WiseGuiServiceConfig.WISEGUI_CONTEXT_PATH, wiseGuiServiceConfig.getWiseGuiContextPath());
 			params.put(WiseGuiServiceConfig.WISEGUI_TESTBED_NAME, wiseGuiServiceConfig.getWiseguiTestbedName());
-			params.put(WiseGuiServiceConfig.REST_API_CONTEXT_PATH, wiseGuiServiceConfig.getRestApiContextPath());
-			params.put(WiseGuiServiceConfig.WEBSOCKET_CONTEXT_PATH, wiseGuiServiceConfig.getWebsocketContextPath());
+
+			params.put(Constants.WISEGUI.CONTEXT_PATH_KEY, Constants.WISEGUI.CONTEXT_PATH_VALUE);
+			params.put(Constants.REST_API_V1.REST_API_CONTEXT_PATH_KEY, Constants.REST_API_V1.REST_API_CONTEXT_PATH_VALUE);
+			params.put(Constants.REST_API_V1.WEBSOCKET_CONTEXT_PATH_KEY, Constants.REST_API_V1.WEBSOCKET_CONTEXT_PATH_VALUE);
 
 			params.put("allowedOrigins", "http://*");
 			params.put("allowedMethods", "GET,POST,PUT,DELETE");
 			params.put("allowCredentials", "true");
 
 			webapp = servicePublisher.createServletService(
-					wiseGuiServiceConfig.getWiseGuiContextPath(),
+					Constants.WISEGUI.CONTEXT_PATH_VALUE,
 					resourceBase,
 					params,
 					null,

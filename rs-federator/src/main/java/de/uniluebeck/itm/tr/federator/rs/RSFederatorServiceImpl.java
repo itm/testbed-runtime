@@ -32,6 +32,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.AuthorizationFault;
@@ -69,19 +70,19 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 	private final FederatedEndpoints<RS> federatedEndpoints;
 
-	private final RSFederatorServiceConfig config;
+	private final EndpointManager endpointManager;
 
 	private ServicePublisherService jaxWsService;
 
 	@Inject
 	public RSFederatorServiceImpl(@Named(RS_FEDERATOR_EXECUTOR_SERVICE) final ExecutorService executorService,
+								  final EndpointManager endpointManager,
 								  final ServicePublisher servicePublisher,
-								  final FederatedEndpoints<RS> federatedEndpoints,
-								  final RSFederatorServiceConfig config) {
+								  final FederatedEndpoints<RS> federatedEndpoints) {
 		this.executorService = checkNotNull(executorService);
+		this.endpointManager = checkNotNull(endpointManager);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.federatedEndpoints = checkNotNull(federatedEndpoints);
-		this.config = checkNotNull(config);
 	}
 
 	@Override
@@ -126,7 +127,8 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(config.getContextPath(), this, null);
+			jaxWsService =
+					servicePublisher.createJaxWsService(endpointManager.getRsEndpointUri().getPath(), this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
@@ -299,7 +301,9 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			throws AuthorizationFault, RSFault_Exception {
 
 		checkState(isRunning());
-		checkArgument(secretAuthenticationKey != null && secretAuthenticationKey.size() > 0, "Missing secret authentication keys!");
+		checkArgument(secretAuthenticationKey != null && secretAuthenticationKey.size() > 0,
+				"Missing secret authentication keys!"
+		);
 
 		List<Future<List<ConfidentialReservationData>>> futures = newArrayList();
 		Map<RS, List<SecretAuthenticationKey>> endpointToAuthenticationMap = constructEndpointToAuthenticationMap(
@@ -406,7 +410,8 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 
 	/**
-	 * Checks if all nodes in {@code nodeUrns} are served by this federators federated rs services and throws an exception
+	 * Checks if all nodes in {@code nodeUrns} are served by this federators federated rs services and throws an
+	 * exception
 	 * if not
 	 *
 	 * @param nodeUrns
@@ -432,12 +437,6 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			throw new RSFault_Exception(msg, exception);
 		}
 
-	}
-
-	private RSFault_Exception createRSFault_Exception(String s) {
-		RSFault exception = new RSFault();
-		exception.setMessage(s);
-		return new RSFault_Exception(s, exception);
 	}
 
 	private List<SecretReservationKey> throwFailureException(List<String> failMessages) throws RSFault_Exception {

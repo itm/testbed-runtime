@@ -1,42 +1,75 @@
 package de.uniluebeck.itm.tr.common;
 
-import javax.annotation.Nullable;
+import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.common.config.CommonConfig;
+
 import java.net.URI;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class EndpointManagerImpl implements EndpointManager {
 
-	private final URI snaaEndpointUri;
+	private final CommonConfig commonConfig;
 
-	private final URI rsEndpointUri;
-
-	private final URI smEndpointUri;
-
-	private final URI wsnEndpointBaseUri;
-
-	public EndpointManagerImpl(@Nullable final URI rsEndpointUri,
-							   @Nullable final URI snaaEndpointUri,
-							   @Nullable final URI smEndpointUri,
-							   @Nullable final URI wsnEndpointBaseUri) {
-		this.rsEndpointUri = rsEndpointUri;
-		this.snaaEndpointUri = snaaEndpointUri;
-		this.smEndpointUri = smEndpointUri;
-		this.wsnEndpointBaseUri = wsnEndpointBaseUri;
+	@Inject
+	public EndpointManagerImpl(final CommonConfig commonConfig) {
+		this.commonConfig = checkNotNull(commonConfig);
 	}
 
+	@Override
+	public URI getSnaaEndpointUri() {
+		@SuppressWarnings("StringBufferReplaceableByString")
+		final StringBuilder uri = new StringBuilder()
+				.append("http://")
+				.append(assertNonEmpty(commonConfig.getHostname(), CommonConfig.HOSTNAME))
+				.append(":")
+				.append(commonConfig.getPort())
+				.append(Constants.SOAP_API_V3.SNAA_CONTEXT_PATH);
+		return URI.create(uri.toString());
+	}
+
+	@Override
 	public URI getRsEndpointUri() {
-		return rsEndpointUri;
+		@SuppressWarnings("StringBufferReplaceableByString")
+		final StringBuilder uri = new StringBuilder()
+				.append("http://")
+				.append(assertNonEmpty(commonConfig.getHostname(), CommonConfig.HOSTNAME))
+				.append(":")
+				.append(commonConfig.getPort())
+				.append(Constants.SOAP_API_V3.RS_CONTEXT_PATH);
+		return URI.create(uri.toString());
 	}
 
+	@Override
 	public URI getSmEndpointUri() {
-		return smEndpointUri;
+		@SuppressWarnings("StringBufferReplaceableByString")
+		final StringBuilder uri = new StringBuilder()
+				.append("http://")
+				.append(assertNonEmpty(commonConfig.getHostname(), CommonConfig.HOSTNAME))
+				.append(":")
+				.append(commonConfig.getPort())
+				.append(Constants.SOAP_API_V3.SM_CONTEXT_PATH);
+		return URI.create(uri.toString());
 	}
 
 	@Override
 	public URI getWsnEndpointUriBase() {
-		return wsnEndpointBaseUri;
+		@SuppressWarnings("StringBufferReplaceableByString")
+		final StringBuilder uri = new StringBuilder()
+				.append("http://")
+				.append(assertNonEmpty(commonConfig.getHostname(), CommonConfig.HOSTNAME))
+				.append(":")
+				.append(commonConfig.getPort())
+				.append(Constants.SOAP_API_V3.WSN_CONTEXT_PATH_BASE);
+		return URI.create(uri.toString());
 	}
 
-	public URI getSnaaEndpointUri() {
-		return snaaEndpointUri;
+	private String assertNonEmpty(final String param, final String paramName) {
+		if (param == null || "".equals(param)) {
+			throw new IllegalArgumentException(
+					"Configuration parameter " + paramName + " must be set!"
+			);
+		}
+		return param;
 	}
 }

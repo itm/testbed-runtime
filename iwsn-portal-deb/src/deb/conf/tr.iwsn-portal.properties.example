@@ -46,7 +46,7 @@ portal.configuration.wsn_endpoint_uri_base =
 # Usage: Port to listen on for the internal overlay network
 # Example: 8880
 # Default value: 8880
-#portal.overlay.port = 8880
+#portal.gateway_port = 8880
 
 # Usage: Port to provide the protobuf-based API on
 # Example: 8885

@@ -33,6 +33,7 @@ import com.google.inject.name.Named;
 import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.Constants;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import de.uniluebeck.itm.tr.snaa.UserAlreadyExistsException;
@@ -184,7 +185,7 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	protected void doStart() {
 		try {
 			SecurityUtils.setSecurityManager(securityManager);
-			jaxWsService = servicePublisher.createJaxWsService(snaaServiceConfig.getSnaaContextPath(), this, null);
+			jaxWsService = servicePublisher.createJaxWsService(Constants.SOAP_API_V3.SNAA_CONTEXT_PATH, this, null);
 			jaxWsService.startAndWait();
 			restService.startAndWait();
 			notifyStarted();

@@ -28,12 +28,13 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -78,6 +79,8 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 	private final PortalEventBus portalEventBus;
 
+	private final EndpointManager endpointManager;
+
 	private ServicePublisherService jaxWsService;
 
 	@Inject
@@ -85,6 +88,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 								   final IWSNFederatorServiceConfig config,
 								   final SecureIdGenerator secureIdGenerator,
 								   final PortalEventBus portalEventBus,
+								   final EndpointManager endpointManager,
 								   @Assisted final FederatedReservation reservation,
 								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints) {
 
@@ -92,9 +96,10 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.wsnFederatedEndpoints = checkNotNull(wsnFederatedEndpoints);
 		this.portalEventBus = checkNotNull(portalEventBus);
+		this.endpointManager = checkNotNull(endpointManager);
 
 		String uriString;
-		uriString = config.getFederatorControllerEndpointUriBase().toString();
+		uriString = endpointManager.getWsnEndpointUriBase().toString();
 		uriString += uriString.endsWith("/") ? "" : "/";
 		uriString += secureIdGenerator.getNextId();
 		this.endpointUri = URI.create(uriString);

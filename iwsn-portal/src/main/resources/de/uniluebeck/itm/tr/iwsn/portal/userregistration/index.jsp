@@ -1,5 +1,5 @@
-<%@ page import="static de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig.REST_API_CONTEXT_PATH" %>
 <%@ page import="de.uniluebeck.itm.tr.iwsn.portal.UserRegistrationWebAppService" %>
+<%@ page import="de.uniluebeck.itm.tr.common.Constants" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,7 +23,7 @@
 		var app = app || {};
 
 		app.rest_api_context_path =
-				"<%= getServletConfig().getInitParameter(UserRegistrationWebAppService.PORTAL_REST_API_CONTEXT_PATH) %>";
+				"<%= getServletConfig().getInitParameter(Constants.REST_API_V1.REST_API_CONTEXT_PATH_KEY) %>";
 
 		$(document).ready(function() {
 			'use strict';

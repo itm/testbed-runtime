@@ -10,8 +10,16 @@ import java.util.TimeZone;
 public class CommonConfig {
 
 	@PropConf(
-			usage = "Port to run all services on",
-			defaultValue = "9999"
+			usage = "DNS-resolvable hostname on which this process and its services will be run"
+	)
+	public static final String HOSTNAME = "hostname";
+
+	@Inject
+	@Named(HOSTNAME)
+	protected String hostname;
+
+	@PropConf(
+			usage = "Publicly accessible port under which this process and its services shall be available"
 	)
 	public static final String PORT = "port";
 
@@ -58,6 +66,14 @@ public class CommonConfig {
 	@Inject
 	@Named(TIMEZONE)
 	private String timeZone;
+
+	public String getHostname() {
+		return hostname;
+	}
+
+	public void setHostname(final String hostname) {
+		this.hostname = hostname;
+	}
 
 	public int getPort() {
 		return port;

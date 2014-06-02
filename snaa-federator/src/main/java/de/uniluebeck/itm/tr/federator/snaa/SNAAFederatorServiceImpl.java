@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.snaa.UserAlreadyExistsException;
 import de.uniluebeck.itm.tr.snaa.UserPwdMismatchException;
@@ -14,9 +15,7 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretAuthenticationKey;
 import eu.wisebed.api.v3.common.UsernameNodeUrnsMap;
 import eu.wisebed.api.v3.snaa.*;
-import org.omg.CORBA.UnknownUserException;
 
-import javax.annotation.Nullable;
 import javax.jws.WebService;
 import java.util.HashSet;
 import java.util.List;
@@ -50,15 +49,19 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 
 	protected final ServicePublisher servicePublisher;
 
+	private final EndpointManager endpointManager;
+
 	protected ServicePublisherService jaxWsService;
 
 	@Inject
 	public SNAAFederatorServiceImpl(
 			@Named(SNAAFederatorService.SNAA_FEDERATOR_EXECUTOR_SERVICE) final ExecutorService executorService,
 			final SNAAFederatorServiceConfig config,
+			final EndpointManager endpointManager,
 			final FederatedEndpoints<SNAA> federatedEndpoints,
 			final ServicePublisher servicePublisher) {
 		this.config = checkNotNull(config);
+		this.endpointManager = checkNotNull(endpointManager);
 		this.federatedEndpoints = checkNotNull(federatedEndpoints);
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.executorService = checkNotNull(executorService);
@@ -67,7 +70,8 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService = servicePublisher.createJaxWsService(config.getSnaaContextPath(), this, null);
+			jaxWsService =
+					servicePublisher.createJaxWsService(endpointManager.getSnaaEndpointUri().getPath(), this, null);
 			jaxWsService.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
@@ -180,10 +184,10 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 
 			if (!federatedEndpoints.getUrnPrefixes().equals(userUrnPrefixes)) {
 				throw createSNAAFault("You must provide secret authentication keys for every federated testbed ("
-						+ Joiner.on(",").join(federatedEndpoints.getUrnPrefixes())
-						+ ") but you only provided for "
-						+ Joiner.on(",").join(userUrnPrefixes)
-						+ "."
+								+ Joiner.on(",").join(federatedEndpoints.getUrnPrefixes())
+								+ ") but you only provided for "
+								+ Joiner.on(",").join(userUrnPrefixes)
+								+ "."
 				);
 			}
 

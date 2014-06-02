@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
@@ -29,9 +30,7 @@ import java.util.concurrent.ExecutorService;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,16 +88,20 @@ public class SessionManagementFederatorServiceImplTest {
 	@Mock
 	private FederatedReservationManager federatedReservationManager;
 
+	@Mock
+	private EndpointManager endpointManager;
+
 	private ExecutorService executorService = MoreExecutors.sameThreadExecutor();
 
 	private SessionManagementFederatorServiceImpl federatorSM;
 
 	@Before
 	public void setUp() throws Exception {
-		when(config.getFederatorSmEndpointUri()).thenReturn(URI.create("http://localhost/"));
+		when(endpointManager.getSmEndpointUri()).thenReturn(URI.create("http://localhost/"));
 		when(servicePublisher.createJaxWsService(anyString(), anyObject(), any(Ini.class)))
 				.thenReturn(servicePublisherService);
 		federatorSM = new SessionManagementFederatorServiceImpl(
+				endpointManager,
 				federatedEndpoints,
 				preconditionsFactory,
 				config,

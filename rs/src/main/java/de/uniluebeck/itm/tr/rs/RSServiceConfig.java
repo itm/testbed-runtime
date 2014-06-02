@@ -2,11 +2,9 @@ package de.uniluebeck.itm.tr.rs;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import de.uniluebeck.itm.util.propconf.converters.PropertiesTypeConverter;
-import de.uniluebeck.itm.util.propconf.converters.URITypeConverter;
 import de.uniluebeck.itm.util.propconf.PropConf;
+import de.uniluebeck.itm.util.propconf.converters.PropertiesTypeConverter;
 
-import java.net.URI;
 import java.util.Properties;
 
 public class RSServiceConfig {
@@ -21,17 +19,6 @@ public class RSServiceConfig {
 	@Inject
 	@Named(RS_TYPE)
 	private RSType rsType;
-
-	@PropConf(
-			usage = "Context path on which to run the RS service",
-			example = "/soap/v3/rs",
-			defaultValue = "/soap/v3/rs"
-	)
-	public static final String RS_CONTEXT_PATH = "rs.context.path";
-
-	@Inject
-	@Named(RS_CONTEXT_PATH)
-	private String rsContextPath = "/soap/v3/rs";
 
 	@PropConf(
 			usage = "Persistence layer configuration .properties file",
@@ -61,30 +48,12 @@ public class RSServiceConfig {
 	@Named(RS_GCAL_PASSWORD)
 	private String rsGcalPassword;
 
-	@PropConf(
-			usage = "The URI of the remote RS service (only if REMOTE is used)",
-			typeConverter = URITypeConverter.class
-	)
-	public static final String RS_REMOTE_URI = "rs.remote.uri";
-
-	@Inject
-	@Named(RS_REMOTE_URI)
-	private URI rsRemoteUri;
-
-	public String getRsContextPath() {
-		return rsContextPath;
-	}
-
 	public Properties getRsJPAProperties() {
 		return rsJPAProperties;
 	}
 
 	public RSType getRsType() {
 		return rsType;
-	}
-
-	public URI getRsRemoteUri() {
-		return rsRemoteUri;
 	}
 
 	public String getRsGcalPassword() {

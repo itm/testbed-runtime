@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
@@ -99,9 +100,6 @@ public class WSNFederatorServiceImplTest {
 	private WSNPreconditions wsnPreconditions;
 
 	@Mock
-	private IWSNFederatorServiceConfig config;
-
-	@Mock
 	private PreconditionsFactory preconditionsFactory;
 
 	@Mock
@@ -122,6 +120,12 @@ public class WSNFederatorServiceImplTest {
 	@Mock
 	private DeliveryManager deliveryManager;
 
+	@Mock
+	private EndpointManager endpointManager;
+
+	@Mock
+	private IWSNFederatorServiceConfig config;
+
 	private WSNFederatorServiceImpl wsnFederatorServiceImpl;
 
 	private ListeningExecutorService executorService;
@@ -141,7 +145,7 @@ public class WSNFederatorServiceImplTest {
 				Matchers.<Set<NodeUrn>>any()
 		)
 		).thenReturn(federatorController);
-		when(config.getFederatorWsnEndpointUriBase()).thenReturn(URI.create("http://localhost/"));
+		when(endpointManager.getWsnEndpointUriBase()).thenReturn(URI.create("http://localhost/"));
 		when(federatedEndpoints.getUrnPrefixes()).thenReturn(
 				ImmutableSet.of(TESTBED_1_URN_PREFIX, TESTBED_2_URN_PREFIX, TESTBED_3_URN_PREFIX)
 		);
@@ -154,6 +158,7 @@ public class WSNFederatorServiceImplTest {
 				executorService,
 				preconditionsFactory,
 				portalEventBus,
+				endpointManager,
 				federatedReservation,
 				deliveryManager,
 				federatedEndpoints,

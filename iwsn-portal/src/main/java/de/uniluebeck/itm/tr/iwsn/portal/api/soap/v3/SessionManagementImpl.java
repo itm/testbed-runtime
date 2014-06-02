@@ -7,6 +7,7 @@ import com.google.common.util.concurrent.Service;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
@@ -95,6 +96,8 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final Provider<Wiseml> wisemlProvider;
 
+	private final EndpointManager endpointManager;
+
 	@Inject
 	public SessionManagementImpl(final CommonConfig commonConfig,
 								 final PortalServerConfig portalServerConfig,
@@ -108,7 +111,8 @@ public class SessionManagementImpl implements SessionManagement {
 								 final DeliveryManagerFactory deliveryManagerFactory,
 								 final IdProvider requestIdProvider,
 								 final Provider<SessionManagementPreconditions> preconditions,
-								 final Provider<Wiseml> wisemlProvider) {
+								 final Provider<Wiseml> wisemlProvider,
+								 final EndpointManager endpointManager) {
 		this.commonConfig = checkNotNull(commonConfig);
 		this.portalServerConfig = checkNotNull(portalServerConfig);
 		this.portalEventBus = checkNotNull(portalEventBus);
@@ -122,6 +126,7 @@ public class SessionManagementImpl implements SessionManagement {
 		this.requestIdProvider = checkNotNull(requestIdProvider);
 		this.preconditions = checkNotNull(preconditions);
 		this.wisemlProvider = checkNotNull(wisemlProvider);
+		this.endpointManager = checkNotNull(endpointManager);
 	}
 
 	@Override
@@ -185,8 +190,8 @@ public class SessionManagementImpl implements SessionManagement {
 			@WebParam(name = "options", targetNamespace = "", mode = WebParam.Mode.OUT)
 			Holder<List<KeyValuePair>> options) {
 
-		rsEndpointUrl.value = portalServerConfig.getConfigurationRsEndpointUri().toString();
-		snaaEndpointUrl.value = portalServerConfig.getConfigurationSnaaEndpointUri().toString();
+		rsEndpointUrl.value = endpointManager.getRsEndpointUri().toString();
+		snaaEndpointUrl.value = endpointManager.getSnaaEndpointUri().toString();
 		servedUrnPrefixes.value = newArrayList(commonConfig.getUrnPrefix());
 
 		final List<KeyValuePair> optionsList = Lists.newArrayList();

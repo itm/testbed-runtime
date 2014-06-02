@@ -42,19 +42,9 @@ public class SNAAFederatorServiceModule extends PrivateModule {
 		requireBinding(SNAAFederatorServiceConfig.class);
 		requireBinding(PreconditionsFactory.class);
 
-		switch (snaaFederatorServiceConfig.getSnaaFederatorType()) {
-
-			case API:
-				bind(SNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
-				bind(SNAA.class).to(SNAAFederatorServiceImpl.class);
-				bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
-				break;
-
-			default:
-				throw new RuntimeException(
-						"Unknown SNAA federator type: " + snaaFederatorServiceConfig.getSnaaFederatorType()
-				);
-		}
+		bind(SNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
+		bind(SNAA.class).to(SNAAFederatorServiceImpl.class);
+		bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
 
 		expose(SNAAFederatorService.class);
 		expose(SNAA.class);
