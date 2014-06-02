@@ -5,7 +5,6 @@ import com.google.inject.Scopes;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.common.config.CommonConfigServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.snaa.SNAAService;
 import de.uniluebeck.itm.tr.snaa.SNAAServiceConfig;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -27,8 +26,8 @@ public class JAASSNAAModule extends PrivateModule {
 		requireBinding(CommonConfig.class);
 		requireBinding(SNAAServiceConfig.class);
 		requireBinding(ServicePublisher.class);
+		requireBinding(ServedNodeUrnPrefixesProvider.class);
 
-		bind(ServedNodeUrnPrefixesProvider.class).to(CommonConfigServedNodeUrnPrefixesProvider.class);
 		bind(LoginContextFactory.class).to(LoginContextFactoryImpl.class);
 		bind(JAASSNAA.class).in(Scopes.SINGLETON);
 		bind(SNAA.class).to(JAASSNAA.class);
