@@ -36,7 +36,7 @@ public class UserRegistrationWebAppServiceImpl extends AbstractService implement
 			final String resourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/iwsn/portal/userregistration").toString();
 			final Map<String, String> params = newHashMap();
 
-			params.put(PortalServerConfig.REST_API_CONTEXT_PATH, portalServerConfig.getRestApiContextPath());
+			params.put(PORTAL_REST_API_CONTEXT_PATH, "/rest/v1.0");
 
 			webapp = servicePublisher.createServletService("/user_registration", resourceBase, params, null);
 			webapp.startAndWait();

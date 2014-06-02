@@ -35,28 +35,6 @@ public class PortalServerConfig {
 	private int protobufApiPort;
 
 	@PropConf(
-			usage = "The context path under which the REST API runs",
-			example = "/rest/v1.0",
-			defaultValue = "/rest/v1.0"
-	)
-	public static final String REST_API_CONTEXT_PATH = "rest_api.context_path";
-
-	@Inject
-	@Named(REST_API_CONTEXT_PATH)
-	private String restApiContextPath;
-
-	@PropConf(
-			usage = "The context path under which the WebSocket API runs",
-			example = "/ws/v1.0",
-			defaultValue = "/ws/v1.0"
-	)
-	public static final String WEBSOCKET_CONTEXT_PATH = "websocket.context_path";
-
-	@Inject
-	@Named(WEBSOCKET_CONTEXT_PATH)
-	private String websocketContextPath;
-
-	@PropConf(
 			usage = "The directory in which to save experiment outputs and events",
 			example = "/var/log/tr.iwsn-portal/events"
 	)
@@ -146,15 +124,9 @@ public class PortalServerConfig {
 		return overlayPort;
 	}
 
-	public int getProtobufApiPort() {
-		return protobufApiPort;
-	}
-
 	public String getEventStorePath() {
 		return eventStorePath;
 	}
-
-    public String getEventStoreDownloadPath() { return eventStoreDownloadPath; }
 
 	public URI getConfigurationRsEndpointUri() {
 		return configurationRsEndpointUri;
@@ -174,14 +146,6 @@ public class PortalServerConfig {
 
 	public URI getConfigurationWsnEndpointUriBase() {
 		return configurationWsnEndpointUriBase;
-	}
-
-	public String getRestApiContextPath() {
-		return restApiContextPath;
-	}
-
-	public String getWebsocketContextPath() {
-		return websocketContextPath;
 	}
 
 	@Nullable
