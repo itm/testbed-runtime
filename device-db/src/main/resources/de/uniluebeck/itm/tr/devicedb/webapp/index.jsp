@@ -1,6 +1,5 @@
-<%@ page import="static de.uniluebeck.itm.tr.devicedb.DeviceDBConstants.DEVICEDB_REST_API_CONTEXT_PATH" %>
-<%@ page import="static de.uniluebeck.itm.tr.devicedb.DeviceDBConstants.DEVICEDB_WEBAPP_CONTEXT_PATH" %>
 <%@ page import="static de.uniluebeck.itm.tr.common.config.CommonConfig.URN_PREFIX" %>
+<%@ page import="de.uniluebeck.itm.tr.common.Constants" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,8 +21,8 @@
     <script>
 
 		var nodeUrnPrefix = "<%= getServletConfig().getInitParameter(URN_PREFIX) %>";
-		var deviceDBRestApiContextPath = "<%= DEVICEDB_REST_API_CONTEXT_PATH %>";
-		var deviceDBWebappContextPath = "<%= DEVICEDB_WEBAPP_CONTEXT_PATH %>";
+		var deviceDBWebappContextPath = "<%= Constants.DEVICE_DB.DEVICEDB_WEBAPP_CONTEXT_PATH_VALUE %>";
+		var deviceDBRestApiContextPath = "<%= Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE %>";
 
 		$(document).ready(function() {
 			'use strict';

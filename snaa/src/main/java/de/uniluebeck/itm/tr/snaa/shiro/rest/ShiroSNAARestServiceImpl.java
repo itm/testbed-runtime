@@ -71,8 +71,8 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 			);
 
 			webAppInitParams.put(
-					Constants.SHIRO_SNAA.DEVICEDB_REST_API_CONTEXT_PATH_KEY,
-					Constants.SHIRO_SNAA.DEVICEDB_REST_API_CONTEXT_PATH_VALUE
+					Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_KEY,
+					Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE
 			);
 
 			webApp = servicePublisher.createServletService(

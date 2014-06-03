@@ -26,11 +26,22 @@ public abstract class Constants {
 
 	}
 
-	public static abstract class SHIRO_SNAA {
+	public static abstract class DEVICE_DB {
 
-		public static final String DEVICEDB_REST_API_CONTEXT_PATH_KEY = "snaa.shiro.devicedb_rest_api_context_path";
+		public static final String DEVICEDB_REST_API_CONTEXT_PATH_KEY = "devicedb.rest_api.context_path";
 
 		public static final String DEVICEDB_REST_API_CONTEXT_PATH_VALUE = "/rest/v1.0/devicedb";
+
+		public static final String DEVICEDB_REST_ADMIN_API_CONTEXT_PATH_KEY = "devicedb.admin_rest_api.context_path";
+
+		public static final String DEVICEDB_REST_ADMIN_API_CONTEXT_PATH_VALUE = "/rest/v1.0/devicedb/admin";
+
+		public static final String DEVICEDB_WEBAPP_CONTEXT_PATH_KEY = "devicedb.webapp.context_path";
+
+		public static final String DEVICEDB_WEBAPP_CONTEXT_PATH_VALUE = "/admin/devicedb";
+	}
+
+	public static abstract class SHIRO_SNAA {
 
 		public static final String ADMIN_WEB_APP_CONTEXT_PATH_KEY = "snaa.shiro.admin_web_app_context_path";
 
@@ -46,5 +57,10 @@ public abstract class Constants {
 		public static final String CONTEXT_PATH_KEY = "wisegui.context_path";
 
 		public static final String CONTEXT_PATH_VALUE = "/";
+	}
+
+	public static abstract class USER_REG {
+
+		public static final String WEB_APP_CONTEXT_PATH = "/user_registration";
 	}
 }

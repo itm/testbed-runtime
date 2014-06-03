@@ -26,7 +26,7 @@
 		app.webapp_context_path =
 				"<%= getServletConfig().getInitParameter(Constants.SHIRO_SNAA.ADMIN_WEB_APP_CONTEXT_PATH_KEY) %>";
 		app.device_db_rest_api_context_path =
-				"<%= getServletConfig().getInitParameter(Constants.SHIRO_SNAA.DEVICEDB_REST_API_CONTEXT_PATH_KEY) %>";
+				"<%= getServletConfig().getInitParameter(Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_KEY) %>";
 
 		$(document).ready(function() {
 			'use strict';

@@ -4,6 +4,8 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.Constants;
+import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
@@ -70,6 +72,10 @@ public class PortalServer extends AbstractService {
 
 	private final NodeStatusTracker nodeStatusTracker;
 
+	private final EndpointManager endpointManager;
+
+	private final CommonConfig commonConfig;
+
 	@Inject
 	public PortalServer(final SchedulerService schedulerService,
 						final ServicePublisher servicePublisher,
@@ -85,7 +91,9 @@ public class PortalServer extends AbstractService {
 						final PortalPluginService portalPluginService,
 						final PortalEventStoreService portalEventStoreService,
 						final UserRegistrationWebAppService userRegistrationWebAppService,
-						final NodeStatusTracker nodeStatusTracker) {
+						final NodeStatusTracker nodeStatusTracker,
+						final EndpointManager endpointManager,
+						final CommonConfig commonConfig) {
 
 		this.schedulerService = checkNotNull(schedulerService);
 		this.servicePublisher = checkNotNull(servicePublisher);
@@ -106,6 +114,9 @@ public class PortalServer extends AbstractService {
 		this.nodeStatusTracker = checkNotNull(nodeStatusTracker);
 
 		this.portalPluginService = checkNotNull(portalPluginService);
+
+		this.endpointManager = checkNotNull(endpointManager);
+		this.commonConfig = checkNotNull(commonConfig);
 	}
 
 	@Override
@@ -245,6 +256,7 @@ public class PortalServer extends AbstractService {
 
 		try {
 			portalServer.start().get();
+			portalServer.printEndpointInfo();
 		} catch (Exception e) {
 			log.error("Could not start iWSN portal: {}", e.getMessage(), e);
 			System.exit(1);
@@ -261,5 +273,35 @@ public class PortalServer extends AbstractService {
 		);
 
 		log.info("iWSN Portal started!");
+	}
+
+	private void printEndpointInfo() {
+
+		final String hostname = commonConfig.getHostname();
+		final int port = commonConfig.getPort();
+		final String baseUri = "http://" + hostname + ":" + port;
+
+		log.info("------------------------------------");
+		log.info("TESTBED RUNTIME SUCCESSFULLY STARTED");
+		log.info("------------------------------------");
+		log.info("             SOAP API               ");
+		log.info("SNAA Endpoint URL:       {}", endpointManager.getSnaaEndpointUri());
+		log.info("RS   Endpoint URL:       {}", endpointManager.getRsEndpointUri());
+		log.info("SM   Endpoint URL:       {}", endpointManager.getSmEndpointUri());
+		log.info("------------------------------------");
+		log.info("             REST API               ");
+		log.info("REST API Base:           {}", baseUri + Constants.REST_API_V1.REST_API_CONTEXT_PATH_VALUE);
+		log.info("WebSocket API Base:      {}", "ws://" + hostname + ":" + port + Constants.REST_API_V1.WEBSOCKET_CONTEXT_PATH_VALUE);
+		log.info("DeviceDB REST API:       {}", baseUri + Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE);
+		log.info("DeviceDB Admin REST API: {}", baseUri + Constants.DEVICE_DB.DEVICEDB_REST_ADMIN_API_CONTEXT_PATH_VALUE);
+		log.info("------------------------------------");
+		log.info("             ADMIN UI               ");
+		log.info("DeviceDB:                {}", baseUri + Constants.DEVICE_DB.DEVICEDB_WEBAPP_CONTEXT_PATH_VALUE);
+		log.info("ShiroSNAA (if used):     {}", baseUri + Constants.SHIRO_SNAA.ADMIN_WEB_APP_CONTEXT_PATH_VALUE);
+		log.info("------------------------------------");
+		log.info("              USER UI               ");
+		log.info("WiseGui:                 {}", baseUri + Constants.WISEGUI.CONTEXT_PATH_VALUE);
+		log.info("User Registration:       {}", baseUri + Constants.USER_REG.WEB_APP_CONTEXT_PATH);
+		log.info("------------------------------------");
 	}
 }
