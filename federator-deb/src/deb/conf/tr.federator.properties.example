@@ -1,0 +1,19 @@
+# Usage: DNS-resolvable hostname on which this process and its services will be run
+federator.hostname = 
+
+# Usage: (endpoint URL / URN prefix set)-pairs indicating which iWSN instances to federate
+# Example: http://portal.tb1and2.tld/api/soap/v3/sm=urn:wisebed:tb1:,urn:wisebed:tb2: http://portal.tb3.tld/api/soap/v3/sm=urn:wisebed:tb3:
+federator.iwsn.federates = 
+
+# Usage: Publicly accessible port under which this process and its services shall be available
+# Example: 8880
+# Default value: 8880
+#federator.port = 8880
+
+# Usage: (endpoint URL / URN prefix set)-pairs indicating which RS instances to federate
+# Example: http://portal.tb1and2.tld/soap/v3/rs=urn:wisebed:tb1:,urn:wisebed:tb2: http://portal.tb3.tld/soap/v3/rs=urn:wisebed:tb3:
+federator.rs.federates = 
+
+# Usage: (endpoint URL / URN prefix set)-pairs indicating which SNAA instances to federate
+# Example: http://portal.tb1and2.tld/soap/v3/snaa=urn:wisebed:tb1:,urn:wisebed:tb2: http://portal.tb3.tld/soap/v3/snaa=urn:wisebed:tb3:
+federator.snaa.federates =

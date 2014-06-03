@@ -1,23 +1,43 @@
+# Usage: Password for the administrator
+# Default value: secret
+#admin.password = secret
+
+# Usage: Username for the administrator
+# Default value: admin
+#admin.username = admin
+
 # Usage: .properties file to initialize JPA backend for the device database
 devicedb.jpa.properties = 
+
+# Usage: The password to authenticate on the DeviceDB ADMIN REST service
+devicedb.remote.admin_password = 
+
+# Usage: The URI the DeviceDB ADMIN REST service runs on
+devicedb.remote.admin_uri = 
+
+# Usage: The username to authenticate on the DeviceDB ADMIN REST service
+devicedb.remote.admin_username = 
 
 # Usage: The URI the DeviceDB REST service runs on
 devicedb.remote.uri = 
 
-# Usage: The context path on which to run the device database REST API
-# Example: /rest/v1/devicedb
-# Default value: /rest/v1/devicedb
-#devicedb.rest_api.context_path = /rest/v1/devicedb
+# Usage: If used in the SmartSantander context: the URI of the EventBroker to connect to
+# Example: tcp://lira.tlmat.unican.es:9020
+devicedb.smartsantander.eventbroker.uri = 
+
+# Usage: If used in the SmartSantander context: the ID of the TR portal server in the Resource Directory (RD)
+devicedb.smartsantander.rd.portal_id = 
+
+# Usage: If used in the SmartSantander context: the URI of the Resource Directory (RD)
+devicedb.smartsantander.rd.uri = 
 
 # Usage: The type of DeviceDB backend
-# Example: IN_MEMORY/JPA
+# Example: IN_MEMORY/JPA/REMOTE/SMARTSANTANDER
 # Default value: IN_MEMORY
 #devicedb.type = IN_MEMORY
 
-# Usage: The context path on which to run the device database web frontend
-# Example: /devicedb
-# Default value: /devicedb
-#devicedb.webapp.context_path = /devicedb
+# Usage: Path to a directory which Testbed Runtime will check for plugins
+gateway.plugin_directory = 
 
 # Usage: Hostname and port on which the portal server listens for the internal network (e.g. $PORTAL_HOSTNAME:8880)
 gateway.portaladdress = 
@@ -30,9 +50,24 @@ gateway.portaladdress =
 # Default value: false
 #gateway.restapi.start = false
 
-# Usage: Port to run all services on
-# Default value: 9999
-#port = 9999
+# Usage: Scan for devices supported by the built-in drivers (iSense, TelosB and Pacemate, default: true). Set to false e.g., if you attach devices using your own (plugin-based) device drivers.
+# Default value: true
+#gateway.scan_devices = true
+
+# Usage: If run in the context of the SmartSantander project, this must be set to the URI on which the SmartSantander EventBroker runs 
+# Example: failover://(tcp://localhost:9009)?startupMaxReconnectAttempts=1&initialReconnectDelay=1
+gateway.smartsantander.event_broker.uri = 
+
+# Usage: If run in the context of the SmartSantander project, this must be set to the gateways ID that is used to identify the gateway machine in the EventBroker messages
+gateway.smartsantander.gateway_id = 
+
+# Usage: DNS-resolvable hostname on which this process and its services will be run
+hostname = 
+
+# Usage: Publicly accessible port under which this process and its services shall be available
+# Example: 8888
+# Default value: 8888
+#port = 8888
 
 # Usage: The local timezone
 # Default value: GMT

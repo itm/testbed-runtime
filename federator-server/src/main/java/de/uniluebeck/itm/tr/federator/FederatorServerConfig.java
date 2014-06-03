@@ -21,8 +21,8 @@ public class FederatorServerConfig {
 
 	@PropConf(
 			usage = "Publicly accessible port under which this process and its services shall be available",
-			example = "8880",
-			defaultValue = "8880"
+			example = "8888",
+			defaultValue = "8888"
 	)
 	public static final String FEDERATOR_PORT = "federator.port";
 

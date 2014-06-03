@@ -1,66 +1,64 @@
+# Usage: Password for the administrator
+# Default value: secret
+#admin.password = secret
+
+# Usage: Username for the administrator
+# Default value: admin
+#admin.username = admin
+
 # Usage: .properties file to initialize JPA backend for the device database
 devicedb.jpa.properties = 
+
+# Usage: The password to authenticate on the DeviceDB ADMIN REST service
+devicedb.remote.admin_password = 
+
+# Usage: The URI the DeviceDB ADMIN REST service runs on
+devicedb.remote.admin_uri = 
+
+# Usage: The username to authenticate on the DeviceDB ADMIN REST service
+devicedb.remote.admin_username = 
 
 # Usage: The URI the DeviceDB REST service runs on
 devicedb.remote.uri = 
 
-# Usage: The context path on which to run the device database REST API
-# Example: /rest/v1/devicedb
-# Default value: /rest/v1/devicedb
-#devicedb.rest_api.context_path = /rest/v1/devicedb
+# Usage: If used in the SmartSantander context: the URI of the EventBroker to connect to
+# Example: tcp://lira.tlmat.unican.es:9020
+devicedb.smartsantander.eventbroker.uri = 
+
+# Usage: If used in the SmartSantander context: the ID of the TR portal server in the Resource Directory (RD)
+devicedb.smartsantander.rd.portal_id = 
+
+# Usage: If used in the SmartSantander context: the URI of the Resource Directory (RD)
+devicedb.smartsantander.rd.uri = 
 
 # Usage: The type of DeviceDB backend
-# Example: IN_MEMORY/JPA
+# Example: IN_MEMORY/JPA/REMOTE/SMARTSANTANDER
 # Default value: IN_MEMORY
 #devicedb.type = IN_MEMORY
 
-# Usage: The context path on which to run the device database web frontend
-# Example: /devicedb
-# Default value: /devicedb
-#devicedb.webapp.context_path = /devicedb
+# Usage: The directory in which to save experiment outputs and events
+# Example: /var/log/tr.iwsn-portal/eventstore
+eventstore.path = 
 
-# Usage: Port to run all services on
-# Default value: 9999
-#port = 9999
+# Usage: DNS-resolvable hostname on which this process and its services will be run
+hostname = 
 
-# Usage: Additional key/value pairs to be returned by SessionManagements.getConfiguration(). Multiple comma-separated values are allowed per key.
+# Usage: Publicly accessible port under which this process and its services shall be available
+# Example: 8888
+# Default value: 8888
+#port = 8888
+
+# Usage: Additional key/value pairs to be returned by SessionManagement.getConfiguration(). Multiple comma-separated values are allowed per key.
 # Example: k1=k1v1 k2=k2v1,k2v2
 portal.configuration.options = 
 
-# Usage: The DNS-resolvable endpoint URI of the reservation system (RS) service (to be returned by SessionManagement.getConfiguration())
-# Example: http://portal.mydomain.tld/rs
-portal.configuration.rs_endpoint_uri = 
-
-# Usage: The DNS-resolvable endpoint URI of the Session Management (SM) service (to be returned by SessionManagement.getConfiguration())
-# Example: http://portal.mydomain.tld/sm
-portal.configuration.sm_endpoint_uri = 
-
-# Usage: The DNS-resolvable endpoint URI of the authentication and authorization (SNAA) service  (to be returned by SessionManagement.getConfiguration())
-# Example: http://portal.mydomain.tld/snaa
-portal.configuration.snaa_endpoint_uri = 
-
-# Usage: The endpoint URL of the WSN service instances
-# Example: http://portal.mydomain.tld/wsn
-portal.configuration.wsn_endpoint_uri_base = 
-
-# Usage: Port to listen on for the internal overlay network
+# Usage: Port to listen on for the gateway hosts to connect to
 # Example: 8880
 # Default value: 8880
 #portal.gateway_port = 8880
 
-# Usage: Port to provide the protobuf-based API on
-# Example: 8885
-portal.protobuf.api.port = 
-
-# Usage: The context path under which the REST API runs
-# Example: /rest/v1.0
-# Default value: /rest/v1.0
-#rest_api.context_path = /rest/v1.0
-
-# Usage: Context path on which to run the RS service
-# Example: /soap/v3/rs
-# Default value: /soap/v3/rs
-#rs.context.path = /soap/v3/rs
+# Usage: Path to a directory which Testbed Runtime will check for plugins
+portal.plugin_directory = 
 
 # Usage: The password of the Google account to be used (only if GCAL is used)
 rs.gcal.password = 
@@ -71,18 +69,10 @@ rs.gcal.username =
 # Usage: Persistence layer configuration .properties file
 rs.jpa.properties = 
 
-# Usage: The URI of the remote RS service (only if REMOTE is used)
-rs.remote.uri = 
-
 # Usage: Persistence layer to use
 # Example: GCAL/JPA/IN_MEMORY/REMOTE
 # Default value: IN_MEMORY
 #rs.type = IN_MEMORY
-
-# Usage: Context path on which to run the SNAA service
-# Example: /soap/v3/snaa
-# Default value: /soap/v3/snaa
-#snaa.context_path = /soap/v3/snaa
 
 # Usage: The JAAS backends configuration file (only if JAAS is used)
 snaa.jaas.config_file = 
@@ -94,37 +84,6 @@ snaa.jaas.loginmodule =
 # Usage: The URI of the remote SNAA server (only if REMOTE is used)
 # Example: http://localhost:8890/soap/v3/snaa
 snaa.remote.uri = 
-
-# Usage: The URL for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)
-# Example: jdbc:mysql://localhost:3306/snaportal
-snaa.shibboleth.authorization.attribute_based.datasource.url = 
-
-# Usage: The key for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)
-# Example: homeOrganization
-# Default value: homeOrganization
-#snaa.shibboleth.authorization.attribute_based.key = homeOrganization
-
-# Usage: The password for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)
-snaa.shibboleth.authorization.attribute_based.password = 
-
-# Usage: The username for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)
-snaa.shibboleth.authorization.attribute_based.username = 
-
-# Usage: The value for the attribute based authorization backend data source used together with Shibboleth authentication (only if SHIBBOLETH and ATTRIBUTE_BASED are used)
-# Example: wisebed1.itm.uni-luebeck.de
-snaa.shibboleth.authorization.attribute_based.value = 
-
-# Usage: The type of authorization backend to be used together with Shibboleth authentication (only if SHIBBOLETH is used)
-# Example: ALWAYS_ALLOW/ALWAYS_DENY/ATTRIBUTE_BASED
-# Default value: ALWAYS_ALLOW
-#snaa.shibboleth.authorization.type = ALWAYS_ALLOW
-
-# Usage: A proxy server to be used for the Shibboleth authentication service (only if SHIBBOLETH is used)
-snaa.shibboleth.proxy = 
-
-# Usage: The URL of the Shibboleth authentication service (only if SHIBBOLETH is used)
-# Example: https://wisebed2.itm.uni-luebeck.de/portal/TARWIS/Welcome/welcomeIndex.php
-snaa.shibboleth.url = 
 
 # Usage: The number of iterations to be run for the hash algorithm to be used with Shiro authentication and authorization backend (only if SHIRO is used)
 # Example: 1000
@@ -139,8 +98,13 @@ snaa.shibboleth.url =
 # Usage: The JPA (Hibernate) .properties file for the Shiro authentication and authorization backend (only if SHIRO is used)
 snaa.shiro.jpa.properties_file = 
 
+# Usage: Comma-separated list of roles that shall be automatically assigned to users registering themselves
+# Example: EXPERIMENTER,SERVICE_PROVIDER
+# Default value: EXPERIMENTER
+#snaa.shiro.user_registration.auto_roles = EXPERIMENTER
+
 # Usage: The authentication backend of the SNAA service
-# Example: DUMMY/JAAS/SHIBBOLETH/SHIRO/REMOTE
+# Example: DUMMY/JAAS/SHIRO/REMOTE
 snaa.type = 
 
 # Usage: The local timezone
@@ -150,15 +114,8 @@ snaa.type =
 # Usage: The URN prefix of this testbed (e.g. "urn:wisebed:uzl1:")
 urnprefix = 
 
-# Usage: The context path under which the WebSocket API runs
-# Example: /ws/v1.0
-# Default value: /ws/v1.0
-#websocket.context_path = /ws/v1.0
-
-# Usage: The context path under which the WiseGui shall be run
-# Example: /
-# Default value: /
-#wisegui.context_path = /
+# Usage: The directory under which to find the WiseGui. If not given WiseGui will be served from a packaged internal version.
+wisegui.source_dir = 
 
 # Usage: Name of the testbed to be displayed in WiseGui frontend
 # Default value: local testbed
