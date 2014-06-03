@@ -19,7 +19,9 @@ public class CommonConfig {
 	protected String hostname;
 
 	@PropConf(
-			usage = "Publicly accessible port under which this process and its services shall be available"
+			usage = "Publicly accessible port under which this process and its services shall be available",
+			example = "8888",
+			defaultValue = "8888"
 	)
 	public static final String PORT = "port";
 

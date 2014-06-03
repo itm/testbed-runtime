@@ -48,11 +48,16 @@ public class RestApiModule extends AbstractModule {
 		bind(RemoteExperimentConfigurationResource.class).to(RemoteExperimentConfigurationResourceImpl.class);
 		bind(RsResource.class).to(RsResourceImpl.class);
 		bind(SnaaResource.class).to(SnaaResourceImpl.class);
-		bind(EventStoreResource.class).to(EventStoreResourceImpl.class);
 		bind(RootResource.class).to(RootResourceImpl.class);
 		bind(UserRegistrationResource.class).to(UserRegistrationResourceImpl.class);
-		bind(NodeStatusTrackerResource.class).to(NodeStatusTrackerResourceImpl.class);
 
+		if (federator) {
+			bind(NodeStatusTrackerResource.class).to(NotImplementedNodeStatusTrackerResource.class);
+			bind(EventStoreResource.class).to(NotImplementedEventStoreResource.class);
+		} else {
+			bind(NodeStatusTrackerResource.class).to(NodeStatusTrackerResourceImpl.class);
+			bind(EventStoreResource.class).to(EventStoreResourceImpl.class);
+		}
 		bindConstant().annotatedWith(Names.named(IS_FEDERATOR)).to(federator);
 
 		install(new FactoryModuleBuilder().build(WsnWebSocketFactory.class));

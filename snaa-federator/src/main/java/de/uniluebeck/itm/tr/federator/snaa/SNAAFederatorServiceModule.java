@@ -12,6 +12,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.tr.common.PreconditionsFactory;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpointsFactory;
+import de.uniluebeck.itm.tr.snaa.SNAAService;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.snaa.SNAA;
@@ -44,9 +45,11 @@ public class SNAAFederatorServiceModule extends PrivateModule {
 
 		bind(SNAAFederatorServiceImpl.class).in(Scopes.SINGLETON);
 		bind(SNAA.class).to(SNAAFederatorServiceImpl.class);
+		bind(SNAAService.class).to(SNAAFederatorServiceImpl.class);
 		bind(SNAAFederatorService.class).to(SNAAFederatorServiceImpl.class);
 
 		expose(SNAAFederatorService.class);
+		expose(SNAAService.class);
 		expose(SNAA.class);
 	}
 

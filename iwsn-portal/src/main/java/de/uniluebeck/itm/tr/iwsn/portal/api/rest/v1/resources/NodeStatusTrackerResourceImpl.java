@@ -9,6 +9,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.ReservationStatus;
 import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
 
+import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class NodeStatusTrackerResourceImpl implements NodeStatusTrackerResource 
 	}
 
 	@Override
-	public List<NodeStatusDto> getNodeStatusList() {
+	public Response getNodeStatusList() {
 		final ImmutableSet<Map.Entry<NodeUrn,Tuple<FlashStatus,ReservationStatus>>> entries =
 				nodeStatusTracker.getStatusMap().entrySet();
 		final List<NodeStatusDto> list = newArrayList();
@@ -36,6 +37,6 @@ public class NodeStatusTrackerResourceImpl implements NodeStatusTrackerResource 
 			)
 			);
 		}
-		return list;
+		return Response.ok(list).build();
 	}
 }
