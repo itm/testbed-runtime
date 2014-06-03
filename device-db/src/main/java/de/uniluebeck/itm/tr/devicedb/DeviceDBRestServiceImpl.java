@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
+import de.uniluebeck.itm.tr.common.Constants;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import org.apache.shiro.config.Ini;
 import org.slf4j.Logger;
@@ -13,8 +14,6 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.devicedb.DeviceDBConstants.DEVICEDB_REST_API_CONTEXT_PATH;
-import static de.uniluebeck.itm.tr.devicedb.DeviceDBConstants.DEVICEDB_WEBAPP_CONTEXT_PATH;
 
 public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDBRestService {
 
@@ -52,7 +51,11 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 			shiroRestIni.addSection("users");
 			shiroRestIni.getSection("users").put(commonConfig.getAdminUsername(), commonConfig.getAdminPassword());
 
-			restService = servicePublisher.createJaxRsService(DEVICEDB_REST_API_CONTEXT_PATH, restApplication, shiroRestIni);
+			restService = servicePublisher.createJaxRsService(
+					Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE,
+					restApplication,
+					shiroRestIni
+			);
 			restService.startAndWait();
 
 			String webAppResourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/devicedb/webapp").toString();
@@ -67,12 +70,11 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 			shiroWebappIni.getSection("users").put(commonConfig.getAdminUsername(), commonConfig.getAdminPassword());
 
 			webApp = servicePublisher.createServletService(
-					DEVICEDB_WEBAPP_CONTEXT_PATH,
+					Constants.DEVICE_DB.DEVICEDB_WEBAPP_CONTEXT_PATH_VALUE,
 					webAppResourceBase,
 					webAppInitParams,
 					shiroWebappIni
 			);
-
 			webApp.startAndWait();
 
 			notifyStarted();

@@ -11,7 +11,7 @@ public class RSServiceConfig {
 
 	@PropConf(
 			usage = "Persistence layer to use",
-			example = "GCAL/JPA/IN_MEMORY/REMOTE",
+			example = "GCAL/JPA/IN_MEMORY",
 			defaultValue = "IN_MEMORY"
 	)
 	public static final String RS_TYPE = "rs.type";

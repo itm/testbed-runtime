@@ -70,7 +70,7 @@ rs.gcal.username =
 rs.jpa.properties = 
 
 # Usage: Persistence layer to use
-# Example: GCAL/JPA/IN_MEMORY/REMOTE
+# Example: GCAL/JPA/IN_MEMORY
 # Default value: IN_MEMORY
 #rs.type = IN_MEMORY
 

@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uniluebeck.itm.tr.common.Constants;
 import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.util.NetworkUtils;
@@ -65,8 +66,8 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 		remoteDeviceDBService = Guice
 				.createInjector(new RemoteDeviceDBModule(
-						URI.create("http://localhost:" + port + DeviceDBConstants.DEVICEDB_REST_API_CONTEXT_PATH),
-						URI.create("http://localhost:" + port + DeviceDBConstants.DEVICEDB_REST_API_CONTEXT_PATH),
+						URI.create("http://localhost:" + port + Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE),
+						URI.create("http://localhost:" + port + Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE),
 						"admin",
 						"secret"
 				)

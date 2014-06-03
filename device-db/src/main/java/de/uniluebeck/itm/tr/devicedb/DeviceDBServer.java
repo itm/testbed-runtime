@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
+import de.uniluebeck.itm.tr.common.Constants;
 import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
@@ -99,18 +100,19 @@ public class DeviceDBServer extends AbstractService {
 		final DeviceDBConfig deviceDBConfig = confInjector.getInstance(DeviceDBConfig.class);
 		final WisemlProviderConfig wisemlProviderConfig = confInjector.getInstance(WisemlProviderConfig.class);
 
-		final DeviceDBServerModule module = new DeviceDBServerModule(commonConfig, deviceDBConfig, wisemlProviderConfig);
+		final DeviceDBServerModule module =
+				new DeviceDBServerModule(commonConfig, deviceDBConfig, wisemlProviderConfig);
 		final Injector deviceDBInjector = createInjector(module);
 		final DeviceDBServer deviceDBServer = deviceDBInjector.getInstance(DeviceDBServer.class);
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				if (deviceDBServer.isRunning()) {
-					deviceDBServer.stopAndWait();
-				}
-			}
-		}
+												 @Override
+												 public void run() {
+													 if (deviceDBServer.isRunning()) {
+														 deviceDBServer.stopAndWait();
+													 }
+												 }
+											 }
 		);
 
 		try {
@@ -120,10 +122,12 @@ public class DeviceDBServer extends AbstractService {
 			System.exit(1);
 		}
 
+		final String baseUri = "http://" + commonConfig.getHostname() + ":" + commonConfig
+				.getPort();
 		log.info(
 				"DeviceDB started at {} (REST API: {})",
-				"http://localhost:" + commonConfig.getPort() + DeviceDBConstants.DEVICEDB_WEBAPP_CONTEXT_PATH,
-				"http://localhost:" + commonConfig.getPort() + DeviceDBConstants.DEVICEDB_REST_API_CONTEXT_PATH
+				baseUri + Constants.DEVICE_DB.DEVICEDB_WEBAPP_CONTEXT_PATH_VALUE,
+				baseUri + Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE
 		);
 	}
 }
