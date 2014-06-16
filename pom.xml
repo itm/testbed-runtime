@@ -229,12 +229,12 @@
 			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
 				<artifactId>wsn-device-utils</artifactId>
-				<version>1.1.5-SNAPSHOT</version>
+				<version>${wsn-device-utils.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-drivers</groupId>
 				<artifactId>factories</artifactId>
-				<version>1.1.4-SNAPSHOT</version>
+				<version>${wsn-device-drivers.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.uniluebeck.itm.netty-iostream</groupId>
@@ -714,6 +714,8 @@
 		<dep.jaxws.version>2.2.8</dep.jaxws.version>
 		<dep.servlet.version>3.0</dep.servlet.version>
 		<itm-utils.version>0.7-SNAPSHOT</itm-utils.version>
+		<wsn-device-drivers.version>1.1.4</wsn-device-drivers.version>
+		<wsn-device-utils.version>1.1.4</wsn-device-utils.version>
 	</properties>
 
 	<scm>
