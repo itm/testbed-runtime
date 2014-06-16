@@ -33,15 +33,14 @@ public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 							 final String nodePort,
 							 @Nullable final Map<String, String> nodeConfiguration,
 							 @Nullable final DeviceConfig deviceConfig) {
+
 		if (deviceConfig == null) {
 			return false;
-		}
-		try {
-			DeviceType.fromString(nodeType);
+		} else if (DeviceType.isKnown(nodeType) || DeviceType.isKnown(deviceConfig.getNodeType())) {
 			return true;
-		} catch (Exception e) {
-			return false;
 		}
+
+		return false;
 	}
 
 	@Override
@@ -49,8 +48,17 @@ public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 								final String devicePort,
 								@Nullable final Map<String, String> deviceConfiguration,
 								@Nullable final DeviceConfig deviceConfig) {
+
+		// allow to override detected type value in config
+		final String type;
+		if (deviceConfig != null && deviceConfig.getNodeType() != null) {
+			type = deviceConfig.getNodeType();
+		} else {
+			type = deviceType;
+		}
+
 		return new SingleDeviceAdapter(
-				deviceType,
+				type,
 				devicePort,
 				deviceConfiguration,
 				deviceConfig,
