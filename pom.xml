@@ -715,7 +715,7 @@
 		<dep.servlet.version>3.0</dep.servlet.version>
 		<itm-utils.version>0.7-SNAPSHOT</itm-utils.version>
 		<wsn-device-drivers.version>1.1.4</wsn-device-drivers.version>
-		<wsn-device-utils.version>1.1.4</wsn-device-utils.version>
+		<wsn-device-utils.version>1.1.5</wsn-device-utils.version>
 	</properties>
 
 	<scm>
