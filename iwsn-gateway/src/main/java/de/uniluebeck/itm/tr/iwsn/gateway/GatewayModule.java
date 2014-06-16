@@ -8,6 +8,7 @@ import com.google.inject.multibindings.Multibinder;
 import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
+import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.common.IncrementalIdProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
@@ -48,7 +49,10 @@ public class GatewayModule extends AbstractModule {
 		bind(GatewayConfig.class).toProvider(of(gatewayConfig));
 		bind(DeviceDBConfig.class).toProvider(of(deviceDBConfig));
 
-		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class).in(Scopes.SINGLETON);
+		bind(GatewayEventBusImpl.class).in(Scopes.SINGLETON);
+		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class);
+		bind(EventBusService.class).to(GatewayEventBusImpl.class); // for use in CachedDeviceDB
+
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
 		bind(IdProvider.class).to(IncrementalIdProvider.class).in(Scopes.SINGLETON);
 		bind(RequestHandler.class).to(RequestHandlerImpl.class).in(Scopes.SINGLETON);

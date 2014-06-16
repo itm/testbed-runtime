@@ -352,8 +352,8 @@ public abstract class MessagesHelper {
 				.setRequestId(requestId)
 				.setType(Request.Type.SET_CHANNEL_PIPELINES)
 				.setSetChannelPipelinesRequest(SetChannelPipelinesRequest.newBuilder()
-						.addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
-						.addAllChannelHandlerConfigurations(channelHandlerConfigurations)
+								.addAllNodeUrns(transform(nodeUrns, NODE_URN_TO_STRING))
+								.addAllChannelHandlerConfigurations(channelHandlerConfigurations)
 				);
 
 		if (reservationId != null) {
@@ -672,4 +672,61 @@ public abstract class MessagesHelper {
 				.setTimestamp(timestamp.getMillis())
 				.build();
 	}
+
+	public static Event newEvent(final long eventId, final DeviceConfigCreatedEvent event) {
+		return Event.newBuilder()
+				.setType(Event.Type.DEVICE_CONFIG_CREATED)
+				.setEventId(eventId)
+				.setDeviceConfigCreatedEvent(event)
+				.build();
+	}
+
+	public static Event newEvent(final long eventId, final DeviceConfigUpdatedEvent event) {
+		return Event.newBuilder()
+				.setType(Event.Type.DEVICE_CONFIG_UPDATED)
+				.setEventId(eventId)
+				.setDeviceConfigUpdatedEvent(event)
+				.build();
+	}
+
+	public static Event newEvent(final long eventId, final DeviceConfigDeletedEvent event) {
+		return Event.newBuilder()
+				.setType(Event.Type.DEVICE_CONFIG_DELETED)
+				.setEventId(eventId)
+				.setDeviceConfigDeletedEvent(event)
+				.build();
+	}
+
+	public static Event newEvent(final long eventId, final ReservationDeletedEvent event) {
+		return Event.newBuilder()
+				.setType(Event.Type.RESERVATION_DELETED)
+				.setEventId(eventId)
+				.setReservationDeletedEvent(event)
+				.build();
+	}
+
+	public static Event newEvent(final long eventId, final ReservationEndedEvent event) {
+		return Event.newBuilder()
+				.setType(Event.Type.RESERVATION_ENDED)
+				.setEventId(eventId)
+				.setReservationEndedEvent(event)
+				.build();
+	}
+
+	public static Event newEvent(final long eventId, final ReservationStartedEvent event) {
+		return Event.newBuilder()
+				.setType(Event.Type.RESERVATION_STARTED)
+				.setEventId(eventId)
+				.setReservationStartedEvent(event)
+				.build();
+	}
+
+	public static Event newEvent(final long eventId, final ReservationMadeEvent event) {
+		return Event.newBuilder()
+				.setType(Event.Type.RESERVATION_MADE)
+				.setEventId(eventId)
+				.setReservationMadeEvent(event)
+				.build();
+	}
+
 }

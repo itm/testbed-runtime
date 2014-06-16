@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import de.uniluebeck.itm.tr.common.IncrementalIdProvider;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginService;
 import de.uniluebeck.itm.util.logging.Logging;
@@ -143,7 +144,12 @@ public class PortalChannelHandlerTest {
 
 		setUpGatewayAndChannelMockBehavior();
 
-		portalChannelHandler = new PortalChannelHandler(portalEventBus, externalPluginService);
+		portalChannelHandler = new PortalChannelHandler(
+				portalEventBus,
+				new IncrementalIdProvider(),
+				externalPluginService
+		);
+
 		portalChannelHandler.channelConnected(
 				gateway1Context,
 				new UpstreamChannelStateEvent(gateway1Channel, ChannelState.CONNECTED, true)
@@ -158,38 +164,38 @@ public class PortalChannelHandlerTest {
 		);
 
 		portalChannelHandler.messageReceived(gateway1Context, new UpstreamMessageEvent(
-				gateway1Channel,
-				Message.newBuilder()
-						.setType(Message.Type.EVENT)
-						.setEvent(Event.newBuilder()
-								.setType(Event.Type.DEVICES_ATTACHED)
-								.setEventId(RANDOM.nextLong())
-								.setDevicesAttachedEvent(
-										DevicesAttachedEvent.newBuilder()
-												.addNodeUrns(GATEWAY1_NODE1.toString())
-												.setTimestamp(new DateTime().getMillis())
-								)
-						).build(),
-				null
-		)
+						gateway1Channel,
+						Message.newBuilder()
+								.setType(Message.Type.EVENT)
+								.setEvent(Event.newBuilder()
+												.setType(Event.Type.DEVICES_ATTACHED)
+												.setEventId(RANDOM.nextLong())
+												.setDevicesAttachedEvent(
+														DevicesAttachedEvent.newBuilder()
+																.addNodeUrns(GATEWAY1_NODE1.toString())
+																.setTimestamp(new DateTime().getMillis())
+												)
+								).build(),
+						null
+				)
 		);
 
 		portalChannelHandler.messageReceived(gateway2Context, new UpstreamMessageEvent(
-				gateway2Channel,
-				Message.newBuilder()
-						.setType(Message.Type.EVENT)
-						.setEvent(Event.newBuilder()
-								.setType(Event.Type.DEVICES_ATTACHED)
-								.setEventId(RANDOM.nextLong())
-								.setDevicesAttachedEvent(
-										DevicesAttachedEvent.newBuilder()
-												.addNodeUrns(GATEWAY2_NODE1.toString())
-												.addNodeUrns(GATEWAY2_NODE2.toString())
-												.setTimestamp(new DateTime().getMillis())
-								)
-						).build(),
-				null
-		)
+						gateway2Channel,
+						Message.newBuilder()
+								.setType(Message.Type.EVENT)
+								.setEvent(Event.newBuilder()
+												.setType(Event.Type.DEVICES_ATTACHED)
+												.setEventId(RANDOM.nextLong())
+												.setDevicesAttachedEvent(
+														DevicesAttachedEvent.newBuilder()
+																.addNodeUrns(GATEWAY2_NODE1.toString())
+																.addNodeUrns(GATEWAY2_NODE2.toString())
+																.setTimestamp(new DateTime().getMillis())
+												)
+								).build(),
+						null
+				)
 		);
 
 		reset(gateway1Context);

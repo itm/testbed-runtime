@@ -52,4 +52,19 @@ public interface EventOrBuilder
   boolean hasReservationDeletedEvent();
   de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent getReservationDeletedEvent();
   de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder getReservationDeletedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent = 109;
+  boolean hasDeviceConfigCreatedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent getDeviceConfigCreatedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEventOrBuilder getDeviceConfigCreatedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent deviceConfigUpdatedEvent = 110;
+  boolean hasDeviceConfigUpdatedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent getDeviceConfigUpdatedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEventOrBuilder getDeviceConfigUpdatedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent deviceConfigDeletedEvent = 111;
+  boolean hasDeviceConfigDeletedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent getDeviceConfigDeletedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEventOrBuilder getDeviceConfigDeletedEventOrBuilder();
 }

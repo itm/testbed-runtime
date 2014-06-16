@@ -200,30 +200,53 @@ message ReservationDeletedEvent {
 	required string serializedKey = 1;
 }
 
+message DeviceConfigCreatedEvent {
+	required string nodeUrn = 1;
+}
+
+message DeviceConfigUpdatedEvent {
+	required string nodeUrn = 1;
+}
+
+message DeviceConfigDeletedEvent {
+	required string nodeUrn = 1;
+}
+
 message Event {
 
 	enum Type {
-		UPSTREAM_MESSAGE    = 1;
-		DEVICES_ATTACHED    = 2;
-        DEVICES_DETACHED    = 3;
-		NOTIFICATION        = 4;
-		RESERVATION_STARTED = 5;
-		RESERVATION_ENDED   = 6;
-		RESERVATION_MADE    = 7;
-		RESERVATION_DELETED = 8;
+
+		UPSTREAM_MESSAGE      = 1;  // upstream
+
+		DEVICES_ATTACHED      = 2;  // upstream
+        DEVICES_DETACHED      = 3;  // upstream
+
+		NOTIFICATION          = 4;  // upstream
+
+		RESERVATION_STARTED   = 5;  // downstream
+		RESERVATION_ENDED     = 6;  // downstream
+		RESERVATION_MADE      = 7;  // downstream
+		RESERVATION_DELETED   = 8;  // downstream
+
+		DEVICE_CONFIG_CREATED = 9;  // downstream
+		DEVICE_CONFIG_UPDATED = 10; // downstream
+		DEVICE_CONFIG_DELETED = 11; // downstream
 	}
 
-	required int64                eventId              = 1;
-	required Type                 type                 = 2;
+	required int64 eventId = 1;
+	required Type  type    = 2;
 
-	optional UpstreamMessageEvent    upstreamMessageEvent    = 101;
-	optional DevicesAttachedEvent    devicesAttachedEvent    = 102;
-	optional DevicesDetachedEvent    devicesDetachedEvent    = 103;
-	optional NotificationEvent       notificationEvent       = 104;
-	optional ReservationStartedEvent reservationStartedEvent = 105;
-	optional ReservationEndedEvent   reservationEndedEvent   = 106;
-	optional ReservationMadeEvent    reservationMadeEvent    = 107;
-	optional ReservationDeletedEvent reservationDeletedEvent = 108;
+	optional UpstreamMessageEvent     upstreamMessageEvent    = 101;
+	optional DevicesAttachedEvent     devicesAttachedEvent    = 102;
+	optional DevicesDetachedEvent     devicesDetachedEvent    = 103;
+	optional NotificationEvent        notificationEvent       = 104;
+	optional ReservationStartedEvent  reservationStartedEvent = 105;
+	optional ReservationEndedEvent    reservationEndedEvent   = 106;
+	optional ReservationMadeEvent     reservationMadeEvent    = 107;
+	optional ReservationDeletedEvent  reservationDeletedEvent = 108;
+	optional DeviceConfigCreatedEvent deviceConfigCreatedEvent = 109;
+	optional DeviceConfigUpdatedEvent deviceConfigUpdatedEvent = 110;
+	optional DeviceConfigDeletedEvent deviceConfigDeletedEvent = 111;
 }
 
 message EventAck {

@@ -14,7 +14,10 @@ import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
+import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import eu.wisebed.api.v3.common.NodeUrn;
 import gnu.io.PortInUseException;
 import org.apache.cxf.interceptor.Fault;
@@ -150,7 +153,9 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 				if (canHandle) {
 
-					log.trace("Calling deviceAdapterFactory.create() for deviceType:{}", deviceFoundEvent.getDeviceType());
+					log.trace("Calling deviceAdapterFactory.create() for deviceType:{}",
+							deviceFoundEvent.getDeviceType()
+					);
 					final DeviceAdapter deviceAdapter = deviceAdapterFactory.create(
 							deviceFoundEvent.getDeviceType(),
 							deviceFoundEvent.getDevicePort(),
@@ -359,6 +364,60 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 		}
 	}
 
+	@Subscribe
+	public void onDeviceConfigDeletedEvent(final DeviceConfigDeletedEvent deletedEvent) {
+		log.trace("DeviceManagerImpl.onDeviceConfigDeletedEvent({})", deletedEvent);
+		disconnectAndScheduleReconnect(new NodeUrn(deletedEvent.getNodeUrn()), false);
+	}
+
+	@Subscribe
+	public void onDeviceConfigUpdatedEvent(final DeviceConfigUpdatedEvent updatedEvent) {
+		log.trace("DeviceManagerImpl.onDeviceConfigUpdatedEvent({})", updatedEvent);
+		disconnectAndScheduleReconnect(new NodeUrn(updatedEvent.getNodeUrn()), true);
+	}
+
+	private void disconnectAndScheduleReconnect(final NodeUrn nodeUrn, final boolean immediateReconnect) {
+
+		final Set<DeviceAdapter> copy;
+		synchronized (runningDeviceAdapters) {
+			copy = newHashSet(runningDeviceAdapters);
+		}
+
+		for (DeviceAdapter deviceAdapter : copy) {
+			if (deviceAdapter.getNodeUrns().contains(nodeUrn)) {
+
+				// if no configuration exists we can't stay connected
+				deviceAdapter.stopAndWait();
+
+				// assuming that devices are still attached there should be events leading to an eventual reconnect in
+				// the future, therefore fake these events
+				synchronized (deviceFoundEvents) {
+
+					if (deviceAdapter.getDeviceConfigs() != null) {
+
+						for (DeviceConfig deviceConfig : deviceAdapter.getDeviceConfigs().values()) {
+
+							final DeviceFoundEvent deviceFoundEvent = new DeviceFoundEvent(
+									deviceConfig.getNodeType(),
+									deviceAdapter.getDevicePort(),
+									deviceConfig.getNodeConfiguration(),
+									deviceConfig.getNodeUSBChipID(),
+									new MacAddress(deviceConfig.getNodeUrn().getSuffix()),
+									null
+							);
+
+							if (immediateReconnect) {
+								onDeviceFoundEvent(deviceFoundEvent);
+							} else {
+								deviceFoundEvents.add(deviceFoundEvent);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Consumes for events indicating that a new device was connected to this gateway.<br/> If there is no {@link
 	 * DeviceAdapter} responsible for this device yet, a new instance for this device will be created and started.
@@ -446,7 +505,8 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 					if (canHandle) {
 
 						log.info("A new DeviceAdapterFactory was added at runtime that can handle the device at "
-								+ "port {}. Shutting down connection and reconnecting.", deviceAdapter.getDevicePort()
+										+ "port {}. Shutting down connection and reconnecting.",
+								deviceAdapter.getDevicePort()
 						);
 
 						deviceAdapter.stopAndWait();
@@ -457,13 +517,13 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 							final String reference = deviceConfig == null ? null : deviceConfig.getNodeUSBChipID();
 
 							deviceFoundEvents.add(new DeviceFoundEvent(
-									deviceAdapter.getDeviceType(),
-									deviceAdapter.getDevicePort(),
-									deviceConfig.getNodeConfiguration(),
-									reference,
-									null,
-									deviceConfig
-							)
+											deviceAdapter.getDeviceType(),
+											deviceAdapter.getDevicePort(),
+											deviceConfig.getNodeConfiguration(),
+											reference,
+											null,
+											deviceConfig
+									)
 							);
 						}
 					}
@@ -504,13 +564,13 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 						final String reference = (deviceConfig == null) ? null : deviceConfig.getNodeUSBChipID();
 
 						deviceFoundEvents.add(new DeviceFoundEvent(
-								deviceAdapter.getDeviceType(),
-								deviceAdapter.getDevicePort(),
-								deviceConfig.getNodeConfiguration(),
-								reference,
-								null,
-								deviceConfig
-						)
+										deviceAdapter.getDeviceType(),
+										deviceAdapter.getDevicePort(),
+										deviceConfig.getNodeConfiguration(),
+										reference,
+										null,
+										deviceConfig
+								)
 						);
 					}
 				}

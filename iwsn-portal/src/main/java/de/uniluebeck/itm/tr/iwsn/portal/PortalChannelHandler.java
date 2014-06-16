@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
+import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginService;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -34,14 +35,18 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	private final PortalEventBus portalEventBus;
 
+	private final IdProvider idProvider;
+
 	private final ExternalPluginService externalPluginService;
 
 	private final Multimap<ChannelHandlerContext, NodeUrn> contextToNodeUrnsMap = HashMultimap.create();
 
 	@Inject
 	public PortalChannelHandler(final PortalEventBus portalEventBus,
+								final IdProvider idProvider,
 								final ExternalPluginService externalPluginService) {
 		this.portalEventBus = portalEventBus;
+		this.idProvider = idProvider;
 		this.externalPluginService = externalPluginService;
 	}
 
@@ -55,6 +60,46 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		externalPluginService.stopAndWait();
 		log.debug("Unsubscribing from the event bus.");
 		portalEventBus.unregister(this);
+	}
+
+	@Subscribe
+	public void on(final DeviceConfigCreatedEvent deviceConfigCreatedEvent) {
+		forward(newEvent(idProvider.get(), deviceConfigCreatedEvent));
+	}
+
+	@Subscribe
+	public void on(final DeviceConfigUpdatedEvent deviceConfigUpdatedEvent) {
+		forward(newEvent(idProvider.get(), deviceConfigUpdatedEvent));
+	}
+
+	@Subscribe
+	public void on(final DeviceConfigDeletedEvent deviceConfigDeletedEvent) {
+		forward(newEvent(idProvider.get(), deviceConfigDeletedEvent));
+	}
+
+	@Subscribe
+	public void on(final ReservationStartedEvent reservationStartedEvent) {
+		forward(newEvent(idProvider.get(), reservationStartedEvent));
+	}
+
+	@Subscribe
+	public void on(final ReservationEndedEvent reservationEndedEvent) {
+		forward(newEvent(idProvider.get(), reservationEndedEvent));
+	}
+
+	@Subscribe
+	public void on(final ReservationMadeEvent reservationMadeEvent) {
+		forward(newEvent(idProvider.get(), reservationMadeEvent));
+	}
+
+	@Subscribe
+	public void on(final ReservationDeletedEvent reservationDeletedEvent) {
+		forward(newEvent(idProvider.get(), reservationDeletedEvent));
+	}
+
+	private void forward(final Event event) {
+		sendToExternalPlugins(event);
+		sendToGateways(event);
 	}
 
 	@Subscribe
@@ -319,19 +364,20 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 					.build();
 			final DefaultChannelFuture future = new DefaultChannelFuture(ctx.getChannel(), true);
 			future.addListener(new ChannelFutureListener() {
-				@Override
-				public void operationComplete(final ChannelFuture channelFuture) throws Exception {
-					//noinspection ThrowableResultOfMethodCallIgnored
-					if (!channelFuture.isSuccess() && channelFuture.getCause() instanceof ClosedChannelException) {
-						sendUnconnectedResponses(
-								requestBuilder.getReservationId(),
-								requestBuilder.getRequestId(),
-								-1,
-								extractNodeUrns(requestBuilder)
-						);
-					}
-				}
-			}
+								   @Override
+								   public void operationComplete(final ChannelFuture channelFuture) throws Exception {
+									   //noinspection ThrowableResultOfMethodCallIgnored
+									   if (!channelFuture.isSuccess() && channelFuture
+											   .getCause() instanceof ClosedChannelException) {
+										   sendUnconnectedResponses(
+												   requestBuilder.getReservationId(),
+												   requestBuilder.getRequestId(),
+												   -1,
+												   extractNodeUrns(requestBuilder)
+										   );
+									   }
+								   }
+							   }
 			);
 			Channels.write(ctx, future, message);
 		}
@@ -471,6 +517,12 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		sendToExternalPlugins(eventAck);
 
 		write(ctx, channelFuture, message);
+	}
+
+	private void sendToGateways(final Event event) {
+		for (ChannelHandlerContext channelHandlerContext : contextToNodeUrnsMap.keySet()) {
+			Channels.write(channelHandlerContext.getChannel(), newMessage(event));
+		}
 	}
 
 	@Override

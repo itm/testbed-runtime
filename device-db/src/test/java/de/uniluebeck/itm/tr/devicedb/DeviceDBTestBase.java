@@ -1,8 +1,13 @@
 package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.collect.*;
+import com.google.inject.AbstractModule;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
+import de.uniluebeck.itm.tr.common.EventBusService;
+import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent;
 import de.uniluebeck.itm.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
@@ -11,6 +16,7 @@ import eu.wisebed.wiseml.CoordinateType;
 import eu.wisebed.wiseml.OutdoorCoordinatesType;
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.Map;
 import java.util.Properties;
@@ -23,6 +29,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.*;
 
 public abstract class DeviceDBTestBase {
 
@@ -53,6 +60,16 @@ public abstract class DeviceDBTestBase {
 	private static final NodeUrn NODE_URN3 = new NodeUrn("urn:wisebed:uzl1:0x2089");
 
 	private static final String NODE_CHIP_ID1 = "XBQTBYH2";
+
+	@Mock
+	protected EventBusService eventBusService;
+
+	protected final AbstractModule testModule = new AbstractModule() {
+		@Override
+		protected void configure() {
+			bind(EventBusService.class).toInstance(eventBusService);
+		}
+	};
 
 	private DeviceConfig config1;
 
@@ -254,5 +271,54 @@ public abstract class DeviceDBTestBase {
 		final Long macAddress = StringUtils.parseHexOrDecLongFromUrn(config3.getNodeUrn().toString());
 
 		assertNull(db.getConfigByMacAddress(macAddress));
+	}
+
+	@Test
+	public void testIfEventIsFiredWhenAddingConfig() throws Exception {
+
+		db.add(config1);
+
+		verify(eventBusService).post(isA(DeviceConfigCreatedEvent.class));
+		verify(eventBusService, never()).post(isA(DeviceConfigUpdatedEvent.class));
+		verify(eventBusService, never()).post(isA(DeviceConfigDeletedEvent.class));
+	}
+
+	@Test
+	public void testIfEventIsFiredWhenUpdatingConfig() throws Exception {
+
+		db.add(config1);
+		reset(eventBusService);
+
+		db.update(config1);
+
+		verify(eventBusService).post(isA(DeviceConfigUpdatedEvent.class));
+		verify(eventBusService, never()).post(isA(DeviceConfigCreatedEvent.class));
+		verify(eventBusService, never()).post(isA(DeviceConfigDeletedEvent.class));
+	}
+
+	@Test
+	public void testIfEventIsFiredWhenDeletingConfig() throws Exception {
+
+		db.add(config1);
+		reset(eventBusService);
+
+		db.removeByNodeUrn(config1.getNodeUrn());
+
+		verify(eventBusService).post(isA(DeviceConfigDeletedEvent.class));
+		verify(eventBusService, never()).post(isA(DeviceConfigCreatedEvent.class));
+		verify(eventBusService, never()).post(isA(DeviceConfigUpdatedEvent.class));
+	}
+
+	@Test
+	public void testIfEventsAreFiredWhenDeletingAllConfigs() throws Exception {
+
+		db.add(config1);
+		db.add(config2);
+		reset(eventBusService);
+
+		db.removeAll();
+		verify(eventBusService, times(2)).post(isA(DeviceConfigDeletedEvent.class));
+		verify(eventBusService, never()).post(isA(DeviceConfigCreatedEvent.class));
+		verify(eventBusService, never()).post(isA(DeviceConfigUpdatedEvent.class));
 	}
 }

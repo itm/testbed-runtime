@@ -1,8 +1,10 @@
 package de.uniluebeck.itm.tr.devicedb;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniluebeck.itm.tr.common.Constants;
+import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.WisemlProviderConfig;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.util.NetworkUtils;
@@ -18,6 +20,7 @@ import java.util.Properties;
 
 import static de.uniluebeck.itm.util.propconf.PropConfBuilder.buildConfig;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RemoteDeviceDBTest extends DeviceDBTestBase {
@@ -54,7 +57,15 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 		final DeviceDBServerModule module =
 				new DeviceDBServerModule(commonConfig, deviceDBConfig, wisemlProviderConfig);
-		final Injector injector = Guice.createInjector(module);
+		final AbstractModule mockEventBusModule = new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(EventBusService.class).toInstance(
+						mock(EventBusService.class)
+				);
+			}
+		};
+		final Injector injector = Guice.createInjector(mockEventBusModule, module);
 
 		deviceDBServer = injector.getInstance(DeviceDBServer.class);
 		deviceDBServer.startAndWait();
@@ -65,12 +76,16 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 	public void setUp() throws Exception {
 
 		remoteDeviceDBService = Guice
-				.createInjector(new RemoteDeviceDBModule(
-						URI.create("http://localhost:" + port + Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE),
-						URI.create("http://localhost:" + port + Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE),
-						"admin",
-						"secret"
-				)
+				.createInjector(testModule, new RemoteDeviceDBModule(
+								URI.create(
+										"http://localhost:" + port + Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE
+								),
+								URI.create(
+										"http://localhost:" + port + Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE
+								),
+								"admin",
+								"secret"
+						)
 				).getInstance(DeviceDBService.class);
 
 		super.setUp(remoteDeviceDBService);
@@ -95,7 +110,8 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 						URI.create("http://localhost:" + portWithoutService + "/rest/wrong/uri"),
 						"admin",
 						"secret"
-				)).getInstance(DeviceDBService.class);
+				)
+		).getInstance(DeviceDBService.class);
 
 		db.startAndWait();
 

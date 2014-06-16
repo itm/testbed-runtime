@@ -4,10 +4,13 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.DriverManager;
 import java.sql.SQLNonTransientConnectionException;
 
+@RunWith(MockitoJUnitRunner.class)
 public class DeviceDBJpaTest extends DeviceDBTestBase {
 
 	@Before
@@ -15,7 +18,7 @@ public class DeviceDBJpaTest extends DeviceDBTestBase {
 
 		DriverManager.getConnection("jdbc:derby:memory:device-db-unit-test;create=true").close();
 
-		final Injector injector = Guice.createInjector(new DeviceDBJpaModule(JPA_PROPERTIES));
+		final Injector injector = Guice.createInjector(testModule, new DeviceDBJpaModule(JPA_PROPERTIES));
 		final DeviceDBService deviceDBService = injector.getInstance(DeviceDBService.class);
 
 		super.setUp(deviceDBService);

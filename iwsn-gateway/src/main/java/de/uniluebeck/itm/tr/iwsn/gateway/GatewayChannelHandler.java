@@ -56,6 +56,8 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 			case EVENT_ACK:
 				gatewayEventBus.post(((Message) e.getMessage()).getEventAck());
 				break;
+			case EVENT:
+				gatewayEventBus.post(((Message) e.getMessage()).getEvent());
 			case KEEP_ALIVE:
 			case KEEP_ALIVE_ACK:
 				break;
@@ -137,7 +139,40 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 
 	@Subscribe
 	public void onEvent(Event event) {
-		sendToPortal(newMessage(event));
+
+		switch (event.getType()) {
+
+			// forward upstream events
+			case DEVICES_ATTACHED:
+			case DEVICES_DETACHED:
+			case NOTIFICATION:
+			case UPSTREAM_MESSAGE:
+				sendToPortal(newMessage(event));
+				break;
+
+			// unwrap downstream events and re-post
+			case DEVICE_CONFIG_CREATED:
+				gatewayEventBus.post(event.getDeviceConfigCreatedEvent());
+				break;
+			case DEVICE_CONFIG_DELETED:
+				gatewayEventBus.post(event.getDeviceConfigDeletedEvent());
+				break;
+			case DEVICE_CONFIG_UPDATED:
+				gatewayEventBus.post(event.getDeviceConfigUpdatedEvent());
+				break;
+			case RESERVATION_DELETED:
+				gatewayEventBus.post(event.getReservationDeletedEvent());
+				break;
+			case RESERVATION_ENDED:
+				gatewayEventBus.post(event.getReservationEndedEvent());
+				break;
+			case RESERVATION_MADE:
+				gatewayEventBus.post(event.getReservationMadeEvent());
+				break;
+			case RESERVATION_STARTED:
+				gatewayEventBus.post(event.getReservationStartedEvent());
+				break;
+		}
 	}
 
 	@Subscribe

@@ -2,6 +2,11 @@ package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.AbstractService;
+import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.common.EventBusService;
+import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import javax.annotation.Nullable;
@@ -17,6 +22,13 @@ import static de.uniluebeck.itm.util.StringUtils.parseHexOrDecLong;
 public class DeviceDBInMemory extends AbstractService implements DeviceDBService {
 
 	private final List<DeviceConfig> configs = newArrayList();
+
+	private final EventBusService eventBusService;
+
+	@Inject
+	public DeviceDBInMemory(final EventBusService eventBusService) {
+		this.eventBusService = eventBusService;
+	}
 
 	@Override
 	public Map<NodeUrn, DeviceConfig> getConfigsByNodeUrns(final Iterable<NodeUrn> nodeUrns) {
@@ -113,6 +125,12 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDBService
 			}
 			configs.add(deviceConfig);
 		}
+
+		final DeviceConfigCreatedEvent event = DeviceConfigCreatedEvent
+				.newBuilder()
+				.setNodeUrn(deviceConfig.getNodeUrn().toString())
+				.build();
+		eventBusService.post(event);
 	}
 
 	@Override
@@ -121,24 +139,39 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDBService
 		checkState(isRunning());
 
 		synchronized (configs) {
-			if (removeByNodeUrn(deviceConfig.getNodeUrn())) {
+			if (removeInternal(deviceConfig.getNodeUrn(), false)) {
 				configs.add(deviceConfig);
 			} else {
 				throw new IllegalArgumentException(deviceConfig.getNodeType() + " does not exist!");
 			}
 		}
+
+		final DeviceConfigUpdatedEvent event = DeviceConfigUpdatedEvent
+				.newBuilder()
+				.setNodeUrn(deviceConfig.getNodeUrn().toString())
+				.build();
+		eventBusService.post(event);
 	}
 
 	@Override
 	public boolean removeByNodeUrn(final NodeUrn nodeUrn) {
-
 		checkState(isRunning());
+		return removeInternal(nodeUrn, true);
+	}
 
+	private boolean removeInternal(final NodeUrn nodeUrn, final boolean fireEvent) {
 		synchronized (configs) {
 			for (Iterator<DeviceConfig> iterator = configs.iterator(); iterator.hasNext(); ) {
 				DeviceConfig next = iterator.next();
 				if (next.getNodeUrn().equals(nodeUrn)) {
 					iterator.remove();
+					if (fireEvent) {
+						final DeviceConfigDeletedEvent event = DeviceConfigDeletedEvent
+								.newBuilder()
+								.setNodeUrn(nodeUrn.toString())
+								.build();
+						eventBusService.post(event);
+					}
 					return true;
 				}
 			}
@@ -153,6 +186,13 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDBService
 		checkState(isRunning());
 
 		synchronized (configs) {
+			for (DeviceConfig config : configs) {
+				final DeviceConfigDeletedEvent event = DeviceConfigDeletedEvent
+						.newBuilder()
+						.setNodeUrn(config.getNodeUrn().toString())
+						.build();
+				eventBusService.post(event);
+			}
 			configs.clear();
 		}
 	}
