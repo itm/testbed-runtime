@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiFactory;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 
@@ -19,13 +20,21 @@ public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 
 	private final Set<HandlerFactory> handlerFactories;
 
+	private final GatewayEventBus gatewayEventBus;
+
+	private final SchedulerService schedulerService;
+
 	@Inject
 	public SingleDeviceAdapterFactory(final DeviceFactory deviceFactory,
 									  final NodeApiFactory nodeApiFactory,
-									  final Set<HandlerFactory> handlerFactories) {
+									  final Set<HandlerFactory> handlerFactories,
+									  final GatewayEventBus gatewayEventBus,
+									  final SchedulerService schedulerService) {
 		this.deviceFactory = deviceFactory;
 		this.nodeApiFactory = nodeApiFactory;
 		this.handlerFactories = handlerFactories;
+		this.gatewayEventBus = gatewayEventBus;
+		this.schedulerService = schedulerService;
 	}
 
 	@Override
@@ -61,10 +70,12 @@ public class SingleDeviceAdapterFactory implements DeviceAdapterFactory {
 				type,
 				devicePort,
 				deviceConfiguration,
+				gatewayEventBus,
 				deviceConfig,
 				deviceFactory,
 				nodeApiFactory,
-				handlerFactories
+				handlerFactories,
+				schedulerService
 		);
 	}
 }

@@ -33,6 +33,8 @@ import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
 import de.uniluebeck.itm.nettyprotocols.NamedChannelHandlerList;
 import de.uniluebeck.itm.nettyprotocols.util.ChannelBufferTools;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceLostEvent;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApi;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiDeviceAdapter;
@@ -42,11 +44,13 @@ import de.uniluebeck.itm.tr.iwsn.pipeline.BelowPipelineLogger;
 import de.uniluebeck.itm.util.TimeDiff;
 import de.uniluebeck.itm.util.concurrent.ProgressListenableFuture;
 import de.uniluebeck.itm.util.concurrent.ProgressSettableFuture;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.wsn.drivers.core.Device;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationAdapter;
 import de.uniluebeck.itm.wsn.drivers.core.operation.OperationFuture;
 import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactory;
+import de.uniluebeck.itm.wsn.drivers.factories.DeviceType;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -103,6 +107,10 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 	private final ImmutableMap<String, HandlerFactory> handlerFactories;
 
+	private final GatewayEventBus gatewayEventBus;
+
+	private final SchedulerService schedulerService;
+
 	private Channel deviceChannel;
 
 	private transient boolean flashOperationRunningOrEnqueued = false;
@@ -151,12 +159,16 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 	public SingleDeviceAdapter(final String deviceType,
 							   final String devicePort,
 							   final Map<String, String> deviceConfiguration,
+							   final GatewayEventBus gatewayEventBus,
 							   @Nullable final DeviceConfig deviceConfig,
 							   final DeviceFactory deviceFactory,
 							   final NodeApiFactory nodeApiFactory,
-							   final Set<HandlerFactory> handlerFactories) {
+							   final Set<HandlerFactory> handlerFactories,
+							   final SchedulerService schedulerService) {
 
 		super(deviceType, devicePort, deviceConfiguration, deviceConfig);
+		this.gatewayEventBus = gatewayEventBus;
+		this.schedulerService = schedulerService;
 
 		this.deviceFactory = checkNotNull(deviceFactory);
 		this.nodeApiFactory = checkNotNull(nodeApiFactory);
@@ -231,6 +243,14 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			nodeApi.start();
 
 			fireDevicesConnected(deviceConfig.getNodeUrn());
+
+			schedulerService.execute(new Runnable() {
+										 @Override
+										 public void run() {
+											 resetNode();
+										 }
+									 }
+			);
 
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -435,6 +455,47 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 									try {
 
 										checkForBrokenMacAndRepair();
+
+										// reconnect if TelosB (workaround for https://github.com/itm/wsn-device-drivers/issues/143)
+										if (DeviceType.fromString(deviceConfig.getNodeType()) == DeviceType.TELOSB) {
+
+											final DeviceLostEvent deviceLostEvent = new DeviceLostEvent(
+													deviceType,
+													devicePort,
+													deviceConfiguration,
+													deviceConfig.getNodeUSBChipID(),
+													new MacAddress(deviceConfig.getNodeUrn().getSuffix()),
+													deviceConfig
+											);
+
+											final DeviceFoundEvent deviceFoundEvent = new DeviceFoundEvent(
+													deviceType,
+													devicePort,
+													deviceConfiguration,
+													deviceConfig.getNodeUSBChipID(),
+													new MacAddress(deviceConfig.getNodeUrn().getSuffix()),
+													deviceConfig
+											);
+
+
+											schedulerService.schedule(new Runnable() {
+																		  @Override
+																		  public void run() {
+																			  gatewayEventBus.post(deviceLostEvent);
+																		  }
+																	  }, 0, TimeUnit.SECONDS
+											);
+											schedulerService.schedule(new Runnable() {
+																		  @Override
+																		  public void run() {
+																			  gatewayEventBus.post(deviceFoundEvent);
+																		  }
+																	  }, 1, TimeUnit.SECONDS
+											);
+										} else {
+											resetNode();
+										}
+
 										future.set(null);
 
 									} catch (Exception ex) {
