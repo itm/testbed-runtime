@@ -667,7 +667,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 		final ChannelBuffer buffer = ChannelBuffers.wrappedBuffer(messageBytes);
 
 		if (log.isDebugEnabled()) {
-			log.debug("{} => Delivering message: ",
+			log.debug("{} => Delivering message: {}",
 					deviceConfig.getNodeUrn(),
 					ChannelBufferTools.toPrintableString(buffer, 200)
 			);
