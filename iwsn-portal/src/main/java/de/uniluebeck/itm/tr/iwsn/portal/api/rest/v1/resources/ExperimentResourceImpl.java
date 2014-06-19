@@ -74,9 +74,9 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		DEFAULT_TIMEOUTS_MS.put(Operation.RESET, Duration.standardSeconds(10));
 		DEFAULT_TIMEOUTS_MS.put(Operation.ALIVE, Duration.standardSeconds(10));
 		DEFAULT_TIMEOUTS_MS.put(Operation.FLASH, Duration.standardMinutes(3));
-		DEFAULT_TIMEOUTS_MS.put(Operation.FLASH, Duration.standardSeconds(10));
-		DEFAULT_TIMEOUTS_MS.put(Operation.FLASH, Duration.standardSeconds(10));
 		DEFAULT_TIMEOUTS_MS.put(Operation.NODE_API, Duration.standardSeconds(10));
+		DEFAULT_TIMEOUTS_MS.put(Operation.SEND, Duration.standardSeconds(10));
+		DEFAULT_TIMEOUTS_MS.put(Operation.SET_CHANNEL_PIPELINE, Duration.standardSeconds(10));
 	}
 
 	private final WisemlProvider wisemlProvider;
