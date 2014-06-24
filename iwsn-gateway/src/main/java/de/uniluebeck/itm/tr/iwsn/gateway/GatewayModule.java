@@ -14,6 +14,10 @@ import de.uniluebeck.itm.tr.common.IncrementalIdProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.GatewayEventQueue;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.GatewayEventQueueHelper;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.GatewayEventQueueHelperImpl;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.GatewayEventQueueImpl;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.plugins.GatewayPluginModule;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiModule;
@@ -52,6 +56,9 @@ public class GatewayModule extends AbstractModule {
 		bind(GatewayEventBusImpl.class).in(Scopes.SINGLETON);
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class);
 		bind(EventBusService.class).to(GatewayEventBusImpl.class); // for use in CachedDeviceDB
+
+        bind(GatewayEventQueueHelper.class).to(GatewayEventQueueHelperImpl.class).in(Scopes.SINGLETON);
+        bind(GatewayEventQueue.class).to(GatewayEventQueueImpl.class);
 
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
 		bind(IdProvider.class).to(IncrementalIdProvider.class).in(Scopes.SINGLETON);

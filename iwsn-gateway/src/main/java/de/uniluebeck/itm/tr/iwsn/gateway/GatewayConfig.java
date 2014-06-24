@@ -52,6 +52,18 @@ public class GatewayConfig {
 	@Named(PLUGIN_DIRECTORY)
 	private String pluginDirectory;
 
+
+    @PropConf(
+            usage = "The directory in which to save the persistant message queue",
+            example = "/var/log/tr.iwsn-gateway/eventqueue"
+    )
+    public static final String EVENTQUEUE_PATH = "eventqueue.path";
+
+    @Inject
+    @Named(EVENTQUEUE_PATH)
+    private String eventQueuePath;
+
+
 	@PropConf(
 			usage = "If run in the context of the SmartSantander project, this must be set to the URI on which the " +
 					"SmartSantander EventBroker runs ",
@@ -101,6 +113,8 @@ public class GatewayConfig {
 	public String getPluginDirectory() {
 		return pluginDirectory;
 	}
+
+    public String getEventQueuePath() {return  eventQueuePath;}
 
 	public URI getSmartSantanderEventBrokerUri() {
 		return smartSantanderEventBrokerUri;
