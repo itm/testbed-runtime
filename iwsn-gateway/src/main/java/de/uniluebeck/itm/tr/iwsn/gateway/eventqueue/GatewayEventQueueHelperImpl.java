@@ -1,19 +1,20 @@
 package de.uniluebeck.itm.tr.iwsn.gateway.eventqueue;
 
 import com.google.common.base.Function;
+import com.google.common.collect.BiMap;
 import com.google.inject.Inject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
 import com.leansoft.bigqueue.BigQueueImpl;
 import com.leansoft.bigqueue.IBigQueue;
-import de.uniluebeck.itm.eventstore.helper.EventStoreSerializationHelper;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayConfig;
 import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
+import de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class GatewayEventQueueHelperImpl implements GatewayEventQueueHelper {
     }
 
     @Override
-    public EventStoreSerializationHelper configureEventSerializationHelper() throws FileNotFoundException, ClassNotFoundException {
+    public MultiClassSerializationHelper<MessageLite> configureEventSerializationHelper() throws IOException, ClassNotFoundException {
         Map<Class<? extends MessageLite>, Function<? extends MessageLite, byte[]>> serializers = newHashMap();
         Map<Class<? extends MessageLite>, Function<byte[], ? extends MessageLite>> deserializers = newHashMap();
 
@@ -60,7 +61,10 @@ public class GatewayEventQueueHelperImpl implements GatewayEventQueueHelper {
 
 
         String basePath = gatewayConfig.getEventQueuePath() + "/serializers";
-        return new EventStoreSerializationHelper(basePath, serializers, deserializers);
+        File mappingFile = new File(basePath + ".mapping");
+
+        BiMap<Class<? extends MessageLite>, Byte> mapping = MultiClassSerializationHelper.<MessageLite>loadOrCreateClassByteMap(serializers, deserializers, mappingFile);
+        return new MultiClassSerializationHelper<MessageLite>(serializers, deserializers, mapping);
 
     }
 

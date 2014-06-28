@@ -5,9 +5,10 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
+import com.google.protobuf.MessageLite;
 import com.leansoft.bigqueue.IBigQueue;
-import de.uniluebeck.itm.eventstore.helper.EventStoreSerializationHelper;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.Channels;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ public class GatewayEventQueueImpl implements GatewayEventQueue {
     private final Object queueLock = new Object();
     private Channel channel;
     private IBigQueue queue;
-    private EventStoreSerializationHelper serializationHelper;
+    private MultiClassSerializationHelper<MessageLite> serializationHelper;
     private ListenableFuture<byte[]> dequeueFuture;
 
     @Inject
@@ -39,7 +40,7 @@ public class GatewayEventQueueImpl implements GatewayEventQueue {
         try {
             serializationHelper = queueHelper.configureEventSerializationHelper();
         } catch (Exception e) {
-            log.error("Failed to configure serializatioin helper! Event persistance not available!", e);
+            log.error("Failed to configure serialization helper! Event persistance not available!", e);
         }
     }
 
