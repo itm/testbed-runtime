@@ -20,7 +20,6 @@ import java.io.NotSerializableException;
 public class GatewayEventQueueImpl implements GatewayEventQueue {
     private static Logger log = LoggerFactory.
             getLogger(GatewayEventQueueImpl.class);
-    private final GatewayEventQueueHelper queueHelper;
     private final Object queueLock = new Object();
     private Channel channel;
     private IBigQueue queue;
@@ -30,7 +29,6 @@ public class GatewayEventQueueImpl implements GatewayEventQueue {
     @Inject
     public GatewayEventQueueImpl(final GatewayEventQueueHelper queueHelper) {
 
-        this.queueHelper = queueHelper;
         try {
             queue = queueHelper.createAndConfigureQueue();
         } catch (IOException e) {
@@ -42,6 +40,7 @@ public class GatewayEventQueueImpl implements GatewayEventQueue {
         } catch (Exception e) {
             log.error("Failed to configure serialization helper! Event persistance not available!", e);
         }
+        log.trace("GatewayEventQueueImpl configured successfully");
     }
 
     @Override
@@ -50,6 +49,7 @@ public class GatewayEventQueueImpl implements GatewayEventQueue {
             this.channel = channel;
             dequeueFuture = queue.dequeueAsync();
             Futures.addCallback(dequeueFuture, buildFutureCallback());
+            log.trace("channelConnected(): dequeue future callback added");
         }
     }
 
@@ -58,7 +58,8 @@ public class GatewayEventQueueImpl implements GatewayEventQueue {
         synchronized (queueLock) {
             dequeueFuture.cancel(true);
             this.channel = null;
-            this.dequeueFuture = null;
+            dequeueFuture = null;
+            log.trace("channelDisconnected(): dequeue future canceled");
         }
     }
 
@@ -68,17 +69,19 @@ public class GatewayEventQueueImpl implements GatewayEventQueue {
             synchronized (queueLock) {
                 try {
                     byte[] serialization = serializationHelper.serialize(message);
+                    log.trace("queue.enqueue");
                     queue.enqueue(serialization);
                 } catch (NotSerializableException e) {
-                    log.error("The message #{} is not serializable. An appropriate serializer is missing!", message);
+                    log.error("The message {} is not serializable. An appropriate serializer is missing!", message);
                     throw buildEnqueueException(message);
                 } catch (IOException e) {
-                    log.error("Failed to enqueue message #{}", message);
+                    log.error("Failed to enqueue message {}", message);
                     throw buildEnqueueException(message);
                 }
             }
         } else if (channel != null) {
             synchronized (queueLock) {
+                log.trace("enqueue({}): Persistance isn't available. Writing message directly to channel", message);
                 Channels.write(channel, message);
             }
         } else {
@@ -101,6 +104,7 @@ public class GatewayEventQueueImpl implements GatewayEventQueue {
             public void onSuccess(byte[] result) {
                 if (serializationHelper != null && channel != null) {
                     Object message = serializationHelper.deserialize(result);
+                    log.trace("writing #{} to channel", message);
                     Channels.write(channel, message);
                     if (dequeueFuture != null) {
                         dequeueFuture = queue.dequeueAsync();
