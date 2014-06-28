@@ -155,6 +155,7 @@ public class Gateway extends AbstractService {
 
 			deviceManager.stopAndWait();
 			requestHandler.stopAndWait();
+            gatewayEventQueue.stopAndWait();
 			gatewayEventBus.stopAndWait();
 			deviceDBService.stopAndWait();
 			schedulerService.stopAndWait();
