@@ -11,6 +11,7 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.GatewayEventQueue;
 import de.uniluebeck.itm.tr.iwsn.gateway.plugins.GatewayPluginService;
 import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
 import de.uniluebeck.itm.util.logging.LogLevel;
@@ -61,12 +62,15 @@ public class Gateway extends AbstractService {
 
 	private final SchedulerService schedulerService;
 
-	private ServicePublisher servicePublisher;
+    private final GatewayEventQueue gatewayEventQueue;
+
+    private ServicePublisher servicePublisher;
 
 	@Inject
 	public Gateway(final SchedulerService schedulerService,
 				   final GatewayConfig gatewayConfig,
 				   final GatewayEventBus gatewayEventBus,
+                   final GatewayEventQueue gatewayEventQueue,
 				   final DeviceDBService deviceDBService,
 				   final DeviceManager deviceManager,
 				   final DeviceObserverWrapper deviceObserverWrapper,
@@ -76,7 +80,8 @@ public class Gateway extends AbstractService {
 				   final ServicePublisherFactory servicePublisherFactory,
 				   final GatewayPluginService gatewayPluginService,
 				   @Nullable final SmartSantanderEventBrokerObserver smartSantanderEventBrokerObserver) {
-		this.schedulerService = checkNotNull(schedulerService);
+        this.gatewayEventQueue = gatewayEventQueue;
+        this.schedulerService = checkNotNull(schedulerService);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
 		this.gatewayEventBus = checkNotNull(gatewayEventBus);
@@ -100,6 +105,7 @@ public class Gateway extends AbstractService {
 			schedulerService.startAndWait();
 			deviceDBService.startAndWait();
 			gatewayEventBus.startAndWait();
+            gatewayEventQueue.startAndWait();
 			requestHandler.startAndWait();
 			deviceManager.startAndWait();
 			gatewayPluginService.startAndWait();
