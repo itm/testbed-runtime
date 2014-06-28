@@ -1,33 +1,49 @@
 package de.uniluebeck.itm.tr.iwsn.gateway.eventqueue;
 
 
+import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
 import com.leansoft.bigqueue.IBigQueue;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.common.IdProvider;
+import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.Channels;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.NotSerializableException;
 
-public class GatewayEventQueueImpl implements GatewayEventQueue {
+import static com.google.common.base.Functions.toStringFunction;
+import static com.google.common.collect.Iterables.transform;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newEvent;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newMessage;
+
+public class GatewayEventQueueImpl extends AbstractService implements GatewayEventQueue {
     private static Logger log = LoggerFactory.
             getLogger(GatewayEventQueueImpl.class);
     private final Object queueLock = new Object();
+    private final GatewayEventBus gatewayEventBus;
+    private final IdProvider idProvider;
     private Channel channel;
     private IBigQueue queue;
     private MultiClassSerializationHelper<MessageLite> serializationHelper;
     private ListenableFuture<byte[]> dequeueFuture;
 
     @Inject
-    public GatewayEventQueueImpl(final GatewayEventQueueHelper queueHelper) {
+    public GatewayEventQueueImpl(final GatewayEventQueueHelper queueHelper, final GatewayEventBus gatewayEventBus, final IdProvider idProvider) {
+        this.gatewayEventBus = gatewayEventBus;
+        this.idProvider = idProvider;
 
         try {
             queue = queueHelper.createAndConfigureQueue();
@@ -41,6 +57,21 @@ public class GatewayEventQueueImpl implements GatewayEventQueue {
             log.error("Failed to configure serialization helper! Event persistance not available!", e);
         }
         log.trace("GatewayEventQueueImpl configured successfully");
+
+    }
+
+    @Override
+    protected void doStart() {
+        log.trace("GatewayEventQueueImpl.doStart()");
+        gatewayEventBus.register(this);
+        notifyStarted();
+    }
+
+    @Override
+    protected void doStop() {
+        log.trace("GatewayEventQueueImpl.doStop()");
+        gatewayEventBus.unregister(this);
+        notifyStopped();
     }
 
     @Override
@@ -120,5 +151,87 @@ public class GatewayEventQueueImpl implements GatewayEventQueue {
                 log.warn("Dequeue Future was canceled!", t);
             }
         };
+
+    }
+
+    @Subscribe
+    public void onUpstreamMessageEvent(UpstreamMessageEvent upstreamMessageEvent) {
+        enqueue(newMessage(newEvent(idProvider.get(), upstreamMessageEvent)));
+    }
+
+    @Subscribe
+    public void onNotificationEvent(NotificationEvent notificationEvent) {
+        enqueue(newMessage(newEvent(idProvider.get(), notificationEvent)));
+    }
+
+    @Subscribe
+    public void onDevicesConnectedEvent(DevicesConnectedEvent event) {
+
+        final de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent dae =
+                de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent
+                        .newBuilder()
+                        .addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
+                        .setTimestamp(now())
+                        .build();
+
+        enqueue(newMessage(newEvent(idProvider.get(), dae)));
+    }
+
+    @Subscribe
+    public void onDevicesDisconnectedEvent(DevicesDisconnectedEvent event) {
+
+        final de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent dde =
+                de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent
+                        .newBuilder()
+                        .addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
+                        .setTimestamp(now())
+                        .build();
+
+        enqueue(newMessage(newEvent(idProvider.get(), dde)));
+    }
+
+    @Subscribe
+    public void onDevicesAttachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent devicesAttachedEvent) {
+        enqueue(newMessage(newEvent(idProvider.get(), devicesAttachedEvent)));
+    }
+
+    @Subscribe
+    public void onDevicesDetachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent devicesDetachedEvent) {
+        enqueue(newMessage(newEvent(idProvider.get(), devicesDetachedEvent)));
+    }
+
+    @Subscribe
+    public void onEvent(Event event) {
+
+        switch (event.getType()) {
+
+            // forward upstream events
+            case DEVICES_ATTACHED:
+            case DEVICES_DETACHED:
+            case NOTIFICATION:
+            case UPSTREAM_MESSAGE:
+                enqueue(newMessage(event));
+                break;
+
+        }
+    }
+
+    @Subscribe
+    public void onResponse(SingleNodeResponse singleNodeResponse) {
+        enqueue(newMessage(singleNodeResponse));
+    }
+
+    @Subscribe
+    public void onProgress(SingleNodeProgress singleNodeProgress) {
+        enqueue(newMessage(singleNodeProgress));
+    }
+
+    @Subscribe
+    public void onGetChannelPipelinesResponse(GetChannelPipelinesResponse response) {
+        enqueue(newMessage(response));
+    }
+
+    private long now() {
+        return new DateTime().getMillis();
     }
 }

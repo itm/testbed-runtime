@@ -58,7 +58,7 @@ public class GatewayModule extends AbstractModule {
 		bind(EventBusService.class).to(GatewayEventBusImpl.class); // for use in CachedDeviceDB
 
         bind(GatewayEventQueueHelper.class).to(GatewayEventQueueHelperImpl.class).in(Scopes.SINGLETON);
-        bind(GatewayEventQueue.class).to(GatewayEventQueueImpl.class);
+        bind(GatewayEventQueue.class).to(GatewayEventQueueImpl.class).in(Scopes.SINGLETON);
 
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
 		bind(IdProvider.class).to(IncrementalIdProvider.class).in(Scopes.SINGLETON);
