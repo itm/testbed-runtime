@@ -80,7 +80,7 @@ public class GatewayEventQueueImpl extends AbstractService implements GatewayEve
             this.channel = channel;
             dequeueFuture = queue.dequeueAsync();
             Futures.addCallback(dequeueFuture, buildFutureCallback());
-            log.trace("channelConnected(): dequeue future callback added");
+            log.trace("GatewayEventQueueImpl.channelConnected(): dequeue future callback added");
         }
     }
 
@@ -90,7 +90,7 @@ public class GatewayEventQueueImpl extends AbstractService implements GatewayEve
             dequeueFuture.cancel(true);
             this.channel = null;
             dequeueFuture = null;
-            log.trace("channelDisconnected(): dequeue future canceled");
+            log.trace("GatewayEventQueueImpl.channelDisconnected(): dequeue future canceled");
         }
     }
 
@@ -112,7 +112,7 @@ public class GatewayEventQueueImpl extends AbstractService implements GatewayEve
             }
         } else if (channel != null) {
             synchronized (queueLock) {
-                log.trace("enqueue({}): Persistance isn't available. Writing message directly to channel", message);
+                log.trace("GatewayEventQueueImpl.enqueue({}): Persistance isn't available. Writing message directly to channel", message);
                 Channels.write(channel, message);
             }
         } else {
