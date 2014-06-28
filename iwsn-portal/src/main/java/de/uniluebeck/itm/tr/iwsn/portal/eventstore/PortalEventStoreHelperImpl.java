@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 
 	@Override
 	public IEventStore createAndConfigureEventStore(String serializedReservationKey)
-			throws FileNotFoundException, ClassNotFoundException {
+			throws IOException, ClassNotFoundException {
 		log.trace("PortalEventStoreHelperImpl.createAndConfigureEventStore({})", serializedReservationKey);
 		return configureEventStore(serializedReservationKey, false);
 	}
@@ -50,7 +51,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 		log.trace("PortalEventStoreHelperImpl.loadEventStore(res={}, readOnly={})", serializedReservationKey, readOnly);
 		try {
 			return configureEventStore(serializedReservationKey, readOnly);
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			throw new InvalidParameterException(
 					"Failed to load event store for reservation " + serializedReservationKey
 			);
@@ -66,7 +67,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 	}
 
 	private IEventStore configureEventStore(final String serializedReservationKey, boolean readOnly)
-			throws FileNotFoundException, ClassNotFoundException {
+			throws IOException, ClassNotFoundException {
 
 		Map<Class<? extends MessageLite>, Function<? extends MessageLite, byte[]>> serializers = newHashMap();
 		Map<Class<? extends MessageLite>, Function<byte[], ? extends MessageLite>> deserializers = newHashMap();
