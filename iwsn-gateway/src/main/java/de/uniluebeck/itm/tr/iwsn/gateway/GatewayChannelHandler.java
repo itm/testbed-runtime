@@ -2,205 +2,136 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
+import com.google.protobuf.MessageLite;
+import com.leansoft.bigqueue.IBigQueue;
 import de.uniluebeck.itm.tr.common.IdProvider;
-import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
-import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.*;
-import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.GatewayEventQueue;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.GatewayEventQueueHelper;
+import de.uniluebeck.itm.tr.iwsn.messages.Event;
+import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-import static com.google.common.base.Functions.toStringFunction;
-import static com.google.common.collect.Iterables.transform;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 
 public class GatewayChannelHandler extends SimpleChannelHandler {
 
-	private static final Logger log = LoggerFactory.getLogger(GatewayChannelHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(GatewayChannelHandler.class);
 
-	private final GatewayEventBus gatewayEventBus;
+    private final GatewayEventBus gatewayEventBus;
 
-	private final IdProvider idProvider;
+    private final IdProvider idProvider;
 
-	private final DeviceManager deviceManager;
+    private final DeviceManager deviceManager;
+    private final GatewayEventQueue eventQueue;
 
-	private Channel channel;
+    private IBigQueue sendQueue;
+    private MultiClassSerializationHelper<MessageLite> serializationHelper;
 
-	@Inject
-	public GatewayChannelHandler(final GatewayEventBus gatewayEventBus,
-								 final IdProvider idProvider,
-								 final DeviceManager deviceManager) {
+    private Channel channel;
 
-		this.gatewayEventBus = gatewayEventBus;
-		this.idProvider = idProvider;
-		this.deviceManager = deviceManager;
-	}
+    private GatewayEventQueueHelper eventQueueHelper;
 
-	@Override
-	public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
+    @Inject
+    public GatewayChannelHandler(final GatewayEventBus gatewayEventBus,
+                                 final IdProvider idProvider,
+                                 final DeviceManager deviceManager, final GatewayEventQueue eventQueue) {
 
-		if (!(e.getMessage() instanceof Message)) {
-			super.messageReceived(ctx, e);
-		}
+        this.gatewayEventBus = gatewayEventBus;
+        this.idProvider = idProvider;
+        this.deviceManager = deviceManager;
+        this.eventQueue = eventQueue;
+    }
 
-		final Message message = (Message) e.getMessage();
-		switch (message.getType()) {
-			case REQUEST:
-				gatewayEventBus.post(((Message) e.getMessage()).getRequest());
-				break;
-			case EVENT_ACK:
-				gatewayEventBus.post(((Message) e.getMessage()).getEventAck());
-				break;
-			case EVENT:
-				gatewayEventBus.post(((Message) e.getMessage()).getEvent());
-			case KEEP_ALIVE:
-			case KEEP_ALIVE_ACK:
-				break;
-			default:
-				throw new RuntimeException("Unexpected message type: " + message.getType());
-		}
-	}
+    @Override
+    public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
 
-	@Override
-	public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+        if (!(e.getMessage() instanceof Message)) {
+            super.messageReceived(ctx, e);
+        }
 
-		log.trace("GatewayChannelHandler.channelConnected(ctx={}, event={})", ctx, e);
+        final Message message = (Message) e.getMessage();
+        switch (message.getType()) {
+            case REQUEST:
+                gatewayEventBus.post(((Message) e.getMessage()).getRequest());
+                break;
+            case EVENT_ACK:
+                gatewayEventBus.post(((Message) e.getMessage()).getEventAck());
+                break;
+            case EVENT:
+                gatewayEventBus.post(((Message) e.getMessage()).getEvent());
+            case KEEP_ALIVE:
+            case KEEP_ALIVE_ACK:
+                break;
+            default:
+                throw new RuntimeException("Unexpected message type: " + message.getType());
+        }
+    }
 
-		channel = e.getChannel();
-		gatewayEventBus.register(this);
+    @Override
+    public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 
-		final Set<NodeUrn> connectedNodeUrns = deviceManager.getConnectedNodeUrns();
+        log.trace("GatewayChannelHandler.channelConnected(ctx={}, event={})", ctx, e);
 
-		if (!connectedNodeUrns.isEmpty()) {
-			sendToPortal(newMessage(newEvent(idProvider.get(), newDevicesAttachedEvent(connectedNodeUrns))));
-		}
+        channel = e.getChannel();
+        eventQueue.channelConnected(channel);
+        gatewayEventBus.register(this);
 
-		super.channelConnected(ctx, e);
-	}
+        final Set<NodeUrn> connectedNodeUrns = deviceManager.getConnectedNodeUrns();
 
-	@Override
-	public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-		log.trace("GatewayChannelHandler.channelDisconnected(ctx={}, event={}", ctx, e);
-		gatewayEventBus.unregister(this);
-		channel = null;
-		super.channelDisconnected(ctx, e);
-	}
+        if (!connectedNodeUrns.isEmpty()) {
+            eventQueue.enqueue(newMessage(newEvent(idProvider.get(), newDevicesAttachedEvent(connectedNodeUrns))));
+        }
 
-	@Subscribe
-	public void onUpstreamMessageEvent(UpstreamMessageEvent upstreamMessageEvent) {
-		sendToPortal(newMessage(newEvent(idProvider.get(), upstreamMessageEvent)));
-	}
+        super.channelConnected(ctx, e);
+    }
 
-	@Subscribe
-	public void onNotificationEvent(NotificationEvent notificationEvent) {
-		sendToPortal(newMessage(newEvent(idProvider.get(), notificationEvent)));
-	}
+    @Override
+    public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+        log.trace("GatewayChannelHandler.channelDisconnected(ctx={}, event={}", ctx, e);
+        gatewayEventBus.unregister(this);
+        eventQueue.channelDisconnected();
+        channel = null;
+        super.channelDisconnected(ctx, e);
+    }
 
-	@Subscribe
-	public void onDevicesConnectedEvent(DevicesConnectedEvent event) {
 
-		final de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent dae =
-				de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent
-						.newBuilder()
-						.addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
-						.setTimestamp(now())
-						.build();
+    @Subscribe
+    public void onEvent(Event event) {
 
-		sendToPortal(newMessage(newEvent(idProvider.get(), dae)));
-	}
+        switch (event.getType()) {
+            // unwrap downstream events and re-post
+            case DEVICE_CONFIG_CREATED:
+                gatewayEventBus.post(event.getDeviceConfigCreatedEvent());
+                break;
+            case DEVICE_CONFIG_DELETED:
+                gatewayEventBus.post(event.getDeviceConfigDeletedEvent());
+                break;
+            case DEVICE_CONFIG_UPDATED:
+                gatewayEventBus.post(event.getDeviceConfigUpdatedEvent());
+                break;
+            case RESERVATION_DELETED:
+                gatewayEventBus.post(event.getReservationDeletedEvent());
+                break;
+            case RESERVATION_ENDED:
+                gatewayEventBus.post(event.getReservationEndedEvent());
+                break;
+            case RESERVATION_MADE:
+                gatewayEventBus.post(event.getReservationMadeEvent());
+                break;
+            case RESERVATION_STARTED:
+                gatewayEventBus.post(event.getReservationStartedEvent());
+                break;
+        }
+    }
 
-	@Subscribe
-	public void onDevicesDisconnectedEvent(DevicesDisconnectedEvent event) {
-
-		final de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent dde =
-				de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent
-						.newBuilder()
-						.addAllNodeUrns(transform(event.getNodeUrns(), toStringFunction()))
-						.setTimestamp(now())
-						.build();
-
-		sendToPortal(newMessage(newEvent(idProvider.get(), dde)));
-	}
-
-	@Subscribe
-	public void onDevicesAttachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent devicesAttachedEvent) {
-		sendToPortal(newMessage(newEvent(idProvider.get(), devicesAttachedEvent)));
-	}
-
-	@Subscribe
-	public void onDevicesDetachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent devicesDetachedEvent) {
-		sendToPortal(newMessage(newEvent(idProvider.get(), devicesDetachedEvent)));
-	}
-
-	@Subscribe
-	public void onEvent(Event event) {
-
-		switch (event.getType()) {
-
-			// forward upstream events
-			case DEVICES_ATTACHED:
-			case DEVICES_DETACHED:
-			case NOTIFICATION:
-			case UPSTREAM_MESSAGE:
-				sendToPortal(newMessage(event));
-				break;
-
-			// unwrap downstream events and re-post
-			case DEVICE_CONFIG_CREATED:
-				gatewayEventBus.post(event.getDeviceConfigCreatedEvent());
-				break;
-			case DEVICE_CONFIG_DELETED:
-				gatewayEventBus.post(event.getDeviceConfigDeletedEvent());
-				break;
-			case DEVICE_CONFIG_UPDATED:
-				gatewayEventBus.post(event.getDeviceConfigUpdatedEvent());
-				break;
-			case RESERVATION_DELETED:
-				gatewayEventBus.post(event.getReservationDeletedEvent());
-				break;
-			case RESERVATION_ENDED:
-				gatewayEventBus.post(event.getReservationEndedEvent());
-				break;
-			case RESERVATION_MADE:
-				gatewayEventBus.post(event.getReservationMadeEvent());
-				break;
-			case RESERVATION_STARTED:
-				gatewayEventBus.post(event.getReservationStartedEvent());
-				break;
-		}
-	}
-
-	@Subscribe
-	public void onResponse(SingleNodeResponse singleNodeResponse) {
-		sendToPortal(newMessage(singleNodeResponse));
-	}
-
-	@Subscribe
-	public void onProgress(SingleNodeProgress singleNodeProgress) {
-		sendToPortal(newMessage(singleNodeProgress));
-	}
-
-	@Subscribe
-	public void onGetChannelPipelinesResponse(GetChannelPipelinesResponse response) {
-		sendToPortal(newMessage(response));
-	}
-
-	@Override
-	public String toString() {
-		return "GatewayChannelHandler";
-	}
-
-	private void sendToPortal(final Message message) {
-		log.trace("GatewayChannelHandler.sendToPortal(\nmessage={})", message);
-		Channels.write(channel, message);
-	}
-
-	private long now() {
-		return new DateTime().getMillis();
-	}
+    @Override
+    public String toString() {
+        return "GatewayChannelHandler";
+    }
 }
