@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -11,7 +12,8 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.config.ConfigWithLoggingAndProperties;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.GatewayEventQueue;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.UpstreamMessageQueue;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.GatewayFailureEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.plugins.GatewayPluginService;
 import de.uniluebeck.itm.tr.iwsn.gateway.rest.RestApplication;
 import de.uniluebeck.itm.util.logging.LogLevel;
@@ -62,7 +64,7 @@ public class Gateway extends AbstractService {
 
 	private final SchedulerService schedulerService;
 
-    private final GatewayEventQueue gatewayEventQueue;
+    private final UpstreamMessageQueue upstreamMessageQueue;
 
     private ServicePublisher servicePublisher;
 
@@ -70,7 +72,7 @@ public class Gateway extends AbstractService {
 	public Gateway(final SchedulerService schedulerService,
 				   final GatewayConfig gatewayConfig,
 				   final GatewayEventBus gatewayEventBus,
-                   final GatewayEventQueue gatewayEventQueue,
+                   final UpstreamMessageQueue upstreamMessageQueue,
 				   final DeviceDBService deviceDBService,
 				   final DeviceManager deviceManager,
 				   final DeviceObserverWrapper deviceObserverWrapper,
@@ -80,7 +82,7 @@ public class Gateway extends AbstractService {
 				   final ServicePublisherFactory servicePublisherFactory,
 				   final GatewayPluginService gatewayPluginService,
 				   @Nullable final SmartSantanderEventBrokerObserver smartSantanderEventBrokerObserver) {
-        this.gatewayEventQueue = gatewayEventQueue;
+        this.upstreamMessageQueue = upstreamMessageQueue;
         this.schedulerService = checkNotNull(schedulerService);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.gatewayConfig = checkNotNull(gatewayConfig);
@@ -105,7 +107,8 @@ public class Gateway extends AbstractService {
 			schedulerService.startAndWait();
 			deviceDBService.startAndWait();
 			gatewayEventBus.startAndWait();
-            gatewayEventQueue.startAndWait();
+            gatewayEventBus.register(this);
+            upstreamMessageQueue.startAndWait();
 			requestHandler.startAndWait();
 			deviceManager.startAndWait();
 			gatewayPluginService.startAndWait();
@@ -153,9 +156,10 @@ public class Gateway extends AbstractService {
 				deviceObserverWrapper.stopAndWait();
 			}
 
+            gatewayEventBus.unregister(this);
 			deviceManager.stopAndWait();
 			requestHandler.stopAndWait();
-            gatewayEventQueue.stopAndWait();
+            upstreamMessageQueue.stopAndWait();
 			gatewayEventBus.stopAndWait();
 			deviceDBService.stopAndWait();
 			schedulerService.stopAndWait();
@@ -166,6 +170,12 @@ public class Gateway extends AbstractService {
 			notifyFailed(e);
 		}
 	}
+
+    @Subscribe
+    public void onFailureEvent(GatewayFailureEvent event) {
+        log.error("Fatal Error Occurred, terminating gateway! Reason:"+event.getMessage(), event.getCause());
+        System.exit(1);
+    }
 
 	public static void main(String[] args) {
 
