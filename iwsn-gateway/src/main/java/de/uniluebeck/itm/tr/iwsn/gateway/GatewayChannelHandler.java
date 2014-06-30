@@ -2,14 +2,10 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import com.google.protobuf.MessageLite;
-import com.leansoft.bigqueue.IBigQueue;
 import de.uniluebeck.itm.tr.common.IdProvider;
-import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.GatewayEventQueue;
-import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.GatewayEventQueueHelper;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.UpstreamMessageQueue;
 import de.uniluebeck.itm.tr.iwsn.messages.Event;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
-import de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
@@ -28,19 +24,15 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
     private final IdProvider idProvider;
 
     private final DeviceManager deviceManager;
-    private final GatewayEventQueue eventQueue;
-
-    private IBigQueue sendQueue;
-    private MultiClassSerializationHelper<MessageLite> serializationHelper;
+    private final UpstreamMessageQueue eventQueue;
 
     private Channel channel;
 
-    private GatewayEventQueueHelper eventQueueHelper;
 
     @Inject
     public GatewayChannelHandler(final GatewayEventBus gatewayEventBus,
                                  final IdProvider idProvider,
-                                 final DeviceManager deviceManager, final GatewayEventQueue eventQueue) {
+                                 final DeviceManager deviceManager, final UpstreamMessageQueue eventQueue) {
 
         this.gatewayEventBus = gatewayEventBus;
         this.idProvider = idProvider;

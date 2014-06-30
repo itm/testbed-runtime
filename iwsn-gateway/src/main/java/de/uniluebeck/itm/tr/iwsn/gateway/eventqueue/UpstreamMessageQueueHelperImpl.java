@@ -8,10 +8,7 @@ import com.google.protobuf.MessageLite;
 import com.leansoft.bigqueue.BigQueueImpl;
 import com.leansoft.bigqueue.IBigQueue;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayConfig;
-import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper;
 
 import java.io.File;
@@ -21,7 +18,7 @@ import java.util.Map;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Maps.newHashMap;
 
-public class GatewayEventQueueHelperImpl implements GatewayEventQueueHelper {
+public class UpstreamMessageQueueHelperImpl implements UpstreamMessageQueueHelper {
     private static final Function<MessageLite, byte[]> PROTOBUF_MESSAGE_SERIALIZER =
             new Function<MessageLite, byte[]>() {
                 @Override
@@ -33,7 +30,7 @@ public class GatewayEventQueueHelperImpl implements GatewayEventQueueHelper {
     private final GatewayConfig gatewayConfig;
 
     @Inject
-    public GatewayEventQueueHelperImpl(final GatewayConfig gatewayConfig) {
+    public UpstreamMessageQueueHelperImpl(final GatewayConfig gatewayConfig) {
         this.gatewayConfig = gatewayConfig;
     }
 
@@ -45,19 +42,15 @@ public class GatewayEventQueueHelperImpl implements GatewayEventQueueHelper {
         ///////////////////////// SERIALIZERS //////////////////////
 
         // events (upstream)
-        serializers.put(DevicesAttachedEvent.class, PROTOBUF_MESSAGE_SERIALIZER);
-        serializers.put(DevicesDetachedEvent.class, PROTOBUF_MESSAGE_SERIALIZER);
-        serializers.put(NotificationEvent.class, PROTOBUF_MESSAGE_SERIALIZER);
-        serializers.put(UpstreamMessageEvent.class, PROTOBUF_MESSAGE_SERIALIZER);
+
+        serializers.put(Message.class, PROTOBUF_MESSAGE_SERIALIZER);
 
 
         ///////////////////////// DESERIALIZERS //////////////////////
 
         // events (upstream)
-        deserializers.put(DevicesAttachedEvent.class, new Deserializer(DevicesAttachedEvent.getDefaultInstance()));
-        deserializers.put(DevicesDetachedEvent.class, new Deserializer(DevicesDetachedEvent.getDefaultInstance()));
-        deserializers.put(NotificationEvent.class, new Deserializer(NotificationEvent.getDefaultInstance()));
-        deserializers.put(UpstreamMessageEvent.class, new Deserializer(UpstreamMessageEvent.getDefaultInstance()));
+
+        deserializers.put(Message.class, new Deserializer(Message.getDefaultInstance()));
 
 
         String basePath = gatewayConfig.getEventQueuePath() + "/serializers";

@@ -7,7 +7,7 @@ import de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper;
 
 import java.io.IOException;
 
-public interface GatewayEventQueueHelper {
+public interface UpstreamMessageQueueHelper {
 
     MultiClassSerializationHelper<MessageLite> configureEventSerializationHelper() throws IOException, ClassNotFoundException;
 

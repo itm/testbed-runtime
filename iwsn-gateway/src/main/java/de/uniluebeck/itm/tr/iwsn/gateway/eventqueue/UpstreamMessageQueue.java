@@ -5,7 +5,7 @@ import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import org.jboss.netty.channel.Channel;
 
-public interface GatewayEventQueue extends Service {
+public interface UpstreamMessageQueue extends Service {
 
     void channelConnected(Channel channel);
 

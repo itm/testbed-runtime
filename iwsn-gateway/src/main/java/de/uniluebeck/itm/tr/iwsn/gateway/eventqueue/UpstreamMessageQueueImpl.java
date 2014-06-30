@@ -13,14 +13,18 @@ import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.GatewayFailureEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.Channels;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.NotSerializableException;
 
@@ -29,10 +33,12 @@ import static com.google.common.collect.Iterables.transform;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newEvent;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newMessage;
 
-public class GatewayEventQueueImpl extends AbstractService implements GatewayEventQueue {
+@SuppressWarnings("NullableProblems")
+public class UpstreamMessageQueueImpl extends AbstractService implements UpstreamMessageQueue {
     private static Logger log = LoggerFactory.
-            getLogger(GatewayEventQueueImpl.class);
-    private final Object queueLock = new Object();
+            getLogger(UpstreamMessageQueueImpl.class);
+    private final Object channelLock = new Object();
+    private final UpstreamMessageQueueHelper queueHelper;
     private final GatewayEventBus gatewayEventBus;
     private final IdProvider idProvider;
     private Channel channel;
@@ -41,28 +47,33 @@ public class GatewayEventQueueImpl extends AbstractService implements GatewayEve
     private ListenableFuture<byte[]> dequeueFuture;
 
     @Inject
-    public GatewayEventQueueImpl(final GatewayEventQueueHelper queueHelper, final GatewayEventBus gatewayEventBus, final IdProvider idProvider) {
+    public UpstreamMessageQueueImpl(final UpstreamMessageQueueHelper queueHelper, final GatewayEventBus gatewayEventBus, final IdProvider idProvider) {
+        this.queueHelper = queueHelper;
         this.gatewayEventBus = gatewayEventBus;
         this.idProvider = idProvider;
-
-        try {
-            queue = queueHelper.createAndConfigureQueue();
-        } catch (IOException e) {
-            log.error("Failed to create event queue! Event persistance not available!", e);
-        }
-
-        try {
-            serializationHelper = queueHelper.configureEventSerializationHelper();
-        } catch (Exception e) {
-            log.error("Failed to configure serialization helper! Event persistance not available!", e);
-        }
-        log.trace("GatewayEventQueueImpl configured successfully");
-
     }
 
     @Override
     protected void doStart() {
         log.trace("GatewayEventQueueImpl.doStart()");
+        try {
+            queue = queueHelper.createAndConfigureQueue();
+        } catch (IOException e) {
+            log.error("Failed to create event queue! Event persistence not available!", e);
+            notifyFailed(e);
+            return;
+        }
+
+        try {
+            serializationHelper = queueHelper.configureEventSerializationHelper();
+        } catch (Exception e) {
+            log.error("Failed to configure serialization helper! Event persistence not available!", e);
+            notifyFailed(e);
+            return;
+        }
+        log.trace("GatewayEventQueueImpl configured successfully");
+
+
         gatewayEventBus.register(this);
         notifyStarted();
     }
@@ -76,55 +87,56 @@ public class GatewayEventQueueImpl extends AbstractService implements GatewayEve
 
     @Override
     public void channelConnected(final Channel channel) {
-        synchronized (queueLock) {
+        synchronized (channelLock) {
             this.channel = channel;
             dequeueFuture = queue.dequeueAsync();
             Futures.addCallback(dequeueFuture, buildFutureCallback());
-            log.trace("GatewayEventQueueImpl.channelConnected(): dequeue future callback added");
         }
+        log.trace("GatewayEventQueueImpl.channelConnected(): dequeue future callback added");
     }
 
     @Override
     public void channelDisconnected() {
-        synchronized (queueLock) {
+        synchronized (channelLock) {
             dequeueFuture.cancel(true);
             this.channel = null;
             dequeueFuture = null;
-            log.trace("GatewayEventQueueImpl.channelDisconnected(): dequeue future canceled");
         }
+        log.trace("GatewayEventQueueImpl.channelDisconnected(): dequeue future canceled");
     }
 
     @Override
-    public void enqueue(Message message) throws UnsupportedOperationException {
-        if (isPersistanceAvailable()) {
-            synchronized (queueLock) {
-                try {
-                    byte[] serialization = serializationHelper.serialize(message);
-                    log.trace("queue.enqueue");
-                    queue.enqueue(serialization);
-                } catch (NotSerializableException e) {
-                    log.error("The message {} is not serializable. An appropriate serializer is missing!", message);
-                    throw buildEnqueueException(message);
-                } catch (IOException e) {
-                    log.error("Failed to enqueue message {}", message);
-                    throw buildEnqueueException(message);
-                }
-            }
-        } else if (channel != null) {
-            synchronized (queueLock) {
-                log.trace("GatewayEventQueueImpl.enqueue({}): Persistance isn't available. Writing message directly to channel", message);
-                Channels.write(channel, message);
+    public void enqueue(Message message) {
+        if (isPersistenceAvailable()) {
+            try {
+                byte[] serialization = serializationHelper.serialize(message);
+                enqueue(serialization);
+                log.trace("queue.enqueue");
+            } catch (NotSerializableException e) {
+                sendFailureEvent("The message "+message+" is not serializable. An appropriate serializer is missing!", e);
             }
         } else {
-            throw buildEnqueueException(message);
+            sendFailureEvent("EventQueue was neither able to enqueue nor to send the message [" + message + "] - Queue: [" + queue + "], Helper: [" + serializationHelper + "]");
         }
     }
 
-    private UnsupportedOperationException buildEnqueueException(Message message) {
-        return new UnsupportedOperationException("EventQueue was neither able to enqueue nor to send the message [" + message + "] - giving up!");
+    private void enqueue(byte[] serializedMessage) {
+        try {
+            queue.enqueue(serializedMessage);
+        } catch (IOException e) {
+            sendFailureEvent("Failed to enqueue message in upstream message queue.", e);
+        }
     }
 
-    private boolean isPersistanceAvailable() {
+    private void sendFailureEvent(String message, @Nullable Throwable cause) {
+        gatewayEventBus.post(new GatewayFailureEvent(message, cause));
+    }
+
+    private void sendFailureEvent(String message) {
+        sendFailureEvent(message, null);
+    }
+
+    private boolean isPersistenceAvailable() {
         return queue != null && serializationHelper != null;
     }
 
@@ -132,17 +144,35 @@ public class GatewayEventQueueImpl extends AbstractService implements GatewayEve
     private FutureCallback<byte[]> buildFutureCallback() {
         return new FutureCallback<byte[]>() {
             @Override
-            public void onSuccess(byte[] result) {
+            public void onSuccess(final byte[] result) {
                 if (serializationHelper != null && channel != null) {
-                    Object message = serializationHelper.deserialize(result);
+                    final Object message = serializationHelper.deserialize(result);
                     log.trace("writing #{} to channel", message);
-                    Channels.write(channel, message);
-                    if (dequeueFuture != null) {
-                        dequeueFuture = queue.dequeueAsync();
-                        Futures.addCallback(dequeueFuture, buildFutureCallback());
+                    synchronized (channelLock) {
+                        if (channel == null) {
+                            log.warn("Channel is disconnected, re-enqueuing the event " + message);
+                            enqueue(result);
+                        } else {
+                            ChannelFuture future = Channels.write(channel, message);
+                            future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+                            future.addListener(new ChannelFutureListener() {
+                                @Override
+                                public void operationComplete(ChannelFuture future) throws Exception {
+                                    if (future.isSuccess()) {
+                                        dequeueFuture = queue.dequeueAsync();
+                                        Futures.addCallback(dequeueFuture, buildFutureCallback());
+                                    } else {
+                                        log.error("Failed to send message " + message + " to portal. Re-enqueuing it.");
+                                        enqueue(result);
+                                    }
+                                }
+                            });
+                        }
                     }
+
                 } else {
                     log.error("Failed to deserialize and send the message. Channel or serialization helper may be NULL");
+                    sendFailureEvent("Failed to deserialize and send the message.");
                 }
             }
 
