@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.NotSerializableException;
-import java.util.concurrent.CancellationException;
 
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.collect.Iterables.transform;
@@ -114,7 +113,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
                 enqueue(serialization);
                 log.trace("queue.enqueue");
             } catch (NotSerializableException e) {
-                sendFailureEvent("The message "+message+" is not serializable. An appropriate serializer is missing!", e);
+                sendFailureEvent("The message " + message + " is not serializable. An appropriate serializer is missing!", e);
             }
         } else {
             sendFailureEvent("EventQueue was neither able to enqueue nor to send the message [" + message + "] - Queue: [" + queue + "], Helper: [" + serializationHelper + "]");
