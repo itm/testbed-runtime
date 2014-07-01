@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.NotSerializableException;
+import java.util.concurrent.CancellationException;
 
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.collect.Iterables.transform;
@@ -98,7 +99,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
     @Override
     public void channelDisconnected() {
         synchronized (channelLock) {
-            dequeueFuture.cancel(true);
+            dequeueFuture.cancel(false);
             this.channel = null;
             dequeueFuture = null;
         }
