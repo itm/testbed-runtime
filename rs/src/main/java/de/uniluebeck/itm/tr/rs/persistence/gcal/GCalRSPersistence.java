@@ -24,6 +24,7 @@
 package de.uniluebeck.itm.tr.rs.persistence.gcal;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.gdata.client.Query;
@@ -70,6 +71,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterators.filter;
 import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.rs.persistence.OffsetAmountHelper.limitResults;
@@ -86,6 +88,7 @@ public class GCalRSPersistence implements RSPersistence {
 			return new Interval(reservation.getFrom(), reservation.getTo()).containsNow();
 		}
 	};
+
 	private static final Predicate<ConfidentialReservationData>
 			FUTURE_RESERVATION_PREDICATE = new Predicate<ConfidentialReservationData>() {
 		@Override
@@ -93,6 +96,20 @@ public class GCalRSPersistence implements RSPersistence {
 			return new Interval(reservation.getFrom(), reservation.getTo()).isAfterNow();
 		}
 	};
+
+	private static class ContainsNodeUrnPredicate implements Predicate<ConfidentialReservationData> {
+
+		private final NodeUrn nodeUrn;
+
+		private ContainsNodeUrnPredicate(final NodeUrn nodeUrn) {
+			this.nodeUrn = nodeUrn;
+		}
+
+		@Override
+		public boolean apply(final ConfidentialReservationData input) {
+			return input.getNodeUrns().contains(nodeUrn);
+		}
+	}
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
@@ -348,6 +365,34 @@ public class GCalRSPersistence implements RSPersistence {
 		sort(list, new ConfidentialReservationDataComparator());
 
 		return list;
+	}
+
+	@Override
+	public Optional<ConfidentialReservationData> getReservation(final NodeUrn nodeUrn,
+																final org.joda.time.DateTime timestamp)
+			throws RSFault_Exception {
+
+		List<ConfidentialReservationData> reservations = newArrayList(
+				filter(
+						getReservations(timestamp, timestamp, 0, Integer.MAX_VALUE),
+						new ContainsNodeUrnPredicate(nodeUrn)
+				)
+		);
+
+		if (reservations.isEmpty()) {
+			return Optional.absent();
+		}
+
+		if (reservations.size() > 1) {
+			final String message =
+					"More than one reservation found for node URN " + nodeUrn + " and timestamp " + timestamp;
+			throw new RSFault_Exception(
+					message,
+					new RSFault()
+			);
+		}
+
+		return Optional.of(reservations.get(0));
 	}
 
 	private void fetchReservations(final List<ConfidentialReservationData> reservations,

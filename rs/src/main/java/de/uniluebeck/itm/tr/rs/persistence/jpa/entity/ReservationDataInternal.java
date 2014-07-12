@@ -88,9 +88,25 @@ import java.io.Serializable;
 				query = "FROM ReservationDataInternal data WHERE"
 						+ "     data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetFrom.P_FROM
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
+		),
+		@NamedQuery(
+				name = ReservationDataInternal.QGetByNodeAndTime.QUERY_NAME,
+				query = "FROM ReservationDataInternal data WHERE"
+						+ "     data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetByNodeAndTime.P_TIMESTAMP + " AND"
+						+ "     data.confidentialReservationData.fromDate < :" + ReservationDataInternal.QGetByNodeAndTime.P_TIMESTAMP + " AND"
+						+ "     :" + ReservationDataInternal.QGetByNodeAndTime.P_NODE_URN + " MEMBER OF data.confidentialReservationData.nodeUrns"
 		)
 })
 public class ReservationDataInternal implements Serializable {
+
+	public static class QGetByNodeAndTime {
+
+		public static final String QUERY_NAME = "getByNodeAndTime";
+
+		public static final String P_NODE_URN = "nodeUrn";
+
+		public static final String P_TIMESTAMP = "timestamp";
+	}
 
 	public static class QGetByReservationKey {
 

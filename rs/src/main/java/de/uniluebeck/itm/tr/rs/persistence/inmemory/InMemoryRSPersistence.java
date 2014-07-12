@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 
+import com.google.common.base.Optional;
 import de.uniluebeck.itm.tr.rs.persistence.ConfidentialReservationDataComparator;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.util.SecureIdGenerator;
@@ -135,6 +136,20 @@ public class InMemoryRSPersistence implements RSPersistence {
 		final List<ConfidentialReservationData> matchingReservations = getActiveReservations();
 		matchingReservations.addAll(getFutureReservations());
 		return matchingReservations;
+	}
+
+	@Override
+	public synchronized Optional<ConfidentialReservationData> getReservation(final NodeUrn nodeUrn, final DateTime timestamp)
+			throws RSFault_Exception {
+
+		for (ConfidentialReservationData reservation : reservations) {
+			if (reservation.getNodeUrns().contains(nodeUrn) && new Interval(reservation.getFrom(), reservation.getTo())
+					.contains(timestamp)) {
+				return Optional.of(reservation);
+			}
+		}
+
+		return Optional.absent();
 	}
 
 	@Override

@@ -1,7 +1,10 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Service;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import org.joda.time.DateTime;
 
 import java.util.Set;
 
@@ -22,7 +25,8 @@ public interface ReservationManager extends Service {
 	Reservation getReservation(Set<SecretReservationKey> secretReservationKeys) throws ReservationUnknownException;
 
 	/**
-	 * Returns a reservation instance belonging to the given {@code jsonSerializedSecretReservationKeys} or {@code null}
+	 * Returns a reservation instance belonging to the given {@code jsonSerializedSecretReservationKeys} or {@code
+	 * null}
 	 * if no reservation with the given key is known. The serialization format follows the one specified in {@link
 	 * de.uniluebeck.itm.tr.iwsn.portal.Reservation#getSerializedKey()}.
 	 *
@@ -34,5 +38,18 @@ public interface ReservationManager extends Service {
 	 * @throws ReservationUnknownException
 	 */
 	Reservation getReservation(String jsonSerializedSecretReservationKeys) throws ReservationUnknownException;
+
+	/**
+	 * Returns a reservation instance of a reservation that is or was active during {@code timestamp} and that
+	 * contains / contained {@code nodeUrn} as reserved node.
+	 *
+	 * @param nodeUrn
+	 * 		a node URN that must be part of the reservation
+	 * @param timestamp
+	 * 		an instant in time for at which the reservation is active
+	 *
+	 * @return a reservation instance or none if no reservation matching the criteria is found
+	 */
+	Optional<Reservation> getReservation(NodeUrn nodeUrn, DateTime timestamp);
 
 }

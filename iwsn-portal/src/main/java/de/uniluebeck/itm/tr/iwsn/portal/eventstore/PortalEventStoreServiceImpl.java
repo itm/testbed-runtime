@@ -117,6 +117,11 @@ class PortalEventStoreServiceImpl extends AbstractService implements PortalEvent
 	}
 
 	@Override
+	public ReservationEventStore getOrCreateReservationEventStore(final Reservation reservation) throws IOException {
+		return (ReservationEventStore) getEventStore(reservation.getSerializedKey());
+	}
+
+	@Override
 	public CloseableIterator<IEventContainer> getEvents(String serializedReservationKey) throws IOException {
 		IEventStore store = getEventStore(serializedReservationKey);
 		//noinspection unchecked

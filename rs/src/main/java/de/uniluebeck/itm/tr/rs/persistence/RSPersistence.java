@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence;
 
+import com.google.common.base.Optional;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -57,6 +58,17 @@ public interface RSPersistence {
 	List<ConfidentialReservationData> getFutureReservations() throws RSFault_Exception;
 
 	List<ConfidentialReservationData> getActiveAndFutureReservations() throws RSFault_Exception;
+
+	/**
+	 * Returns the reservation data for a reservation containing {@code nodeUrn} that is/was/will be active at {@code
+	 * timestamp}.
+	 *
+	 * @param nodeUrn the nodeUrn that is part of the reservation
+	 * @param timestamp the point in time in which the reservation shall be active
+	 *
+	 * @return a reservation data if found or none if not
+	 */
+	Optional<ConfidentialReservationData> getReservation(NodeUrn nodeUrn, DateTime timestamp) throws RSFault_Exception;
 
 	ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception;

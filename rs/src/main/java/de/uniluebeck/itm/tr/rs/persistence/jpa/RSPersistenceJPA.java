@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.jpa;
 
+import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
@@ -265,6 +266,35 @@ public class RSPersistenceJPA implements RSPersistence {
 
 		try {
 			return convertConfidentialReservationData(resultList, localTimeZone);
+		} catch (DatatypeConfigurationException e) {
+			throw new RSFault_Exception(e.getMessage(), new RSFault());
+		}
+	}
+
+	@Override
+	public Optional<ConfidentialReservationData> getReservation(final NodeUrn nodeUrn, final DateTime timestamp)
+			throws RSFault_Exception {
+
+		@SuppressWarnings("unchecked")
+		final List<ReservationDataInternal> resultList = (List<ReservationDataInternal>) em.get()
+				.createNamedQuery(ReservationDataInternal.QGetByNodeAndTime.QUERY_NAME)
+				.setParameter(ReservationDataInternal.QGetByNodeAndTime.P_TIMESTAMP, timestamp)
+				.setParameter(ReservationDataInternal.QGetByNodeAndTime.P_NODE_URN, nodeUrn)
+				.getResultList();
+
+		if (resultList.isEmpty()) {
+			return Optional.absent();
+		}
+
+		if (resultList.size() > 1) {
+			throw new RSFault_Exception(
+					"Found more than one reservation for node URN " + nodeUrn + " at timestamp " + timestamp,
+					new RSFault()
+			);
+		}
+
+		try {
+			return Optional.of(TypeConverter.convertConfidentialReservationData(resultList, localTimeZone).get(0));
 		} catch (DatatypeConfigurationException e) {
 			throw new RSFault_Exception(e.getMessage(), new RSFault());
 		}

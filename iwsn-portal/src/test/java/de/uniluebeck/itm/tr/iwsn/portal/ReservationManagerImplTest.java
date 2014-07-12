@@ -20,14 +20,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -81,18 +81,6 @@ public class ReservationManagerImplTest {
 	private static final Set<SecretReservationKey> UNKNOWN_SECRET_RESERVATION_KEY_SET =
 			newHashSet(UNKNOWN_SECRET_RESERVATION_KEY_1);
 
-	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_1 =
-			newArrayList(KNOWN_SECRET_RESERVATION_KEY_1);
-
-	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_2 =
-			newArrayList(KNOWN_SECRET_RESERVATION_KEY_2);
-
-	private static final List<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_LIST_3 =
-			newArrayList(KNOWN_SECRET_RESERVATION_KEY_3);
-
-	private static final List<SecretReservationKey> UNKNOWN_SECRET_RESERVATION_KEY_LIST =
-			newArrayList(UNKNOWN_SECRET_RESERVATION_KEY_1);
-
 	private static final Set<NodeUrn> RESERVATION_NODE_URNS_1 = newHashSet(new NodeUrn(NODE_URN_PREFIX + "0x0001"));
 
 	private static final Set<NodeUrn> RESERVATION_NODE_URNS_2 = newHashSet(new NodeUrn(NODE_URN_PREFIX + "0x0002"));
@@ -114,38 +102,27 @@ public class ReservationManagerImplTest {
 			DateTime.now().minusMinutes(1)
 	);
 
-	private static final List<ConfidentialReservationData> RESERVATION_DATA_1 = newArrayList();
+	private static final ConfidentialReservationData RESERVATION_DATA_1 = new ConfidentialReservationData()
+			.withFrom(RESERVATION_INTERVAL_1.getStart())
+			.withTo(RESERVATION_INTERVAL_1.getEnd())
+			.withNodeUrns(RESERVATION_NODE_URNS_1)
+			.withUsername(USERNAME)
+			.withSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_1);
 
-	private static final List<ConfidentialReservationData> RESERVATION_DATA_2 = newArrayList();
+	private static final ConfidentialReservationData RESERVATION_DATA_2 = new ConfidentialReservationData()
+			.withFrom(RESERVATION_INTERVAL_2.getStart())
+			.withTo(RESERVATION_INTERVAL_2.getEnd())
+			.withNodeUrns(RESERVATION_NODE_URNS_2)
+			.withUsername(USERNAME)
+			.withSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_2);
 
-	private static final List<ConfidentialReservationData> RESERVATION_DATA_3 = newArrayList();
+	private static final ConfidentialReservationData RESERVATION_DATA_3 = new ConfidentialReservationData()
+			.withFrom(RESERVATION_INTERVAL_3.getStart())
+			.withTo(RESERVATION_INTERVAL_3.getEnd())
+			.withNodeUrns(RESERVATION_NODE_URNS_3)
+			.withUsername(USERNAME)
+			.withSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_3);
 
-	static {
-
-		final ConfidentialReservationData crd1 = new ConfidentialReservationData();
-		crd1.setFrom(RESERVATION_INTERVAL_1.getStart());
-		crd1.setTo(RESERVATION_INTERVAL_1.getEnd());
-		crd1.getNodeUrns().addAll(RESERVATION_NODE_URNS_1);
-		crd1.setUsername(USERNAME);
-		crd1.setSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_1);
-		RESERVATION_DATA_1.add(crd1);
-
-		final ConfidentialReservationData crd2 = new ConfidentialReservationData();
-		crd2.setFrom(RESERVATION_INTERVAL_2.getStart());
-		crd2.setTo(RESERVATION_INTERVAL_2.getEnd());
-		crd2.getNodeUrns().addAll(RESERVATION_NODE_URNS_2);
-		crd2.setUsername(USERNAME);
-		crd2.setSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_2);
-		RESERVATION_DATA_2.add(crd2);
-
-		final ConfidentialReservationData crd3 = new ConfidentialReservationData();
-		crd3.setFrom(RESERVATION_INTERVAL_3.getStart());
-		crd3.setTo(RESERVATION_INTERVAL_3.getEnd());
-		crd3.getNodeUrns().addAll(RESERVATION_NODE_URNS_3);
-		crd3.setUsername(USERNAME);
-		crd3.setSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_3);
-		RESERVATION_DATA_3.add(crd3);
-	}
 
 	@Mock
 	private Provider<RS> rsProvider;
@@ -186,14 +163,21 @@ public class ReservationManagerImplTest {
 	@Mock
 	private PortalEventBus portalEventBus;
 
+	@Mock
+	private ScheduledFuture scheduledFuture;
+
 	private ReservationManagerImpl reservationManager;
 
 	@Before
+	@SuppressWarnings("unchecked")
 	public void setUp() throws Exception {
+
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX);
 		when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
 		when(rsProvider.get()).thenReturn(rs);
 		when(rsPersistenceProvider.get()).thenReturn(rsPersistence);
+		when(schedulerService.scheduleAtFixedRate(Matchers.<Runnable>any(), anyLong(), anyLong(), Matchers.<TimeUnit>any())).thenReturn(scheduledFuture);
+
 		reservationManager = new ReservationManagerImpl(
 				commonConfig,
 				rsProvider,
@@ -203,6 +187,7 @@ public class ReservationManagerImplTest {
 				schedulerServiceFactory,
 				portalEventBus
 		);
+
 		reservationManager.startAndWait();
 	}
 
@@ -268,7 +253,7 @@ public class ReservationManagerImplTest {
 	}
 
 	private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_1)).thenReturn(RESERVATION_DATA_1);
+		when(rsPersistence.getReservation(KNOWN_SECRET_RESERVATION_KEY_1)).thenReturn(RESERVATION_DATA_1);
 		when(reservationFactory.create(
 				anyListOf(ConfidentialReservationData.class),
 				eq(KNOWN_SECRET_RESERVATION_KEY_1.getKey()),
@@ -281,7 +266,7 @@ public class ReservationManagerImplTest {
 	}
 
 	private void setUpReservation2() throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_2)).thenReturn(RESERVATION_DATA_2);
+		when(rsPersistence.getReservation(KNOWN_SECRET_RESERVATION_KEY_2)).thenReturn(RESERVATION_DATA_2);
 		when(reservationFactory.create(
 				anyListOf(ConfidentialReservationData.class),
 				eq(KNOWN_SECRET_RESERVATION_KEY_2.getKey()),
@@ -294,7 +279,7 @@ public class ReservationManagerImplTest {
 	}
 
 	private void setUpReservation3() throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		when(rs.getReservation(KNOWN_SECRET_RESERVATION_KEY_LIST_3)).thenReturn(RESERVATION_DATA_3);
+		when(rsPersistence.getReservation(KNOWN_SECRET_RESERVATION_KEY_3)).thenReturn(RESERVATION_DATA_3);
 		when(reservationFactory.create(
 				anyListOf(ConfidentialReservationData.class),
 				eq(KNOWN_SECRET_RESERVATION_KEY_3.getKey()),
@@ -307,11 +292,13 @@ public class ReservationManagerImplTest {
 	}
 
 	private void setUpUnknownReservation() throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		when(rs.getReservation(eq(UNKNOWN_SECRET_RESERVATION_KEY_LIST))).thenThrow(
+		when(rsPersistence.getReservation(eq(UNKNOWN_SECRET_RESERVATION_KEY_1))).thenThrow(
 				new UnknownSecretReservationKeyFault(
 						"not found",
 						new eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault()
 				)
 		);
 	}
+
+
 }

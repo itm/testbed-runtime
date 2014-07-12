@@ -59,9 +59,10 @@ public class PortalEventStoreServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        when(portalServerConfig.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
 
+        when(portalServerConfig.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
         when(reservationEventStoreFactory.createOrLoad(reservation)).thenReturn(reservationEventStore);
+
         store = new PortalEventStoreServiceImpl(
 				portalEventBus,
 				reservationEventStoreFactory,

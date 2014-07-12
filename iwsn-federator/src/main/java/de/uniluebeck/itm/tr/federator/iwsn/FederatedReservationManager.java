@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.federator.iwsn;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AbstractService;
@@ -13,6 +14,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.WisebedServiceHelper;
+import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
@@ -20,6 +22,7 @@ import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.sm.UnknownSecretReservationKeyFault;
 import eu.wisebed.api.v3.wsn.WSN;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,6 +117,11 @@ public class FederatedReservationManager extends AbstractService implements Rese
 			throws ReservationUnknownException {
 		log.trace("FederatedReservationManager.getReservation({})", jsonSerializedSecretReservationKeys);
 		return getFederatedReservation(deserialize(jsonSerializedSecretReservationKeys));
+	}
+
+	@Override
+	public Optional<Reservation> getReservation(final NodeUrn nodeUrn, final DateTime timestamp) {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Nullable

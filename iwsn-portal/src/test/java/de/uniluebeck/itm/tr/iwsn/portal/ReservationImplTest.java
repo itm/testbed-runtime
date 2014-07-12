@@ -59,7 +59,6 @@ public class ReservationImplTest {
 		reservation = new ReservationImpl(
 				commonConfig,
 				reservationEventBusFactory,
-				portalEventBus,
 				responseTrackerTimedCache,
 				responseTrackerFactory,
 				newArrayList(confidentialReservationData),

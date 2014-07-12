@@ -28,8 +28,6 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	private static final Logger log = LoggerFactory.getLogger(Reservation.class);
 
-	private final PortalEventBus portalEventBus;
-
 	private final Set<NodeUrn> nodeUrns;
 
 	private final ReservationEventBus reservationEventBus;
@@ -51,7 +49,6 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	@Inject
 	public ReservationImpl(final CommonConfig commonConfig,
 						   final ReservationEventBusFactory reservationEventBusFactory,
-						   final PortalEventBus portalEventBus,
 						   final ResponseTrackerCache responseTrackerCache,
 						   final ResponseTrackerFactory responseTrackerFactory,
 						   @Assisted final List<ConfidentialReservationData> confidentialReservationDataList,
@@ -65,7 +62,6 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		this.confidentialReservationData = newHashSet(checkNotNull(confidentialReservationDataList));
 		this.key = checkNotNull(key);
 		this.username = checkNotNull(username);
-		this.portalEventBus = checkNotNull(portalEventBus);
 		this.nodeUrns = checkNotNull(nodeUrns);
 		this.interval = checkNotNull(interval);
 		this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));

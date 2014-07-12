@@ -25,18 +25,14 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
 	private final ReservationEventBus reservationEventBus;
 
-	private final PortalEventStoreHelper helper;
-
 	private IEventStore eventStore;
 
 	private Reservation reservation;
 
 	@Inject
-	public ReservationEventStoreImpl(final PortalEventStoreHelper helper,
-									 @Assisted final Reservation reservation) {
+	public ReservationEventStoreImpl(final PortalEventStoreHelper helper, @Assisted final Reservation reservation) {
 		this.reservation = reservation;
 		this.reservationEventBus = reservation.getReservationEventBus();
-		this.helper = helper;
 		try {
 
 			// if service is restarted while a reservation is running (or after the store has been created but the
