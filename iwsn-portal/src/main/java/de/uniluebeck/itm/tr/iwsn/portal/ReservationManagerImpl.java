@@ -196,14 +196,21 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 		final Set<SecretReservationKey> srkSet = newHashSet(srks);
 
+		final Reservation reservation;
 		synchronized (reservationMap) {
 
 			if (reservationMap.containsKey(srkSet)) {
 				return reservationMap.get(srkSet);
 			}
 
-			return createAndInitReservation(srkSet);
+			reservation = createAndInitReservation(srkSet);
 		}
+
+		for (NodeUrn nodeUrn : reservation.getNodeUrns()) {
+			putInCache(nodeUrn, reservation);
+		}
+
+		return reservation;
 	}
 
 	/**
@@ -337,14 +344,17 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	private Optional<Reservation> lookupInCache(final NodeUrn nodeUrn, final DateTime timestamp) {
+		log.trace("ReservationManagerImpl.lookupInCache({}, {})", nodeUrn, timestamp);
 		synchronized (nodeUrnToReservationCache) {
 			final List<CacheItem<Reservation>> entry = nodeUrnToReservationCache.get(nodeUrn);
 			if (entry == null) {
+				log.trace("ReservationManagerImpl.lookupInCache() CACHE MISS");
 				return Optional.absent();
 			}
 			for (CacheItem<Reservation> item : entry) {
 				if (item.get().getInterval().contains(timestamp)) {
 					item.touch();
+					log.trace("ReservationManagerImpl.lookupInCache() CACHE HIT");
 					return Optional.of(item.get());
 				}
 			}
@@ -353,6 +363,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 	}
 
 	private void putInCache(final NodeUrn nodeUrn, final Reservation reservation) {
+		log.trace("ReservationManagerImpl.putInCache({}, {})", nodeUrn, reservation);
 		synchronized (nodeUrnToReservationCache) {
 			List<CacheItem<Reservation>> entry = nodeUrnToReservationCache.get(nodeUrn);
 			if (entry == null) {
