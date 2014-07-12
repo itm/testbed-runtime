@@ -13,6 +13,7 @@ import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBusFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.DeliveryManagerFactory;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -164,7 +165,7 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 	}
 
 	@Override
-	public ReservationEventBus getReservationEventBus() {
+	public ReservationEventBus getEventBus() {
 		return reservationEventBus;
 	}
 
@@ -217,6 +218,11 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 	@Override
 	public boolean isVirtualizationEnabled() {
 		throw new RuntimeException("Implement me!");
+	}
+
+	@Override
+	public ReservationEventStore getEventStore() {
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	private Interval extractInterval(final List<ConfidentialReservationData> reservationDataList) {

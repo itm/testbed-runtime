@@ -3,6 +3,8 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStoreFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import org.joda.time.DateTime;
@@ -51,16 +53,24 @@ public class ReservationImplTest {
 	@Mock
 	private ConfidentialReservationData confidentialReservationData;
 
+	@Mock
+	private ReservationEventStoreFactory reservationEventStoreFactory;
+
+	@Mock
+	private ReservationEventStore reservationEventStore;
+
 	private ReservationImpl reservation;
 
 	@Before
 	public void setUp() throws Exception {
 		when(reservationEventBusFactory.create(Matchers.<Reservation>any())).thenReturn(reservationEventBus);
+		when(reservationEventStoreFactory.createOrLoad(Matchers.<Reservation>any())).thenReturn(reservationEventStore);
 		reservation = new ReservationImpl(
 				commonConfig,
 				reservationEventBusFactory,
 				responseTrackerTimedCache,
 				responseTrackerFactory,
+				reservationEventStoreFactory,
 				newArrayList(confidentialReservationData),
 				"someRandomReservationIdHere",
 				username,
@@ -80,5 +90,18 @@ public class ReservationImplTest {
 		reservation.startAndWait();
 		reservation.stopAndWait();
 		verify(reservationEventBus).stopAndWait();
+	}
+
+	@Test
+	public void testThatEventStoreIsStartedWhenStartingReservation() throws Exception {
+		reservation.startAndWait();
+		verify(reservationEventStore).startAndWait();
+	}
+
+	@Test
+	public void testThatEventStoreIsStoppedWhenStoppingReservation() throws Exception {
+		reservation.startAndWait();
+		reservation.stopAndWait();
+		verify(reservationEventStore).stopAndWait();
 	}
 }

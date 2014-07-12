@@ -4,17 +4,14 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
 import de.uniluebeck.itm.eventstore.IEventContainer;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters;
-import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreService;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
@@ -35,12 +32,6 @@ import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
 @Path("/events/")
 public class EventStoreResourceImpl implements EventStoreResource {
 
-	private static final Logger log = LoggerFactory.getLogger(EventStoreResourceImpl.class);
-
-	private final PortalEventStoreService eventStoreService;
-
-	private final PortalServerConfig portalServerConfig;
-
 	private final ReservationManager reservationManager;
 
 	@Context
@@ -50,11 +41,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
 	private HttpServletResponse response;
 
 	@Inject
-	public EventStoreResourceImpl(final PortalEventStoreService eventStoreService,
-								  final PortalServerConfig portalServerConfig,
-								  final ReservationManager reservationManager) {
-		this.eventStoreService = eventStoreService;
-		this.portalServerConfig = portalServerConfig;
+	public EventStoreResourceImpl(final ReservationManager reservationManager) {
 		this.reservationManager = reservationManager;
 	}
 
@@ -117,16 +104,18 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
 	private CloseableIterator<IEventContainer> createIterator(String secretReservationKeyBase64, long fromTimestamp,
 															  long toTimestamp) throws IOException {
+		final ReservationEventStore eventStore =
+				reservationManager.getReservation(secretReservationKeyBase64).getEventStore();
+
 		CloseableIterator<IEventContainer> iterator;
 		if (fromTimestamp == -1 && toTimestamp == -1) {
-			iterator = eventStoreService.getEvents(secretReservationKeyBase64);
+			iterator = eventStore.getEvents();
 		} else if (toTimestamp == -1) {
-			iterator = eventStoreService
-					.getEventsBetween(secretReservationKeyBase64, fromTimestamp, System.currentTimeMillis());
+			iterator = eventStore.getEventsBetween(fromTimestamp, System.currentTimeMillis());
 		} else if (fromTimestamp == -1) {
-			iterator = eventStoreService.getEventsBetween(secretReservationKeyBase64, 0, toTimestamp);
+			iterator = eventStore.getEventsBetween(0, toTimestamp);
 		} else {
-			iterator = eventStoreService.getEventsBetween(secretReservationKeyBase64, fromTimestamp, toTimestamp);
+			iterator = eventStore.getEventsBetween(fromTimestamp, toTimestamp);
 		}
 		return iterator;
 	}

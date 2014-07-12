@@ -74,10 +74,10 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 		if (event instanceof ReservationStartedEvent) {
 			final String serializedKey = ((ReservationStartedEvent) event).getSerializedKey();
-			reservationManager.getReservation(serializedKey).getReservationEventBus().register(this);
+			reservationManager.getReservation(serializedKey).getEventBus().register(this);
 		} else if (event instanceof ReservationEndedEvent) {
 			final String serializedKey = ((ReservationEndedEvent) event).getSerializedKey();
-			reservationManager.getReservation(serializedKey).getReservationEventBus().unregister(this);
+			reservationManager.getReservation(serializedKey).getEventBus().unregister(this);
 		}
 	}
 

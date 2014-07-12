@@ -10,20 +10,17 @@ import de.uniluebeck.itm.eventstore.IEventContainer;
 import de.uniluebeck.itm.eventstore.IEventStore;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 
-import static com.google.common.base.Throwables.propagate;
-
 class ReservationEventStoreImpl extends AbstractService implements ReservationEventStore {
 
 	private static final Logger log = LoggerFactory.getLogger(ReservationEventStoreImpl.class);
 
-	private final ReservationEventBus reservationEventBus;
+	private final PortalEventStoreHelper helper;
 
 	private IEventStore eventStore;
 
@@ -31,10 +28,14 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
 	@Inject
 	public ReservationEventStoreImpl(final PortalEventStoreHelper helper, @Assisted final Reservation reservation) {
+		this.helper = helper;
 		this.reservation = reservation;
-		this.reservationEventBus = reservation.getReservationEventBus();
-		try {
+	}
 
+	@Override
+	protected void doStart() {
+		log.trace("ReservationEventStoreImpl.doStart()");
+		try {
 			// if service is restarted while a reservation is running (or after the store has been created but the
 			// reservation didn't start yet we might have to load an existing instead of creating a new store...
 			if (helper.eventStoreExistsForReservation(reservation.getSerializedKey())) {
@@ -42,17 +43,7 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 			} else {
 				eventStore = helper.createAndConfigureEventStore(reservation.getSerializedKey());
 			}
-
-		} catch (Exception e) {
-			throw propagate(e);
-		}
-	}
-
-	@Override
-	protected void doStart() {
-		log.trace("ReservationEventStoreImpl.doStart()");
-		try {
-			reservationEventBus.register(this);
+			reservation.getEventBus().register(this);
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -62,7 +53,7 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 	@Override
 	protected void doStop() {
 		log.trace("ReservationEventStoreImpl.doStop()");
-		reservationEventBus.unregister(this);
+		reservation.getEventBus().unregister(this);
 		try {
 			eventStore.close();
 		} catch (IOException e) {
@@ -72,15 +63,15 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 	}
 
 
-	@Override
-	public void reservationStarted(final ReservationStartedEvent event) {
+	@Subscribe
+	public void onEvent(final ReservationStartedEvent event) {
 		if (isEmpty()) {
 			storeEvent(event);
 		}
 	}
 
-	@Override
-	public void reservationEnded(final ReservationEndedEvent event) {
+	@Subscribe
+	public void onEvent(final ReservationEndedEvent event) {
 		storeEvent(event);
 	}
 
@@ -182,5 +173,17 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 	@Override
 	public String toString() {
 		return ReservationEventStoreImpl.class.getName() + "[" + reservation.getSerializedKey() + "]";
+	}
+
+	@Override
+	public CloseableIterator<IEventContainer> getEvents() throws IOException {
+		//noinspection unchecked
+		return eventStore.getAllEvents();
+	}
+
+	@Override
+	public CloseableIterator<IEventContainer> getEventsBetween(long startTime, long endTime) throws IOException {
+		//noinspection unchecked
+		return eventStore.getEventsBetweenTimestamps(startTime, endTime);
 	}
 }

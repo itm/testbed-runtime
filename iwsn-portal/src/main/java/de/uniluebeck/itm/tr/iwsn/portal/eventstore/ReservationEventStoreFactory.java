@@ -5,6 +5,6 @@ import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 
 public interface ReservationEventStoreFactory {
 
-    ReservationEventStore createOrLoad(@Assisted final Reservation reservation);
+	ReservationEventStore createOrLoad(@Assisted final Reservation reservation);
 
 }

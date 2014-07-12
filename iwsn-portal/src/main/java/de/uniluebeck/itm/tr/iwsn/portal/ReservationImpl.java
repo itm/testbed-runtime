@@ -8,6 +8,8 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStoreFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -46,11 +48,14 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	private final Set<ConfidentialReservationData> confidentialReservationData;
 
+	private final ReservationEventStore reservationEventStore;
+
 	@Inject
 	public ReservationImpl(final CommonConfig commonConfig,
 						   final ReservationEventBusFactory reservationEventBusFactory,
 						   final ResponseTrackerCache responseTrackerCache,
 						   final ResponseTrackerFactory responseTrackerFactory,
+						   final ReservationEventStoreFactory reservationEventStoreFactory,
 						   @Assisted final List<ConfidentialReservationData> confidentialReservationDataList,
 						   @Assisted("secretReservationKey") final String key,
 						   @Assisted("username") final String username,
@@ -65,12 +70,14 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		this.nodeUrns = checkNotNull(nodeUrns);
 		this.interval = checkNotNull(interval);
 		this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));
+		this.reservationEventStore = reservationEventStoreFactory.createOrLoad(this);
 	}
 
 	@Override
 	protected void doStart() {
 		log.trace("ReservationImpl.doStart()");
 		try {
+			reservationEventStore.startAndWait();
 			reservationEventBus.startAndWait();
 			notifyStarted();
 		} catch (Exception e) {
@@ -83,6 +90,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		log.trace("ReservationImpl.doStop()");
 		try {
 			reservationEventBus.stopAndWait();
+			reservationEventStore.stopAndWait();
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -113,7 +121,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	}
 
 	@Override
-	public ReservationEventBus getReservationEventBus() {
+	public ReservationEventBus getEventBus() {
 		return reservationEventBus;
 	}
 
@@ -175,6 +183,11 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	@Override
 	public boolean isVirtualizationEnabled() {
 		return reservationEventBus.isVirtualizationEnabled();
+	}
+
+	@Override
+	public ReservationEventStore getEventStore() {
+		return reservationEventStore;
 	}
 
 	@Override

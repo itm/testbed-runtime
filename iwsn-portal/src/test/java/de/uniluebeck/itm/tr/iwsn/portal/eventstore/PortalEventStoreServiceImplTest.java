@@ -8,12 +8,11 @@ import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PortalEventStoreServiceImplTest {
@@ -63,43 +62,7 @@ public class PortalEventStoreServiceImplTest {
         when(portalServerConfig.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
         when(reservationEventStoreFactory.createOrLoad(reservation)).thenReturn(reservationEventStore);
 
-        store = new PortalEventStoreServiceImpl(
-				portalEventBus,
-				reservationEventStoreFactory,
-				portalEventStoreHelper,
-				reservationManager
-		);
-    }
-
-    @Test
-    public void testIfReservationStartedEventIsPersisted() throws Exception {
-
-        when(reservation.getSerializedKey()).thenReturn("abc");
-        when(reservationManager.getReservation("abc")).thenReturn(reservation);
-        when(portalEventStoreHelper.createAndConfigureEventStore("abc")).thenReturn(eventStore);
-		when(reservationManager.getReservation(eq(SERIALIZED_KEY))).thenReturn(reservation);
-
-        store.onReservationStarted(RESERVATION_STARTED_EVENT);
-
-        verify(reservationEventStore).reservationStarted(RESERVATION_STARTED_EVENT);
-    }
-
-
-    @Test
-    public void testIfReservationEndedEventIsPersisted() throws Exception {
-
-        when(reservation.getSerializedKey()).thenReturn("1111");
-        when(reservationManager.getReservation("1111")).thenReturn(reservation);
-        when(portalEventStoreHelper.createAndConfigureEventStore("1111")).thenReturn(eventStore);
-
-		when(reservationManager.getReservation(eq(SERIALIZED_KEY))).thenReturn(reservation);
-
-		store.onReservationStarted(RESERVATION_STARTED_EVENT);
-
-		when(reservationManager.getReservation(eq(SERIALIZED_KEY))).thenReturn(reservation);
-        store.onReservationEnded(RESERVATION_ENDED_EVENT);
-
-        verify(reservationEventStore).reservationEnded(RESERVATION_ENDED_EVENT);
+        store = new PortalEventStoreServiceImpl(portalEventBus);
     }
 
 }

@@ -71,7 +71,7 @@ public class PortalEventBusImplTest {
 		Reservation reservation = mock(Reservation.class);
 
 		when(reservationManager.getReservation(eq(SERIALIZED_KEY))).thenReturn(reservation);
-		when(reservation.getReservationEventBus()).thenReturn(reservationEventBus);
+		when(reservation.getEventBus()).thenReturn(reservationEventBus);
 
 		portalEventBus.post(RESERVATION_STARTED_EVENT);
 
@@ -85,7 +85,7 @@ public class PortalEventBusImplTest {
 		Reservation reservation = mock(Reservation.class);
 
 		when(reservationManager.getReservation(SERIALIZED_KEY)).thenReturn(reservation);
-		when(reservation.getReservationEventBus()).thenReturn(reservationEventBus);
+		when(reservation.getEventBus()).thenReturn(reservationEventBus);
 
 		portalEventBus.post(RESERVATION_ENDED_EVENT);
 

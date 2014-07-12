@@ -183,7 +183,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 							responseMap = Converters.convertToProto(pipelines);
 					for (de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse getChannelPipelineResponse : responseMap
 							.values()) {
-						reservation.getReservationEventBus().post(getChannelPipelineResponse);
+						reservation.getEventBus().post(getChannelPipelineResponse);
 					}
 					break;
 

@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -63,13 +64,14 @@ public interface Reservation extends Service {
 		}
 
 	}
+
 	Set<Reservation.Entry> getEntries();
 
 	Set<NodeUrnPrefix> getNodeUrnPrefixes();
 
 	Set<NodeUrn> getNodeUrns();
 
-	ReservationEventBus getReservationEventBus();
+	ReservationEventBus getEventBus();
 
 	Interval getInterval();
 
@@ -101,7 +103,7 @@ public interface Reservation extends Service {
 	 * 		the requestId of the request
 	 *
 	 * @return a ResponseTracker instance for the given {@code requestId} or {@code null} if no ResponseTracker instance
-	 *         was found
+	 * was found
 	 */
 	ResponseTracker getResponseTracker(long requestId);
 
@@ -110,4 +112,11 @@ public interface Reservation extends Service {
 	void disableVirtualization();
 
 	boolean isVirtualizationEnabled();
+
+	/**
+	 * Returns the {@link ReservationEventStore} associated with this reservation.
+	 *
+	 * @return an event store
+	 */
+	ReservationEventStore getEventStore();
 }

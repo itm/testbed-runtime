@@ -6,16 +6,18 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 
 public class PortalEventStoreModule extends PrivateModule {
 
-    @Override
-    protected void configure() {
+	@Override
+	protected void configure() {
 
-        bind(PortalEventStoreService.class).to(PortalEventStoreServiceImpl.class).in(Singleton.class);
-        bind(PortalEventStoreHelper.class).to(PortalEventStoreHelperImpl.class).in(Singleton.class);
-        install(new FactoryModuleBuilder()
-                .implement(ReservationEventStore.class, ReservationEventStoreImpl.class)
-                .build(ReservationEventStoreFactory.class)
-        );
+		bind(PortalEventStoreService.class).to(PortalEventStoreServiceImpl.class).in(Singleton.class);
+		bind(PortalEventStoreHelper.class).to(PortalEventStoreHelperImpl.class).in(Singleton.class);
+		install(new FactoryModuleBuilder()
+						.implement(ReservationEventStore.class, ReservationEventStoreImpl.class)
+						.build(ReservationEventStoreFactory.class)
+		);
 
-        expose(PortalEventStoreService.class);
-    }
+		expose(PortalEventStoreService.class);
+		expose(ReservationEventStoreFactory.class);
+	}
 }
+
