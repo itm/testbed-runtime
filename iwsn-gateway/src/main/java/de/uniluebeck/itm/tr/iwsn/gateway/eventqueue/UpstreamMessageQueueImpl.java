@@ -178,7 +178,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 
             @Override
             public void onFailure(Throwable t) {
-                log.warn("Dequeue Future was canceled!", t);
+                log.warn("Dequeue Future was canceled!");
             }
         };
 
