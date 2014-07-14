@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.NotSerializableException;
+import java.util.concurrent.CancellationException;
 
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.collect.Iterables.transform;
@@ -178,7 +179,11 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 
             @Override
             public void onFailure(Throwable t) {
-                log.warn("Dequeue Future was canceled!");
+                if (!(t instanceof CancellationException)) {
+                    log.error("Dequeue future failed with throwable", t);
+                } else {
+                    log.info("Dequeue future was canceled");
+                }
             }
         };
 
