@@ -8,6 +8,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -65,4 +66,8 @@ public class PortalEventStoreServiceImplTest {
         store = new PortalEventStoreServiceImpl(portalEventBus);
     }
 
+	@Test
+	public void testTodo() throws Exception {
+
+	}
 }

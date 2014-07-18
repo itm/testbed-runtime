@@ -2,6 +2,14 @@ package de.uniluebeck.itm.tr.common;
 
 public abstract class Constants {
 
+	public static final String APP_NAME_KEY = "application.name";
+
+	public static final String APP_VERSION_KEY = "application.version";
+
+	public static final String APP_BUILD_KEY = "application.build";
+
+	public static final String APP_BRANCH_KEY = "application.branch";
+
 	public static abstract class SOAP_API_V3 {
 
 		public static final String SNAA_CONTEXT_PATH = "/soap/v3/snaa";

@@ -13,4 +13,14 @@ public class TestbedDescription {
 	public String sessionManagementEndpointUrl;
 
 	public boolean isFederator;
+
+	public String apiVersion;
+
+	public String appName;
+
+	public String appVersion;
+
+	public String appBuild;
+
+	public String appBranch;
 }

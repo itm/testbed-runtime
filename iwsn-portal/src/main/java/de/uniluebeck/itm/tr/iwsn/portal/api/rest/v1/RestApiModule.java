@@ -19,6 +19,8 @@ public class RestApiModule extends AbstractModule {
 
 	public static final String IS_FEDERATOR = "RestApiModule.IS_FEDERATOR";
 
+	public static final String API_VERSION = "RestApiModule.API_VERSION";
+
 	private final boolean federator;
 
 	public RestApiModule(final boolean federator) {
@@ -58,7 +60,9 @@ public class RestApiModule extends AbstractModule {
 			bind(NodeStatusTrackerResource.class).to(NodeStatusTrackerResourceImpl.class);
 			bind(EventStoreResource.class).to(EventStoreResourceImpl.class);
 		}
+
 		bindConstant().annotatedWith(Names.named(IS_FEDERATOR)).to(federator);
+		bindConstant().annotatedWith(Names.named(API_VERSION)).to("1.0");
 
 		install(new FactoryModuleBuilder().build(WsnWebSocketFactory.class));
 		install(new FactoryModuleBuilder().build(EventWebSocketFactory.class));

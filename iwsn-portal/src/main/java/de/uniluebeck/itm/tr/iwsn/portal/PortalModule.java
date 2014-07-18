@@ -38,6 +38,8 @@ import de.uniluebeck.itm.tr.snaa.SNAAServiceModule;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -47,6 +49,8 @@ import static com.google.inject.util.Providers.of;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class PortalModule extends AbstractModule {
+
+	private static final Logger log = LoggerFactory.getLogger(PortalModule.class);
 
 	private final DeviceDBConfig deviceDBConfig;
 
@@ -136,6 +140,8 @@ public class PortalModule extends AbstractModule {
 		install(new ServicePublisherCxfModule());
 		install(new ResponseTrackerModule());
 		install(new NettyProtocolsModule());
+
+		install(new ApplicationPropertiesModule());
 
 		install(new DeviceDBRestServiceModule());
 		install(new SoapApiModule());
