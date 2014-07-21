@@ -28,7 +28,7 @@ public class ApplicationPropertiesModule extends AbstractModule {
 				Properties p = new Properties();
 				p.load(classPath.getResourceAsStream("application.properties"));
 
-				bindConstant().annotatedWith(Names.named(APP_NAME_KEY)).to(p.getProperty(APP_VERSION_KEY));
+				bindConstant().annotatedWith(Names.named(APP_NAME_KEY)).to(p.getProperty(APP_NAME_KEY));
 				bindConstant().annotatedWith(Names.named(APP_VERSION_KEY)).to(p.getProperty(APP_VERSION_KEY));
 				bindConstant().annotatedWith(Names.named(APP_BUILD_KEY)).to(p.getProperty(APP_BUILD_KEY));
 				bindConstant().annotatedWith(Names.named(APP_BRANCH_KEY)).to(p.getProperty(APP_BRANCH_KEY));
