@@ -21,12 +21,12 @@ public class ApplicationPropertiesModule extends AbstractModule {
 		ClassPathFactory factory = new ClassPathFactory();
 		ClassPath classPath = factory.createFromJVM();
 
-		if (classPath.isResource("application.properties")) {
+		if (classPath.isResource("de/uniluebeck/itm/tr/common/application.properties")) {
 
 			try {
 
 				Properties p = new Properties();
-				p.load(classPath.getResourceAsStream("application.properties"));
+				p.load(classPath.getResourceAsStream("de/uniluebeck/itm/tr/common/application.properties"));
 
 				bindConstant().annotatedWith(Names.named(APP_NAME_KEY)).to(p.getProperty(APP_NAME_KEY));
 				bindConstant().annotatedWith(Names.named(APP_VERSION_KEY)).to(p.getProperty(APP_VERSION_KEY));
