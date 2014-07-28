@@ -279,14 +279,14 @@ message EventAck {
 message Message {
 
 	enum Type {
-		REQUEST                       = 1;
-		PROGRESS                      = 2;
-		RESPONSE                      = 3;
-		GET_CHANNELPIPELINES_RESPONSE = 4;
-		EVENT                         = 5;
-		EVENT_ACK                     = 6;
-		KEEP_ALIVE                    = 7;
-		KEEP_ALIVE_ACK                = 8;
+		REQUEST                       = 1; // downstream
+		PROGRESS                      = 2; // upstream
+		RESPONSE                      = 3; // upstream
+		GET_CHANNELPIPELINES_RESPONSE = 4; // upstream
+		EVENT                         = 5; // upstream
+		EVENT_ACK                     = 6; // upstream
+		KEEP_ALIVE                    = 7; // both
+		KEEP_ALIVE_ACK                = 8; // both
 	}
 
 	required Type                        type                        = 1;
