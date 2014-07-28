@@ -11,6 +11,7 @@ import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.util.Set;
 
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
@@ -74,7 +75,10 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
         eventQueue.channelConnected(channel);
         gatewayEventBus.register(this);
 
-        final Set<NodeUrn> connectedNodeUrns = deviceManager.getConnectedNodeUrns();
+		final String hostname = InetAddress.getLocalHost().getCanonicalHostName();
+		eventQueue.enqueue(newMessage(newEvent(idProvider.get(), newGatewayConnectedEvent(hostname))));
+
+		final Set<NodeUrn> connectedNodeUrns = deviceManager.getConnectedNodeUrns();
 
         if (!connectedNodeUrns.isEmpty()) {
             eventQueue.enqueue(newMessage(newEvent(idProvider.get(), newDevicesAttachedEvent(connectedNodeUrns))));

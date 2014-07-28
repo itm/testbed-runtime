@@ -56,7 +56,9 @@ public class UpstreamMessageQueueHelperImpl implements UpstreamMessageQueueHelpe
         String basePath = gatewayConfig.getEventQueuePath() + "/serializers";
         File mappingFile = new File(basePath + ".mapping");
 
-        BiMap<Class<? extends MessageLite>, Byte> mapping = MultiClassSerializationHelper.<MessageLite>loadOrCreateClassByteMap(serializers, deserializers, mappingFile);
+        BiMap<Class<? extends MessageLite>, Byte> mapping = MultiClassSerializationHelper.loadOrCreateClassByteMap(
+				serializers, deserializers, mappingFile
+		);
         return new MultiClassSerializationHelper<MessageLite>(serializers, deserializers, mapping);
 
     }

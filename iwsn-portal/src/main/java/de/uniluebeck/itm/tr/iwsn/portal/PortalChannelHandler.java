@@ -1,9 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
@@ -40,6 +37,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	private final ExternalPluginService externalPluginService;
 
 	private final Multimap<ChannelHandlerContext, NodeUrn> contextToNodeUrnsMap = HashMultimap.create();
+
+	private final Map<ChannelHandlerContext, String> contextToHostnameMap = Maps.newHashMap();
 
 	@Inject
 	public PortalChannelHandler(final PortalEventBus portalEventBus,
@@ -422,6 +421,9 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				sendToExternalPlugins(event);
 				log.trace("PortalChannelHandler.messageReceived(event={})", event);
 				switch (event.getType()) {
+					case GATEWAY_CONNECTED:
+						portalEventBus.post(event.getGatewayConnectedEvent());
+						break;
 					case DEVICES_ATTACHED:
 						portalEventBus.post(event.getDevicesAttachedEvent());
 						break;
@@ -472,6 +474,11 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	private void processEvent(final ChannelHandlerContext ctx, final Event event) {
 		switch (event.getType()) {
+			case GATEWAY_CONNECTED:
+				synchronized (contextToHostnameMap) {
+					contextToHostnameMap.put(ctx, event.getGatewayConnectedEvent().getHostname());
+				}
+				break;
 			case DEVICES_ATTACHED:
 				synchronized (contextToNodeUrnsMap) {
 					for (String nodeUrnString : event.getDevicesAttachedEvent().getNodeUrnsList()) {
@@ -497,14 +504,30 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	@Override
 	public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+
 		log.trace("PortalChannelHandler.channelDisconnected(ctx={}, event={})", ctx, e);
+
 		synchronized (contextToNodeUrnsMap) {
+
 			final Collection<NodeUrn> nodeUrns = contextToNodeUrnsMap.get(ctx);
+
+			// if gateway had sent a GATEWAY_CONNECTED event before we know his hostname -> send disconnect notification
+			final String hostname;
+			synchronized (contextToHostnameMap) {
+				hostname = contextToHostnameMap.remove(ctx);
+			}
+			if (hostname != null) {
+				portalEventBus.post(MessagesHelper.newGatewayDisconnectedEvent(hostname, nodeUrns));
+			}
+
+			// send notification that devices on this channel have been detached
 			if (!nodeUrns.isEmpty()) {
 				portalEventBus.post(newDevicesDetachedEvent(nodeUrns));
 			}
+
 			contextToNodeUrnsMap.removeAll(ctx);
 		}
+
 		super.channelDisconnected(ctx, e);
 	}
 

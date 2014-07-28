@@ -5,9 +5,13 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.DevicesAttachedMessage;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.DevicesDetachedMessage;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.GatewayConnectedMessage;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.GatewayDisconnectedMessage;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.slf4j.Logger;
@@ -55,6 +59,16 @@ public class EventWebSocket implements WebSocket, WebSocket.OnTextMessage {
 	@Subscribe
 	public void onDevicesDetachedEvent(final DevicesDetachedEvent event) {
 		sendMessage(toJSON(new DevicesDetachedMessage(event)));
+	}
+
+	@Subscribe
+	public void onGatewayConnectedEvent(final GatewayConnectedEvent event) {
+		sendMessage(toJSON(new GatewayConnectedMessage(event)));
+	}
+
+	@Subscribe
+	public void onGatewayDisconnectedEvent(final GatewayDisconnectedEvent event) {
+		sendMessage(toJSON(new GatewayDisconnectedMessage(event)));
 	}
 
 	@Override

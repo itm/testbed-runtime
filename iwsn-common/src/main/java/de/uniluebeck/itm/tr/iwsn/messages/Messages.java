@@ -129,6 +129,16 @@ public final class Messages {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_de_uniluebeck_itm_tr_iwsn_messages_DevicesDetachedEvent_fieldAccessorTable;
   static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_iwsn_messages_GatewayConnectedEvent_descriptor;
+  static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_iwsn_messages_GatewayConnectedEvent_fieldAccessorTable;
+  static com.google.protobuf.Descriptors.Descriptor
+    internal_static_de_uniluebeck_itm_tr_iwsn_messages_GatewayDisconnectedEvent_descriptor;
+  static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_de_uniluebeck_itm_tr_iwsn_messages_GatewayDisconnectedEvent_fieldAccessorTable;
+  static com.google.protobuf.Descriptors.Descriptor
     internal_static_de_uniluebeck_itm_tr_iwsn_messages_NotificationEvent_descriptor;
   static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -283,69 +293,78 @@ public final class Messages {
       "\024\n\014messageBytes\030\003 \002(\014\";\n\024DevicesAttached" +
       "Event\022\020\n\010nodeUrns\030\001 \003(\t\022\021\n\ttimestamp\030\002 \002",
       "(\004\";\n\024DevicesDetachedEvent\022\020\n\010nodeUrns\030\001" +
-      " \003(\t\022\021\n\ttimestamp\030\002 \002(\004\"H\n\021NotificationE" +
-      "vent\022\017\n\007nodeUrn\030\001 \001(\t\022\021\n\ttimestamp\030\002 \002(\004" +
-      "\022\017\n\007message\030\003 \002(\t\"0\n\027ReservationStartedE" +
-      "vent\022\025\n\rserializedKey\030\001 \002(\t\".\n\025Reservati" +
-      "onEndedEvent\022\025\n\rserializedKey\030\001 \002(\t\"-\n\024R" +
-      "eservationMadeEvent\022\025\n\rserializedKey\030\001 \002" +
-      "(\t\"0\n\027ReservationDeletedEvent\022\025\n\rseriali" +
-      "zedKey\030\001 \002(\t\"+\n\030DeviceConfigCreatedEvent" +
-      "\022\017\n\007nodeUrn\030\001 \002(\t\"+\n\030DeviceConfigUpdated",
-      "Event\022\017\n\007nodeUrn\030\001 \002(\t\"+\n\030DeviceConfigDe" +
-      "letedEvent\022\017\n\007nodeUrn\030\001 \002(\t\"\313\n\n\005Event\022\017\n" +
-      "\007eventId\030\001 \002(\003\022<\n\004type\030\002 \002(\0162..de.unilue" +
-      "beck.itm.tr.iwsn.messages.Event.Type\022V\n\024" +
-      "upstreamMessageEvent\030e \001(\01328.de.uniluebe" +
-      "ck.itm.tr.iwsn.messages.UpstreamMessageE" +
-      "vent\022V\n\024devicesAttachedEvent\030f \001(\01328.de." +
-      "uniluebeck.itm.tr.iwsn.messages.DevicesA" +
-      "ttachedEvent\022V\n\024devicesDetachedEvent\030g \001" +
-      "(\01328.de.uniluebeck.itm.tr.iwsn.messages.",
-      "DevicesDetachedEvent\022P\n\021notificationEven" +
-      "t\030h \001(\01325.de.uniluebeck.itm.tr.iwsn.mess" +
-      "ages.NotificationEvent\022\\\n\027reservationSta" +
-      "rtedEvent\030i \001(\0132;.de.uniluebeck.itm.tr.i" +
-      "wsn.messages.ReservationStartedEvent\022X\n\025" +
-      "reservationEndedEvent\030j \001(\01329.de.unilueb" +
-      "eck.itm.tr.iwsn.messages.ReservationEnde" +
-      "dEvent\022V\n\024reservationMadeEvent\030k \001(\01328.d" +
-      "e.uniluebeck.itm.tr.iwsn.messages.Reserv" +
-      "ationMadeEvent\022\\\n\027reservationDeletedEven",
-      "t\030l \001(\0132;.de.uniluebeck.itm.tr.iwsn.mess" +
-      "ages.ReservationDeletedEvent\022^\n\030deviceCo" +
-      "nfigCreatedEvent\030m \001(\0132<.de.uniluebeck.i" +
-      "tm.tr.iwsn.messages.DeviceConfigCreatedE" +
-      "vent\022^\n\030deviceConfigUpdatedEvent\030n \001(\0132<" +
-      ".de.uniluebeck.itm.tr.iwsn.messages.Devi" +
-      "ceConfigUpdatedEvent\022^\n\030deviceConfigDele" +
-      "tedEvent\030o \001(\0132<.de.uniluebeck.itm.tr.iw" +
-      "sn.messages.DeviceConfigDeletedEvent\"\212\002\n" +
-      "\004Type\022\024\n\020UPSTREAM_MESSAGE\020\001\022\024\n\020DEVICES_A",
-      "TTACHED\020\002\022\024\n\020DEVICES_DETACHED\020\003\022\020\n\014NOTIF" +
-      "ICATION\020\004\022\027\n\023RESERVATION_STARTED\020\005\022\025\n\021RE" +
-      "SERVATION_ENDED\020\006\022\024\n\020RESERVATION_MADE\020\007\022" +
-      "\027\n\023RESERVATION_DELETED\020\010\022\031\n\025DEVICE_CONFI" +
-      "G_CREATED\020\t\022\031\n\025DEVICE_CONFIG_UPDATED\020\n\022\031" +
-      "\n\025DEVICE_CONFIG_DELETED\020\013\"\033\n\010EventAck\022\017\n" +
-      "\007eventId\030\001 \002(\003\"\216\005\n\007Message\022>\n\004type\030\001 \002(\016" +
-      "20.de.uniluebeck.itm.tr.iwsn.messages.Me" +
-      "ssage.Type\022<\n\007request\030e \001(\0132+.de.unilueb" +
-      "eck.itm.tr.iwsn.messages.Request\022H\n\010prog",
-      "ress\030f \001(\01326.de.uniluebeck.itm.tr.iwsn.m" +
-      "essages.SingleNodeProgress\022H\n\010response\030g" +
-      " \001(\01326.de.uniluebeck.itm.tr.iwsn.message" +
-      "s.SingleNodeResponse\022d\n\033getChannelPipeli" +
-      "nesResponse\030h \001(\0132?.de.uniluebeck.itm.tr" +
-      ".iwsn.messages.GetChannelPipelinesRespon" +
-      "se\0228\n\005event\030i \001(\0132).de.uniluebeck.itm.tr" +
-      ".iwsn.messages.Event\022>\n\010eventAck\030j \001(\0132," +
-      ".de.uniluebeck.itm.tr.iwsn.messages.Even" +
-      "tAck\"\220\001\n\004Type\022\013\n\007REQUEST\020\001\022\014\n\010PROGRESS\020\002",
-      "\022\014\n\010RESPONSE\020\003\022!\n\035GET_CHANNELPIPELINES_R" +
-      "ESPONSE\020\004\022\t\n\005EVENT\020\005\022\r\n\tEVENT_ACK\020\006\022\016\n\nK" +
-      "EEP_ALIVE\020\007\022\022\n\016KEEP_ALIVE_ACK\020\010B\014B\010Messa" +
-      "gesP\001"
+      " \003(\t\022\021\n\ttimestamp\030\002 \002(\004\"<\n\025GatewayConnec" +
+      "tedEvent\022\021\n\ttimestamp\030\001 \002(\004\022\020\n\010hostname\030" +
+      "\002 \002(\t\"Q\n\030GatewayDisconnectedEvent\022\021\n\ttim" +
+      "estamp\030\001 \002(\004\022\020\n\010hostname\030\002 \002(\t\022\020\n\010nodeUr" +
+      "ns\030\003 \003(\t\"H\n\021NotificationEvent\022\017\n\007nodeUrn" +
+      "\030\001 \001(\t\022\021\n\ttimestamp\030\002 \002(\004\022\017\n\007message\030\003 \002" +
+      "(\t\"0\n\027ReservationStartedEvent\022\025\n\rseriali" +
+      "zedKey\030\001 \002(\t\".\n\025ReservationEndedEvent\022\025\n" +
+      "\rserializedKey\030\001 \002(\t\"-\n\024ReservationMadeE",
+      "vent\022\025\n\rserializedKey\030\001 \002(\t\"0\n\027Reservati" +
+      "onDeletedEvent\022\025\n\rserializedKey\030\001 \002(\t\"+\n" +
+      "\030DeviceConfigCreatedEvent\022\017\n\007nodeUrn\030\001 \002" +
+      "(\t\"+\n\030DeviceConfigUpdatedEvent\022\017\n\007nodeUr" +
+      "n\030\001 \002(\t\"+\n\030DeviceConfigDeletedEvent\022\017\n\007n" +
+      "odeUrn\030\001 \002(\t\"\276\014\n\005Event\022\017\n\007eventId\030\001 \002(\003\022" +
+      "<\n\004type\030\002 \002(\0162..de.uniluebeck.itm.tr.iws" +
+      "n.messages.Event.Type\022V\n\024upstreamMessage" +
+      "Event\030e \001(\01328.de.uniluebeck.itm.tr.iwsn." +
+      "messages.UpstreamMessageEvent\022V\n\024devices",
+      "AttachedEvent\030n \001(\01328.de.uniluebeck.itm." +
+      "tr.iwsn.messages.DevicesAttachedEvent\022V\n" +
+      "\024devicesDetachedEvent\030o \001(\01328.de.unilueb" +
+      "eck.itm.tr.iwsn.messages.DevicesDetached" +
+      "Event\022X\n\025gatewayConnectedEvent\030x \001(\01329.d" +
+      "e.uniluebeck.itm.tr.iwsn.messages.Gatewa" +
+      "yConnectedEvent\022^\n\030gatewayDisconnectedEv" +
+      "ent\030y \001(\0132<.de.uniluebeck.itm.tr.iwsn.me" +
+      "ssages.GatewayDisconnectedEvent\022Q\n\021notif" +
+      "icationEvent\030\202\001 \001(\01325.de.uniluebeck.itm.",
+      "tr.iwsn.messages.NotificationEvent\022]\n\027re" +
+      "servationStartedEvent\030\214\001 \001(\0132;.de.unilue" +
+      "beck.itm.tr.iwsn.messages.ReservationSta" +
+      "rtedEvent\022Y\n\025reservationEndedEvent\030\215\001 \001(" +
+      "\01329.de.uniluebeck.itm.tr.iwsn.messages.R" +
+      "eservationEndedEvent\022W\n\024reservationMadeE" +
+      "vent\030\216\001 \001(\01328.de.uniluebeck.itm.tr.iwsn." +
+      "messages.ReservationMadeEvent\022]\n\027reserva" +
+      "tionDeletedEvent\030\217\001 \001(\0132;.de.uniluebeck." +
+      "itm.tr.iwsn.messages.ReservationDeletedE",
+      "vent\022_\n\030deviceConfigCreatedEvent\030\226\001 \001(\0132" +
+      "<.de.uniluebeck.itm.tr.iwsn.messages.Dev" +
+      "iceConfigCreatedEvent\022_\n\030deviceConfigUpd" +
+      "atedEvent\030\227\001 \001(\0132<.de.uniluebeck.itm.tr." +
+      "iwsn.messages.DeviceConfigUpdatedEvent\022_" +
+      "\n\030deviceConfigDeletedEvent\030\230\001 \001(\0132<.de.u" +
+      "niluebeck.itm.tr.iwsn.messages.DeviceCon" +
+      "figDeletedEvent\"\273\002\n\004Type\022\024\n\020UPSTREAM_MES" +
+      "SAGE\020\001\022\024\n\020DEVICES_ATTACHED\020\n\022\024\n\020DEVICES_" +
+      "DETACHED\020\013\022\025\n\021GATEWAY_CONNECTED\020\024\022\030\n\024GAT",
+      "EWAY_DISCONNECTED\020\025\022\020\n\014NOTIFICATION\020\036\022\027\n" +
+      "\023RESERVATION_STARTED\020(\022\025\n\021RESERVATION_EN" +
+      "DED\020)\022\024\n\020RESERVATION_MADE\020*\022\027\n\023RESERVATI" +
+      "ON_DELETED\020+\022\031\n\025DEVICE_CONFIG_CREATED\0202\022" +
+      "\031\n\025DEVICE_CONFIG_UPDATED\0203\022\031\n\025DEVICE_CON" +
+      "FIG_DELETED\0204\"\033\n\010EventAck\022\017\n\007eventId\030\001 \002" +
+      "(\003\"\216\005\n\007Message\022>\n\004type\030\001 \002(\01620.de.unilue" +
+      "beck.itm.tr.iwsn.messages.Message.Type\022<" +
+      "\n\007request\030e \001(\0132+.de.uniluebeck.itm.tr.i" +
+      "wsn.messages.Request\022H\n\010progress\030f \001(\01326",
+      ".de.uniluebeck.itm.tr.iwsn.messages.Sing" +
+      "leNodeProgress\022H\n\010response\030g \001(\01326.de.un" +
+      "iluebeck.itm.tr.iwsn.messages.SingleNode" +
+      "Response\022d\n\033getChannelPipelinesResponse\030" +
+      "h \001(\0132?.de.uniluebeck.itm.tr.iwsn.messag" +
+      "es.GetChannelPipelinesResponse\0228\n\005event\030" +
+      "i \001(\0132).de.uniluebeck.itm.tr.iwsn.messag" +
+      "es.Event\022>\n\010eventAck\030j \001(\0132,.de.uniluebe" +
+      "ck.itm.tr.iwsn.messages.EventAck\"\220\001\n\004Typ" +
+      "e\022\013\n\007REQUEST\020\001\022\014\n\010PROGRESS\020\002\022\014\n\010RESPONSE",
+      "\020\003\022!\n\035GET_CHANNELPIPELINES_RESPONSE\020\004\022\t\n" +
+      "\005EVENT\020\005\022\r\n\tEVENT_ACK\020\006\022\016\n\nKEEP_ALIVE\020\007\022" +
+      "\022\n\016KEEP_ALIVE_ACK\020\010B\014B\010MessagesP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -544,8 +563,24 @@ public final class Messages {
               new java.lang.String[] { "NodeUrns", "Timestamp", },
               de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.class,
               de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.Builder.class);
-          internal_static_de_uniluebeck_itm_tr_iwsn_messages_NotificationEvent_descriptor =
+          internal_static_de_uniluebeck_itm_tr_iwsn_messages_GatewayConnectedEvent_descriptor =
             getDescriptor().getMessageTypes().get(22);
+          internal_static_de_uniluebeck_itm_tr_iwsn_messages_GatewayConnectedEvent_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_iwsn_messages_GatewayConnectedEvent_descriptor,
+              new java.lang.String[] { "Timestamp", "Hostname", },
+              de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.class,
+              de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_iwsn_messages_GatewayDisconnectedEvent_descriptor =
+            getDescriptor().getMessageTypes().get(23);
+          internal_static_de_uniluebeck_itm_tr_iwsn_messages_GatewayDisconnectedEvent_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_de_uniluebeck_itm_tr_iwsn_messages_GatewayDisconnectedEvent_descriptor,
+              new java.lang.String[] { "Timestamp", "Hostname", "NodeUrns", },
+              de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.class,
+              de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.Builder.class);
+          internal_static_de_uniluebeck_itm_tr_iwsn_messages_NotificationEvent_descriptor =
+            getDescriptor().getMessageTypes().get(24);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_NotificationEvent_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_NotificationEvent_descriptor,
@@ -553,7 +588,7 @@ public final class Messages {
               de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.class,
               de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationStartedEvent_descriptor =
-            getDescriptor().getMessageTypes().get(23);
+            getDescriptor().getMessageTypes().get(25);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationStartedEvent_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationStartedEvent_descriptor,
@@ -561,7 +596,7 @@ public final class Messages {
               de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.class,
               de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEndedEvent_descriptor =
-            getDescriptor().getMessageTypes().get(24);
+            getDescriptor().getMessageTypes().get(26);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEndedEvent_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEndedEvent_descriptor,
@@ -569,7 +604,7 @@ public final class Messages {
               de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.class,
               de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationMadeEvent_descriptor =
-            getDescriptor().getMessageTypes().get(25);
+            getDescriptor().getMessageTypes().get(27);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationMadeEvent_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationMadeEvent_descriptor,
@@ -577,7 +612,7 @@ public final class Messages {
               de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.class,
               de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationDeletedEvent_descriptor =
-            getDescriptor().getMessageTypes().get(26);
+            getDescriptor().getMessageTypes().get(28);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationDeletedEvent_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationDeletedEvent_descriptor,
@@ -585,7 +620,7 @@ public final class Messages {
               de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.class,
               de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_DeviceConfigCreatedEvent_descriptor =
-            getDescriptor().getMessageTypes().get(27);
+            getDescriptor().getMessageTypes().get(29);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_DeviceConfigCreatedEvent_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_DeviceConfigCreatedEvent_descriptor,
@@ -593,7 +628,7 @@ public final class Messages {
               de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.class,
               de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_DeviceConfigUpdatedEvent_descriptor =
-            getDescriptor().getMessageTypes().get(28);
+            getDescriptor().getMessageTypes().get(30);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_DeviceConfigUpdatedEvent_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_DeviceConfigUpdatedEvent_descriptor,
@@ -601,7 +636,7 @@ public final class Messages {
               de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.class,
               de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_DeviceConfigDeletedEvent_descriptor =
-            getDescriptor().getMessageTypes().get(29);
+            getDescriptor().getMessageTypes().get(31);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_DeviceConfigDeletedEvent_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_DeviceConfigDeletedEvent_descriptor,
@@ -609,15 +644,15 @@ public final class Messages {
               de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.class,
               de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_Event_descriptor =
-            getDescriptor().getMessageTypes().get(30);
+            getDescriptor().getMessageTypes().get(32);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_Event_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_Event_descriptor,
-              new java.lang.String[] { "EventId", "Type", "UpstreamMessageEvent", "DevicesAttachedEvent", "DevicesDetachedEvent", "NotificationEvent", "ReservationStartedEvent", "ReservationEndedEvent", "ReservationMadeEvent", "ReservationDeletedEvent", "DeviceConfigCreatedEvent", "DeviceConfigUpdatedEvent", "DeviceConfigDeletedEvent", },
+              new java.lang.String[] { "EventId", "Type", "UpstreamMessageEvent", "DevicesAttachedEvent", "DevicesDetachedEvent", "GatewayConnectedEvent", "GatewayDisconnectedEvent", "NotificationEvent", "ReservationStartedEvent", "ReservationEndedEvent", "ReservationMadeEvent", "ReservationDeletedEvent", "DeviceConfigCreatedEvent", "DeviceConfigUpdatedEvent", "DeviceConfigDeletedEvent", },
               de.uniluebeck.itm.tr.iwsn.messages.Event.class,
               de.uniluebeck.itm.tr.iwsn.messages.Event.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_EventAck_descriptor =
-            getDescriptor().getMessageTypes().get(31);
+            getDescriptor().getMessageTypes().get(33);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_EventAck_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_EventAck_descriptor,
@@ -625,7 +660,7 @@ public final class Messages {
               de.uniluebeck.itm.tr.iwsn.messages.EventAck.class,
               de.uniluebeck.itm.tr.iwsn.messages.EventAck.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_Message_descriptor =
-            getDescriptor().getMessageTypes().get(32);
+            getDescriptor().getMessageTypes().get(34);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_Message_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_Message_descriptor,

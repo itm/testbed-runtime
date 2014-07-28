@@ -7,10 +7,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -507,6 +504,23 @@ public abstract class MessagesHelper {
 		return newDevicesDetachedEvent(new DateTime().getMillis(), nodeUrn, nodeUrns);
 	}
 
+	public static GatewayConnectedEvent newGatewayConnectedEvent(final String hostname) {
+		return GatewayConnectedEvent.newBuilder()
+				.setTimestamp(new DateTime().getMillis())
+				.setHostname(hostname)
+				.build();
+	}
+
+	public static GatewayDisconnectedEvent newGatewayDisconnectedEvent(final String hostname, final Iterable<NodeUrn> nodeUrns) {
+		final GatewayDisconnectedEvent.Builder builder = GatewayDisconnectedEvent.newBuilder()
+				.setTimestamp(new DateTime().getMillis())
+				.setHostname(hostname);
+		for (NodeUrn nodeUrn : nodeUrns) {
+			builder.addNodeUrns(nodeUrn.toString());
+		}
+		return builder.build();
+	}
+
 	public static boolean equals(final DevicesAttachedEvent event1, final DevicesAttachedEvent event2) {
 		return event1.getTimestamp() == event2.getTimestamp() &&
 				newHashSet(event1.getNodeUrnsList()).equals(newHashSet(event2.getNodeUrnsList()));
@@ -729,4 +743,19 @@ public abstract class MessagesHelper {
 				.build();
 	}
 
+	public static Event newEvent(final long eventId, final GatewayConnectedEvent event) {
+		return Event.newBuilder()
+				.setType(Event.Type.GATEWAY_CONNECTED)
+				.setEventId(eventId)
+				.setGatewayConnectedEvent(event)
+				.build();
+	}
+
+	public static Event newEvent(final long eventId, final GatewayDisconnectedEvent event) {
+		return Event.newBuilder()
+				.setType(Event.Type.GATEWAY_DISCONNECTED)
+				.setEventId(eventId)
+				.setGatewayDisconnectedEvent(event)
+				.build();
+	}
 }

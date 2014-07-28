@@ -159,6 +159,14 @@ public class EventStoreResourceImpl implements EventStoreResource {
 			map.put(new NodeUrn(response.getNodeUrn()), response);
 			return toJSON(Converters.convert(map), true);
 
+		} else if (event instanceof GatewayConnectedEvent) {
+
+			return toJSON(new GatewayConnectedMessage((GatewayConnectedEvent) event));
+
+		} else if (event instanceof GatewayDisconnectedEvent) {
+
+			return toJSON(new GatewayDisconnectedMessage((GatewayDisconnectedEvent) event));
+
 		} else if (event instanceof DevicesAttachedEvent) {
 
 			return toJSON(new DevicesAttachedMessage((DevicesAttachedEvent) event), true);
