@@ -75,8 +75,9 @@ public class PortalServer extends AbstractService {
 	private final EndpointManager endpointManager;
 
 	private final CommonConfig commonConfig;
+    private final PortalEventDispatcher portalEventDispatcher;
 
-	@Inject
+    @Inject
 	public PortalServer(final SchedulerService schedulerService,
 						final ServicePublisher servicePublisher,
 						final DeviceDBService deviceDBService,
@@ -93,9 +94,11 @@ public class PortalServer extends AbstractService {
 						final UserRegistrationWebAppService userRegistrationWebAppService,
 						final NodeStatusTracker nodeStatusTracker,
 						final EndpointManager endpointManager,
-						final CommonConfig commonConfig) {
+						final CommonConfig commonConfig,
+                        final PortalEventDispatcher portalEventDispatcher) {
+        this.portalEventDispatcher = checkNotNull(portalEventDispatcher);
 
-		this.schedulerService = checkNotNull(schedulerService);
+        this.schedulerService = checkNotNull(schedulerService);
 		this.servicePublisher = checkNotNull(servicePublisher);
 
 		this.rsService = checkNotNull(rsService);
@@ -136,6 +139,7 @@ public class PortalServer extends AbstractService {
 			// internal components of the portal server
 			portalEventBus.startAndWait();
 			portalEventStoreService.startAndWait();
+            portalEventDispatcher.startAndWait();
 			reservationManager.startAndWait();
 			nodeStatusTracker.startAndWait();
 
@@ -171,6 +175,7 @@ public class PortalServer extends AbstractService {
 			// internal components
 			nodeStatusTracker.stopAndWait();
 			reservationManager.stopAndWait();
+            portalEventDispatcher.stopAndWait();
 			portalEventStoreService.stopAndWait();
 			portalEventBus.stopAndWait();
 

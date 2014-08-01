@@ -113,6 +113,8 @@ public class PortalModule extends AbstractModule {
 		bind(NodeStatusTracker.class).to(NodeStatusTrackerImpl.class).in(Singleton.class);
 		bind(EndpointManager.class).to(EndpointManagerImpl.class).in(Singleton.class);
 
+        bind(PortalEventDispatcher.class).to(PortalEventDispatcherImpl.class).in(Singleton.class);
+
 		install(new SNAAServiceModule(commonConfig, snaaServiceConfig));
 		install(new RSServiceModule(commonConfig, rsServiceConfig));
 		install(new DeviceDBServiceModule(deviceDBConfig));
