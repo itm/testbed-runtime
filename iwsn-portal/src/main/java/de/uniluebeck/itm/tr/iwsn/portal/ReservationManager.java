@@ -6,6 +6,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.joda.time.DateTime;
 
+import java.util.List;
 import java.util.Set;
 
 public interface ReservationManager extends Service {
@@ -51,5 +52,14 @@ public interface ReservationManager extends Service {
 	 * @return a reservation instance or none if no reservation matching the criteria is found
 	 */
 	Optional<Reservation> getReservation(NodeUrn nodeUrn, DateTime timestamp);
+
+
+    /**
+     * Returns a list of reservation instance that are or were active during {@code timestamp}
+     * @param timestamp an instant in time for at which the reservations are active
+     *
+     * @return a list of reservation instances matching the criteria
+     */
+    List<Reservation> getReservations(DateTime timestamp);
 
 }
