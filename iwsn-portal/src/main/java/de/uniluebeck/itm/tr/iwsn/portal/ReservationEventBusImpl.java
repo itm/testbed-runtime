@@ -52,7 +52,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
         log.trace("ReservationEventBus[{}].doStart()", reservationId);
 
         try {
-            portalEventBus.register(this);
             notifyStarted();
         } catch (Exception e) {
             notifyFailed(e);
@@ -65,7 +64,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
         log.trace("ReservationEventBus[{}].doStop()", reservationId);
 
         try {
-            portalEventBus.unregister(this);
             notifyStopped();
         } catch (Exception e) {
             notifyFailed(e);
@@ -96,96 +94,6 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
         }
 
         eventBus.post(event);
-    }
-
-    @Subscribe
-    public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
-
-        log.trace("ReservationEventBus[{}].onDevicesAttachedEventFromPortalEventBus({})", reservationId, event);
-
-        final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
-        final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
-
-        if (!reservedNodeUrnsOfEvent.isEmpty()) {
-            eventBus.post(newDevicesAttachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
-        }
-    }
-
-    @Subscribe
-    public void onUpstreamMessageEventFromPortalEventBus(final UpstreamMessageEvent event) {
-
-        log.trace("ReservationEventBus[{}].onUpstreamMessageEventFromPortalEventBus({})", reservationId, event);
-
-        final NodeUrn sourceNodeUrn = new NodeUrn(event.getSourceNodeUrn());
-
-        if (reservation.getNodeUrns().contains(sourceNodeUrn)) {
-            eventBus.post(event);
-        }
-    }
-
-    @Subscribe
-    public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
-
-        log.trace("ReservationEventBus[{}].onDevicesDetachedEventFromPortalEventBus({})", reservationId, event);
-
-        final Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
-        final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.getNodeUrns()));
-
-        if (!reservedNodeUrnsOfEvent.isEmpty()) {
-            eventBus.post(newDevicesDetachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
-        }
-    }
-
-    @Subscribe
-    public void onNotificationEventFromPortalEventBus(final NotificationEvent event) {
-
-        log.trace("ReservationEventBus[{}].onNotificationEventFromPortalEventBus({})", reservationId, event);
-
-        if (!event.hasNodeUrn() || reservation.getNodeUrns().contains(new NodeUrn(event.getNodeUrn()))) {
-            eventBus.post(event);
-        }
-    }
-
-    @Subscribe
-    public void onSingleNodeProgressFromPortalEventBus(final SingleNodeProgress progress) {
-        log.trace("ReservationEventBus[{}].onSingleNodeProgressFromPortalEventBus({})", reservationId, progress);
-        if (reservationId.equals(progress.getReservationId())) {
-            eventBus.post(progress);
-        }
-    }
-
-    @Subscribe
-    public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
-        log.trace("ReservationEventBus[{}].onSingleNodeResponseFromPortalEventBus({})", reservationId, response);
-        if (reservationId.equals(response.getReservationId())) {
-            eventBus.post(response);
-        }
-    }
-
-    @Subscribe
-    public void onReservationStartedEventFromPortalEventBus(final ReservationStartedEvent event) {
-        log.trace("ReservationEventBus[{}].onReservationStartedEventFromPortalEventBus({})", reservationId, event);
-        if (reservation.getSerializedKey().equals(event.getSerializedKey())) {
-            eventBus.post(event);
-        }
-    }
-
-    @Subscribe
-    public void onReservationEndedEventFromPortalEventBus(final ReservationEndedEvent event) {
-        log.trace("ReservationEventBus[{}].onReservationEndedEventFromPortalEventBus({})", reservationId, event);
-        if (reservation.getSerializedKey().equals(event.getSerializedKey())) {
-            eventBus.post(event);
-        }
-    }
-
-    @Subscribe
-    public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
-
-        log.trace("ReservationEventBusImpl.onGetChannelPipelinesResponse({})", reservationId, response);
-
-        if (reservationId.equals(response.getReservationId())) {
-            eventBus.post(response);
-        }
     }
 
     @Override

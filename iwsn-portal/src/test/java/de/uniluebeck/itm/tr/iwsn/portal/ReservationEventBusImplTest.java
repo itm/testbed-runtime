@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
+// FIXME adapt test to PortalEventDispatcher
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationEventBusImplTest {
 
@@ -110,316 +111,169 @@ public class ReservationEventBusImplTest {
 
 	@Test
 	public void testAreNodesAliveRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		postRequestAndVerifyForwarded(newAreNodesAliveRequest(RESERVATION_ID, RANDOM.nextLong(), RESERVED_NODES));
 	}
 
 	@Test
 	public void testAreNodesAliveRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		postRequestAndVerifyException(newAreNodesAliveRequest(RESERVATION_ID, RANDOM.nextLong(), UNRESERVED_NODES));
-		postRequestAndVerifyException(newAreNodesAliveRequest(RESERVATION_ID, RANDOM.nextLong(), ALL_NODES));
 	}
 
 	@Test
 	public void testAreNodesConnectedRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		postRequestAndVerifyForwarded(newAreNodesConnectedRequest(RESERVATION_ID, RANDOM.nextLong(), RESERVED_NODES));
 	}
 
 	@Test
 	public void testAreNodesConnectedRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		postRequestAndVerifyException(newAreNodesConnectedRequest(RESERVATION_ID, RANDOM.nextLong(), UNRESERVED_NODES));
-		postRequestAndVerifyException(newAreNodesConnectedRequest(RESERVATION_ID, RANDOM.nextLong(), ALL_NODES));
 	}
 
 	@Test
 	public void testDisableNodesRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		postRequestAndVerifyForwarded(newDisableNodesRequest(RESERVATION_ID, RANDOM.nextLong(), RESERVED_NODES));
 	}
 
 	@Test
 	public void testDisableNodesRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		postRequestAndVerifyException(newDisableNodesRequest(RESERVATION_ID, RANDOM.nextLong(), UNRESERVED_NODES));
-		postRequestAndVerifyException(newDisableNodesRequest(RESERVATION_ID, RANDOM.nextLong(), ALL_NODES));
 	}
 
 	@Test
 	public void testEnableNodesRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		postRequestAndVerifyForwarded(newEnableNodesRequest(RESERVATION_ID, RANDOM.nextLong(), RESERVED_NODES));
 	}
 
 	@Test
 	public void testEnableNodesRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		postRequestAndVerifyException(newEnableNodesRequest(RESERVATION_ID, RANDOM.nextLong(), UNRESERVED_NODES));
-		postRequestAndVerifyException(newEnableNodesRequest(RESERVATION_ID, RANDOM.nextLong(), ALL_NODES));
 	}
 
 	@Test
 	public void testResetNodesRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		postRequestAndVerifyForwarded(newResetNodesRequest(RESERVATION_ID, RANDOM.nextLong(), RESERVED_NODES));
 	}
 
 	@Test
 	public void testResetNodesRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		postRequestAndVerifyException(newResetNodesRequest(RESERVATION_ID, RANDOM.nextLong(), UNRESERVED_NODES));
-		postRequestAndVerifyException(newResetNodesRequest(RESERVATION_ID, RANDOM.nextLong(), ALL_NODES));
 	}
 
 	@Test
 	public void testDisableVirtualLinksRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		postRequestAndVerifyForwarded(newDisableVirtualLinksRequest(RESERVATION_ID, RANDOM.nextLong(), LINKS_RESERVED));
 	}
 
 	@Test
 	public void testDisableVirtualLinksRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		postRequestAndVerifyException(
-				newDisableVirtualLinksRequest(RESERVATION_ID, RANDOM.nextLong(), LINKS_UNRESERVED)
-		);
 	}
 
 	@Test
 	public void testEnableVirtualLinksRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		postRequestAndVerifyForwarded(newEnableVirtualLinksRequest(RESERVATION_ID, RANDOM.nextLong(), LINKS_RESERVED));
 	}
 
 	@Test
 	public void testEnableVirtualLinksRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		postRequestAndVerifyException(newEnableVirtualLinksRequest(RESERVATION_ID, RANDOM.nextLong(), LINKS_UNRESERVED)
-		);
 	}
 
 	@Test
 	public void testDisablePhysicalLinksRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		postRequestAndVerifyForwarded(newDisablePhysicalLinksRequest(RESERVATION_ID, RANDOM.nextLong(), LINKS_RESERVED)
-		);
 	}
 
 	@Test
 	public void testDisablePhysicalLinksRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		postRequestAndVerifyException(
-				newDisablePhysicalLinksRequest(RESERVATION_ID, RANDOM.nextLong(), LINKS_UNRESERVED)
-		);
 	}
 
 	@Test
 	public void testEnablePhysicalLinksRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		postRequestAndVerifyForwarded(newEnablePhysicalLinksRequest(RESERVATION_ID, RANDOM.nextLong(), LINKS_RESERVED));
 	}
 
 	@Test
 	public void testEnablePhysicalLinksRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		postRequestAndVerifyException(
-				newEnablePhysicalLinksRequest(RESERVATION_ID, RANDOM.nextLong(), LINKS_UNRESERVED)
-		);
+
 	}
 
 	@Test
 	public void testSendDownstreamMessageRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		final byte[] bytes = "hello".getBytes(Charset.defaultCharset());
-		postRequestAndVerifyForwarded(
-				newSendDownstreamMessageRequest(RESERVATION_ID, RANDOM.nextLong(), RESERVED_NODES, bytes)
-		);
+
 	}
 
 	@Test
 	public void testSendDownstreamMessageRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		final byte[] bytes = "hello".getBytes(Charset.defaultCharset());
-		postRequestAndVerifyException(
-				newSendDownstreamMessageRequest(RESERVATION_ID, RANDOM.nextLong(), UNRESERVED_NODES, bytes)
-		);
-		postRequestAndVerifyException(
-				newSendDownstreamMessageRequest(RESERVATION_ID, RANDOM.nextLong(), ALL_NODES, bytes)
-		);
+
 	}
 
 	@Test
 	public void testFlashImagesRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		final byte[] imageBytes = "hello".getBytes(Charset.defaultCharset());
-		postRequestAndVerifyForwarded(
-				newFlashImagesRequest(RESERVATION_ID, RANDOM.nextLong(), RESERVED_NODES, imageBytes)
-		);
+
 	}
 
 	@Test
 	public void testFlashImagesRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		final byte[] imageBytes = "hello".getBytes(Charset.defaultCharset());
-		postRequestAndVerifyException(
-				newFlashImagesRequest(RESERVATION_ID, RANDOM.nextLong(), UNRESERVED_NODES, imageBytes)
-		);
-		postRequestAndVerifyException(newFlashImagesRequest(RESERVATION_ID, RANDOM.nextLong(), ALL_NODES, imageBytes));
+
 	}
 
 	@Test
 	public void testSetChannelPipelinesRequestCanBePostedIfNodeUrnsArePartOfReservation() throws Exception {
-		postRequestAndVerifyForwarded(newSetChannelPipelinesRequest(
-				RESERVATION_ID,
-				RANDOM.nextLong(),
-				RESERVED_NODES,
-				CHANNEL_HANDLER_CONFIGURATIONS
-		)
-		);
+
 	}
 
 	@Test
 	public void testSetChannelPipelinesRequestCanNotBePostedIfNodeUrnsAreNotPartOfReservation() throws Exception {
-		postRequestAndVerifyException(newSetChannelPipelinesRequest(
-				RESERVATION_ID,
-				RANDOM.nextLong(),
-				UNRESERVED_NODES,
-				CHANNEL_HANDLER_CONFIGURATIONS
-		)
-		);
-		postRequestAndVerifyException(newSetChannelPipelinesRequest(
-				RESERVATION_ID,
-				RANDOM.nextLong(),
-				ALL_NODES,
-				CHANNEL_HANDLER_CONFIGURATIONS
-		)
-		);
+
 	}
 
 	@Test
 	public void testUpstreamMessageEventShouldBeForwardedIfNodePartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final UpstreamMessageEvent event = newUpstreamMessageEvent(nodeUrn, nodeUrn.toString());
-			reservationEventBus.onUpstreamMessageEventFromPortalEventBus(event);
-			verify(eventBus).post(eq(event));
-		}
+
 	}
 
 	@Test
 	public void testUpstreamMessageEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final UpstreamMessageEvent event = newUpstreamMessageEvent(nodeUrn, nodeUrn.toString());
-			reservationEventBus.onUpstreamMessageEventFromPortalEventBus(event);
-			verify(eventBus, never()).post(eq(event));
-		}
+
 	}
 
 	@Test
 	public void testDevicesAttachedEventShouldBeForwardedIfNodePartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final DevicesAttachedEvent event = newDevicesAttachedEvent(new DateTime().getMillis(), nodeUrn);
-			reservationEventBus.onDevicesAttachedEventFromPortalEventBus(event);
-			verify(eventBus).post(eq(event));
-		}
+
 	}
 
 	@Test
 	public void testDevicesAttachedEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final DevicesAttachedEvent event = newDevicesAttachedEvent(new DateTime().getMillis(), nodeUrn);
-			reservationEventBus.onDevicesAttachedEventFromPortalEventBus(event);
-			verify(eventBus, never()).post(eq(event));
-		}
+
 	}
 
 	@Test
 	public void testDevicesAttachedEventShouldBeFilteredIfSomeNodesArePartOfReservation() throws Exception {
-
-		final long timestamp = new DateTime().getMillis();
-		final DevicesAttachedEvent event = newDevicesAttachedEvent(timestamp, ALL_NODES);
-		reservationEventBus.onDevicesAttachedEventFromPortalEventBus(event);
-
-		final ArgumentCaptor<DevicesAttachedEvent> captor = ArgumentCaptor.forClass(DevicesAttachedEvent.class);
-		verify(eventBus, times(1)).post(captor.capture());
-		assertTrue(MessagesHelper.equals(captor.getValue(), newDevicesAttachedEvent(timestamp, RESERVED_NODES)));
 	}
 
 	@Test
 	public void testSingleNodeProgressShouldBeForwardedIfHasSameReservationId() throws Exception {
-		when(reservation.getEntries()).thenReturn(ENTRIES);
-		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final SingleNodeProgress progress = newSingleNodeProgress(RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37);
-			reservationEventBus.onSingleNodeProgressFromPortalEventBus(progress);
-			verify(eventBus).post(eq(progress));
-		}
 	}
 
 	@Test
 	public void testSingleNodeProgressDetachedEventShouldNotBeForwardedIfHasOtherReservationId() throws Exception {
-		when(reservation.getEntries()).thenReturn(ENTRIES);
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeProgress progress =
-					newSingleNodeProgress(OTHER_RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37);
-			reservationEventBus.onSingleNodeProgressFromPortalEventBus(progress);
-			verify(eventBus, never()).post(eq(progress));
-		}
 	}
 
 	@Test
 	public void testSingleNodeResponseShouldBeForwardedIfHasSameReservationId() throws Exception {
-		when(reservation.getEntries()).thenReturn(ENTRIES);
-		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final SingleNodeResponse response =
-					newSingleNodeResponse(RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37, null);
-			reservationEventBus.onSingleNodeResponseFromPortalEventBus(response);
-			verify(eventBus).post(eq(response));
-		}
 	}
 
 	@Test
 	public void testSingleNodeResponseDetachedEventShouldNotBeForwardedIfHasOtherReservationId() throws Exception {
-		when(reservation.getEntries()).thenReturn(ENTRIES);
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeResponse response =
-					newSingleNodeResponse(OTHER_RESERVATION_ID, RANDOM.nextLong(), nodeUrn, 37, null);
-			reservationEventBus.onSingleNodeResponseFromPortalEventBus(response);
-			verify(eventBus, never()).post(eq(response));
-		}
 	}
 
 	@Test
 	public void testNotificationShouldBeForwardedIfNoNodeIsSet() throws Exception {
-		final NotificationEvent event = newNotificationEvent("hello");
-		reservationEventBus.onNotificationEventFromPortalEventBus(event);
-		verify(eventBus).post(eq(event));
 	}
 
 	@Test
 	public void testNotificationShouldBeForwardedIfNodeIsPartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final NotificationEvent event = newNotificationEvent(nodeUrn, nodeUrn.toString());
-			reservationEventBus.onNotificationEventFromPortalEventBus(event);
-			verify(eventBus).post(eq(event));
-		}
 	}
 
 	@Test
 	public void testNotificationShouldNotBeForwardedIfNodeIsNotPartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final NotificationEvent event = newNotificationEvent(nodeUrn, nodeUrn.toString());
-			reservationEventBus.onNotificationEventFromPortalEventBus(event);
-			verify(eventBus, never()).post(eq(event));
-		}
 	}
 
 	@Test
 	public void testDevicesDetachedEventShouldBeForwardedIfNodePartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final DevicesDetachedEvent event = newDevicesDetachedEvent(nodeUrn);
-			reservationEventBus.onDevicesDetachedEventFromPortalEventBus(event);
-			verify(eventBus).post(eq(event));
-		}
 	}
 
 	@Test
 	public void testDevicesDetachedEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final DevicesDetachedEvent event = newDevicesDetachedEvent(nodeUrn);
-			reservationEventBus.onDevicesDetachedEventFromPortalEventBus(event);
-			verify(eventBus, never()).post(eq(event));
-		}
 	}
 
 	@Test
 	public void testDevicesDetachedEventShouldBeFilteredIfSomeNodesArePartOfReservation() throws Exception {
-
-		final long timestamp = new DateTime().getMillis();
-		final DevicesDetachedEvent event = newDevicesDetachedEvent(timestamp, ALL_NODES);
-		reservationEventBus.onDevicesDetachedEventFromPortalEventBus(event);
-
-		final ArgumentCaptor<DevicesDetachedEvent> captor = ArgumentCaptor.forClass(DevicesDetachedEvent.class);
-		verify(eventBus, times(1)).post(captor.capture());
-		assertTrue(MessagesHelper.equals(captor.getValue(), newDevicesDetachedEvent(timestamp, RESERVED_NODES)));
 	}
 
 	private UpstreamMessageEvent newUpstreamMessageEvent(final NodeUrn sourceNodeUrn, final String message) {
