@@ -74,23 +74,4 @@ public class ReservationEventStoreImplTest {
         verify(eventStore).close();
     }
 
-	@Test
-	public void testIfReservationStartedEventIsPersisted() throws Exception {
-
-		when(eventStore.isEmpty()).thenReturn(true, false);
-
-		final ReservationStartedEvent event = ReservationStartedEvent.newBuilder().setSerializedKey(KEY).build();
-		reservationEventStore.onEvent(event);
-		//noinspection unchecked
-		verify(eventStore).storeEvent(event, event.getClass());
-	}
-
-	@Test
-	public void testIfReservationEndedEventIsPersisted() throws Exception {
-
-		final ReservationEndedEvent event = ReservationEndedEvent.newBuilder().setSerializedKey(KEY).build();
-		reservationEventStore.onEvent(event);
-		//noinspection unchecked
-		verify(eventStore).storeEvent(event, event.getClass());
-	}
 }
