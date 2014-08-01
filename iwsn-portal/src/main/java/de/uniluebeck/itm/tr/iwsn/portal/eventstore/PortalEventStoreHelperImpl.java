@@ -39,20 +39,20 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 	}
 
 	@Override
-	public IEventStore createAndConfigureEventStore(String serializedReservationKey)
+	public IEventStore createAndConfigureEventStore(String baseName)
 			throws IOException, ClassNotFoundException {
-		log.trace("PortalEventStoreHelperImpl.createAndConfigureEventStore({})", serializedReservationKey);
-		return configureEventStore(serializedReservationKey, false);
+		log.trace("PortalEventStoreHelperImpl.createAndConfigureEventStore({})", baseName);
+		return configureEventStore(baseName, false);
 	}
 
 	@Override
-	public IEventStore loadEventStore(String serializedReservationKey, final boolean readOnly) {
-		log.trace("PortalEventStoreHelperImpl.loadEventStore(res={}, readOnly={})", serializedReservationKey, readOnly);
+	public IEventStore loadEventStore(String baseName, final boolean readOnly) {
+		log.trace("PortalEventStoreHelperImpl.loadEventStore(res={}, readOnly={})", baseName, readOnly);
 		try {
-			return configureEventStore(serializedReservationKey, readOnly);
+			return configureEventStore(baseName, readOnly);
 		} catch (IOException e) {
 			throw new InvalidParameterException(
-					"Failed to load event store for reservation " + serializedReservationKey
+					"Failed to load event store for reservation " + baseName
 			);
 		} catch (ClassNotFoundException e) {
 			log.error("Unable to load event store.", e);
@@ -61,11 +61,11 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 	}
 
 	@Override
-	public boolean eventStoreExistsForReservation(String serializedReservationKey) {
-		return new File(getEventStoreBasenameForReservation(serializedReservationKey) + ".data").exists();
+	public boolean eventStoreExistsForReservation(String baseName) {
+		return new File(getEventStoreBasePathForBaseName(baseName) + ".data").exists();
 	}
 
-	private IEventStore configureEventStore(final String serializedReservationKey, boolean readOnly)
+	private IEventStore configureEventStore(final String baseName, boolean readOnly)
 			throws IOException, ClassNotFoundException {
 
 		Map<Class<? extends MessageLite>, Function<? extends MessageLite, byte[]>> serializers = newHashMap();
@@ -109,15 +109,15 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 				new Deserializer(GetChannelPipelinesResponse.getDefaultInstance())
 		);
 
-		String baseName = getEventStoreBasenameForReservation(serializedReservationKey);
+		String basePath = getEventStoreBasePathForBaseName(baseName);
 
 		//noinspection unchecked
-		return new ChronicleBasedEventStore(baseName, serializers, deserializers, readOnly);
+		return new ChronicleBasedEventStore(basePath, serializers, deserializers, readOnly);
 	}
 
 
-	private String getEventStoreBasenameForReservation(String serializedReservationKey) {
-		return portalServerConfig.getEventStorePath() + "/" + serializedReservationKey;
+	private String getEventStoreBasePathForBaseName(String baseName) {
+		return portalServerConfig.getEventStorePath() + "/" + baseName;
 	}
 
 	private class Deserializer implements Function<byte[], MessageLite> {
