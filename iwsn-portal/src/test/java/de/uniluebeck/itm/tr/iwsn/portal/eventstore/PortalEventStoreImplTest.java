@@ -3,10 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 import de.uniluebeck.itm.eventstore.IEventStore;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
-import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
-import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.portal.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PortalEventStoreServiceImplTest {
+public class PortalEventStoreImplTest {
 
 	private static final String SERIALIZED_KEY = "BLABLABLA";
 
@@ -30,8 +27,6 @@ public class PortalEventStoreServiceImplTest {
 			.setSerializedKey(SERIALIZED_KEY)
 			.build();
 
-	@Mock
-    private PortalEventBus portalEventBus;
 
     @Mock
     private ReservationEventStoreFactory reservationEventStoreFactory;
@@ -63,7 +58,7 @@ public class PortalEventStoreServiceImplTest {
         when(portalServerConfig.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
         when(reservationEventStoreFactory.createOrLoad(reservation)).thenReturn(reservationEventStore);
 
-        store = new PortalEventStoreImpl(portalEventBus);
+        store = new PortalEventStoreImpl(portalEventStoreHelper, portalServerConfig);
     }
 
 	@Test
