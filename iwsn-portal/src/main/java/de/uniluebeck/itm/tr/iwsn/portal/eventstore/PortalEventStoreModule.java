@@ -9,14 +9,14 @@ public class PortalEventStoreModule extends PrivateModule {
 	@Override
 	protected void configure() {
 
-		bind(PortalEventStoreService.class).to(PortalEventStoreServiceImpl.class).in(Singleton.class);
+		bind(PortalEventStore.class).to(PortalEventStoreImpl.class).in(Singleton.class);
 		bind(PortalEventStoreHelper.class).to(PortalEventStoreHelperImpl.class).in(Singleton.class);
 		install(new FactoryModuleBuilder()
 						.implement(ReservationEventStore.class, ReservationEventStoreImpl.class)
 						.build(ReservationEventStoreFactory.class)
 		);
 
-		expose(PortalEventStoreService.class);
+		expose(PortalEventStore.class);
 		expose(ReservationEventStoreFactory.class);
 	}
 }

@@ -14,7 +14,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBRestService;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiService;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiService;
-import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreService;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStore;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginServiceConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTracker;
 import de.uniluebeck.itm.tr.iwsn.portal.plugins.PortalPluginService;
@@ -66,7 +66,7 @@ public class PortalServer extends AbstractService {
 
 	private final SchedulerService schedulerService;
 
-	private final PortalEventStoreService portalEventStoreService;
+	private final PortalEventStore portalEventStoreService;
 
 	private final UserRegistrationWebAppService userRegistrationWebAppService;
 
@@ -89,7 +89,7 @@ public class PortalServer extends AbstractService {
 						final RestApiService restApiService,
 						final WiseGuiService wiseGuiService,
 						final PortalPluginService portalPluginService,
-						final PortalEventStoreService portalEventStoreService,
+						final PortalEventStore portalEventStoreService,
 						final UserRegistrationWebAppService userRegistrationWebAppService,
 						final NodeStatusTracker nodeStatusTracker,
 						final EndpointManager endpointManager,

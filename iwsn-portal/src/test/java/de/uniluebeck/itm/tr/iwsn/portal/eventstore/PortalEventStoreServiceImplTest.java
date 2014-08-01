@@ -54,7 +54,7 @@ public class PortalEventStoreServiceImplTest {
     @Mock
     private IEventStore eventStore;
 
-    private PortalEventStoreServiceImpl store;
+    private PortalEventStoreImpl store;
 
 
     @Before
@@ -63,7 +63,7 @@ public class PortalEventStoreServiceImplTest {
         when(portalServerConfig.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
         when(reservationEventStoreFactory.createOrLoad(reservation)).thenReturn(reservationEventStore);
 
-        store = new PortalEventStoreServiceImpl(portalEventBus);
+        store = new PortalEventStoreImpl(portalEventBus);
     }
 
 	@Test
