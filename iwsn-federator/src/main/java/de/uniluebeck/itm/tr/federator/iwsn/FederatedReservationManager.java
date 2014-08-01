@@ -124,7 +124,13 @@ public class FederatedReservationManager extends AbstractService implements Rese
 		throw new RuntimeException("Not yet implemented!");
 	}
 
-	@Nullable
+    @Override
+    public List<Reservation> getReservations(DateTime timestamp) {
+        throw new RuntimeException("Not yet implemented!");
+
+    }
+
+    @Nullable
 	private FederatedReservation getFromCache(final Set<SecretReservationKey> srkSet) {
 		log.trace("FederatedReservationManager.getFromCache({})", srkSet);
 		synchronized (reservationMap) {
