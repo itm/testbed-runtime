@@ -64,18 +64,6 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
 
 	@Subscribe
-	public void onEvent(final ReservationStartedEvent event) {
-		if (isEmpty()) {
-			storeEvent(event);
-		}
-	}
-
-	@Subscribe
-	public void onEvent(final ReservationEndedEvent event) {
-		storeEvent(event);
-	}
-
-	@Subscribe
 	public void onEvent(final DevicesAttachedEvent event) {
 		storeEvent(event);
 	}
