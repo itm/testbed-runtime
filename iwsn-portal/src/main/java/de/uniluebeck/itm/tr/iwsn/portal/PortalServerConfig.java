@@ -32,6 +32,30 @@ public class PortalServerConfig {
 	@Named(EVENTSTORE_PATH)
 	private String eventStorePath;
 
+
+    @PropConf(
+            usage = "Name of the event store file name for events not belonging to a reservation",
+            example = "events-without-reservation",
+            defaultValue = "events-without-reservation"
+    )
+    public static final String PORTAL_EVENTSTORE_NAME = "portal.eventstore.name";
+
+    @Inject
+    @Named(PORTAL_EVENTSTORE_NAME)
+    private String portalEventStoreName;
+
+
+    @PropConf(
+            usage = "Enables / disables persistence for events not belonging to any reservation (portal event store)",
+            example = "true",
+            defaultValue = "false"
+    )
+    public static final String PORTAL_EVENTSTORE_ENABLED = "portal.eventstore.enabled";
+
+    @Inject
+    @Named(PORTAL_EVENTSTORE_ENABLED)
+    private boolean getPortalEventStoreEnabled;
+
 	@PropConf(
 			usage = "Additional key/value pairs to be returned by SessionManagement.getConfiguration(). "
 					+ "Multiple comma-separated values are allowed per key.",
@@ -60,6 +84,10 @@ public class PortalServerConfig {
 	public String getEventStorePath() {
 		return eventStorePath;
 	}
+
+    public String getPortalEventstoreName() {return portalEventStoreName;}
+
+    public boolean isPortalEventStoreEnabled() {return getPortalEventStoreEnabled;}
 
 	public Multimap<String, String> getConfigurationOptions() {
 		return configurationOptions == null ? HashMultimap.<String, String>create() : configurationOptions;
