@@ -145,19 +145,19 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
     public CloseableIterator<IEventContainer> getEventsBetweenTimestamps(long fromTime, long toTime)
             throws IOException {
         //noinspection unchecked
-        return eventStore.getEventsBetweenTimestamps(fromTime, toTime);
+        return new EventIterator(eventStore.getEventsBetweenTimestamps(fromTime, toTime),fromTime,toTime);
     }
 
     @Override
     public CloseableIterator<IEventContainer> getEventsFromTimestamp(long fromTime) throws IOException {
         //noinspection unchecked
-        return eventStore.getEventsFromTimestamp(fromTime);
+        return new EventIterator(eventStore.getEventsFromTimestamp(fromTime), fromTime, Long.MAX_VALUE);
     }
 
     @Override
     public CloseableIterator<IEventContainer> getAllEvents() throws IOException {
         //noinspection unchecked
-        return eventStore.getAllEvents();
+        return new EventIterator(eventStore.getAllEvents());
     }
 
     @Override
@@ -198,6 +198,9 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
     }
 
 
+    /**
+     * The EventIterator extends the event store iterator by adding the ReservationStated- and -EndedEvent to the event stream if necessary.
+     */
     private class EventIterator implements CloseableIterator<IEventContainer> {
 
         private final CloseableIterator<IEventContainer> underlyingIterator;
