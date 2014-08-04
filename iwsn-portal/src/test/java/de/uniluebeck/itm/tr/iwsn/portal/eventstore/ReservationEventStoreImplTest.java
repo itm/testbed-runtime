@@ -9,7 +9,6 @@ import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
-import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.After;
@@ -29,9 +28,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationEventStoreImplTest {
 
-	private static final String KEY = "abcd";
+    private static final String KEY = "abcd";
 
-	@Mock
+    @Mock
     private Reservation reservation;
 
     @Mock
@@ -62,7 +61,7 @@ public class ReservationEventStoreImplTest {
         when(portalServerConfig.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
         when(reservationManager.getReservation(KEY)).thenReturn(reservation);
 
-		when(helper.eventStoreExistsForReservation(KEY)).thenReturn(false);
+        when(helper.eventStoreExistsForReservation(KEY)).thenReturn(false);
         when(helper.createAndConfigureEventStore(KEY)).thenReturn(eventStore);
         when(eventStore.getAllEvents()).thenReturn(storeIterator);
         when(eventStore.getEventsBetweenTimestamps(any(Long.class), any(Long.class))).thenReturn(storeIterator);
@@ -70,15 +69,15 @@ public class ReservationEventStoreImplTest {
         when(storeIterator.hasNext()).thenReturn(false);
 
         reservationEventStore = new ReservationEventStoreImpl(helper, reservation);
-		reservationEventStore.startAndWait();
-	}
+        reservationEventStore.startAndWait();
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		reservationEventStore.stopAndWait();
-	}
+    @After
+    public void tearDown() throws Exception {
+        reservationEventStore.stopAndWait();
+    }
 
-	@Test
+    @Test
     public void testIfBusObserversAreRegistered() throws Exception {
 
         reservationEventStore.startAndWait();
@@ -91,7 +90,7 @@ public class ReservationEventStoreImplTest {
     }
 
     @Test
-    public void testEventIteratorNotReturnsReservationEndedEventBeforeActualEnd() throws Exception{
+    public void testEventIteratorNotReturnsReservationEndedEventBeforeActualEnd() throws Exception {
         Interval reservationInterval = new Interval(DateTime.now().minusHours(2), DateTime.now().plusHours(1));
         when(reservation.getInterval()).thenReturn(reservationInterval);
 
@@ -108,7 +107,7 @@ public class ReservationEventStoreImplTest {
     }
 
     @Test
-    public void testEventIteratorReturnsReservationEndedEventAfterActualEnd() throws Exception{
+    public void testEventIteratorReturnsReservationEndedEventAfterActualEnd() throws Exception {
         Interval reservationInterval = new Interval(DateTime.now().minusHours(2), DateTime.now().minusMinutes(10));
         when(reservation.getInterval()).thenReturn(reservationInterval);
 
@@ -121,7 +120,7 @@ public class ReservationEventStoreImplTest {
     }
 
     @Test
-    public void testEventIteratorDidNotReturnsReservationEndedEventIfOutsideRange() throws  Exception {
+    public void testEventIteratorDidNotReturnsReservationEndedEventIfOutsideRange() throws Exception {
         Interval reservationInterval = new Interval(DateTime.now().minusHours(2), DateTime.now().minusMinutes(10));
         when(reservation.getInterval()).thenReturn(reservationInterval);
         long from = reservationInterval.getStartMillis();
