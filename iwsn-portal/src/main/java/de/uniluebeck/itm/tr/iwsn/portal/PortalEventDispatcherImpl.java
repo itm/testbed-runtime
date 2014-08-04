@@ -13,7 +13,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -103,7 +102,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         if (reservation.isPresent()) {
             reservation.get().getEventBus().post(event);
         } else {
-           storeEventToPortalEventStore(event, event.getTimestamp());
+            storeEventToPortalEventStore(event, event.getTimestamp());
         }
     }
 
@@ -145,7 +144,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
             if (reservation.isPresent()) {
                 reservation.get().getEventBus().post(event);
             } else {
-               storeEventToPortalEventStore(event, event.getTimestamp());
+                storeEventToPortalEventStore(event, event.getTimestamp());
             }
         } else {
             List<Reservation> reservations = reservationManager.getReservations(new DateTime(event.getTimestamp()));
@@ -179,7 +178,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         if (reservation != null) {
             reservation.getEventBus().post(response);
         } else {
-           storeEventToPortalEventStore(response);
+            storeEventToPortalEventStore(response);
         }
     }
 
@@ -191,7 +190,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         if (reservation != null) {
             reservation.getEventBus().post(event);
         } else {
-      storeEventToPortalEventStore(event);
+            storeEventToPortalEventStore(event);
         }
     }
 
@@ -238,6 +237,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
             log.error("Failed to store event", e);
         }
     }
+
     private Optional<Reservation> findNextReservation(Set<NodeUrn> eventNodeUrns, Set<NodeUrn> nodeUrnsWithoutReservation, DateTime time) {
         eventNodeUrns.removeAll(nodeUrnsWithoutReservation);
 
