@@ -81,7 +81,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
             if (!reservedNodeUrnsOfEvent.isEmpty()) {
                 reservation.get().getEventBus().post(newDevicesAttachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
             }
-            eventNodeUrns.removeAll(reservedNodeUrnsOfEvent);
+            eventNodeUrns.removeAll(Sets.newHashSet(reservedNodeUrnsOfEvent));
             reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
         }
 
@@ -124,7 +124,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
                 reservation.get().getEventBus().post(newDevicesDetachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
             }
 
-            eventNodeUrns.removeAll(reservedNodeUrnsOfEvent);
+            eventNodeUrns.removeAll(Sets.newHashSet(reservedNodeUrnsOfEvent));
             reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
 
         }
@@ -221,6 +221,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
     private void storeEventToPortalEventStore(final MessageLite event, long timestamp) {
         log.trace("PortalEventDispatcherImpl.storeEventToPortalEventStore({})", event);
         try {
+            //noinspection unchecked
             eventStore.storeEvent(event, event.getClass(), timestamp);
         } catch (IOException e) {
             log.error("Failed to store event", e);
@@ -230,6 +231,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
     private void storeEventToPortalEventStore(final MessageLite event) {
         log.trace("PortalEventDispatcherImpl.storeEventToPortalEventStore({})", event);
         try {
+            //noinspection unchecked
             eventStore.storeEvent(event, event.getClass());
         } catch (IOException e) {
             log.error("Failed to store event", e);
