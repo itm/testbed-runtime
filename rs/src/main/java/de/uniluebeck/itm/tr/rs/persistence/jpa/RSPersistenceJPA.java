@@ -278,7 +278,7 @@ public class RSPersistenceJPA implements RSPersistence {
 		@SuppressWarnings("unchecked")
 		final List<ReservationDataInternal> resultList = (List<ReservationDataInternal>) em.get()
 				.createNamedQuery(ReservationDataInternal.QGetByNodeAndTime.QUERY_NAME)
-				.setParameter(ReservationDataInternal.QGetByNodeAndTime.P_TIMESTAMP, timestamp)
+				.setParameter(ReservationDataInternal.QGetByNodeAndTime.P_TIMESTAMP, timestamp.getMillis())
 				.setParameter(ReservationDataInternal.QGetByNodeAndTime.P_NODE_URN, nodeUrn)
 				.getResultList();
 
