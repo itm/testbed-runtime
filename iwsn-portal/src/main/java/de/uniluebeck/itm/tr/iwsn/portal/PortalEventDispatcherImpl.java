@@ -87,7 +87,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         }
 
         if (!nodeUrnsWithoutReservation.isEmpty()) {
-            storeEventToPortalEventStore(event);
+            storeEventToPortalEventStore(event, event.getTimestamp());
         }
     }
 
@@ -103,7 +103,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         if (reservation.isPresent()) {
             reservation.get().getEventBus().post(event);
         } else {
-           storeEventToPortalEventStore(event);
+           storeEventToPortalEventStore(event, event.getTimestamp());
         }
     }
 
@@ -130,7 +130,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
 
         }
         if (!nodeUrnsWithoutReservation.isEmpty()) {
-            storeEventToPortalEventStore(event);
+            storeEventToPortalEventStore(event, event.getTimestamp());
         }
 
     }
@@ -145,7 +145,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
             if (reservation.isPresent()) {
                 reservation.get().getEventBus().post(event);
             } else {
-               storeEventToPortalEventStore(event);
+               storeEventToPortalEventStore(event, event.getTimestamp());
             }
         } else {
             List<Reservation> reservations = reservationManager.getReservations(new DateTime(event.getTimestamp()));
@@ -154,7 +154,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
             }
 
             if (reservations.isEmpty()) {
-                storeEventToPortalEventStore(event);
+                storeEventToPortalEventStore(event, event.getTimestamp());
             }
         }
     }
@@ -216,6 +216,16 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
             reservation.getEventBus().post(response);
         } else {
             storeEventToPortalEventStore(response);
+        }
+    }
+
+    private void storeEventToPortalEventStore(final MessageLite event, long timestamp) {
+        // TODO enable by config
+        log.trace("PortalEventDispatcherImpl.storeEventToPortalEventStore({})", event);
+        try {
+            eventStore.storeEvent(event, event.getClass(), timestamp);
+        } catch (IOException e) {
+            log.error("Failed to store event", e);
         }
     }
 

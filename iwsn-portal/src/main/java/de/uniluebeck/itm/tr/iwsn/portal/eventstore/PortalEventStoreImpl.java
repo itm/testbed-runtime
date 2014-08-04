@@ -2,7 +2,6 @@ package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
 import de.uniluebeck.itm.eventstore.IEventContainer;
 import de.uniluebeck.itm.eventstore.IEventStore;
@@ -50,30 +49,47 @@ class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
         } catch (IOException e) {
             log.warn("Exception on closing event store.", e);
         }
-         try {
-             notifyStopped();
-         } catch (Exception e) {
-             notifyFailed(e);
-         }
+        try {
+            notifyStopped();
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
     }
 
     @Override
     public void storeEvent(@Nonnull Object o) throws IOException, UnsupportedOperationException, IllegalArgumentException {
+        //noinspection unchecked
         eventStore.storeEvent(o);
     }
 
     @Override
+    public void storeEvent(@Nonnull Object object, long timestamp) throws IOException, UnsupportedOperationException, IllegalArgumentException {
+        //noinspection unchecked
+        eventStore.storeEvent(object, timestamp);
+    }
+
+    @Override
     public void storeEvent(@Nonnull Object o, Class aClass) throws IOException, UnsupportedOperationException, IllegalArgumentException {
+        //noinspection unchecked
         eventStore.storeEvent(o, aClass);
     }
 
     @Override
+    public void storeEvent(@Nonnull Object object, Class type, long timestamp) throws IOException, UnsupportedOperationException, IllegalArgumentException {
+        //noinspection unchecked
+        eventStore.storeEvent(object, type, timestamp);
+    }
+
+
+    @Override
     public CloseableIterator<IEventContainer> getEventsBetweenTimestamps(long from, long to) throws IOException {
+        //noinspection unchecked
         return eventStore.getEventsBetweenTimestamps(from, to);
     }
 
     @Override
     public CloseableIterator<IEventContainer> getEventsFromTimestamp(long from) throws IOException {
+        //noinspection unchecked
         return eventStore.getEventsFromTimestamp(from);
     }
 

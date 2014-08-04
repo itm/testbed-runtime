@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
+import de.uniluebeck.itm.eventstore.DefaultEventContainer;
 import de.uniluebeck.itm.eventstore.IEventContainer;
 import de.uniluebeck.itm.eventstore.IEventStore;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
@@ -65,22 +66,22 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
 	@Subscribe
 	public void onEvent(final DevicesAttachedEvent event) {
-		storeEvent(event);
+		storeEvent(event, event.getTimestamp());
 	}
 
 	@Subscribe
 	public void onEvent(final DevicesDetachedEvent event) {
-		storeEvent(event);
+		storeEvent(event, event.getTimestamp());
 	}
 
 	@Subscribe
 	public void onEvent(final UpstreamMessageEvent event) {
-		storeEvent(event);
+		storeEvent(event, event.getTimestamp());
 	}
 
 	@Subscribe
 	public void onEvent(final NotificationEvent event) {
-		storeEvent(event);
+		storeEvent(event, event.getTimestamp());
 	}
 
 	@Subscribe
@@ -107,19 +108,40 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 		}
 	}
 
+    private void storeEvent(final MessageLite event, long timestamp) {
+        log.trace("ReservationEventStoreImpl.storeEvent({})", event);
+        try {
+            storeEvent(event, event.getClass(), timestamp);
+        } catch (IOException e) {
+            log.error("Failed to store event", e);
+        }
+    }
+
 	@Override
 	public void storeEvent(@Nonnull Object object) throws IOException {
 		//noinspection unchecked
 		eventStore.storeEvent(object);
 	}
 
-	@Override
+    @Override
+    public void storeEvent(@Nonnull Object object, long timestamp) throws IOException, UnsupportedOperationException, IllegalArgumentException {
+        //noinspection unchecked
+        eventStore.storeEvent(object, timestamp);
+    }
+
+    @Override
 	public void storeEvent(@Nonnull Object object, Class type) throws IOException {
 		//noinspection unchecked
 		eventStore.storeEvent(object, type);
 	}
 
-	@Override
+    @Override
+    public void storeEvent(@Nonnull Object object, Class type, long timestamp) throws IOException, UnsupportedOperationException, IllegalArgumentException {
+        //noinspection unchecked
+        eventStore.storeEvent(object, type, timestamp);
+    }
+
+    @Override
 	public CloseableIterator<IEventContainer> getEventsBetweenTimestamps(long fromTime, long toTime)
 			throws IOException {
 		//noinspection unchecked
@@ -166,12 +188,60 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 	@Override
 	public CloseableIterator<IEventContainer> getEvents() throws IOException {
 		//noinspection unchecked
-		return eventStore.getAllEvents();
+		return new EventIterator(eventStore.getAllEvents());
 	}
 
 	@Override
 	public CloseableIterator<IEventContainer> getEventsBetween(long startTime, long endTime) throws IOException {
 		//noinspection unchecked
-		return eventStore.getEventsBetweenTimestamps(startTime, endTime);
+		return new EventIterator(eventStore.getEventsBetweenTimestamps(startTime, endTime), startTime, endTime);
 	}
+
+
+    private class EventIterator implements CloseableIterator<IEventContainer> {
+
+        private final CloseableIterator<IEventContainer> underlyingIterator;
+        private ReservationStartedEvent reservationStartedEvent;
+        private ReservationEndedEvent reservationEndedEvent;
+
+        EventIterator(CloseableIterator<IEventContainer> underlyingIterator) {
+            this(underlyingIterator, reservation.getInterval().getStartMillis(), reservation.getInterval().getEndMillis());
+        }
+        EventIterator(CloseableIterator<IEventContainer> underlyingIterator, final long startTime, final long endTime) {
+            this.underlyingIterator = underlyingIterator;
+
+            // TODO create reservationStartedEvent and reservationEndedEvent is neccessary
+
+        }
+
+        @Override
+        public void close() throws IOException {
+            underlyingIterator.close();;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return underlyingIterator.hasNext() || reservationStartedEvent != null || reservationEndedEvent != null;
+        }
+
+        @Override
+        public IEventContainer next() {
+            IEventContainer container = null;
+            if (reservationStartedEvent != null) {
+                container = new DefaultEventContainer(reservationStartedEvent, reservation.getInterval().getStartMillis());
+                reservationStartedEvent = null;
+            } else if (underlyingIterator.hasNext()) {
+                return underlyingIterator.next();
+            } else {
+                container = new DefaultEventContainer(reservationEndedEvent, reservation.getInterval().getEndMillis());
+                reservationEndedEvent = null;
+            }
+            return container;
+        }
+
+        @Override
+        public void remove() {
+            underlyingIterator.remove();
+        }
+    }
 }
