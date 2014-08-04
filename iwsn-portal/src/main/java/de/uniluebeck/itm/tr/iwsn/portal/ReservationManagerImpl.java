@@ -283,6 +283,9 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     @Override
     public Reservation getReservation(final String secretReservationKeysBase64)
             throws ReservationUnknownException {
+        if (secretReservationKeysBase64 == null || secretReservationKeysBase64.length() == 0) {
+            return null;
+        }
         return getReservation(deserialize(secretReservationKeysBase64));
     }
 

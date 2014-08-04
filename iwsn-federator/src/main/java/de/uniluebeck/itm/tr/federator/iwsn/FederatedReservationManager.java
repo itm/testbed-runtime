@@ -116,6 +116,9 @@ public class FederatedReservationManager extends AbstractService implements Rese
 	public synchronized Reservation getReservation(final String jsonSerializedSecretReservationKeys)
 			throws ReservationUnknownException {
 		log.trace("FederatedReservationManager.getReservation({})", jsonSerializedSecretReservationKeys);
+        if (jsonSerializedSecretReservationKeys == null || jsonSerializedSecretReservationKeys.length() == 0) {
+            return null;
+        }
 		return getFederatedReservation(deserialize(jsonSerializedSecretReservationKeys));
 	}
 
