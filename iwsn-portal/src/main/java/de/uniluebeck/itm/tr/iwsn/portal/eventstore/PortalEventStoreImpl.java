@@ -59,24 +59,36 @@ class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
     @Override
     public void storeEvent(@Nonnull Object o) throws IOException, UnsupportedOperationException, IllegalArgumentException {
         //noinspection unchecked
+        if (!isRunning()) {
+            return;
+        }
         eventStore.storeEvent(o);
     }
 
     @Override
     public void storeEvent(@Nonnull Object object, long timestamp) throws IOException, UnsupportedOperationException, IllegalArgumentException {
         //noinspection unchecked
+        if (!isRunning()) {
+            return;
+        }
         eventStore.storeEvent(object, timestamp);
     }
 
     @Override
     public void storeEvent(@Nonnull Object o, Class aClass) throws IOException, UnsupportedOperationException, IllegalArgumentException {
         //noinspection unchecked
+        if (!isRunning()) {
+            return;
+        }
         eventStore.storeEvent(o, aClass);
     }
 
     @Override
     public void storeEvent(@Nonnull Object object, Class type, long timestamp) throws IOException, UnsupportedOperationException, IllegalArgumentException {
         //noinspection unchecked
+        if (!isRunning()) {
+            return;
+        }
         eventStore.storeEvent(object, type, timestamp);
     }
 

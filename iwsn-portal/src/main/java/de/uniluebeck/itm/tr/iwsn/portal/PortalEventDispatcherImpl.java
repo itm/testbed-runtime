@@ -219,7 +219,6 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
     }
 
     private void storeEventToPortalEventStore(final MessageLite event, long timestamp) {
-        // TODO enable by config
         log.trace("PortalEventDispatcherImpl.storeEventToPortalEventStore({})", event);
         try {
             eventStore.storeEvent(event, event.getClass(), timestamp);
@@ -229,7 +228,6 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
     }
 
     private void storeEventToPortalEventStore(final MessageLite event) {
-        // TODO enable by config
         log.trace("PortalEventDispatcherImpl.storeEventToPortalEventStore({})", event);
         try {
             eventStore.storeEvent(event, event.getClass());
