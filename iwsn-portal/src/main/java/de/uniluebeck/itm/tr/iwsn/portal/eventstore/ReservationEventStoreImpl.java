@@ -201,8 +201,8 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
     private class EventIterator implements CloseableIterator<IEventContainer> {
 
         private final CloseableIterator<IEventContainer> underlyingIterator;
-        private ReservationStartedEvent reservationStartedEvent;
-        private ReservationEndedEvent reservationEndedEvent;
+        private boolean shouldCreateStartedEvent;
+        private boolean shouldCreateEndedEvent;
 
         EventIterator(CloseableIterator<IEventContainer> underlyingIterator) {
             this(underlyingIterator, reservation.getInterval().getStartMillis(), reservation.getInterval().getEndMillis());
@@ -210,39 +210,37 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
         EventIterator(CloseableIterator<IEventContainer> underlyingIterator, final long startTime, final long endTime) {
             this.underlyingIterator = underlyingIterator;
-
-            if (startTime <= reservation.getInterval().getStartMillis()) {
-                reservationStartedEvent = ReservationStartedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build();
-            }
-            if (endTime >= reservation.getInterval().getEndMillis()) {
-                reservationEndedEvent = ReservationEndedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build();
-            }
+            shouldCreateStartedEvent = (startTime <= reservation.getInterval().getStartMillis());
+            shouldCreateEndedEvent = (endTime >= reservation.getInterval().getEndMillis());
         }
 
         @Override
         public void close() throws IOException {
             underlyingIterator.close();
-            ;
         }
 
         @Override
         public boolean hasNext() {
-            return underlyingIterator.hasNext() || reservationStartedEvent != null || reservationEndedEvent != null;
+            return underlyingIterator.hasNext() || shouldCreateStartedEvent || shouldCreateEndedEventNow();
         }
 
         @Override
         public IEventContainer next() {
             IEventContainer container = null;
-            if (reservationStartedEvent != null) {
-                container = new DefaultEventContainer(reservationStartedEvent, reservation.getInterval().getStartMillis());
-                reservationStartedEvent = null;
+            if (shouldCreateStartedEvent) {
+                container = new DefaultEventContainer(ReservationStartedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build(), reservation.getInterval().getStartMillis());
+                shouldCreateStartedEvent = false;
             } else if (underlyingIterator.hasNext()) {
                 return underlyingIterator.next();
-            } else {
-                container = new DefaultEventContainer(reservationEndedEvent, reservation.getInterval().getEndMillis());
-                reservationEndedEvent = null;
+            } else if (shouldCreateEndedEventNow()) {
+                container = new DefaultEventContainer(ReservationEndedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build(), reservation.getInterval().getEndMillis());
+                shouldCreateEndedEvent = false;
             }
             return container;
+        }
+
+        private boolean shouldCreateEndedEventNow() {
+            return shouldCreateEndedEvent && !reservation.getInterval().getEnd().isAfterNow();
         }
 
         @Override
