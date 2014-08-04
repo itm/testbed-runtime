@@ -228,11 +228,13 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
         public IEventContainer next() {
             IEventContainer container = null;
             if (shouldCreateStartedEvent) {
+                //noinspection unchecked
                 container = new DefaultEventContainer(ReservationStartedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build(), reservation.getInterval().getStartMillis());
                 shouldCreateStartedEvent = false;
             } else if (underlyingIterator.hasNext()) {
                 return underlyingIterator.next();
             } else if (shouldCreateEndedEventNow()) {
+                //noinspection unchecked
                 container = new DefaultEventContainer(ReservationEndedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build(), reservation.getInterval().getEndMillis());
                 shouldCreateEndedEvent = false;
             }
