@@ -58,19 +58,13 @@ portal.configuration.options =
 #portal.gateway_port = 8880
 
 # Usage: Path to a directory which Testbed Runtime will check for plugins
-portal.plugin_directory = 
-
-# Usage: The password of the Google account to be used (only if GCAL is used)
-rs.gcal.password = 
-
-# Usage: The username of the Google account to be used (only if GCAL is used)
-rs.gcal.username = 
+portal.plugin_directory =
 
 # Usage: Persistence layer configuration .properties file
 rs.jpa.properties = 
 
 # Usage: Persistence layer to use
-# Example: GCAL/JPA/IN_MEMORY
+# Example: JPA/IN_MEMORY
 # Default value: IN_MEMORY
 #rs.type = IN_MEMORY
 

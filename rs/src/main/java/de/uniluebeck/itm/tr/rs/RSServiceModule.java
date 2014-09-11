@@ -8,7 +8,6 @@ import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import de.uniluebeck.itm.tr.rs.persistence.gcal.GCalRSPersistenceModule;
 import de.uniluebeck.itm.tr.rs.persistence.inmemory.InMemoryRSPersistenceModule;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.RSPersistenceJPAModule;
 import eu.wisebed.api.v3.rs.RS;
@@ -41,10 +40,6 @@ public class RSServiceModule extends PrivateModule {
 		requireBinding(EventBusService.class);
 
 		switch (rsServiceConfig.getRsType()) {
-			case GCAL:
-				install(new GCalRSPersistenceModule());
-				bindToSingleUrnPrefixRS();
-				break;
 			case IN_MEMORY:
 				install(new InMemoryRSPersistenceModule());
 				bindToSingleUrnPrefixRS();

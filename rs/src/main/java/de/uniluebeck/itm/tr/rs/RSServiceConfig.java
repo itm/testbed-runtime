@@ -11,7 +11,7 @@ public class RSServiceConfig {
 
 	@PropConf(
 			usage = "Persistence layer to use",
-			example = "GCAL/JPA/IN_MEMORY",
+			example = "JPA/IN_MEMORY",
 			defaultValue = "IN_MEMORY"
 	)
 	public static final String RS_TYPE = "rs.type";
@@ -30,37 +30,11 @@ public class RSServiceConfig {
 	@Named(RS_JPA_PROPERTIES)
 	private Properties rsJPAProperties;
 
-	@PropConf(
-			usage = "The username of the Google account to be used (only if GCAL is used)"
-	)
-	public static final String RS_GCAL_USERNAME = "rs.gcal.username";
-
-	@Inject(optional = true)
-	@Named(RS_GCAL_USERNAME)
-	private String rsGcalUsername;
-
-	@PropConf(
-			usage = "The password of the Google account to be used (only if GCAL is used)"
-	)
-	public static final String RS_GCAL_PASSWORD = "rs.gcal.password";
-
-	@Inject(optional = true)
-	@Named(RS_GCAL_PASSWORD)
-	private String rsGcalPassword;
-
 	public Properties getRsJPAProperties() {
 		return rsJPAProperties;
 	}
 
 	public RSType getRsType() {
 		return rsType;
-	}
-
-	public String getRsGcalPassword() {
-		return rsGcalPassword;
-	}
-
-	public String getRsGcalUsername() {
-		return rsGcalUsername;
 	}
 }
