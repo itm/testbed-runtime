@@ -40,6 +40,7 @@ import eu.wisebed.api.v3.rs.RSFault;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,7 +158,16 @@ public class RSPersistenceJPA implements RSPersistence {
 		} catch (NoResultException e) {
 			throw createRSUnknownSecretReservationKeyFault("Reservation not found", srk);
 		}
-		reservationData.delete();
+		final long nowMillis = DateTime.now(DateTimeZone.forTimeZone(this.localTimeZone)).getMillis();
+
+		if (reservationData.getConfidentialReservationData().getToDate() < nowMillis) {
+			final String msg = "Reservation time span lies in the past and can't therefore be cancelled anymore";
+			final RSFault faultInfo = new RSFault();
+			faultInfo.setMessage(msg);
+			throw new RSFault_Exception(msg, faultInfo);
+		}
+
+		reservationData.getConfidentialReservationData().setCancelledDate(nowMillis);
 		em.get().persist(reservationData);
 
 		try {
@@ -173,34 +183,73 @@ public class RSPersistenceJPA implements RSPersistence {
 	public List<ConfidentialReservationData> getReservations(@Nullable final DateTime from,
 															 @Nullable final DateTime to,
 															 @Nullable final Integer offset,
-															 @Nullable final Integer amount) throws RSFault_Exception {
+															 @Nullable final Integer amount,
+															 @Nullable Boolean showCancelled)
+			throws RSFault_Exception {
+
+		if (showCancelled == null) {
+			showCancelled = true; // default value
+		}
 
 		Query query;
 
 		if (from == null && to == null) {
 
-			query = em.get().createNamedQuery(ReservationDataInternal.QGetAll.QUERY_NAME);
+			if (showCancelled) {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetAll.QUERY_NAME);
+
+			} else {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetAllWithoutCancelled.QUERY_NAME);
+			}
 
 		} else if (from == null && to != null) {
 
 			DateTime localTo = to.toDateTime(forTimeZone(localTimeZone));
-			query = em.get().createNamedQuery(ReservationDataInternal.QGetTo.QUERY_NAME);
-			query.setParameter(ReservationDataInternal.QGetTo.P_TO, localTo.getMillis());
+			if (showCancelled) {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetTo.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetTo.P_TO, localTo.getMillis());
+
+			} else {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetToWithoutCancelled.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetToWithoutCancelled.P_TO, localTo.getMillis());
+			}
+
 
 		} else if (from != null && to == null) {
 
 			DateTime localFrom = from.toDateTime(forTimeZone(localTimeZone));
-			query = em.get().createNamedQuery(ReservationDataInternal.QGetFrom.QUERY_NAME);
-			query.setParameter(ReservationDataInternal.QGetFrom.P_FROM, localFrom.getMillis());
+			if (showCancelled) {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetFrom.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetFrom.P_FROM, localFrom.getMillis());
+
+			} else {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetFromWithoutCancelled.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetFromWithoutCancelled.P_FROM, localFrom.getMillis());
+			}
 
 		} else {
 
 			DateTime localFrom = from.toDateTime(forTimeZone(localTimeZone));
 			DateTime localTo = to.toDateTime(forTimeZone(localTimeZone));
 
-			query = em.get().createNamedQuery(ReservationDataInternal.QGetByInterval.QUERY_NAME);
-			query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, localFrom.getMillis());
-			query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, localTo.getMillis());
+			if (showCancelled) {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetByInterval.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, localFrom.getMillis());
+				query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, localTo.getMillis());
+
+			} else {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetByIntervalWithoutCancelled.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetByIntervalWithoutCancelled.P_FROM, localFrom.getMillis());
+				query.setParameter(ReservationDataInternal.QGetByIntervalWithoutCancelled.P_TO, localTo.getMillis());
+			}
 		}
 
 		if (offset != null) {

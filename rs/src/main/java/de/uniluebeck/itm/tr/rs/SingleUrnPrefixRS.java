@@ -77,12 +77,19 @@ public class SingleUrnPrefixRS implements RS {
 			@Nullable final DateTime from,
 			@Nullable final DateTime to,
 			@Nullable final Integer offset,
-			@Nullable final Integer amount)
+			@Nullable final Integer amount,
+			@Nullable final Boolean showCancelled)
 			throws RSFault_Exception {
 
-		List<PublicReservationData> res = convertToPublic(persistence.getReservations(from, to, offset, amount));
+		List<PublicReservationData> res = convertToPublic(
+				persistence.getReservations(from, to, offset, amount, showCancelled)
+		);
 
-		log.debug("Found " + res.size() + " reservations from " + from + " until " + to);
+		log.debug(
+				"Found " + res.size() + " reservations from " + from + " until " + to + " (showCancelled={})",
+				showCancelled
+		);
+
 		return res;
 	}
 
@@ -92,15 +99,17 @@ public class SingleUrnPrefixRS implements RS {
 			@Nullable final DateTime from,
 			@Nullable final DateTime to,
 			@Nullable final Integer offset,
-			@Nullable final Integer amount)
+			@Nullable final Integer amount,
+			@Nullable final Boolean showCancelled)
 			throws AuthorizationFault, RSFault_Exception, AuthenticationFault {
 
 		checkNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null!");
 		final SecretAuthenticationKey relevantSAK = getRelevantSAK(secretAuthenticationKeys);
 		checkValidityWithSNAA(relevantSAK);
 
-		List<ConfidentialReservationData> allUsersInInterval = persistence.getReservations(from, to, offset, amount);
-		List<ConfidentialReservationData> authenticatedUserInInterval = newArrayList();
+		final List<ConfidentialReservationData> allUsersInInterval =
+				persistence.getReservations(from, to, offset, amount, showCancelled);
+		final List<ConfidentialReservationData> authenticatedUserInInterval = newArrayList();
 
 		for (ConfidentialReservationData crd : allUsersInInterval) {
 			boolean sameUser = crd.getUsername().equals(relevantSAK.getUsername());
@@ -150,7 +159,7 @@ public class SingleUrnPrefixRS implements RS {
 
 		for (SecretReservationKey relevantSRK : relevantSRKs) {
 			ConfidentialReservationData reservationToDelete = persistence.getReservation(relevantSRK);
-			checkNotAlreadyStarted(reservationToDelete);
+			checkNotInPast(reservationToDelete);
 			persistence.deleteReservation(relevantSRK);
 			log.debug("Deleted reservation {}", reservationToDelete);
 			final String serializedKey = ReservationHelper.serializeSRKs(relevantSRKs);
@@ -194,9 +203,9 @@ public class SingleUrnPrefixRS implements RS {
 		return srks;
 	}
 
-	private void checkNotAlreadyStarted(final ConfidentialReservationData reservation) throws RSFault_Exception {
-		if (reservation.getFrom().isBeforeNow()) {
-			final String msg = "You are not allowed to delete reservations that have already started.";
+	private void checkNotInPast(final ConfidentialReservationData reservation) throws RSFault_Exception {
+		if (reservation.getTo().isBeforeNow()) {
+			final String msg = "You are not allowed to delete reservations that have already ended.";
 			throw createRSFault_Exception(msg);
 		}
 	}
@@ -346,7 +355,7 @@ public class SingleUrnPrefixRS implements RS {
 			throws ReservationConflictFault_Exception, RSFault_Exception {
 
 		Set<NodeUrn> reservedNodeUrns = newHashSet();
-		for (PublicReservationData res : getReservations(from, to, offset, amount)) {
+		for (PublicReservationData res : getReservations(from, to, offset, amount, false)) {
 			reservedNodeUrns.addAll(res.getNodeUrns());
 		}
 

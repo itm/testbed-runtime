@@ -243,22 +243,23 @@ public class SingleUrnPrefixRSTest {
 				.thenReturn(newHashSet(new NodeUrn("urn:local:0xcbe4")));
 
 		when(persistence.addReservation(
-				Matchers.<List<NodeUrn>>any(),
-				eq(from),
-				eq(to),
-				eq(USER1_USERNAME),
-				eq(URN_PREFIX),
-				eq("Hello, World"),
-				Matchers.<List<KeyValuePair>>any()
-		)
+						Matchers.<List<NodeUrn>>any(),
+						eq(from),
+						eq(to),
+						eq(USER1_USERNAME),
+						eq(URN_PREFIX),
+						eq("Hello, World"),
+						Matchers.<List<KeyValuePair>>any()
+				)
 		).thenReturn(confidentialReservationData);
 
 		when(persistence.getReservations(
-				Matchers.<DateTime>any(),
-				Matchers.<DateTime>any(),
-				Matchers.<Integer>any(),
-				Matchers.<Integer>any()
-		)
+						Matchers.<DateTime>any(),
+						Matchers.<DateTime>any(),
+						Matchers.<Integer>any(),
+						Matchers.<Integer>any(),
+						Matchers.<Boolean>any()
+				)
 		).thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
@@ -290,7 +291,7 @@ public class SingleUrnPrefixRSTest {
 	/**
 	 * Given there are reservations by more than one user, the RS should only return reservations of the authenticated
 	 * user when {@link eu.wisebed.api.v3.rs.RS#getConfidentialReservations(java.util.List, org.joda.time.DateTime,
-	 * org.joda.time.DateTime, Integer, Integer)}  is called.
+	 * org.joda.time.DateTime, Integer, Integer, Boolean)} is called.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -328,21 +329,23 @@ public class SingleUrnPrefixRSTest {
 		final ConfidentialReservationData reservation2 =
 				buildConfidentialReservationData(from, to, USER2_USERNAME, USER2_SECRET_RESERVATION_KEY, user2Node);
 		when(persistence.getReservations(
-				Matchers.<DateTime>any(),
-				Matchers.<DateTime>any(),
-				Matchers.<Integer>any(),
-				Matchers.<Integer>any()
-		)).thenReturn(newArrayList(reservation1, reservation2));
+						Matchers.<DateTime>any(),
+						Matchers.<DateTime>any(),
+						Matchers.<Integer>any(),
+						Matchers.<Integer>any(),
+						Matchers.<Boolean>any()
+				)
+		).thenReturn(newArrayList(reservation1, reservation2));
 
 		final List<ConfidentialReservationData> user1Reservations =
-				rs.getConfidentialReservations(USER1_SAKS, from, to, null, null);
+				rs.getConfidentialReservations(USER1_SAKS, from, to, null, null, null);
 
 		assertEquals(1, user1Reservations.size());
 		assertEquals(1, user1Reservations.get(0).getNodeUrns().size());
 		assertEquals(user1Node, user1Reservations.get(0).getNodeUrns().get(0));
 
 		final List<ConfidentialReservationData> user2Reservations =
-				rs.getConfidentialReservations(USER2_SAKS, from, to, null, null);
+				rs.getConfidentialReservations(USER2_SAKS, from, to, null, null, null);
 
 		assertEquals(1, user2Reservations.size());
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
@@ -371,7 +374,7 @@ public class SingleUrnPrefixRSTest {
 	@Test(expected = AuthenticationFault.class)
 	public void testIfAuthenticationFaultIsThrownForGetConfidentialReservations() throws Exception {
 		when(snaa.isValid(anyListOf(SecretAuthenticationKey.class))).thenReturn(VALIDATION_RESULT_LIST);
-		rs.getConfidentialReservations(USER1_SAKS, DateTime.now(), DateTime.now().plusHours(1), null, null);
+		rs.getConfidentialReservations(USER1_SAKS, DateTime.now(), DateTime.now().plusHours(1), null, null, null);
 	}
 
 	private ConfidentialReservationData buildConfidentialReservationData(final DateTime from, final DateTime to,

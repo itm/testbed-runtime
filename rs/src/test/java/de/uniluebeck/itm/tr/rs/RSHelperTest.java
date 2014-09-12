@@ -105,6 +105,7 @@ public class RSHelperTest {
 			Sets.difference(NODE_URNS, EXPECTED_UNRESERVED_INSTANT_1);
 
 	private static final Set<NodeUrn> EXPECTED_UNRESERVED_INSTANT_2 = newHashSet(NODE_1, NODE_3, NODE_4);
+
 	private static final Set<NodeUrn> EXPECTED_RESERVED_INSTANT_2 =
 			Sets.difference(NODE_URNS, EXPECTED_UNRESERVED_INSTANT_2);
 
@@ -165,8 +166,15 @@ public class RSHelperTest {
 
 	private void setUpRS(final DateTime start, final DateTime end, final ArrayList<PublicReservationData> returnValue)
 			throws RSFault_Exception {
-		when(rs.getReservations(eq(start), eq(end), isNull(Integer.class), isNull(Integer.class)))
-				.thenReturn(returnValue);
+		when(
+				rs.getReservations(
+						eq(start),
+						eq(end),
+						isNull(Integer.class),
+						isNull(Integer.class),
+						isNull(Boolean.class)
+				)
+		).thenReturn(returnValue);
 	}
 
 	@Test

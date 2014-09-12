@@ -46,9 +46,10 @@ public class RsResourceImpl implements RsResource {
 			@Nullable @QueryParam("from") final DateTime from,
 			@Nullable @QueryParam("to") final DateTime to,
 			@Nullable @QueryParam("offset") final Integer offset,
-			@Nullable @QueryParam("amount") final Integer amount)
+			@Nullable @QueryParam("amount") final Integer amount,
+			@QueryParam("showCancelled") @DefaultValue("true") boolean showCancelled)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
-		return getPublicReservations(from, to, offset, amount);
+		return getPublicReservations(from, to, offset, amount, showCancelled);
 	}
 
 	@Override
@@ -59,9 +60,11 @@ public class RsResourceImpl implements RsResource {
 			@Nullable @QueryParam("from") final DateTime from,
 			@Nullable @QueryParam("to") final DateTime to,
 			@Nullable @QueryParam("offset") final Integer offset,
-			@Nullable @QueryParam("amount") final Integer amount)
+			@Nullable @QueryParam("amount") final Integer amount,
+			@QueryParam("showCancelled") @DefaultValue("true") boolean showCancelled)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
-		return getConfidentialReservations(getSAKsFromCookieOrHeader(httpHeaders, snaa), from, to, offset, amount);
+		final List<SecretAuthenticationKey> saks = getSAKsFromCookieOrHeader(httpHeaders, snaa);
+		return getConfidentialReservations(saks, from, to, offset, amount, showCancelled);
 	}
 
 	@Override
@@ -90,14 +93,14 @@ public class RsResourceImpl implements RsResource {
 
 	@Override
 	@DELETE
-	@Consumes({MediaType.APPLICATION_JSON})
+	@Path("byExperimentId/{secretReservationKeysBase64}")
 	@Produces({MediaType.TEXT_PLAIN})
-	public void deleteReservation(List<SecretReservationKey> secretReservationKeys)
+	public void deleteReservation(@PathParam("secretReservationKeysBase64") final String secretReservationKeysBase64)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault, AuthenticationFault {
 
-		List<SecretAuthenticationKey> secretAuthenticationKeys = getSAKsFromCookieOrHeader(httpHeaders, snaa);
+		final List<SecretAuthenticationKey> secretAuthenticationKeys = getSAKsFromCookieOrHeader(httpHeaders, snaa);
 		log.debug("Cookie (secret authentication keys): {}", secretAuthenticationKeys);
-		rs.deleteReservation(secretAuthenticationKeys, secretReservationKeys);
+		rs.deleteReservation(secretAuthenticationKeys, deserializeToList(secretReservationKeysBase64));
 	}
 
 	@Override
@@ -124,35 +127,26 @@ public class RsResourceImpl implements RsResource {
 			@Nullable final DateTime from,
 			@Nullable final DateTime to,
 			@Nullable final Integer offset,
-			@Nullable final Integer amount)
+			@Nullable final Integer amount,
+			@Nullable final Boolean showCancelled)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
 		log.trace(
-				"RsResourceImpl.getConfidentialReservations(snaaSecretAuthenticationKeys={}, from={}, to={}, offset={}, amount={})",
-				snaaSecretAuthenticationKeys, from, to, offset, amount
+				"RsResourceImpl.getConfidentialReservations(snaaSecretAuthenticationKeys={}, from={}, to={}, offset={}, amount={}, showCancelled={})",
+				snaaSecretAuthenticationKeys, from, to, offset, amount, showCancelled
 		);
 
-		return rs.getConfidentialReservations(
-				snaaSecretAuthenticationKeys,
-				from,
-				to,
-				offset,
-				amount
-		);
+		return rs.getConfidentialReservations(snaaSecretAuthenticationKeys, from, to, offset, amount, showCancelled);
 	}
 
 	private List<PublicReservationData> getPublicReservations(@Nullable final DateTime from,
 															  @Nullable final DateTime to,
 															  @Nullable final Integer offset,
-															  @Nullable final Integer amount)
+															  @Nullable final Integer amount,
+															  @Nullable final Boolean showCancelled)
 			throws RSFault_Exception {
 
-		final List<PublicReservationData> reservations = rs.getReservations(
-				from,
-				to,
-				offset,
-				amount
-		);
+		final List<PublicReservationData> reservations = rs.getReservations(from, to, offset, amount, showCancelled);
 
 		log.debug("Got {} public reservations from {} until {} (offset: {}, amount: {})",
 				reservations.size(),

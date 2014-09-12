@@ -62,7 +62,9 @@ public class RSAuthorizationDecorator implements RS {
 			@WebParam(name = "offset", targetNamespace = "")
 			Integer offset,
 			@WebParam(name = "amount", targetNamespace = "")
-			Integer amount)
+			Integer amount,
+			@WebParam(name = "showCancelled", targetNamespace = "")
+			Boolean showCancelled)
 			throws AuthorizationFault, RSFault_Exception, AuthenticationFault {
 
 		try {
@@ -76,7 +78,7 @@ public class RSAuthorizationDecorator implements RS {
 			throw new RSFault_Exception(e.getMessage(), faultInfo);
 		}
 
-		return rs.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount);
+		return rs.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount, showCancelled);
 	}
 
 	@Override
@@ -106,9 +108,11 @@ public class RSAuthorizationDecorator implements RS {
 			@WebParam(name = "offset", targetNamespace = "")
 			Integer offset,
 			@WebParam(name = "amount", targetNamespace = "")
-			Integer amount)
+			Integer amount,
+			@WebParam(name = "showCancelled", targetNamespace = "")
+			Boolean showCancelled)
 			throws RSFault_Exception {
-		return rs.getReservations(from, to, offset, amount);
+		return rs.getReservations(from, to, offset, amount, showCancelled);
 	}
 
 	@Override
@@ -191,6 +195,7 @@ public class RSAuthorizationDecorator implements RS {
 			usernameNodeUrnsMap.setUsername(confidentialReservationData.getUsername());
 			usernameNodeUrnsMap.setUrnPrefix(confidentialReservationData.getSecretReservationKey().getUrnPrefix());
 			usernameNodeUrnsMap.getNodeUrns().addAll(confidentialReservationData.getNodeUrns());
+			usernameNodeUrnsMapList.add(usernameNodeUrnsMap);
 		}
 
 		final AuthorizationResponse response;

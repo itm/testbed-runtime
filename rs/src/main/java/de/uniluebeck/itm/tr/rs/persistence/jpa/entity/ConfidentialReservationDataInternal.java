@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.jpa.entity;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
@@ -52,13 +53,14 @@ public class ConfidentialReservationDataInternal extends PublicReservationDataIn
 
 	public ConfidentialReservationDataInternal(final long fromDate,
 											   final long toDate,
+											   @Nullable final Long cancelledDate,
 											   final List<String> nodeUrns,
 											   final String description,
 											   final String secretReservationKey,
 											   final Map<String, String> options,
 											   final String urnPrefix,
 											   final String username) {
-		super(fromDate, toDate, nodeUrns);
+		super(fromDate, toDate, cancelledDate, nodeUrns);
 		this.description = description;
 		this.secretReservationKey = secretReservationKey;
 		this.options = options;

@@ -119,8 +119,8 @@ public class RSAuthorizationDecoratorTest {
 	public void testGetReservationsGranted() throws SNAAFault_Exception, RSFault_Exception {
 		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_GET_RESERVATIONS)))
 				.thenReturn(GRANTED_RESPONSE);
-		rs.getReservations(NOW, THEN, null, null);
-		verify(rsImpl).getReservations(NOW, THEN, null, null);
+		rs.getReservations(NOW, THEN, null, null, null);
+		verify(rsImpl).getReservations(NOW, THEN, null, null, null);
 	}
 
 	@Test
@@ -130,14 +130,15 @@ public class RSAuthorizationDecoratorTest {
 		when(snaa.isValid(anyListOf(SecretAuthenticationKey.class))).thenReturn(VALIDATION_RESULTS_VALID);
 		when(snaa.isValid(EMPTY_SAK_LIST)).thenReturn(VALIDATION_RESULTS_VALID);
 
-		rs.getConfidentialReservations(EMPTY_SAK_LIST, NOW, THEN, null, null);
+		rs.getConfidentialReservations(EMPTY_SAK_LIST, NOW, THEN, null, null, null);
 
 		verify(rsImpl).getConfidentialReservations(
 				Matchers.<List<SecretAuthenticationKey>>any(),
 				eq(NOW),
 				eq(THEN),
 				isNull(Integer.class),
-				isNull(Integer.class)
+				isNull(Integer.class),
+				isNull(Boolean.class)
 		);
 	}
 
@@ -148,7 +149,7 @@ public class RSAuthorizationDecoratorTest {
 		when(snaa.isValid(anyListOf(SecretAuthenticationKey.class))).thenReturn(VALIDATION_RESULTS_VALID);
 		when(snaa.isValid(EMPTY_SAK_LIST)).thenReturn(VALIDATION_RESULTS_INVALID);
 		try {
-			rs.getConfidentialReservations(EMPTY_SAK_LIST, NOW, THEN, null, null);
+			rs.getConfidentialReservations(EMPTY_SAK_LIST, NOW, THEN, null, null, null);
 			fail("Exception should have been thrown");
 		} catch (AuthorizationFault authorizationFault) {
 			verifyZeroInteractions(rsImpl);

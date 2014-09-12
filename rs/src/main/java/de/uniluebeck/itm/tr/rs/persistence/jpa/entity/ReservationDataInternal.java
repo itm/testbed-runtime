@@ -32,17 +32,33 @@ import java.io.Serializable;
 				name = ReservationDataInternal.QGetByReservationKey.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
 						+ " data.secretReservationKey.secretReservationKey = :" + ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY
-						+ " AND data.deleted = false"
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
 		@NamedQuery(
 				name = ReservationDataInternal.QGetByInterval.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
-						+ " NOT ("
-						+ ":" + ReservationDataInternal.QGetByInterval.P_TO + " <= data.confidentialReservationData.fromDate"
-						+ " OR "
-						+ ":" + ReservationDataInternal.QGetByInterval.P_FROM + " >= data.confidentialReservationData.toDate"
-						+ ")"
+						+ " :" + ReservationDataInternal.QGetByInterval.P_TO + " > data.confidentialReservationData.fromDate"
+						+ " AND"
+						+ " ("
+						+ "   ("
+						+ "     data.confidentialReservationData.cancelledDate IS NULL"
+						+ "      AND"
+						+ "     :" + ReservationDataInternal.QGetByInterval.P_FROM + " < data.confidentialReservationData.toDate"
+						+ "   )"
+						+ "   OR"
+						+ "   :" + ReservationDataInternal.QGetByInterval.P_FROM + " < data.confidentialReservationData.cancelledDate"
+						+ " )"
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
+
+		),
+		@NamedQuery(
+				name = ReservationDataInternal.QGetByIntervalWithoutCancelled.QUERY_NAME,
+				query = "FROM ReservationDataInternal data WHERE"
+						+ " data.confidentialReservationData.cancelledDate IS NULL"
+						+ "  AND"
+						+ " :" + ReservationDataInternal.QGetByIntervalWithoutCancelled.P_TO + " > data.confidentialReservationData.fromDate"
+						+ "  AND"
+						+ " :" + ReservationDataInternal.QGetByIntervalWithoutCancelled.P_FROM + " < data.confidentialReservationData.toDate"
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 
 		),
@@ -50,25 +66,51 @@ import java.io.Serializable;
 				name = ReservationDataInternal.QGetActive.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
 						+ " data.confidentialReservationData.fromDate <= :" + ReservationDataInternal.QGetActive.P_NOW
-						+ " AND "
-						+ " data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetActive.P_NOW
+						+ " AND ("
+						+ "  ("
+						+ "   data.confidentialReservationData.cancelledDate IS NULL"
+						+ "    AND"
+						+ "   data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetActive.P_NOW
+						+ "  ) OR ("
+						+ "   data.confidentialReservationData.cancelledDate > :" + ReservationDataInternal.QGetActive.P_NOW
+						+ "  )"
+						+ " )"
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
 		@NamedQuery(
 				name = ReservationDataInternal.QGetFuture.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
 						+ " data.confidentialReservationData.fromDate > :" + ReservationDataInternal.QGetFuture.P_NOW
+						+ "  AND ("
+						+ "   data.confidentialReservationData.cancelledDate IS NULL"
+						+ "    OR"
+						+ "   data.confidentialReservationData.cancelledDate > data.confidentialReservationData.fromDate"
+						+ "  )"
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
 		@NamedQuery(
 				name = ReservationDataInternal.QGetActiveAndFuture.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
-						+ " ("
-						+ "   data.confidentialReservationData.fromDate <= :" + ReservationDataInternal.QGetActiveAndFuture.P_NOW
-						+ "     AND "
-						+ "   data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetActive.P_NOW
-						+ " ) OR ("
-						+ "   data.confidentialReservationData.fromDate > :" + ReservationDataInternal.QGetFuture.P_NOW
+						+ " (" // active
+						+ "  data.confidentialReservationData.fromDate <= :" + ReservationDataInternal.QGetActive.P_NOW
+						+ "  AND ("
+						+ "   ("
+						+ "    data.confidentialReservationData.cancelledDate IS NULL"
+						+ "     AND"
+						+ "    data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetActive.P_NOW
+						+ "   ) OR ("
+						+ "    data.confidentialReservationData.cancelledDate > :" + ReservationDataInternal.QGetActive.P_NOW
+						+ "   )"
+						+ "  )"
+						+ " )"
+						+ " OR"
+						+ " (" // future
+						+ "  data.confidentialReservationData.fromDate > :" + ReservationDataInternal.QGetFuture.P_NOW
+						+ "   AND ("
+						+ "    data.confidentialReservationData.cancelledDate IS NULL"
+						+ "     OR"
+						+ "    data.confidentialReservationData.cancelledDate > data.confidentialReservationData.fromDate"
+						+ "   )"
 						+ " )"
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
@@ -78,23 +120,81 @@ import java.io.Serializable;
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
 		@NamedQuery(
+				name = ReservationDataInternal.QGetAllWithoutCancelled.QUERY_NAME,
+				query = "FROM ReservationDataInternal data WHERE"
+						+ " data.confidentialReservationData.cancelledDate IS NULL"
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
+		),
+		@NamedQuery(
 				name = ReservationDataInternal.QGetTo.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
-						+ " data.confidentialReservationData.toDate <= :" + ReservationDataInternal.QGetTo.P_TO
+						+ " ("
+						+ "  data.confidentialReservationData.cancelledDate IS NULL"
+						+ "   AND "
+						+ "  data.confidentialReservationData.toDate <= :" + ReservationDataInternal.QGetTo.P_TO
+						+ " )"
+						+ " OR"
+						+ " ("
+						+ "  data.confidentialReservationData.cancelledDate IS NOT NULL"
+						+ "   AND"
+						+ "  data.confidentialReservationData.cancelledDate <= :" + ReservationDataInternal.QGetTo.P_TO
+						+ " )"
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
+		),
+		@NamedQuery(
+				name = ReservationDataInternal.QGetToWithoutCancelled.QUERY_NAME,
+				query = "FROM ReservationDataInternal data WHERE"
+						+ " ("
+						+ "  data.confidentialReservationData.cancelledDate IS NULL"
+						+ "   AND "
+						+ "  data.confidentialReservationData.toDate <= :" + ReservationDataInternal.QGetToWithoutCancelled.P_TO
+						+ " )"
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
 		@NamedQuery(
 				name = ReservationDataInternal.QGetFrom.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
-						+ "     data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetFrom.P_FROM
+						+ " ("
+						+ "  data.confidentialReservationData.cancelledDate IS NULL"
+						+ "   AND"
+						+ "  data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetFrom.P_FROM
+						+ " )"
+						+ " OR"
+						+ " ("
+						+ "  data.confidentialReservationData.cancelledDate > data.confidentialReservationData.fromDate"
+						+ "   AND"
+						+ "  data.confidentialReservationData.cancelledDate > :" + ReservationDataInternal.QGetFrom.P_FROM
+						+ " )"
+						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
+		),
+		@NamedQuery(
+				name = ReservationDataInternal.QGetFromWithoutCancelled.QUERY_NAME,
+				query = "FROM ReservationDataInternal data WHERE"
+						+ " ("
+						+ "  data.confidentialReservationData.cancelledDate IS NULL"
+						+ "   AND"
+						+ "  data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetFromWithoutCancelled.P_FROM
+						+ " )"
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
 		@NamedQuery(
 				name = ReservationDataInternal.QGetByNodeAndTime.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
-						+ "     data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetByNodeAndTime.P_TIMESTAMP + " AND"
-						+ "     data.confidentialReservationData.fromDate < :" + ReservationDataInternal.QGetByNodeAndTime.P_TIMESTAMP + " AND"
-						+ "     :" + ReservationDataInternal.QGetByNodeAndTime.P_NODE_URN + " MEMBER OF data.confidentialReservationData.nodeUrns"
+						+ " data.confidentialReservationData.fromDate < :" + ReservationDataInternal.QGetByNodeAndTime.P_TIMESTAMP
+						+ " AND"
+						+ " ("
+						+ "   ("
+						+ "    data.confidentialReservationData.cancelledDate IS NULL"
+						+ "     AND"
+						+ "    data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetByNodeAndTime.P_TIMESTAMP
+						+ "   )"
+						+ "   OR"
+						+ "   ("
+						+ "    data.confidentialReservationData.cancelledDate > :" + ReservationDataInternal.QGetByNodeAndTime.P_TIMESTAMP
+						+ "   )"
+						+ " )"
+						+ " AND"
+						+ " :" + ReservationDataInternal.QGetByNodeAndTime.P_NODE_URN + " MEMBER OF data.confidentialReservationData.nodeUrns"
 		)
 })
 public class ReservationDataInternal implements Serializable {
@@ -118,6 +218,15 @@ public class ReservationDataInternal implements Serializable {
 	public static class QGetByInterval {
 
 		public static final String QUERY_NAME = "getReservationDataByInterval";
+
+		public static final String P_FROM = "from";
+
+		public static final String P_TO = "to";
+	}
+
+	public static class QGetByIntervalWithoutCancelled {
+
+		public static final String QUERY_NAME = "getReservationDataByIntervalWithoutCancelled";
 
 		public static final String P_FROM = "from";
 
@@ -150,6 +259,11 @@ public class ReservationDataInternal implements Serializable {
 		public static final String QUERY_NAME = "getReservationDataAll";
 	}
 
+	public static class QGetAllWithoutCancelled {
+
+		public static final String QUERY_NAME = "getReservationDataAllWithoutCancelled";
+	}
+
 	public static class QGetTo {
 
 		public static final String QUERY_NAME = "getReservationDataTo";
@@ -157,9 +271,23 @@ public class ReservationDataInternal implements Serializable {
 		public static final String P_TO = "to";
 	}
 
+	public static class QGetToWithoutCancelled {
+
+		public static final String QUERY_NAME = "getReservationDataToWithoutCancelled";
+
+		public static final String P_TO = "to";
+	}
+
 	public static class QGetFrom {
 
 		public static final String QUERY_NAME = "getReservationDataFrom";
+
+		public static final String P_FROM = "from";
+	}
+
+	public static class QGetFromWithoutCancelled {
+
+		public static final String QUERY_NAME = "getReservationDataFromWithoutCancelled";
 
 		public static final String P_FROM = "from";
 	}
@@ -177,9 +305,6 @@ public class ReservationDataInternal implements Serializable {
 
 	@Column
 	private String urnPrefix;
-
-	@Column
-	private boolean deleted = false;
 
 	public ReservationDataInternal() {
 	}
@@ -222,17 +347,5 @@ public class ReservationDataInternal implements Serializable {
 
 	public Long getId() throws Exception {
 		return id;
-	}
-
-	public boolean isDeleted() {
-		return deleted;
-	}
-
-	public void delete() {
-		this.deleted = true;
-	}
-
-	public void unDelete() {
-		this.deleted = false;
 	}
 }

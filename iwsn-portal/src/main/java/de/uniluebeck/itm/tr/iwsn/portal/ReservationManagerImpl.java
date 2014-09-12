@@ -321,7 +321,9 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     @Override
     public List<Reservation> getReservations(DateTime timestamp) {
         try {
-            List<ConfidentialReservationData> reservationDataList = rsPersistence.get().getReservations(timestamp, timestamp, null, null);
+
+            final List<ConfidentialReservationData> reservationDataList =
+					rsPersistence.get().getReservations(timestamp, timestamp, null, null, null);
 
             synchronized (reservationMap) {
                 return initReservations(reservationDataList);

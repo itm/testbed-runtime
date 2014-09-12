@@ -50,7 +50,8 @@ public interface RSPersistence {
 			@Nullable final DateTime from,
 			@Nullable final DateTime to,
 			@Nullable final Integer offset,
-			@Nullable final Integer amount)
+			@Nullable final Integer amount,
+			@Nullable final Boolean showCancelled)
 			throws RSFault_Exception;
 
 	List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception;

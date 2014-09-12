@@ -265,7 +265,8 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 	@Override
 	public List<PublicReservationData> getReservations(final DateTime from, final DateTime to,
-													   final Integer offset, final Integer amount)
+													   final Integer offset, final Integer amount,
+													   final Boolean showCancelled)
 			throws RSFault_Exception {
 
 		checkState(isRunning());
@@ -273,7 +274,9 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		// fork processes to collect reservations from federated services
 		List<Future<List<PublicReservationData>>> futures = newArrayList();
 		for (RS rs : federatedEndpoints.getEndpoints()) {
-			futures.add(executorService.submit(new GetReservationsCallable(rs, from, to, offset, amount)));
+			final GetReservationsCallable task =
+					new GetReservationsCallable(rs, from, to, offset, amount, showCancelled);
+			futures.add(executorService.submit(task));
 		}
 
 		// join processes and collect results
@@ -297,7 +300,8 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			final DateTime from,
 			final DateTime to,
 			final Integer offset,
-			final Integer amount)
+			final Integer amount,
+			final Boolean showCancelled)
 			throws AuthorizationFault, RSFault_Exception {
 
 		checkState(isRunning());
@@ -313,7 +317,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 
 		for (RS rs : federatedEndpoints.getEndpoints()) {
 			GetConfidentialReservationsCallable callable = new GetConfidentialReservationsCallable(
-					rs, endpointToAuthenticationMap.get(rs), from, to, offset, amount
+					rs, endpointToAuthenticationMap.get(rs), from, to, offset, amount, showCancelled
 			);
 			futures.add(executorService.submit(callable));
 		}

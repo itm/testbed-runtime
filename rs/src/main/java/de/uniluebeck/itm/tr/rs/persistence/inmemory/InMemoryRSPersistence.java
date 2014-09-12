@@ -38,7 +38,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import javax.annotation.Nullable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -88,7 +87,8 @@ public class InMemoryRSPersistence implements RSPersistence {
 	public synchronized List<ConfidentialReservationData> getReservations(@Nullable final DateTime from,
 																		  @Nullable final DateTime to,
 																		  @Nullable Integer offset,
-																		  @Nullable Integer amount) {
+																		  @Nullable Integer amount,
+																		  @Nullable Boolean showCancelled) {
 
 		checkArgument(offset == null || offset >= 0, "Parameter offset must be a non-negative integer or null");
 		checkArgument(amount == null || amount >= 0, "Parameter amount must be a non-negative integer or null");
@@ -102,7 +102,11 @@ public class InMemoryRSPersistence implements RSPersistence {
 					(from == null && (reservation.getTo().isBefore(to))) ||
 					(from != null && to != null && new Interval(reservation.getFrom(), reservation.getTo()).overlaps(new Interval(from, to)));
 			if (match) {
-				matchingReservations.add(reservation);
+				if (showCancelled == null || showCancelled) {
+					matchingReservations.add(reservation);
+				} else if (reservation.getCancelled() == null) {
+					matchingReservations.add(reservation);
+				}
 			}
 		}
 
@@ -169,10 +173,9 @@ public class InMemoryRSPersistence implements RSPersistence {
 	public synchronized ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws
 			UnknownSecretReservationKeyFault {
 
-		for (Iterator<ConfidentialReservationData> iterator = reservations.iterator(); iterator.hasNext(); ) {
-			ConfidentialReservationData crd = iterator.next();
+		for (ConfidentialReservationData crd : reservations) {
 			if (crd.getSecretReservationKey().equals(secretReservationKey)) {
-				iterator.remove();
+				crd.setCancelled(DateTime.now());
 				return crd;
 			}
 		}

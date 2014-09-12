@@ -104,20 +104,29 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 
 	@Override
 	public List<PublicReservationData> getReservations(final DateTime from, final DateTime to,
-													   final Integer offset, final Integer amount)
+													   final Integer offset, final Integer amount,
+													   final Boolean showCancelled)
 			throws RSFault_Exception {
 
-		return reservationSystem.getReservations(from, to, offset, amount);
+		return reservationSystem.getReservations(from, to, offset, amount, showCancelled);
 	}
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
 			final DateTime from, final DateTime to,
-			final Integer offset, final Integer amount)
+			final Integer offset, final Integer amount,
+			final Boolean showCancelled)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
-		return reservationSystem.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount);
+		return reservationSystem.getConfidentialReservations(
+				secretAuthenticationKey,
+				from,
+				to,
+				offset,
+				amount,
+				showCancelled
+		);
 	}
 
 

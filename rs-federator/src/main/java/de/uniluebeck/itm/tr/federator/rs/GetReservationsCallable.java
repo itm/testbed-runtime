@@ -19,17 +19,20 @@ public class GetReservationsCallable implements Callable<List<PublicReservationD
 
 	private final Integer amount;
 
+	private final Boolean showCancelled;
+
 	public GetReservationsCallable(final RS rs, final DateTime from, final DateTime to,
-								   final Integer offset, final Integer amount) {
+								   final Integer offset, final Integer amount, final Boolean showCancelled) {
 		this.rs = rs;
 		this.from = from;
 		this.to = to;
 		this.offset = offset;
 		this.amount = amount;
+		this.showCancelled = showCancelled;
 	}
 
 	@Override
 	public List<PublicReservationData> call() throws Exception {
-		return rs.getReservations(from, to, offset, amount);
+		return rs.getReservations(from, to, offset, amount, showCancelled);
 	}
 }
