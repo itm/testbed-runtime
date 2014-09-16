@@ -8,8 +8,10 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 
 public interface Reservation extends Service {
@@ -74,6 +76,9 @@ public interface Reservation extends Service {
 	ReservationEventBus getEventBus();
 
 	Interval getInterval();
+
+	@Nullable
+	DateTime getCancelled();
 
 	String getSerializedKey();
 

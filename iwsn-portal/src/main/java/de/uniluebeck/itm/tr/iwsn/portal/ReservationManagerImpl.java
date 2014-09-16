@@ -17,7 +17,6 @@ import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
@@ -44,7 +43,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     private static final Logger log = LoggerFactory.getLogger(ReservationManager.class);
 
     private static final TimeUnit MS = TimeUnit.MILLISECONDS;
-    private final Provider<RS> rs;
     private final ReservationFactory reservationFactory;
     private final SchedulerService schedulerService;
     private final CommonConfig commonConfig;
@@ -58,18 +56,17 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
      * Caches a mapping from node URNs to Reservation instances.
      */
     private final Map<NodeUrn, List<CacheItem<Reservation>>> nodeUrnToReservationCache = newHashMap();
+
     private ScheduledFuture<?> cacheCleanupSchedule;
 
     @Inject
     public ReservationManagerImpl(final CommonConfig commonConfig,
-                                  final Provider<RS> rs,
                                   final Provider<RSPersistence> rsPersistence,
                                   final DeviceDBService deviceDBService,
                                   final ReservationFactory reservationFactory,
                                   final SchedulerServiceFactory schedulerServiceFactory,
                                   final PortalEventBus portalEventBus) {
         this.commonConfig = checkNotNull(commonConfig);
-        this.rs = checkNotNull(rs);
         this.rsPersistence = checkNotNull(rsPersistence);
         this.reservationFactory = checkNotNull(reservationFactory);
         this.schedulerService = schedulerServiceFactory.create(-1, "ReservationManager");
@@ -142,8 +139,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     @Subscribe
     public void onReservationDeletedEvent(final ReservationDeletedEvent event) {
         log.trace("ReservationManagerImpl.onReservationDeletedEvent({})", event.getSerializedKey());
-        // TODO implement me
-    }
+		// TODO implement
+	}
 
     @Override
     public Reservation getReservation(final Set<SecretReservationKey> srks)

@@ -11,7 +11,6 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.RS;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
@@ -125,12 +124,6 @@ public class ReservationManagerImplTest {
 
 
 	@Mock
-	private Provider<RS> rsProvider;
-
-	@Mock
-	private RS rs;
-
-	@Mock
 	private Provider<RSPersistence> rsPersistenceProvider;
 
 	@Mock
@@ -174,13 +167,11 @@ public class ReservationManagerImplTest {
 
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX);
 		when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
-		when(rsProvider.get()).thenReturn(rs);
 		when(rsPersistenceProvider.get()).thenReturn(rsPersistence);
 		when(schedulerService.scheduleAtFixedRate(Matchers.<Runnable>any(), anyLong(), anyLong(), Matchers.<TimeUnit>any())).thenReturn(scheduledFuture);
 
 		reservationManager = new ReservationManagerImpl(
 				commonConfig,
-				rsProvider,
 				rsPersistenceProvider,
 				deviceDBService,
 				reservationFactory,

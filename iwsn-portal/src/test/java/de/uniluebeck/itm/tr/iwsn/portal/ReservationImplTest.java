@@ -7,6 +7,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStoreFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import eu.wisebed.api.v3.rs.RS;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Before;
@@ -36,9 +37,6 @@ public class ReservationImplTest {
 	private ReservationEventBusFactory reservationEventBusFactory;
 
 	@Mock
-	private PortalEventBus portalEventBus;
-
-	@Mock
 	private ReservationEventBus reservationEventBus;
 
 	@Mock
@@ -59,6 +57,12 @@ public class ReservationImplTest {
 	@Mock
 	private ReservationEventStore reservationEventStore;
 
+	@Mock
+	private PortalEventBus portalEventBus;
+
+	@Mock
+	private RS rs;
+
 	private ReservationImpl reservation;
 
 	@Before
@@ -67,6 +71,8 @@ public class ReservationImplTest {
 		when(reservationEventStoreFactory.createOrLoad(Matchers.<Reservation>any())).thenReturn(reservationEventStore);
 		reservation = new ReservationImpl(
 				commonConfig,
+				portalEventBus,
+				rs,
 				reservationEventBusFactory,
 				responseTrackerTimedCache,
 				responseTrackerFactory,
