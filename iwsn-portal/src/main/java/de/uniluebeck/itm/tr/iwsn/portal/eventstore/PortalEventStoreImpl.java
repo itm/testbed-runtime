@@ -3,8 +3,8 @@ package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
-import de.uniluebeck.itm.eventstore.IEventContainer;
-import de.uniluebeck.itm.eventstore.IEventStore;
+import de.uniluebeck.itm.eventstore.EventContainer;
+import de.uniluebeck.itm.eventstore.EventStore;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
     private static final Logger log = LoggerFactory.getLogger(PortalEventStoreImpl.class);
     private final PortalEventStoreHelper portalEventStoreHelper;
     private final PortalServerConfig portalServerConfig;
-    private IEventStore eventStore;
+    private EventStore eventStore;
 
 
     @Inject
@@ -94,19 +94,19 @@ class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
 
 
     @Override
-    public CloseableIterator<IEventContainer> getEventsBetweenTimestamps(long from, long to) throws IOException {
+    public CloseableIterator<EventContainer> getEventsBetweenTimestamps(long from, long to) throws IOException {
         //noinspection unchecked
         return eventStore.getEventsBetweenTimestamps(from, to);
     }
 
     @Override
-    public CloseableIterator<IEventContainer> getEventsFromTimestamp(long from) throws IOException {
+    public CloseableIterator<EventContainer> getEventsFromTimestamp(long from) throws IOException {
         //noinspection unchecked
         return eventStore.getEventsFromTimestamp(from);
     }
 
     @Override
-    public CloseableIterator<IEventContainer> getAllEvents() throws IOException {
+    public CloseableIterator<EventContainer> getAllEvents() throws IOException {
         //noinspection unchecked
         return eventStore.getAllEvents();
     }
