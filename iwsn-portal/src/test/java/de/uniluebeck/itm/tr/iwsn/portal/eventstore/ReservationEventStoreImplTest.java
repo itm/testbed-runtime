@@ -1,8 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
 import de.uniluebeck.itm.eventstore.CloseableIterator;
-import de.uniluebeck.itm.eventstore.IEventContainer;
-import de.uniluebeck.itm.eventstore.IEventStore;
+import de.uniluebeck.itm.eventstore.EventContainer;
+import de.uniluebeck.itm.eventstore.EventStore;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
@@ -43,13 +43,13 @@ public class ReservationEventStoreImplTest {
     private ReservationManager reservationManager;
 
     @Mock
-    private IEventStore eventStore;
+    private EventStore eventStore;
 
     @Mock
     private ReservationEventBus reservationEventBus;
 
     @Mock
-    private CloseableIterator<IEventContainer> storeIterator;
+    private CloseableIterator<EventContainer> storeIterator;
 
     private ReservationEventStoreImpl reservationEventStore;
 
@@ -94,10 +94,10 @@ public class ReservationEventStoreImplTest {
         Interval reservationInterval = new Interval(DateTime.now().minusHours(2), DateTime.now().plusHours(1));
         when(reservation.getInterval()).thenReturn(reservationInterval);
 
-        Iterator<IEventContainer> iterator = reservationEventStore.getAllEvents();
+        Iterator<EventContainer> iterator = reservationEventStore.getAllEvents();
         verify(eventStore).getAllEvents();
         assertTrue(iterator.hasNext());
-        IEventContainer container = iterator.next();
+        EventContainer container = iterator.next();
         assertNotNull(container);
         assertTrue(container.getEvent() instanceof ReservationStartedEvent);
         assertEquals(KEY, ((ReservationStartedEvent) container.getEvent()).getSerializedKey());
@@ -111,7 +111,7 @@ public class ReservationEventStoreImplTest {
         Interval reservationInterval = new Interval(DateTime.now().minusHours(2), DateTime.now().minusMinutes(10));
         when(reservation.getInterval()).thenReturn(reservationInterval);
 
-        Iterator<IEventContainer> iterator = reservationEventStore.getAllEvents();
+        Iterator<EventContainer> iterator = reservationEventStore.getAllEvents();
         verify(eventStore).getAllEvents();
 
         testNextEventAvailableAndIsReservationStartedEvent(iterator);
@@ -126,7 +126,7 @@ public class ReservationEventStoreImplTest {
         long from = reservationInterval.getStartMillis();
         long to = reservationInterval.getEnd().minusMinutes(10).getMillis();
 
-        Iterator<IEventContainer> iterator = reservationEventStore.getEventsBetween(from, to);
+        Iterator<EventContainer> iterator = reservationEventStore.getEventsBetween(from, to);
         verify(eventStore).getEventsBetweenTimestamps(from, to);
 
         testNextEventAvailableAndIsReservationStartedEvent(iterator);
@@ -142,22 +142,22 @@ public class ReservationEventStoreImplTest {
         long from = reservationInterval.getStart().plusMinutes(10).getMillis();
         long to = reservationInterval.getEnd().minusMinutes(10).getMillis();
 
-        Iterator<IEventContainer> iterator = reservationEventStore.getEventsBetween(from, to);
+        Iterator<EventContainer> iterator = reservationEventStore.getEventsBetween(from, to);
         verify(eventStore).getEventsBetweenTimestamps(from, to);
         assertFalse(iterator.hasNext());
     }
 
-    private void testNextEventAvailableAndIsReservationStartedEvent(Iterator<IEventContainer> iterator) {
+    private void testNextEventAvailableAndIsReservationStartedEvent(Iterator<EventContainer> iterator) {
         assertTrue(iterator.hasNext());
-        IEventContainer container = iterator.next();
+        EventContainer container = iterator.next();
         assertNotNull(container);
         assertTrue(container.getEvent() instanceof ReservationStartedEvent);
         assertEquals(KEY, ((ReservationStartedEvent) container.getEvent()).getSerializedKey());
     }
 
-    private void testNextEventAvailableAndIsReservationEndedEvent(Iterator<IEventContainer> iterator) {
+    private void testNextEventAvailableAndIsReservationEndedEvent(Iterator<EventContainer> iterator) {
         assertTrue(iterator.hasNext());
-        IEventContainer container = iterator.next();
+        EventContainer container = iterator.next();
         assertNotNull(container);
         assertTrue(container.getEvent() instanceof ReservationEndedEvent);
         assertEquals(KEY, ((ReservationEndedEvent) container.getEvent()).getSerializedKey());

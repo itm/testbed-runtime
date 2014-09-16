@@ -4,8 +4,8 @@ import com.google.common.base.Function;
 import com.google.inject.Inject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLite;
+import de.uniluebeck.itm.eventstore.EventStore;
 import de.uniluebeck.itm.eventstore.EventStoreFactory;
-import de.uniluebeck.itm.eventstore.IEventStore;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import org.slf4j.Logger;
@@ -39,14 +39,14 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
     }
 
     @Override
-    public IEventStore createAndConfigureEventStore(String baseName)
+    public EventStore createAndConfigureEventStore(String baseName)
             throws IOException, ClassNotFoundException {
         log.trace("PortalEventStoreHelperImpl.createAndConfigureEventStore({})", baseName);
         return configureEventStore(baseName, false);
     }
 
     @Override
-    public IEventStore loadEventStore(String baseName, final boolean readOnly) {
+    public EventStore loadEventStore(String baseName, final boolean readOnly) {
         log.trace("PortalEventStoreHelperImpl.loadEventStore(res={}, readOnly={})", baseName, readOnly);
         try {
             return configureEventStore(baseName, readOnly);
@@ -65,7 +65,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
         return new File(getEventStoreBasePathForBaseName(baseName) + ".data").exists();
     }
 
-    private IEventStore configureEventStore(final String baseName, boolean readOnly)
+    private EventStore configureEventStore(final String baseName, boolean readOnly)
             throws IOException, ClassNotFoundException {
 
         Map<Class<? extends MessageLite>, Function<? extends MessageLite, byte[]>> serializers = newHashMap();
