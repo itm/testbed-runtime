@@ -207,7 +207,7 @@ message ReservationMadeEvent {
 	required string serializedKey = 1;
 }
 
-message ReservationDeletedEvent {
+message ReservationCancelledEvent {
 	required string serializedKey = 1;
 }
 
@@ -240,7 +240,7 @@ message Event {
 		RESERVATION_STARTED   = 40;  // downstream, sent by portal
 		RESERVATION_ENDED     = 41;  // downstream, sent by portal
 		RESERVATION_MADE      = 42;  // downstream, sent by portal
-		RESERVATION_DELETED   = 43;  // downstream, sent by portal
+		RESERVATION_CANCELLED = 43;  // downstream, sent by portal
 
 		DEVICE_CONFIG_CREATED = 50;  // downstream, sent by portal
 		DEVICE_CONFIG_UPDATED = 51;  // downstream, sent by portal
@@ -250,24 +250,24 @@ message Event {
 	required int64 eventId = 1;
 	required Type  type    = 2;
 
-	optional UpstreamMessageEvent     upstreamMessageEvent     = 101;
+	optional UpstreamMessageEvent      upstreamMessageEvent      = 101;
 
-	optional DevicesAttachedEvent     devicesAttachedEvent     = 110;
-	optional DevicesDetachedEvent     devicesDetachedEvent     = 111;
+	optional DevicesAttachedEvent      devicesAttachedEvent      = 110;
+	optional DevicesDetachedEvent      devicesDetachedEvent      = 111;
 
-	optional GatewayConnectedEvent    gatewayConnectedEvent    = 120;
-	optional GatewayDisconnectedEvent gatewayDisconnectedEvent = 121;
+	optional GatewayConnectedEvent     gatewayConnectedEvent     = 120;
+	optional GatewayDisconnectedEvent  gatewayDisconnectedEvent  = 121;
 
-	optional NotificationEvent        notificationEvent        = 130;
+	optional NotificationEvent         notificationEvent         = 130;
 
-	optional ReservationStartedEvent  reservationStartedEvent  = 140;
-	optional ReservationEndedEvent    reservationEndedEvent    = 141;
-	optional ReservationMadeEvent     reservationMadeEvent     = 142;
-	optional ReservationDeletedEvent  reservationDeletedEvent  = 143;
+	optional ReservationStartedEvent   reservationStartedEvent   = 140;
+	optional ReservationEndedEvent     reservationEndedEvent     = 141;
+	optional ReservationMadeEvent      reservationMadeEvent      = 142;
+	optional ReservationCancelledEvent reservationCancelledEvent = 143;
 
-	optional DeviceConfigCreatedEvent deviceConfigCreatedEvent = 150;
-	optional DeviceConfigUpdatedEvent deviceConfigUpdatedEvent = 151;
-	optional DeviceConfigDeletedEvent deviceConfigDeletedEvent = 152;
+	optional DeviceConfigCreatedEvent  deviceConfigCreatedEvent  = 150;
+	optional DeviceConfigUpdatedEvent  deviceConfigUpdatedEvent  = 151;
+	optional DeviceConfigDeletedEvent  deviceConfigDeletedEvent  = 152;
 }
 
 message EventAck {

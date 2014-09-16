@@ -41,7 +41,7 @@ public  final class Event extends
     RESERVATION_STARTED(6, 40),
     RESERVATION_ENDED(7, 41),
     RESERVATION_MADE(8, 42),
-    RESERVATION_DELETED(9, 43),
+    RESERVATION_CANCELLED(9, 43),
     DEVICE_CONFIG_CREATED(10, 50),
     DEVICE_CONFIG_UPDATED(11, 51),
     DEVICE_CONFIG_DELETED(12, 52),
@@ -56,7 +56,7 @@ public  final class Event extends
     public static final int RESERVATION_STARTED_VALUE = 40;
     public static final int RESERVATION_ENDED_VALUE = 41;
     public static final int RESERVATION_MADE_VALUE = 42;
-    public static final int RESERVATION_DELETED_VALUE = 43;
+    public static final int RESERVATION_CANCELLED_VALUE = 43;
     public static final int DEVICE_CONFIG_CREATED_VALUE = 50;
     public static final int DEVICE_CONFIG_UPDATED_VALUE = 51;
     public static final int DEVICE_CONFIG_DELETED_VALUE = 52;
@@ -75,7 +75,7 @@ public  final class Event extends
         case 40: return RESERVATION_STARTED;
         case 41: return RESERVATION_ENDED;
         case 42: return RESERVATION_MADE;
-        case 43: return RESERVATION_DELETED;
+        case 43: return RESERVATION_CANCELLED;
         case 50: return DEVICE_CONFIG_CREATED;
         case 51: return DEVICE_CONFIG_UPDATED;
         case 52: return DEVICE_CONFIG_DELETED;
@@ -109,7 +109,7 @@ public  final class Event extends
     }
     
     private static final Type[] VALUES = {
-      UPSTREAM_MESSAGE, DEVICES_ATTACHED, DEVICES_DETACHED, GATEWAY_CONNECTED, GATEWAY_DISCONNECTED, NOTIFICATION, RESERVATION_STARTED, RESERVATION_ENDED, RESERVATION_MADE, RESERVATION_DELETED, DEVICE_CONFIG_CREATED, DEVICE_CONFIG_UPDATED, DEVICE_CONFIG_DELETED, 
+      UPSTREAM_MESSAGE, DEVICES_ATTACHED, DEVICES_DETACHED, GATEWAY_CONNECTED, GATEWAY_DISCONNECTED, NOTIFICATION, RESERVATION_STARTED, RESERVATION_ENDED, RESERVATION_MADE, RESERVATION_CANCELLED, DEVICE_CONFIG_CREATED, DEVICE_CONFIG_UPDATED, DEVICE_CONFIG_DELETED, 
     };
     
     public static Type valueOf(
@@ -270,17 +270,17 @@ public  final class Event extends
     return reservationMadeEvent_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent = 143;
-  public static final int RESERVATIONDELETEDEVENT_FIELD_NUMBER = 143;
-  private de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent_;
-  public boolean hasReservationDeletedEvent() {
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent = 143;
+  public static final int RESERVATIONCANCELLEDEVENT_FIELD_NUMBER = 143;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent_;
+  public boolean hasReservationCancelledEvent() {
     return ((bitField0_ & 0x00000800) == 0x00000800);
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent getReservationDeletedEvent() {
-    return reservationDeletedEvent_;
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent getReservationCancelledEvent() {
+    return reservationCancelledEvent_;
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder getReservationDeletedEventOrBuilder() {
-    return reservationDeletedEvent_;
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder getReservationCancelledEventOrBuilder() {
+    return reservationCancelledEvent_;
   }
   
   // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent = 150;
@@ -334,7 +334,7 @@ public  final class Event extends
     reservationStartedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance();
     reservationEndedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
     reservationMadeEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.getDefaultInstance();
-    reservationDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance();
+    reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
     deviceConfigCreatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.getDefaultInstance();
     deviceConfigUpdatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.getDefaultInstance();
     deviceConfigDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.getDefaultInstance();
@@ -406,8 +406,8 @@ public  final class Event extends
         return false;
       }
     }
-    if (hasReservationDeletedEvent()) {
-      if (!getReservationDeletedEvent().isInitialized()) {
+    if (hasReservationCancelledEvent()) {
+      if (!getReservationCancelledEvent().isInitialized()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -471,7 +471,7 @@ public  final class Event extends
       output.writeMessage(142, reservationMadeEvent_);
     }
     if (((bitField0_ & 0x00000800) == 0x00000800)) {
-      output.writeMessage(143, reservationDeletedEvent_);
+      output.writeMessage(143, reservationCancelledEvent_);
     }
     if (((bitField0_ & 0x00001000) == 0x00001000)) {
       output.writeMessage(150, deviceConfigCreatedEvent_);
@@ -537,7 +537,7 @@ public  final class Event extends
     }
     if (((bitField0_ & 0x00000800) == 0x00000800)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(143, reservationDeletedEvent_);
+        .computeMessageSize(143, reservationCancelledEvent_);
     }
     if (((bitField0_ & 0x00001000) == 0x00001000)) {
       size += com.google.protobuf.CodedOutputStream
@@ -676,7 +676,7 @@ public  final class Event extends
         getReservationStartedEventFieldBuilder();
         getReservationEndedEventFieldBuilder();
         getReservationMadeEventFieldBuilder();
-        getReservationDeletedEventFieldBuilder();
+        getReservationCancelledEventFieldBuilder();
         getDeviceConfigCreatedEventFieldBuilder();
         getDeviceConfigUpdatedEventFieldBuilder();
         getDeviceConfigDeletedEventFieldBuilder();
@@ -746,10 +746,10 @@ public  final class Event extends
         reservationMadeEventBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000400);
-      if (reservationDeletedEventBuilder_ == null) {
-        reservationDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance();
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
       } else {
-        reservationDeletedEventBuilder_.clear();
+        reservationCancelledEventBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000800);
       if (deviceConfigCreatedEventBuilder_ == null) {
@@ -891,10 +891,10 @@ public  final class Event extends
       if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
         to_bitField0_ |= 0x00000800;
       }
-      if (reservationDeletedEventBuilder_ == null) {
-        result.reservationDeletedEvent_ = reservationDeletedEvent_;
+      if (reservationCancelledEventBuilder_ == null) {
+        result.reservationCancelledEvent_ = reservationCancelledEvent_;
       } else {
-        result.reservationDeletedEvent_ = reservationDeletedEventBuilder_.build();
+        result.reservationCancelledEvent_ = reservationCancelledEventBuilder_.build();
       }
       if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
         to_bitField0_ |= 0x00001000;
@@ -969,8 +969,8 @@ public  final class Event extends
       if (other.hasReservationMadeEvent()) {
         mergeReservationMadeEvent(other.getReservationMadeEvent());
       }
-      if (other.hasReservationDeletedEvent()) {
-        mergeReservationDeletedEvent(other.getReservationDeletedEvent());
+      if (other.hasReservationCancelledEvent()) {
+        mergeReservationCancelledEvent(other.getReservationCancelledEvent());
       }
       if (other.hasDeviceConfigCreatedEvent()) {
         mergeDeviceConfigCreatedEvent(other.getDeviceConfigCreatedEvent());
@@ -1048,8 +1048,8 @@ public  final class Event extends
           return false;
         }
       }
-      if (hasReservationDeletedEvent()) {
-        if (!getReservationDeletedEvent().isInitialized()) {
+      if (hasReservationCancelledEvent()) {
+        if (!getReservationCancelledEvent().isInitialized()) {
           
           return false;
         }
@@ -1196,12 +1196,12 @@ public  final class Event extends
             break;
           }
           case 1146: {
-            de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.newBuilder();
-            if (hasReservationDeletedEvent()) {
-              subBuilder.mergeFrom(getReservationDeletedEvent());
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.newBuilder();
+            if (hasReservationCancelledEvent()) {
+              subBuilder.mergeFrom(getReservationCancelledEvent());
             }
             input.readMessage(subBuilder, extensionRegistry);
-            setReservationDeletedEvent(subBuilder.buildPartial());
+            setReservationCancelledEvent(subBuilder.buildPartial());
             break;
           }
           case 1202: {
@@ -2092,94 +2092,94 @@ public  final class Event extends
       return reservationMadeEventBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent = 143;
-    private de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance();
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent = 143;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder> reservationDeletedEventBuilder_;
-    public boolean hasReservationDeletedEvent() {
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder> reservationCancelledEventBuilder_;
+    public boolean hasReservationCancelledEvent() {
       return ((bitField0_ & 0x00000800) == 0x00000800);
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent getReservationDeletedEvent() {
-      if (reservationDeletedEventBuilder_ == null) {
-        return reservationDeletedEvent_;
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent getReservationCancelledEvent() {
+      if (reservationCancelledEventBuilder_ == null) {
+        return reservationCancelledEvent_;
       } else {
-        return reservationDeletedEventBuilder_.getMessage();
+        return reservationCancelledEventBuilder_.getMessage();
       }
     }
-    public Builder setReservationDeletedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent value) {
-      if (reservationDeletedEventBuilder_ == null) {
+    public Builder setReservationCancelledEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent value) {
+      if (reservationCancelledEventBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
         }
-        reservationDeletedEvent_ = value;
+        reservationCancelledEvent_ = value;
         onChanged();
       } else {
-        reservationDeletedEventBuilder_.setMessage(value);
+        reservationCancelledEventBuilder_.setMessage(value);
       }
       bitField0_ |= 0x00000800;
       return this;
     }
-    public Builder setReservationDeletedEvent(
-        de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder builderForValue) {
-      if (reservationDeletedEventBuilder_ == null) {
-        reservationDeletedEvent_ = builderForValue.build();
+    public Builder setReservationCancelledEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder builderForValue) {
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEvent_ = builderForValue.build();
         onChanged();
       } else {
-        reservationDeletedEventBuilder_.setMessage(builderForValue.build());
+        reservationCancelledEventBuilder_.setMessage(builderForValue.build());
       }
       bitField0_ |= 0x00000800;
       return this;
     }
-    public Builder mergeReservationDeletedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent value) {
-      if (reservationDeletedEventBuilder_ == null) {
+    public Builder mergeReservationCancelledEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent value) {
+      if (reservationCancelledEventBuilder_ == null) {
         if (((bitField0_ & 0x00000800) == 0x00000800) &&
-            reservationDeletedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance()) {
-          reservationDeletedEvent_ =
-            de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.newBuilder(reservationDeletedEvent_).mergeFrom(value).buildPartial();
+            reservationCancelledEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance()) {
+          reservationCancelledEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.newBuilder(reservationCancelledEvent_).mergeFrom(value).buildPartial();
         } else {
-          reservationDeletedEvent_ = value;
+          reservationCancelledEvent_ = value;
         }
         onChanged();
       } else {
-        reservationDeletedEventBuilder_.mergeFrom(value);
+        reservationCancelledEventBuilder_.mergeFrom(value);
       }
       bitField0_ |= 0x00000800;
       return this;
     }
-    public Builder clearReservationDeletedEvent() {
-      if (reservationDeletedEventBuilder_ == null) {
-        reservationDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance();
+    public Builder clearReservationCancelledEvent() {
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
         onChanged();
       } else {
-        reservationDeletedEventBuilder_.clear();
+        reservationCancelledEventBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000800);
       return this;
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder getReservationDeletedEventBuilder() {
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder getReservationCancelledEventBuilder() {
       bitField0_ |= 0x00000800;
       onChanged();
-      return getReservationDeletedEventFieldBuilder().getBuilder();
+      return getReservationCancelledEventFieldBuilder().getBuilder();
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder getReservationDeletedEventOrBuilder() {
-      if (reservationDeletedEventBuilder_ != null) {
-        return reservationDeletedEventBuilder_.getMessageOrBuilder();
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder getReservationCancelledEventOrBuilder() {
+      if (reservationCancelledEventBuilder_ != null) {
+        return reservationCancelledEventBuilder_.getMessageOrBuilder();
       } else {
-        return reservationDeletedEvent_;
+        return reservationCancelledEvent_;
       }
     }
     private com.google.protobuf.SingleFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder> 
-        getReservationDeletedEventFieldBuilder() {
-      if (reservationDeletedEventBuilder_ == null) {
-        reservationDeletedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-            de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder>(
-                reservationDeletedEvent_,
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder> 
+        getReservationCancelledEventFieldBuilder() {
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder>(
+                reservationCancelledEvent_,
                 getParentForChildren(),
                 isClean());
-        reservationDeletedEvent_ = null;
+        reservationCancelledEvent_ = null;
       }
-      return reservationDeletedEventBuilder_;
+      return reservationCancelledEventBuilder_;
     }
     
     // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent = 150;

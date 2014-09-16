@@ -100,7 +100,7 @@ public class RsResourceImpl implements RsResource {
 
 		final List<SecretAuthenticationKey> secretAuthenticationKeys = getSAKsFromCookieOrHeader(httpHeaders, snaa);
 		log.debug("Cookie (secret authentication keys): {}", secretAuthenticationKeys);
-		rs.deleteReservation(secretAuthenticationKeys, deserializeToList(secretReservationKeysBase64));
+		rs.cancelReservation(secretAuthenticationKeys, deserializeToList(secretReservationKeysBase64));
 	}
 
 	@Override

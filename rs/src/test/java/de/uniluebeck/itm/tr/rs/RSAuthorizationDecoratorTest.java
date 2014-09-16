@@ -80,35 +80,35 @@ public class RSAuthorizationDecoratorTest {
 	}
 
 	@Test
-	public void testDeleteReservationGranted()
+	public void testCancelReservationGranted()
 			throws SNAAFault_Exception, RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault,
 			AuthenticationFault {
 
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_DELETE_RESERVATION)))
+		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_CANCEL_RESERVATION)))
 				.thenReturn(GRANTED_RESPONSE);
 
-		rs.deleteReservation(EMPTY_SAK_LIST, EMPTY_SRK_LIST);
+		rs.cancelReservation(EMPTY_SAK_LIST, EMPTY_SRK_LIST);
 
-		verify(rsImpl).deleteReservation(
+		verify(rsImpl).cancelReservation(
 				Matchers.<List<SecretAuthenticationKey>>any(),
 				Matchers.<List<SecretReservationKey>>any()
 		);
 	}
 
 	@Test
-	public void testDeleteReservationDenied()
+	public void testCancelReservationDenied()
 			throws SNAAFault_Exception, RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault,
 			AuthenticationFault {
 
 		when(snaa.isValid(anyListOf(SecretAuthenticationKey.class))).thenReturn(VALIDATION_RESULTS_VALID);
-		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_DELETE_RESERVATION)))
+		when(snaa.isAuthorized(anyListOf(UsernameNodeUrnsMap.class), eq(Action.RS_CANCEL_RESERVATION)))
 				.thenReturn(DENIED_RESPONSE);
 
 		try {
-			rs.deleteReservation(EMPTY_SAK_LIST, EMPTY_SRK_LIST);
+			rs.cancelReservation(EMPTY_SAK_LIST, EMPTY_SRK_LIST);
 			fail("Exception should have been thrown");
 		} catch (AuthorizationFault expected) {
-			verify(rsImpl, never()).deleteReservation(
+			verify(rsImpl, never()).cancelReservation(
 					Matchers.<List<SecretAuthenticationKey>>any(),
 					Matchers.<List<SecretReservationKey>>any()
 			);

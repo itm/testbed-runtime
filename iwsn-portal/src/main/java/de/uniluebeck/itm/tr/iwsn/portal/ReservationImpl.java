@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -9,14 +8,14 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStoreFactory;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceListener;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.RS;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.slf4j.Logger;
@@ -28,7 +27,6 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.common.ReservationHelper.serialize;
 
@@ -56,17 +54,34 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	private final ReservationEventStore reservationEventStore;
 
-	private final PortalEventBus portalEventBus;
-
-	private final RS rs;
+	private final RSPersistence rsPersistence;
 
 	@Nullable
 	private DateTime cancelled;
 
+	private final RSPersistenceListener rsPersistenceListener = new RSPersistenceListener() {
+		@Override
+		public void onReservationMade(final List<ConfidentialReservationData> crd) {
+			// nothing to do
+		}
+
+		@Override
+		public void onReservationCancelled(final List<ConfidentialReservationData> crd) {
+			if (crd.get(0).getSecretReservationKey().equals(ReservationImpl.this.getSecretReservationKey())) {
+				ReservationImpl.this.cancelled = crd.get(0).getCancelled();
+			}
+		}
+
+		@Override
+		public void onReservationFinalized(
+				final List<ConfidentialReservationData> crd) {
+			// TODO implement
+		}
+	};
+
 	@Inject
 	public ReservationImpl(final CommonConfig commonConfig,
-						   final PortalEventBus portalEventBus,
-						   final RS rs,
+						   final RSPersistence rsPersistence,
 						   final ReservationEventBusFactory reservationEventBusFactory,
 						   final ResponseTrackerCache responseTrackerCache,
 						   final ResponseTrackerFactory responseTrackerFactory,
@@ -76,8 +91,8 @@ public class ReservationImpl extends AbstractService implements Reservation {
 						   @Assisted("username") final String username,
 						   @Assisted final Set<NodeUrn> nodeUrns,
 						   @Assisted final Interval interval) {
-		this.portalEventBus = portalEventBus;
-		this.rs = rs;
+
+		this.rsPersistence = checkNotNull(rsPersistence);
 		this.commonConfig = checkNotNull(commonConfig);
 		this.responseTrackerCache = checkNotNull(responseTrackerCache);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
@@ -94,9 +109,9 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	protected void doStart() {
 		log.trace("ReservationImpl.doStart()");
 		try {
-			portalEventBus.register(this);
 			reservationEventStore.startAndWait();
 			reservationEventBus.startAndWait();
+			rsPersistence.addListener(rsPersistenceListener);
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -107,25 +122,12 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	protected void doStop() {
 		log.trace("ReservationImpl.doStop()");
 		try {
+			rsPersistence.removeListener(rsPersistenceListener);
 			reservationEventBus.stopAndWait();
 			reservationEventStore.stopAndWait();
-			portalEventBus.unregister(this);
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);
-		}
-	}
-
-	@Subscribe
-	public void on(final ReservationDeletedEvent event) {
-		if (event.getSerializedKey().equals(getSerializedKey())) {
-			final List<ConfidentialReservationData> reservation;
-			try {
-				reservation = rs.getReservation(newArrayList(getSecretReservationKeys()));
-			} catch (Exception e) {
-				throw propagate(e);
-			}
-			this.cancelled = reservation.get(0).getCancelled();
 		}
 	}
 
@@ -166,6 +168,17 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	@Nullable
 	public DateTime getCancelled() {
 		return cancelled;
+	}
+
+	@Nullable
+	@Override
+	public DateTime getFinalized() {
+		return null;  // TODO implement
+	}
+
+	@Override
+	public boolean isFinalized() {
+		return false;  // TODO implement
 	}
 
 	@Override

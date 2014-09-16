@@ -25,6 +25,7 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.when;
@@ -172,7 +173,7 @@ public class RSHelperTest {
 						eq(end),
 						isNull(Integer.class),
 						isNull(Integer.class),
-						isNull(Boolean.class)
+						any(Boolean.class)
 				)
 		).thenReturn(returnValue);
 	}

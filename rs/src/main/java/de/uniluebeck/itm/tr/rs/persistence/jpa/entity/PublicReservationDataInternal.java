@@ -46,12 +46,17 @@ public class PublicReservationDataInternal implements Serializable {
 	@Column(nullable = true)
 	protected Long cancelledDate;
 
+	@Column(nullable = true)
+	protected Long finalizedDate;
+
 	public PublicReservationDataInternal() {
 	}
 
-	public PublicReservationDataInternal(long fromDate, long toDate, @Nullable Long cancelledDate, List<String> nodeUrns) {
+	public PublicReservationDataInternal(long fromDate, long toDate, @Nullable Long cancelledDate,
+										 @Nullable Long finalizedDate, List<String> nodeUrns) {
 		this.fromDate = fromDate;
 		this.toDate = toDate;
+		this.finalizedDate = finalizedDate;
 		this.nodeUrns = nodeUrns;
 		this.cancelledDate = cancelledDate;
 	}
@@ -101,5 +106,14 @@ public class PublicReservationDataInternal implements Serializable {
 
 	public void setCancelledDate(@Nullable final Long cancelledDate) {
 		this.cancelledDate = cancelledDate;
+	}
+
+	@Nullable
+	public Long getFinalizedDate() {
+		return finalizedDate;
+	}
+
+	public void setFinalizedDate(@Nullable final Long finalizedDate) {
+		this.finalizedDate = finalizedDate;
 	}
 }

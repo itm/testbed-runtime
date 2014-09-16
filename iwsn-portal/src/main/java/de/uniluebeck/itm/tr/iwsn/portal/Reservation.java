@@ -80,6 +80,11 @@ public interface Reservation extends Service {
 	@Nullable
 	DateTime getCancelled();
 
+	@Nullable
+	DateTime getFinalized();
+
+	boolean isFinalized();
+
 	String getSerializedKey();
 
 	Set<SecretReservationKey> getSecretReservationKeys();

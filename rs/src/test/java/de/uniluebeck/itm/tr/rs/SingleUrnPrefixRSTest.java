@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
@@ -137,9 +136,6 @@ public class SingleUrnPrefixRSTest {
 	@Mock
 	private CommonConfig config;
 
-	@Mock
-	private EventBusService eventBusService;
-
 	private RS rs;
 
 	@Before
@@ -148,40 +144,31 @@ public class SingleUrnPrefixRSTest {
 		when(snaaProvider.get()).thenReturn(snaa);
 		when(config.getUrnPrefix()).thenReturn(URN_PREFIX);
 
-		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider, snaa, eventBusService);
+		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider, snaa);
 	}
 
 	@Test
-	public void throwExceptionWhenTryingToDeleteReservationThatAlreadyStarted() throws Exception {
-
-		final ConfidentialReservationData crd = new ConfidentialReservationData();
-		crd.setFrom(DateTime.now().minusSeconds(1));
-		crd.setTo(DateTime.now().minusSeconds(1).plusHours(1));
-
-		final AuthorizationResponse authorizationResponse = new AuthorizationResponse();
-		authorizationResponse.setAuthorized(true);
-
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
-				USER1_SAKS,
-				Lists.<NodeUrn>newArrayList()
-		);
-
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION)).thenReturn(authorizationResponse);
-		when(persistence.getReservation(USER1_SRK)).thenReturn(crd);
-
-		try {
-			rs.deleteReservation(USER1_SAKS, USER1_SRKS);
-			fail();
-		} catch (RSFault_Exception e) {
-			// this should be thrown
-		}
-
-		verify(persistence).getReservation(USER1_SRK);
-		verify(persistence, never()).deleteReservation(USER1_SRK);
+	public void testIfCancelledDateIsSetWhenCancellingReservation() throws Exception {
+		fail("Implement me");
 	}
 
 	@Test
-	public void throwNoExceptionWhenTryingToDeleteReservationInTheFuture() throws Exception {
+	public void testIfListenersAreNotifiedOfCancelledReservation() throws Exception {
+		fail("Implement me");
+	}
+
+	@Test
+	public void testIfListenersAreNotifiedOfMadeReservation() throws Exception {
+		fail("Implement me");
+	}
+
+	@Test
+	public void testIfListenersAreNotifiedOfFinalizedReservation() throws Exception {
+		fail("Implement me");
+	}
+
+	@Test
+	public void throwNoExceptionWhenTryingToCancelReservationInTheFuture() throws Exception {
 
 		final ConfidentialReservationData crd = new ConfidentialReservationData();
 		crd.setFrom(DateTime.now().plusHours(1));
@@ -199,14 +186,14 @@ public class SingleUrnPrefixRSTest {
 				.thenReturn(successfulAuthorizationResponse);
 		when(persistence.getReservation(USER1_SRK)).thenReturn(crd);
 
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION))
+		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_CANCEL_RESERVATION))
 				.thenReturn(successfulAuthorizationResponse);
-		when(persistence.deleteReservation(USER1_SRK)).thenReturn(crd);
+		when(persistence.cancelReservation(USER1_SRK)).thenReturn(crd);
 
-		rs.deleteReservation(USER1_SAKS, USER1_SRKS);
+		rs.cancelReservation(USER1_SAKS, USER1_SRKS);
 
 		verify(persistence).getReservation(USER1_SRK);
-		verify(persistence).deleteReservation(USER1_SRK);
+		verify(persistence).cancelReservation(USER1_SRK);
 	}
 
 	@Test
@@ -273,6 +260,7 @@ public class SingleUrnPrefixRSTest {
 		} catch (RSFault_Exception e) {
 			fail();
 		} catch (ReservationConflictFault_Exception expected) {
+			// expected
 		}
 
 		// try to reserve in lowercase
@@ -284,6 +272,7 @@ public class SingleUrnPrefixRSTest {
 		} catch (RSFault_Exception e) {
 			fail();
 		} catch (ReservationConflictFault_Exception expected) {
+			// expected
 		}
 
 	}
@@ -366,9 +355,9 @@ public class SingleUrnPrefixRSTest {
 	}
 
 	@Test(expected = AuthenticationFault.class)
-	public void testIfAuthenticationFaultIsThrownForDeleteReservation() throws Exception {
+	public void testIfAuthenticationFaultIsThrownForCancelReservation() throws Exception {
 		when(snaa.isValid(anyListOf(SecretAuthenticationKey.class))).thenReturn(VALIDATION_RESULT_LIST);
-		rs.deleteReservation(USER1_SAKS, USER1_SRKS);
+		rs.cancelReservation(USER1_SAKS, USER1_SRKS);
 	}
 
 	@Test(expected = AuthenticationFault.class)

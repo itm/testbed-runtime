@@ -86,7 +86,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	}
 
 	@Override
-	public void deleteReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+	public void cancelReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 								  final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault {
 
@@ -94,14 +94,14 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		assertNotNull(secretAuthenticationKeys, "Parameter secretAuthenticationKeys is null");
 		assertNotNull(secretReservationKeys, "Parameter secretReservationKeys is null");
 
-		Map<RS, DeleteReservationCallable> map = map(secretAuthenticationKeys, secretReservationKeys);
+		Map<RS, CancelReservationCallable> map = map(secretAuthenticationKeys, secretReservationKeys);
 
 		// calling getReservation assures that every reservation exists
 		getReservation(secretReservationKeys);
 
 		// fork some processes to delete in parallel
 		final List<Future<Void>> futures = newArrayList();
-		for (DeleteReservationCallable callable : map.values()) {
+		for (CancelReservationCallable callable : map.values()) {
 			futures.add(executorService.submit(callable));
 		}
 
@@ -111,9 +111,9 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			try {
 				future.get();
 			} catch (InterruptedException e) {
-				log.error("InterruptedException while executing deleteReservation!", e);
+				log.error("InterruptedException while executing cancelReservation!", e);
 			} catch (ExecutionException e) {
-				log.error("ExecutionException while executing deleteReservation!", e);
+				log.error("ExecutionException while executing cancelReservation!", e);
 				failMessages.add(e.getCause().getMessage());
 			}
 		}
@@ -475,7 +475,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			final List<SecretAuthenticationKey> secretAuthenticationKeys = entry.getKey().getSecretAuthenticationKeys();
 			final List<SecretReservationKey> secretReservationKeys = entry.getValue();
 
-			final DeleteReservationCallable callable = new DeleteReservationCallable(rs);
+			final CancelReservationCallable callable = new CancelReservationCallable(rs);
 			callable.getSecretAuthenticationKeys().addAll(secretAuthenticationKeys);
 			callable.getSecretReservationKeys().addAll(secretReservationKeys);
 
@@ -487,7 +487,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			try {
 				future.get();
 			} catch (InterruptedException e) {
-				final String msg = "InterruptedException while trying to delete reservation!";
+				final String msg = "InterruptedException while trying to cancel reservation!";
 				log.error(msg, e);
 				throwRSFault(msg, e);
 			} catch (ExecutionException e) {
@@ -528,18 +528,18 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		return map;
 	}
 
-	private Map<RS, DeleteReservationCallable> map(
+	private Map<RS, CancelReservationCallable> map(
 			final List<SecretAuthenticationKey> secretAuthenticationKeys,
 			final List<SecretReservationKey> secretReservationKeys) throws RSFault_Exception {
 
-		final Map<RS, DeleteReservationCallable> map = newHashMap();
+		final Map<RS, CancelReservationCallable> map = newHashMap();
 
 		for (SecretAuthenticationKey secretAuthenticationKey : secretAuthenticationKeys) {
 
 			final NodeUrnPrefix urnPrefix = secretAuthenticationKey.getUrnPrefix();
 			final RS rs = assertServed(federatedEndpoints.getEndpointByUrnPrefix(urnPrefix), urnPrefix);
 
-			addOrGetDeleteReservationCallable(map, rs).addSecretAuthenticationKey(secretAuthenticationKey);
+			addOrGetCancelReservationCallable(map, rs).addSecretAuthenticationKey(secretAuthenticationKey);
 		}
 
 		for (SecretReservationKey secretReservationKey : secretReservationKeys) {
@@ -547,17 +547,17 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 			final NodeUrnPrefix urnPrefix = secretReservationKey.getUrnPrefix();
 			final RS rs = assertServed(federatedEndpoints.getEndpointByUrnPrefix(urnPrefix), urnPrefix);
 
-			addOrGetDeleteReservationCallable(map, rs).addSecretReservationKey(secretReservationKey);
+			addOrGetCancelReservationCallable(map, rs).addSecretReservationKey(secretReservationKey);
 		}
 
 		return map;
 	}
 
-	private DeleteReservationCallable addOrGetDeleteReservationCallable(final Map<RS, DeleteReservationCallable> map,
+	private CancelReservationCallable addOrGetCancelReservationCallable(final Map<RS, CancelReservationCallable> map,
 																		final RS rs) {
-		DeleteReservationCallable callable = map.get(rs);
+		CancelReservationCallable callable = map.get(rs);
 		if (callable == null) {
-			callable = new DeleteReservationCallable(rs);
+			callable = new CancelReservationCallable(rs);
 			map.put(rs, callable);
 		}
 		return callable;

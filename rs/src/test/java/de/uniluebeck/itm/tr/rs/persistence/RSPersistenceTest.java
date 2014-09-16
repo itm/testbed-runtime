@@ -178,7 +178,7 @@ public abstract class RSPersistenceTest {
 	public void tearDown() throws Exception {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			try {
-				persistence.deleteReservation(reservationKeyMap.get(i));
+				persistence.cancelReservation(reservationKeyMap.get(i));
 			} catch (UnknownSecretReservationKeyFault ignored) {
 			}
 		}
@@ -229,10 +229,10 @@ public abstract class RSPersistenceTest {
 	}
 
 	@Test
-	public void testDeleteReservation() throws Exception {
+	public void testCancelReservation() throws Exception {
 		makeReservations();
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
-			ConfidentialReservationData actual = persistence.deleteReservation(reservationKeyMap.get(i));
+			ConfidentialReservationData actual = persistence.cancelReservation(reservationKeyMap.get(i));
 			ConfidentialReservationData expected = reservationDataMap.get(i);
 			assertEquals(actual.getFrom(), expected.getFrom());
 			assertEquals(actual.getTo(), expected.getTo());

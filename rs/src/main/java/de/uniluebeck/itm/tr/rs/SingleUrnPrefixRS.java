@@ -5,12 +5,8 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.common.EventBusService;
-import de.uniluebeck.itm.tr.common.ReservationHelper;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -25,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -57,19 +52,15 @@ public class SingleUrnPrefixRS implements RS {
 
 	private final SNAA snaa;
 
-	private final EventBusService eventBus;
-
 	@Inject
 	public SingleUrnPrefixRS(final CommonConfig commonConfig,
 							 final RSPersistence persistence,
 							 final ServedNodeUrnsProvider servedNodeUrnsProvider,
-							 final SNAA snaa,
-							 final EventBusService eventBus) {
+							 final SNAA snaa) {
 		this.commonConfig = checkNotNull(commonConfig);
 		this.persistence = checkNotNull(persistence);
 		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
 		this.snaa = checkNotNull(snaa);
-		this.eventBus = checkNotNull(eventBus);
 	}
 
 	@Override
@@ -144,7 +135,7 @@ public class SingleUrnPrefixRS implements RS {
 	}
 
 	@Override
-	public void deleteReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+	public void cancelReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 								  final List<SecretReservationKey> secretReservationKeys)
 			throws AuthenticationFault, AuthorizationFault, RSFault_Exception, UnknownSecretReservationKeyFault {
 
@@ -160,10 +151,8 @@ public class SingleUrnPrefixRS implements RS {
 		for (SecretReservationKey relevantSRK : relevantSRKs) {
 			ConfidentialReservationData reservationToDelete = persistence.getReservation(relevantSRK);
 			checkNotInPast(reservationToDelete);
-			persistence.deleteReservation(relevantSRK);
-			log.debug("Deleted reservation {}", reservationToDelete);
-			final String serializedKey = ReservationHelper.serializeSRKs(relevantSRKs);
-			eventBus.post(ReservationDeletedEvent.newBuilder().setSerializedKey(serializedKey).build());
+			persistence.cancelReservation(relevantSRK);
+			log.debug("Cancelled reservation {}", reservationToDelete);
 		}
 	}
 
@@ -194,18 +183,12 @@ public class SingleUrnPrefixRS implements RS {
 				options
 		);
 
-		final ArrayList<SecretReservationKey> srks =
-				newArrayList(confidentialReservationData.getSecretReservationKey());
-
-		final String serializedKey = ReservationHelper.serializeSRKs(srks);
-		eventBus.post(ReservationMadeEvent.newBuilder().setSerializedKey(serializedKey).build());
-
-		return srks;
+		return newArrayList(confidentialReservationData.getSecretReservationKey());
 	}
 
 	private void checkNotInPast(final ConfidentialReservationData reservation) throws RSFault_Exception {
 		if (reservation.getTo().isBeforeNow()) {
-			final String msg = "You are not allowed to delete reservations that have already ended.";
+			final String msg = "You are not allowed to cancel reservations that have already ended.";
 			throw createRSFault_Exception(msg);
 		}
 	}

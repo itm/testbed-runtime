@@ -58,10 +58,10 @@ public interface EventOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent getReservationMadeEvent();
   de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEventOrBuilder getReservationMadeEventOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent = 143;
-  boolean hasReservationDeletedEvent();
-  de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent getReservationDeletedEvent();
-  de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder getReservationDeletedEventOrBuilder();
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent = 143;
+  boolean hasReservationCancelledEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent getReservationCancelledEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder getReservationCancelledEventOrBuilder();
   
   // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent = 150;
   boolean hasDeviceConfigCreatedEvent();

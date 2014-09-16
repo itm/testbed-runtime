@@ -74,8 +74,13 @@ public class TypeConverter {
 		final DateTimeZone dateTimeZone = DateTimeZone.forTimeZone(localTimeZone);
 		internal.setFromDate(external.getFrom().withZone(dateTimeZone).getMillis());
 		internal.setToDate(external.getTo().withZone(dateTimeZone).getMillis());
+
 		if (external.getCancelled() != null) {
 			internal.setCancelledDate(external.getCancelled().withZone(dateTimeZone).getMillis());
+		}
+
+		if (external.getFinalized() != null) {
+			internal.setFinalizedDate(external.getFinalized().withZone(dateTimeZone).getMillis());
 		}
 
 		return internal;
@@ -106,6 +111,10 @@ public class TypeConverter {
 
 		if (internal.getCancelledDate() != null) {
 			external.setCancelled(new DateTime(internal.getCancelledDate(), DateTimeZone.forTimeZone(localTimeZone)));
+		}
+
+		if (internal.getFinalizedDate() != null) {
+			external.setFinalized(new DateTime(internal.getFinalizedDate(), DateTimeZone.forTimeZone(localTimeZone)));
 		}
 
 		external.setDescription(internal.getDescription());

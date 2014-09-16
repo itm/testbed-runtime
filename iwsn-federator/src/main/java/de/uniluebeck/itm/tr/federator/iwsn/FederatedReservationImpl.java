@@ -24,6 +24,7 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
@@ -172,6 +173,23 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 	@Override
 	public Interval getInterval() {
 		return interval;
+	}
+
+	@Nullable
+	@Override
+	public DateTime getCancelled() {
+		throw new UnsupportedOperationException("getCancelled() not yet implemented");
+	}
+
+	@Nullable
+	@Override
+	public DateTime getFinalized() {
+		throw new UnsupportedOperationException("getFinalized() not yet implemented");
+	}
+
+	@Override
+	public boolean isFinalized() {
+		throw new UnsupportedOperationException("isFinalized() not yet implemented");
 	}
 
 	@Override

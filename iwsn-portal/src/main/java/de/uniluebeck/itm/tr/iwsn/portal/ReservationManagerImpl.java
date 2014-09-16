@@ -2,16 +2,14 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
-import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import de.uniluebeck.itm.tr.common.ReservationHelper;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceListener;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -36,6 +34,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.common.ReservationHelper.deserialize;
+import static de.uniluebeck.itm.tr.common.ReservationHelper.serialize;
 import static org.joda.time.DateTime.now;
 
 public class ReservationManagerImpl extends AbstractService implements ReservationManager {
@@ -59,7 +58,35 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
     private ScheduledFuture<?> cacheCleanupSchedule;
 
-    @Inject
+	@VisibleForTesting
+	final RSPersistenceListener rsPersistenceListener = new RSPersistenceListener() {
+		@Override
+		public void onReservationMade(final List<ConfidentialReservationData> crd) {
+			log.trace("ReservationManagerImpl.onReservationMadeEvent({})", crd);
+
+			final String secretReservationKeysBase64 = serialize(crd);
+
+			initReservation(crd);
+
+			final ReservationMadeEvent madeEvent =
+					ReservationMadeEvent.newBuilder().setSerializedKey(secretReservationKeysBase64).build();
+			portalEventBus.post(madeEvent);
+		}
+
+		@Override
+		public void onReservationCancelled(final List<ConfidentialReservationData> crd) {
+			// TODO implement
+			// post event and set up cache timeout
+		}
+
+		@Override
+		public void onReservationFinalized(final List<ConfidentialReservationData> crd) {
+			// TODO implement
+			// nothing should be done here as this ReservationManager will call RSPersistence.finalize()
+		}
+	};
+
+	@Inject
     public ReservationManagerImpl(final CommonConfig commonConfig,
                                   final Provider<RSPersistence> rsPersistence,
                                   final DeviceDBService deviceDBService,
@@ -80,6 +107,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             portalEventBus.register(this);
             schedulerService.startAndWait();
             replayReservationMadeEvents();
+			rsPersistence.get().addListener(rsPersistenceListener);
             notifyStarted();
             cacheCleanupSchedule = schedulerService.scheduleAtFixedRate(new Runnable() {
                                                                             @Override
@@ -120,7 +148,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
         try {
             for (ConfidentialReservationData crd : rsPersistence.get().getActiveAndFutureReservations()) {
-                final String serializedKey = ReservationHelper.serialize(crd.getSecretReservationKey());
+                final String serializedKey = serialize(crd.getSecretReservationKey());
                 log.trace("Replaying ReservationMadeEvent for {}", serializedKey);
                 portalEventBus.post(ReservationMadeEvent.newBuilder().setSerializedKey(serializedKey).build());
             }
@@ -128,19 +156,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             throw propagate(e);
         }
     }
-
-    @Subscribe
-    public void onReservationMadeEvent(final ReservationMadeEvent event) {
-        log.trace("ReservationManagerImpl.onReservationMadeEvent({})", event.getSerializedKey());
-        // getReservation will set up any internal state necessary
-        getReservation(deserialize(event.getSerializedKey()));
-    }
-
-    @Subscribe
-    public void onReservationDeletedEvent(final ReservationDeletedEvent event) {
-        log.trace("ReservationManagerImpl.onReservationDeletedEvent({})", event.getSerializedKey());
-		// TODO implement
-	}
 
     @Override
     public Reservation getReservation(final Set<SecretReservationKey> srks)
@@ -219,7 +234,9 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                 new Interval(data.getFrom(), data.getTo())
         );
 
-        scheduleStartStop(reservation);
+		if (!reservation.isFinalized()) {
+			scheduleStartStop(reservation);
+		}
 
         reservationMap.put(srkSet1, reservation);
 
@@ -244,6 +261,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     private void scheduleStartStop(final Reservation reservation) {
 
         log.trace("ReservationManagerImpl.scheduleStartStop({})", reservation.getSerializedKey());
+
+		// TODO cancellation & finalization
 
         if (reservation.isRunning()) {
             throw new IllegalStateException("Reservation instance should not be running yet!");

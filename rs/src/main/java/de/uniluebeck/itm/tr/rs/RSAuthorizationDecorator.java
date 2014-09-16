@@ -33,18 +33,18 @@ public class RSAuthorizationDecorator implements RS {
 
 	@Override
 	@WebMethod
-	@RequestWrapper(localName = "deleteReservation", targetNamespace = "http://wisebed.eu/api/v3/rs",
-			className = "eu.wisebed.api.v3.rs.DeleteReservation")
-	@ResponseWrapper(localName = "deleteReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
-			className = "eu.wisebed.api.v3.rs.DeleteReservationResponse")
-	public void deleteReservation(
+	@RequestWrapper(localName = "cancelReservation", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.CancelReservation")
+	@ResponseWrapper(localName = "cancelReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.CancelReservationResponse")
+	public void cancelReservation(
 			@WebParam(name = "secretAuthenticationKeys", targetNamespace = "") final
 			List<SecretAuthenticationKey> secretAuthenticationKeys,
 			@WebParam(name = "secretReservationKey", targetNamespace = "") final
 			List<SecretReservationKey> secretReservationKey)
 			throws AuthorizationFault, RSFault_Exception, UnknownSecretReservationKeyFault, AuthenticationFault {
-		assertAuthorized(Action.RS_DELETE_RESERVATION, secretReservationKey);
-		rs.deleteReservation(secretAuthenticationKeys, secretReservationKey);
+		assertAuthorized(Action.RS_CANCEL_RESERVATION, secretReservationKey);
+		rs.cancelReservation(secretAuthenticationKeys, secretReservationKey);
 	}
 
 	@Override

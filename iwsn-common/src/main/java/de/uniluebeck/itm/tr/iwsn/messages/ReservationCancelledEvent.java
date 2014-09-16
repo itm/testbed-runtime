@@ -2,32 +2,32 @@
 
 package de.uniluebeck.itm.tr.iwsn.messages;
 
-public  final class ReservationDeletedEvent extends
+public  final class ReservationCancelledEvent extends
     com.google.protobuf.GeneratedMessage
-    implements ReservationDeletedEventOrBuilder {
-  // Use ReservationDeletedEvent.newBuilder() to construct.
-  private ReservationDeletedEvent(Builder builder) {
+    implements ReservationCancelledEventOrBuilder {
+  // Use ReservationCancelledEvent.newBuilder() to construct.
+  private ReservationCancelledEvent(Builder builder) {
     super(builder);
   }
-  private ReservationDeletedEvent(boolean noInit) {}
+  private ReservationCancelledEvent(boolean noInit) {}
   
-  private static final ReservationDeletedEvent defaultInstance;
-  public static ReservationDeletedEvent getDefaultInstance() {
+  private static final ReservationCancelledEvent defaultInstance;
+  public static ReservationCancelledEvent getDefaultInstance() {
     return defaultInstance;
   }
   
-  public ReservationDeletedEvent getDefaultInstanceForType() {
+  public ReservationCancelledEvent getDefaultInstanceForType() {
     return defaultInstance;
   }
   
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationDeletedEvent_descriptor;
+    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationCancelledEvent_descriptor;
   }
   
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationDeletedEvent_fieldAccessorTable;
+    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationCancelledEvent_fieldAccessorTable;
   }
   
   private int bitField0_;
@@ -110,41 +110,41 @@ public  final class ReservationDeletedEvent extends
     return super.writeReplace();
   }
   
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent parseFrom(byte[] data)
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent parseFrom(java.io.InputStream input)
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent parseDelimitedFrom(java.io.InputStream input)
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     Builder builder = newBuilder();
     if (builder.mergeDelimitedFrom(input)) {
@@ -153,7 +153,7 @@ public  final class ReservationDeletedEvent extends
       return null;
     }
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent parseDelimitedFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -164,12 +164,12 @@ public  final class ReservationDeletedEvent extends
       return null;
     }
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -179,7 +179,7 @@ public  final class ReservationDeletedEvent extends
   
   public static Builder newBuilder() { return Builder.create(); }
   public Builder newBuilderForType() { return newBuilder(); }
-  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent prototype) {
+  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent prototype) {
     return newBuilder().mergeFrom(prototype);
   }
   public Builder toBuilder() { return newBuilder(this); }
@@ -192,18 +192,18 @@ public  final class ReservationDeletedEvent extends
   }
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder>
-     implements de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder {
+     implements de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationDeletedEvent_descriptor;
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationCancelledEvent_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationDeletedEvent_fieldAccessorTable;
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationCancelledEvent_fieldAccessorTable;
     }
     
-    // Construct using de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.newBuilder()
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -233,24 +233,24 @@ public  final class ReservationDeletedEvent extends
     
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDescriptor();
+      return de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDescriptor();
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent getDefaultInstanceForType() {
-      return de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance();
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent getDefaultInstanceForType() {
+      return de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent build() {
-      de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent result = buildPartial();
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent build() {
+      de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
       return result;
     }
     
-    private de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent buildParsed()
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent buildParsed()
         throws com.google.protobuf.InvalidProtocolBufferException {
-      de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent result = buildPartial();
+      de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(
           result).asInvalidProtocolBufferException();
@@ -258,8 +258,8 @@ public  final class ReservationDeletedEvent extends
       return result;
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent buildPartial() {
-      de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent result = new de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent(this);
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent buildPartial() {
+      de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent result = new de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent(this);
       int from_bitField0_ = bitField0_;
       int to_bitField0_ = 0;
       if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -272,16 +272,16 @@ public  final class ReservationDeletedEvent extends
     }
     
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent) {
-        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent)other);
+      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent) {
+        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
     
-    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent other) {
-      if (other == de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance()) return this;
+    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent other) {
+      if (other == de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance()) return this;
       if (other.hasSerializedKey()) {
         setSerializedKey(other.getSerializedKey());
       }
@@ -367,14 +367,14 @@ public  final class ReservationDeletedEvent extends
       onChanged();
     }
     
-    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent)
+    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent)
   }
   
   static {
-    defaultInstance = new ReservationDeletedEvent(true);
+    defaultInstance = new ReservationCancelledEvent(true);
     defaultInstance.initFields();
   }
   
-  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent)
+  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent)
 }
 

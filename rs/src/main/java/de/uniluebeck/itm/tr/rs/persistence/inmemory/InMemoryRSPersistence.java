@@ -24,8 +24,10 @@
 package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import de.uniluebeck.itm.tr.rs.persistence.ConfidentialReservationDataComparator;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceListener;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -43,6 +45,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static de.uniluebeck.itm.tr.rs.persistence.OffsetAmountHelper.limitResults;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
@@ -50,6 +53,8 @@ import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReserv
 public class InMemoryRSPersistence implements RSPersistence {
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
+
+	private ImmutableSet<RSPersistenceListener> listeners = ImmutableSet.of();
 
 	private final SortedSet<ConfidentialReservationData> reservations = new TreeSet<ConfidentialReservationData>(
 			new ConfidentialReservationDataComparator()
@@ -80,6 +85,10 @@ public class InMemoryRSPersistence implements RSPersistence {
 
 		reservations.add(crd);
 
+		for (RSPersistenceListener listener : listeners) {
+			listener.onReservationMade(newArrayList(crd));
+		}
+
 		return crd;
 	}
 
@@ -98,9 +107,11 @@ public class InMemoryRSPersistence implements RSPersistence {
 		for (ConfidentialReservationData reservation : reservations) {
 			boolean match =
 					(from == null && to == null) ||
-					(to == null && (reservation.getFrom().equals(from) || reservation.getFrom().isBefore(from))) ||
-					(from == null && (reservation.getTo().isBefore(to))) ||
-					(from != null && to != null && new Interval(reservation.getFrom(), reservation.getTo()).overlaps(new Interval(from, to)));
+							(to == null && (reservation.getFrom().equals(from) || reservation.getFrom()
+									.isBefore(from))) ||
+							(from == null && (reservation.getTo().isBefore(to))) ||
+							(from != null && to != null && new Interval(reservation.getFrom(), reservation.getTo())
+									.overlaps(new Interval(from, to)));
 			if (match) {
 				if (showCancelled == null || showCancelled) {
 					matchingReservations.add(reservation);
@@ -143,7 +154,8 @@ public class InMemoryRSPersistence implements RSPersistence {
 	}
 
 	@Override
-	public synchronized Optional<ConfidentialReservationData> getReservation(final NodeUrn nodeUrn, final DateTime timestamp)
+	public synchronized Optional<ConfidentialReservationData> getReservation(final NodeUrn nodeUrn,
+																			 final DateTime timestamp)
 			throws RSFault_Exception {
 
 		for (ConfidentialReservationData reservation : reservations) {
@@ -170,17 +182,36 @@ public class InMemoryRSPersistence implements RSPersistence {
 	}
 
 	@Override
-	public synchronized ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey) throws
+	public synchronized ConfidentialReservationData cancelReservation(SecretReservationKey secretReservationKey) throws
 			UnknownSecretReservationKeyFault {
 
 		for (ConfidentialReservationData crd : reservations) {
 			if (crd.getSecretReservationKey().equals(secretReservationKey)) {
 				crd.setCancelled(DateTime.now());
+				for (RSPersistenceListener listener : listeners) {
+					listener.onReservationCancelled(newArrayList(crd));
+				}
 				return crd;
 			}
 		}
 
 		throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
+	}
+
+	@Override
+	public synchronized void addListener(final RSPersistenceListener listener) {
+		listeners = ImmutableSet.<RSPersistenceListener>builder().addAll(listeners).add(listener).build();
+	}
+
+	@Override
+	public synchronized void removeListener(final RSPersistenceListener listener) {
+		final ImmutableSet.Builder<RSPersistenceListener> builder = ImmutableSet.builder();
+		for (RSPersistenceListener old : listeners) {
+			if (old != listener) {
+				builder.add(old);
+			}
+		}
+		listeners = builder.build();
 	}
 
 	@Override

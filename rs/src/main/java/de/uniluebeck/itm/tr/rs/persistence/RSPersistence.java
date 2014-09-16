@@ -74,6 +74,10 @@ public interface RSPersistence {
 	ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception;
 
-	ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
+	ConfidentialReservationData cancelReservation(SecretReservationKey secretReservationKey)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception;
+
+	void addListener(RSPersistenceListener rsPersistenceListener);
+
+	void removeListener(RSPersistenceListener rsPersistenceListener);
 }

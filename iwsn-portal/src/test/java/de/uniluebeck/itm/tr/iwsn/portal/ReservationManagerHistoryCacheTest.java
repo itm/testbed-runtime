@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -329,11 +328,11 @@ public class ReservationManagerHistoryCacheTest {
 	public void testIfCacheIsAutomaticallyPopulatedOnReservationMadeEvent() throws Exception {
 
 		when(rsPersistence.getReservation(SRK_1)).thenReturn(RESERVATION_DATA_1.get(0));
-		reservationManager.onReservationMadeEvent(ReservationMadeEvent.newBuilder().setSerializedKey(SSRK_1).build());
-		verify(rsPersistence, times(1)).getReservation(SRK_1);
+		reservationManager.rsPersistenceListener.onReservationMade(RESERVATION_DATA_1);
+		verify(rsPersistence, never()).getReservation(SRK_1);
 
 		reservationManager.getReservation(NODE_1, QUERY_TIMESTAMP_75);
-		verify(rsPersistence, times(1)).getReservation(SRK_1);
+		verify(rsPersistence, never()).getReservation(SRK_1);
 	}
 
 	@Test
