@@ -235,6 +235,8 @@ public class SingleUrnPrefixRS implements RS {
 		PublicReservationData publicReservationData = new PublicReservationData();
 		publicReservationData.setFrom(confidentialReservationData.getFrom());
 		publicReservationData.setTo(confidentialReservationData.getTo());
+		publicReservationData.setCancelled(confidentialReservationData.getCancelled());
+		publicReservationData.setFinalized(confidentialReservationData.getFinalized());
 		publicReservationData.getNodeUrns().addAll(confidentialReservationData.getNodeUrns());
 		return publicReservationData;
 	}

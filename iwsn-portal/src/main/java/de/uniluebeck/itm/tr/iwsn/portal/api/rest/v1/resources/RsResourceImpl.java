@@ -148,12 +148,13 @@ public class RsResourceImpl implements RsResource {
 
 		final List<PublicReservationData> reservations = rs.getReservations(from, to, offset, amount, showCancelled);
 
-		log.debug("Got {} public reservations from {} until {} (offset: {}, amount: {})",
+		log.debug("Got {} public reservations from {} until {} (offset: {}, amount: {}, showCancelled={})",
 				reservations.size(),
 				from,
 				to,
 				offset,
-				amount
+				amount,
+				showCancelled
 		);
 
 		return reservations;

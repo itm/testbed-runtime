@@ -154,17 +154,7 @@ import java.io.Serializable;
 		@NamedQuery(
 				name = ReservationDataInternal.QGetFrom.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
-						+ " ("
-						+ "  data.confidentialReservationData.cancelledDate IS NULL"
-						+ "   AND"
-						+ "  data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetFrom.P_FROM
-						+ " )"
-						+ " OR"
-						+ " ("
-						+ "  data.confidentialReservationData.cancelledDate > data.confidentialReservationData.fromDate"
-						+ "   AND"
-						+ "  data.confidentialReservationData.cancelledDate > :" + ReservationDataInternal.QGetFrom.P_FROM
-						+ " )"
+						+ " data.confidentialReservationData.toDate > :" + ReservationDataInternal.QGetFrom.P_FROM
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
 		@NamedQuery(
