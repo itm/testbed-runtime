@@ -151,6 +151,12 @@ import java.io.Serializable;
 						+ " )"
 						+ " ORDER BY data.confidentialReservationData.fromDate DESC, data.confidentialReservationData.toDate DESC"
 		),
+        @NamedQuery(
+                name = ReservationDataInternal.QGetNonFinalized.QUERY_NAME,
+                query = "FROM ReservationDataInternal data WHERE"
+                        + " ("
+                        + "  data.confidentialReservationData.finalizedDate IS NULL"
+        ),
 		@NamedQuery(
 				name = ReservationDataInternal.QGetFrom.QUERY_NAME,
 				query = "FROM ReservationDataInternal data WHERE"
@@ -243,6 +249,12 @@ public class ReservationDataInternal implements Serializable {
 
 		public static final String P_NOW = "now";
 	}
+
+    public static class QGetNonFinalized {
+
+        public static final String QUERY_NAME = "getNonFinalizedReservations";
+
+    }
 
 	public static class QGetAll {
 

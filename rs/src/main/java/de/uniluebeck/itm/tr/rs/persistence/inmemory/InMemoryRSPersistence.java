@@ -124,7 +124,18 @@ public class InMemoryRSPersistence implements RSPersistence {
 		return limitResults(matchingReservations, offset, amount);
 	}
 
-	@Override
+    @Override
+    public List<ConfidentialReservationData> getNonFinalizedReservations() throws RSFault_Exception {
+        final List<ConfidentialReservationData> matchingReservations = newLinkedList();
+        for (ConfidentialReservationData reservation : reservations) {
+            if (reservation.getFinalized() == null)  {
+                matchingReservations.add(reservation);
+            }
+        }
+        return matchingReservations;
+    }
+
+    @Override
 	public synchronized List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception {
 		final List<ConfidentialReservationData> matchingReservations = newLinkedList();
 		for (ConfidentialReservationData reservation : reservations) {
@@ -181,19 +192,34 @@ public class InMemoryRSPersistence implements RSPersistence {
 		throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
 	}
 
-	@Override
+    @Override
+    public ConfidentialReservationData finalizeReservation(SecretReservationKey secretReservationKey) throws UnknownSecretReservationKeyFault, RSFault_Exception {
+        for (ConfidentialReservationData crd : reservations) {
+            if (crd.getSecretReservationKey().equals(secretReservationKey)) {
+                crd.setFinalized(DateTime.now());
+                for (RSPersistenceListener listener : listeners) {
+                    listener.onReservationFinalized(newArrayList(crd));
+                }
+                return crd;
+            }
+        }
+
+        throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
+    }
+
+    @Override
 	public synchronized ConfidentialReservationData cancelReservation(SecretReservationKey secretReservationKey) throws
 			UnknownSecretReservationKeyFault {
 
 		for (ConfidentialReservationData crd : reservations) {
 			if (crd.getSecretReservationKey().equals(secretReservationKey)) {
-				crd.setCancelled(DateTime.now());
-				for (RSPersistenceListener listener : listeners) {
-					listener.onReservationCancelled(newArrayList(crd));
-				}
-				return crd;
-			}
-		}
+                crd.setCancelled(DateTime.now());
+                for (RSPersistenceListener listener : listeners) {
+                    listener.onReservationCancelled(newArrayList(crd));
+                }
+                return crd;
+            }
+        }
 
 		throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
 	}

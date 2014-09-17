@@ -202,7 +202,43 @@ public class RSPersistenceJPA implements RSPersistence {
 		return data;
 	}
 
-	@Override
+    @Override
+    public ConfidentialReservationData finalizeReservation(SecretReservationKey secretReservationKey) throws UnknownSecretReservationKeyFault, RSFault_Exception {
+        Query query = em.get().createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
+        query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, secretReservationKey.getKey());
+        ReservationDataInternal reservationData;
+        try {
+            reservationData = (ReservationDataInternal) query.getSingleResult();
+        } catch (NoResultException e) {
+            throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
+        }
+        final long nowMillis = DateTime.now(DateTimeZone.forTimeZone(this.localTimeZone)).getMillis();
+
+        if (reservationData.getConfidentialReservationData().getToDate() > nowMillis) {
+            final String msg = "Reservation time span lies in the future and can't therefore be finalized yet";
+            final RSFault faultInfo = new RSFault();
+            faultInfo.setMessage(msg);
+            throw new RSFault_Exception(msg, faultInfo);
+        }
+
+        reservationData.getConfidentialReservationData().setFinalizedDate(nowMillis);
+        em.get().persist(reservationData);
+
+        final ConfidentialReservationData data;
+        try {
+            data = TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
+        } catch (DatatypeConfigurationException e) {
+            throw new RSFault_Exception(e.getMessage(), new RSFault());
+        }
+
+        for (RSPersistenceListener listener : listeners) {
+            listener.onReservationFinalized(newArrayList(data));
+        }
+
+        return data;
+    }
+
+    @Override
 	public void addListener(final RSPersistenceListener rsPersistenceListener) {
 		synchronized (listenersLock) {
 			listeners = ImmutableSet.<RSPersistenceListener>builder().addAll(listeners).add(rsPersistenceListener).build();
@@ -318,7 +354,20 @@ public class RSPersistenceJPA implements RSPersistence {
 		}
 	}
 
-	@Override
+    @Override
+    public List<ConfidentialReservationData> getNonFinalizedReservations() throws RSFault_Exception {
+        @SuppressWarnings("unchecked")
+        final List<ReservationDataInternal> resultList = (List<ReservationDataInternal>) em.get()
+                .createNamedQuery(ReservationDataInternal.QGetNonFinalized.QUERY_NAME).getResultList();
+
+        try {
+            return convertConfidentialReservationData(resultList, localTimeZone);
+        } catch (DatatypeConfigurationException e) {
+            throw new RSFault_Exception(e.getMessage(), new RSFault());
+        }
+    }
+
+    @Override
 	public List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception {
 
 		@SuppressWarnings("unchecked")
