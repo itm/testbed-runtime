@@ -238,6 +238,14 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         }
     }
 
+    /**
+     * Given a set of nodes contained in an event, this methods iterates through the node urns searching a reservation for each node until a reservation is found. All nodes, for which no reservation was found are added to the nodeUrnsWithoutReservation set
+     *
+     * @param eventNodeUrns              the nodes from the event not yet checked
+     * @param nodeUrnsWithoutReservation nodes checked but not part of a reservation
+     * @param time                       the time at which the nodes should have been part of a reservation
+     * @return the first reservation found if any
+     */
     private Optional<Reservation> findNextReservation(Set<NodeUrn> eventNodeUrns, Set<NodeUrn> nodeUrnsWithoutReservation, DateTime time) {
         eventNodeUrns.removeAll(nodeUrnsWithoutReservation);
 

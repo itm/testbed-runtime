@@ -1,9 +1,11 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
-import de.uniluebeck.itm.eventstore.IEventStore;
+import de.uniluebeck.itm.eventstore.EventStore;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
-import de.uniluebeck.itm.tr.iwsn.portal.*;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,17 +17,17 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class PortalEventStoreImplTest {
 
-	private static final String SERIALIZED_KEY = "BLABLABLA";
+    private static final String SERIALIZED_KEY = "BLABLABLA";
 
-	private static final ReservationEndedEvent RESERVATION_ENDED_EVENT = ReservationEndedEvent
-			.newBuilder()
-			.setSerializedKey(SERIALIZED_KEY)
-			.build();
+    private static final ReservationEndedEvent RESERVATION_ENDED_EVENT = ReservationEndedEvent
+            .newBuilder()
+            .setSerializedKey(SERIALIZED_KEY)
+            .build();
 
-	private static final ReservationStartedEvent RESERVATION_STARTED_EVENT = ReservationStartedEvent
-			.newBuilder()
-			.setSerializedKey(SERIALIZED_KEY)
-			.build();
+    private static final ReservationStartedEvent RESERVATION_STARTED_EVENT = ReservationStartedEvent
+            .newBuilder()
+            .setSerializedKey(SERIALIZED_KEY)
+            .build();
 
 
     @Mock
@@ -47,7 +49,7 @@ public class PortalEventStoreImplTest {
     private PortalEventStoreHelper portalEventStoreHelper;
 
     @Mock
-    private IEventStore eventStore;
+    private EventStore eventStore;
 
     private PortalEventStoreImpl store;
 
@@ -61,8 +63,8 @@ public class PortalEventStoreImplTest {
         store = new PortalEventStoreImpl(portalEventStoreHelper, portalServerConfig);
     }
 
-	@Test
-	public void testTodo() throws Exception {
+    @Test
+    public void testTodo() throws Exception {
 
-	}
+    }
 }
