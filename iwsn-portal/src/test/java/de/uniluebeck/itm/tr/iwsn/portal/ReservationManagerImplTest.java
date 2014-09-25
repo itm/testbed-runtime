@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -10,6 +11,7 @@ import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.controller.ReservationEnded;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
@@ -28,6 +30,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -242,6 +245,48 @@ public class ReservationManagerImplTest {
 		verify(schedulerService, never()).schedule(any(ReservationStartCallable.class), anyLong(), any(TimeUnit.class));
 		verify(schedulerService, never()).schedule(any(ReservationStopCallable.class), anyLong(), any(TimeUnit.class));
 	}
+
+
+    @Test
+    public void testEventGenerationForReservationCancelledBeforeStart() throws Exception {
+        setUpReservation1();
+        when(reservation1.getInterval()).thenReturn(new Interval(DateTime.now().plusHours(1), DateTime.now().plusHours(2)));
+        when(reservation1.getCancelled()).thenReturn(DateTime.now().plusMinutes(30));
+        when(reservation1.isRunning()).thenReturn(false);
+
+        reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
+
+        verify(portalEventBus).post(any(ReservationMadeEvent.class));
+        verify(portalEventBus).post(any(ReservationCancelledEvent.class));
+        verify(portalEventBus).post(any(ReservationFinalizedEvent.class));
+        verify(portalEventBus, never()).post(any(ReservationStartedEvent.class));
+        verify(portalEventBus, never()).post(any(ReservationEndedEvent.class));
+    }
+
+    @Test
+    public void testEventGenerationForReservationCancelledAfterStart() throws Exception {
+        // TODO
+        fail("Not yet implemented");
+    }
+
+    @Test
+    public void testEventGenerationForReservationStartedButNotEnded() throws Exception {
+        // TODO
+        fail("Not yet implemented");
+    }
+
+    @Test
+    public void testEventGenerationForReservationStartedAndEnded() throws Exception {
+        setUpReservation3();
+        when(reservation3.isRunning()).thenReturn(false);
+        reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_3);
+
+        verify(reservation3).isRunning();
+        verify(portalEventBus).post(any(ReservationMadeEvent.class));
+        verify(schedulerService).schedule(any(ReservationStartCallable.class), 0, any(TimeUnit.class));
+        verify(schedulerService).schedule(any(ReservationStopCallable.class), 0, any(TimeUnit.class));
+        verify(portalEventBus, never()).post(any(ReservationCancelledEvent.class));
+    }
 
 	private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
 		when(rsPersistence.getReservation(KNOWN_SECRET_RESERVATION_KEY_1)).thenReturn(RESERVATION_DATA_1);

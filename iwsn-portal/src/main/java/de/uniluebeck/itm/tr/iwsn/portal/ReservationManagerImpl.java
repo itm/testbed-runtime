@@ -290,7 +290,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
      *
      * @param reservation the reservation
      */
-    @VisibleForTesting
     private void scheduleLifecycleEvents(final Reservation reservation) {
 
         log.trace("ReservationManagerImpl.scheduleLifecycleEvents({})", reservation.getSerializedKey());
