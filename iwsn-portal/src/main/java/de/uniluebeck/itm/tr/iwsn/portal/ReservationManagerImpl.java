@@ -143,16 +143,14 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 
     @Subscribe
-    public void on(ReservationClosedEvent reservationClosedEvent) {
-        log.trace("ReservationManagerImpl.onReservationClosedEvent({})", reservationClosedEvent);
-
-        scheduleFinalization(getReservation(reservationClosedEvent.getSerializedKey()));
+    public void on(ReservationEndedEvent reservationEndedEvent) {
+        scheduleFinalization(getReservation(reservationEndedEvent.getSerializedKey()));
     }
 
     @Subscribe
     public void on(ReservationCancelledEvent reservationCancelledEvent) {
-        final ReservationClosedEvent event = ReservationClosedEvent.newBuilder().setSerializedKey(reservationCancelledEvent.getSerializedKey()).build();
-        portalEventBus.post(event);
+        scheduleFinalization(getReservation(reservationCancelledEvent.getSerializedKey()));
+
     }
 
     /**
@@ -167,9 +165,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         try {
             for (ConfidentialReservationData crd : rsPersistence.get().getNonFinalizedReservations()) {
                 final String serializedKey = serialize(crd.getSecretReservationKey());
-                log.trace("Replaying ReservationMadeEvent for {}", serializedKey);
+                log.trace("Rebuilding state for {}", serializedKey);
 
-                portalEventBus.post(ReservationMadeEvent.newBuilder().setSerializedKey(serializedKey).build());
 
                 // initReservation triggers scheduleLifecycleEvents (rebuilding events)
                 final Reservation reservation = initReservation(newArrayList(crd));
@@ -290,6 +287,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
      *
      * @param reservation the reservation
      */
+    @VisibleForTesting
     private void scheduleLifecycleEvents(final Reservation reservation) {
 
         log.trace("ReservationManagerImpl.scheduleLifecycleEvents({})", reservation.getSerializedKey());
@@ -301,39 +299,45 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         if (reservation.isFinalized()) {
             return;
         }
-        if (reservation.isCancelled() || reservation.getInterval().isBeforeNow()) {
-            log.trace("ReservationManagerImpl.scheduleLifecycleEvents() for cancelled/finished but non finalized reservation");
-            reservation.startAndWait();
-            final Duration closeAfter = Duration.ZERO;
-            final ReservationStopCallable stopCallable = new ReservationStopCallable(portalEventBus, reservation, false);
-            schedulerService.schedule(stopCallable, closeAfter.getMillis(), MS);
 
-        } else if (reservation.getInterval().containsNow()) {
+        portalEventBus.post(ReservationMadeEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build());
 
-            log.trace("ReservationManagerImpl.scheduleLifecycleEvents() for currently running reservation");
-
+        boolean cancelledEventAlreadyPosted = false;
+        if (reservation.getCancelled() != null && reservation.getCancelled().isBefore(reservation.getInterval().getStart())) {
+            // The reservation was cancelled before it was started
+            portalEventBus.post(ReservationCancelledEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build());
+            cancelledEventAlreadyPosted = true;
+        } else if (reservation.getInterval().getStart().isBeforeNow()) {
             final Duration startAfter = Duration.ZERO;
-            final Duration stopAfter = new Duration(now(), reservation.getInterval().getEnd());
-
-            final ReservationStartCallable startCallable = new ReservationStartCallable(portalEventBus, reservation, false);
-            final ReservationStopCallable stopCallable = new ReservationStopCallable(portalEventBus, reservation, true);
-
+            final ReservationStartCallable startCallable = new ReservationStartCallable(portalEventBus, reservation);
             schedulerService.schedule(startCallable, startAfter.getMillis(), MS);
-            schedulerService.schedule(stopCallable, stopAfter.getMillis(), MS);
-
-        } else if (reservation.getInterval().isAfterNow()) {
-
-            log.trace("ReservationManagerImpl.scheduleLifecycleEvents() for future reservation");
-
+        } else {
+            log.trace("ReservationManagerImpl.scheduleLifecycleEvents(): scheduling start for later");
             final Duration startAfter = new Duration(now(), reservation.getInterval().getStart());
-            final Duration stopAfter = new Duration(now(), reservation.getInterval().getEnd());
-
-            final ReservationStartCallable startCallable = new ReservationStartCallable(portalEventBus, reservation, true);
-            final ReservationStopCallable stopCallable = new ReservationStopCallable(portalEventBus, reservation, true);
-
+            final ReservationStartCallable startCallable = new ReservationStartCallable(portalEventBus, reservation);
             schedulerService.schedule(startCallable, startAfter.getMillis(), MS);
+        }
+
+        if (reservation.isCancelled()) {
+            if (!cancelledEventAlreadyPosted) {
+                portalEventBus.post(ReservationCancelledEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build());
+            }
+        } else if (reservation.getCancelled() != null && reservation.getInterval().contains(reservation.getCancelled())) {
+            final Duration cancellAfter = new Duration(now(), reservation.getCancelled());
+            final ReservationCancellCallable cancellCallable = new ReservationCancellCallable(portalEventBus, reservation);
+            schedulerService.schedule(cancellCallable, cancellAfter.getMillis(), MS);
+        } else if (reservation.getInterval().isBeforeNow()) {
+            final Duration stopAfter = Duration.ZERO;
+            final ReservationStopCallable stopCallable = new ReservationStopCallable(portalEventBus, reservation);
+            schedulerService.schedule(stopCallable, stopAfter.getMillis(), MS);
+        } else {
+            log.trace("ReservationManagerImpl.scheduleLifecycleEvents(): scheduling stop for later");
+            final Duration stopAfter = new Duration(now(), reservation.getInterval().getEnd());
+            final ReservationStopCallable stopCallable = new ReservationStopCallable(portalEventBus, reservation);
             schedulerService.schedule(stopCallable, stopAfter.getMillis(), MS);
         }
+
+
     }
 
     private void scheduleFinalization(Reservation reservation) {
@@ -344,8 +348,13 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                     future.cancel(true);
                 }
             }
-
-            ScheduledFuture<Void> finalizationFuture = schedulerService.schedule(new ReservationFinalizeCallable(reservation), 5, TimeUnit.MINUTES);
+            final ReservationFinalizeCallable callable = new ReservationFinalizeCallable(reservation);
+            ScheduledFuture<Void> finalizationFuture;
+            if (reservation.isRunning()) {
+                finalizationFuture = schedulerService.schedule(callable, 5, TimeUnit.MINUTES);
+            } else {
+                finalizationFuture = schedulerService.schedule(callable, 0, TimeUnit.MILLISECONDS);
+            }
             finalizationSchedules.put(reservation, finalizationFuture);
         }
     }
@@ -524,11 +533,13 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                 }
             }
             synchronized (reservationMap) {
-            reservationMap.remove(srks);
+                reservationMap.remove(srks);
             }
             final ReservationFinalizedEvent event = ReservationFinalizedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build();
             portalEventBus.post(event);
-            reservation.stopAndWait();
+            if (reservation.isRunning()) {
+                reservation.stopAndWait();
+            }
 
 
             return null;

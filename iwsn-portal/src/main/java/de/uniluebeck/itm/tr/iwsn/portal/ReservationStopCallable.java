@@ -10,30 +10,23 @@ public class ReservationStopCallable implements Callable<Void> {
     private final PortalEventBus portalEventBus;
 
     private final Reservation reservation;
-    private final boolean createStopEvent;
 
-    public ReservationStopCallable(final PortalEventBus portalEventBus, final Reservation reservation, final boolean createStopEvent) {
+    public ReservationStopCallable(final PortalEventBus portalEventBus, final Reservation reservation) {
         this.portalEventBus = portalEventBus;
         this.reservation = reservation;
-        this.createStopEvent = createStopEvent;
     }
 
     @Override
     public Void call() throws Exception {
+        if (reservation.isCancelled() || reservation.isFinalized()) {
+            return null;
+        }
 
-        if (!reservation.isCancelled() && createStopEvent) {
             final ReservationEndedEvent event = ReservationEndedEvent
                     .newBuilder()
                     .setSerializedKey(reservation.getSerializedKey())
                     .build();
             portalEventBus.post(event);
-        }
-
-        if (!reservation.isFinalized()) {
-            final ReservationClosedEvent event = ReservationClosedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build();
-            portalEventBus.post(event);
-        }
-
 
         return null;
     }

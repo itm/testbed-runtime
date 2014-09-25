@@ -1,16 +1,16 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent;
 
 import java.util.concurrent.Callable;
 
-public class ReservationStartCallable implements Callable<Void> {
+public class ReservationCancellCallable implements Callable<Void> {
 
     private final PortalEventBus portalEventBus;
 
     private final Reservation reservation;
 
-    public ReservationStartCallable(final PortalEventBus portalEventBus, final Reservation reservation) {
+    public ReservationCancellCallable(final PortalEventBus portalEventBus, final Reservation reservation) {
         this.portalEventBus = portalEventBus;
         this.reservation = reservation;
     }
@@ -21,7 +21,7 @@ public class ReservationStartCallable implements Callable<Void> {
         if (reservation.isFinalized()) {
             return null;
         }
-        final ReservationStartedEvent event = ReservationStartedEvent
+        final ReservationCancelledEvent event = ReservationCancelledEvent
                 .newBuilder()
                 .setSerializedKey(reservation.getSerializedKey())
                 .build();
