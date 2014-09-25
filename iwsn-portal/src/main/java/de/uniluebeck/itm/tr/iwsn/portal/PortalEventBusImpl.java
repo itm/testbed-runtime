@@ -6,10 +6,7 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.common.netty.ExceptionChannelHandler;
 import de.uniluebeck.itm.tr.iwsn.common.netty.KeepAliveHandler;
-import de.uniluebeck.itm.tr.iwsn.messages.Message;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServer;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -71,20 +68,22 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 	@Override
 	public void post(final Object event) {
 		eventBus.post(event);
-
-		if (event instanceof ReservationStartedEvent) {
-			final String serializedKey = ((ReservationStartedEvent) event).getSerializedKey();
-			reservationManager.getReservation(serializedKey).getEventBus().register(this);
-		} else if (event instanceof ReservationEndedEvent) {
-			final String serializedKey = ((ReservationEndedEvent) event).getSerializedKey();
-			reservationManager.getReservation(serializedKey).getEventBus().unregister(this);
-		}
 	}
 
 	@Subscribe
 	public void onRequest(final Request request) {
 		eventBus.post(request);
 	}
+
+    @Subscribe
+    public void on(final ReservationOpenedEvent event) {
+        eventBus.post(event);
+    }
+
+    @Subscribe
+    public void on(final ReservationClosedEvent event) {
+        eventBus.post(event);
+    }
 
 	@Override
 	protected void doStart() {

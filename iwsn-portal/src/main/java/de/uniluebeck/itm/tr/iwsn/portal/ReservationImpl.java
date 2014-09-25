@@ -8,6 +8,8 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStoreFactory;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
@@ -116,6 +118,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		try {
 			reservationEventStore.startAndWait();
 			reservationEventBus.startAndWait();
+            reservationEventBus.post(ReservationOpenedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
 			rsPersistence.addListener(rsPersistenceListener);
 			notifyStarted();
 		} catch (Exception e) {
@@ -127,6 +130,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	protected void doStop() {
 		log.trace("ReservationImpl.doStop()");
 		try {
+            reservationEventBus.post(ReservationClosedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
 			rsPersistence.removeListener(rsPersistenceListener);
 			reservationEventBus.stopAndWait();
 			reservationEventStore.stopAndWait();
@@ -183,12 +187,12 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	@Override
 	public boolean isFinalized() {
-		return getFinalized() != null;
+		return getFinalized() != null && getFinalized().isBeforeNow();
 	}
 
     @Override
     public boolean isCancelled() {
-        return  getCancelled() != null;
+        return  getCancelled() != null && getCancelled().isBeforeNow();
     }
 
     @Override
