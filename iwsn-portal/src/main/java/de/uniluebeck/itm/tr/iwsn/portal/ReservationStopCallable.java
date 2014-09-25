@@ -21,16 +21,19 @@ public class ReservationStopCallable implements Callable<Void> {
     @Override
     public Void call() throws Exception {
 
-        if (createStopEvent) {
-        final ReservationEndedEvent event = ReservationEndedEvent
+        if (!reservation.isCancelled() && createStopEvent) {
+            final ReservationEndedEvent event = ReservationEndedEvent
                     .newBuilder()
                     .setSerializedKey(reservation.getSerializedKey())
                     .build();
             portalEventBus.post(event);
         }
 
-        final ReservationClosedEvent event = ReservationClosedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build();
-        portalEventBus.post(event);
+        if (!reservation.isFinalized()) {
+            final ReservationClosedEvent event = ReservationClosedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build();
+            portalEventBus.post(event);
+        }
+
 
         return null;
     }

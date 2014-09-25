@@ -21,6 +21,9 @@ public class ReservationStartCallable implements Callable<Void> {
     @Override
     public Void call() throws Exception {
         reservation.startAndWait();
+        if (reservation.isCancelled() || reservation.isFinalized()) {
+            return null;
+        }
         if (createStatedEvent) {
             final ReservationStartedEvent event = ReservationStartedEvent
                     .newBuilder()

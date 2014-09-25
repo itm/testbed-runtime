@@ -149,6 +149,12 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         scheduleFinalization(getReservation(reservationClosedEvent.getSerializedKey()));
     }
 
+    @Subscribe
+    public void on(ReservationCancelledEvent reservationCancelledEvent) {
+        final ReservationClosedEvent event = ReservationClosedEvent.newBuilder().setSerializedKey(reservationCancelledEvent.getSerializedKey()).build();
+        portalEventBus.post(event);
+    }
+
     /**
      * Replay all {@link de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent}s of reservations that are
      * currently active of in the future to drive all subscribers to the current state (cf. event-sourced
