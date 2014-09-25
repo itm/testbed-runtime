@@ -27,7 +27,7 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
     private EventStore eventStore;
 
-    private Reservation reservation;
+    private final Reservation reservation;
 
     @Inject
     public ReservationEventStoreImpl(final PortalEventStoreHelper helper, @Assisted final Reservation reservation) {

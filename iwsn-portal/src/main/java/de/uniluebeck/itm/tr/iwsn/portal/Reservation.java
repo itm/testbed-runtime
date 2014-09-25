@@ -85,6 +85,8 @@ public interface Reservation extends Service {
 
 	boolean isFinalized();
 
+    boolean isCancelled();
+
 	String getSerializedKey();
 
 	Set<SecretReservationKey> getSecretReservationKeys();

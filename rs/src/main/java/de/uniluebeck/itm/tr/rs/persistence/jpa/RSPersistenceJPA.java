@@ -203,6 +203,7 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
     @Override
+    @Transactional
     public ConfidentialReservationData finalizeReservation(SecretReservationKey secretReservationKey) throws UnknownSecretReservationKeyFault, RSFault_Exception {
         Query query = em.get().createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
         query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, secretReservationKey.getKey());

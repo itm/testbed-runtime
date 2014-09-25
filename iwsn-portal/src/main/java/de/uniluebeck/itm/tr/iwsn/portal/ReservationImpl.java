@@ -59,6 +59,9 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	@Nullable
 	private DateTime cancelled;
 
+    @Nullable
+    private DateTime finalized;
+
 	private final RSPersistenceListener rsPersistenceListener = new RSPersistenceListener() {
 		@Override
 		public void onReservationMade(final List<ConfidentialReservationData> crd) {
@@ -75,7 +78,9 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		@Override
 		public void onReservationFinalized(
 				final List<ConfidentialReservationData> crd) {
-			// TODO implement
+            if (crd.get(0).getSecretReservationKey().equals(ReservationImpl.this.getSecretReservationKey())) {
+                ReservationImpl.this.finalized = crd.get(0).getFinalized();
+            }
 		}
 	};
 
@@ -173,15 +178,20 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	@Nullable
 	@Override
 	public DateTime getFinalized() {
-		return null;  // TODO implement
+		return finalized;
 	}
 
 	@Override
 	public boolean isFinalized() {
-		return false;  // TODO implement
+		return getFinalized() != null;
 	}
 
-	@Override
+    @Override
+    public boolean isCancelled() {
+        return  getCancelled() != null;
+    }
+
+    @Override
 	public String getSerializedKey() {
 		try {
 			return serialize(getSecretReservationKey());
