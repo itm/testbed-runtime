@@ -8,7 +8,10 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.messages.*;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceListener;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -169,7 +172,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
 
                 // initReservation triggers scheduleLifecycleEvents (rebuilding events)
-                final Reservation reservation = initReservation(newArrayList(crd));
+                initReservation(newArrayList(crd));
             }
         } catch (RSFault_Exception e) {
             throw propagate(e);
@@ -342,6 +345,9 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
     private void scheduleFinalization(Reservation reservation) {
         synchronized (finalizationSchedules) {
+            if (reservation.isFinalized()) {
+                return;
+            }
             if (finalizationSchedules.containsKey(reservation)) {
                 ScheduledFuture<Void> future = finalizationSchedules.remove(reservation);
                 if (future != null) {
@@ -519,26 +525,24 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
         @Override
         public Void call() throws Exception {
-            // TODO check if the implementation is complete
             synchronized (finalizationSchedules) {
                 finalizationSchedules.remove(reservation);
-            }
-
-            Set<SecretReservationKey> srks = deserialize(reservation.getSerializedKey());
-            // Finalize reservations of this testbed, filter federated reservations
-            for (Iterator<SecretReservationKey> it = srks.iterator(); it.hasNext(); ) {
-                SecretReservationKey current = it.next();
-                if (commonConfig.getUrnPrefix().equals(current.getUrnPrefix())) {
-                    rsPersistence.get().finalizeReservation(current);
+                Set<SecretReservationKey> srks = deserialize(reservation.getSerializedKey());
+                // Finalize reservations of this testbed, filter federated reservations
+                for (Iterator<SecretReservationKey> it = srks.iterator(); it.hasNext(); ) {
+                    SecretReservationKey current = it.next();
+                    if (commonConfig.getUrnPrefix().equals(current.getUrnPrefix())) {
+                        rsPersistence.get().finalizeReservation(current);
+                    }
                 }
-            }
-            synchronized (reservationMap) {
-                reservationMap.remove(srks);
-            }
-            final ReservationFinalizedEvent event = ReservationFinalizedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build();
-            portalEventBus.post(event);
-            if (reservation.isRunning()) {
-                reservation.stopAndWait();
+                synchronized (reservationMap) {
+                    reservationMap.remove(srks);
+                }
+                final ReservationFinalizedEvent event = ReservationFinalizedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build();
+                portalEventBus.post(event);
+                if (reservation.isRunning()) {
+                    reservation.stopAndWait();
+                }
             }
 
 
