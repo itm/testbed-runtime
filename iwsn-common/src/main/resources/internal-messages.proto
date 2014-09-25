@@ -33,6 +33,9 @@ message ReservationEvent {
 	enum Type {
 		STARTED = 1;
 		ENDED   = 2;
+        OPENED = 3;
+        CLOSED = 4;
+        FINALIZED = 5;
 	}
 
 	message SecretReservationKey {
