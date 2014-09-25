@@ -142,14 +142,29 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 	}
 
 	public void onReservationStartedEvent(final ReservationStartedEvent event) {
-		final Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
-		allChannels.write(createReservationEvent(reservation, ReservationEvent.Type.STARTED));
+        writeReservationEvent(event.getSerializedKey(), ReservationEvent.Type.STARTED);
 	}
 
 	public void onReservationEndedEvent(final ReservationEndedEvent event) {
-		final Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
-		allChannels.write(createReservationEvent(reservation, ReservationEvent.Type.ENDED));
+        writeReservationEvent(event.getSerializedKey(), ReservationEvent.Type.ENDED);
 	}
+
+    public void on(final ReservationOpenedEvent event) {
+        writeReservationEvent(event.getSerializedKey(), ReservationEvent.Type.OPENED);
+    }
+
+    public void on(final ReservationClosedEvent event) {
+        writeReservationEvent(event.getSerializedKey(), ReservationEvent.Type.CLOSED);
+    }
+
+    public void on(final ReservationFinalizedEvent event) {
+        writeReservationEvent(event.getSerializedKey(), ReservationEvent.Type.FINALIZED);
+    }
+
+    private void writeReservationEvent(String reservationKey, ReservationEvent.Type type) {
+        final Reservation reservation = reservationManager.getReservation(reservationKey);
+        allChannels.write(createReservationEvent(reservation, type));
+    }
 
 	private ExternalPluginMessage createReservationEvent(final Reservation reservation,
 														 final ReservationEvent.Type type) {
