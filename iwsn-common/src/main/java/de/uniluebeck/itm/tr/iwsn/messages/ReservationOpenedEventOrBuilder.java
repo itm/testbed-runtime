@@ -3,7 +3,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.messages;
 
-public interface ReservationEndedEventOrBuilder
+public interface ReservationOpenedEventOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
 
   // required string serializedKey = 1;

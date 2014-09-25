@@ -4,24 +4,24 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
 /**
- * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent}
+ * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent}
  */
-public  final class ReservationEndedEvent extends
+public  final class ReservationOpenedEvent extends
     com.google.protobuf.GeneratedMessage
-    implements ReservationEndedEventOrBuilder {
-  // Use ReservationEndedEvent.newBuilder() to construct.
-  private ReservationEndedEvent(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    implements ReservationOpenedEventOrBuilder {
+  // Use ReservationOpenedEvent.newBuilder() to construct.
+  private ReservationOpenedEvent(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
     super(builder);
     this.unknownFields = builder.getUnknownFields();
   }
-  private ReservationEndedEvent(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+  private ReservationOpenedEvent(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
 
-  private static final ReservationEndedEvent defaultInstance;
-  public static ReservationEndedEvent getDefaultInstance() {
+  private static final ReservationOpenedEvent defaultInstance;
+  public static ReservationOpenedEvent getDefaultInstance() {
     return defaultInstance;
   }
 
-  public ReservationEndedEvent getDefaultInstanceForType() {
+  public ReservationOpenedEvent getDefaultInstanceForType() {
     return defaultInstance;
   }
 
@@ -31,7 +31,7 @@ public  final class ReservationEndedEvent extends
       getUnknownFields() {
     return this.unknownFields;
   }
-  private ReservationEndedEvent(
+  private ReservationOpenedEvent(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
@@ -73,28 +73,28 @@ public  final class ReservationEndedEvent extends
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEndedEvent_descriptor;
+    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationOpenedEvent_descriptor;
   }
 
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEndedEvent_fieldAccessorTable
+    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationOpenedEvent_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder.class);
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder.class);
   }
 
-  public static com.google.protobuf.Parser<ReservationEndedEvent> PARSER =
-      new com.google.protobuf.AbstractParser<ReservationEndedEvent>() {
-    public ReservationEndedEvent parsePartialFrom(
+  public static com.google.protobuf.Parser<ReservationOpenedEvent> PARSER =
+      new com.google.protobuf.AbstractParser<ReservationOpenedEvent>() {
+    public ReservationOpenedEvent parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      return new ReservationEndedEvent(input, extensionRegistry);
+      return new ReservationOpenedEvent(input, extensionRegistry);
     }
   };
 
   @java.lang.Override
-  public com.google.protobuf.Parser<ReservationEndedEvent> getParserForType() {
+  public com.google.protobuf.Parser<ReservationOpenedEvent> getParserForType() {
     return PARSER;
   }
 
@@ -189,53 +189,53 @@ public  final class ReservationEndedEvent extends
     return super.writeReplace();
   }
 
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parseFrom(byte[] data)
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parseFrom(java.io.InputStream input)
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return PARSER.parseFrom(input);
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return PARSER.parseFrom(input, extensionRegistry);
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parseDelimitedFrom(java.io.InputStream input)
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     return PARSER.parseDelimitedFrom(input);
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parseDelimitedFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return PARSER.parseDelimitedFrom(input, extensionRegistry);
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return PARSER.parseFrom(input);
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -244,7 +244,7 @@ public  final class ReservationEndedEvent extends
 
   public static Builder newBuilder() { return Builder.create(); }
   public Builder newBuilderForType() { return newBuilder(); }
-  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent prototype) {
+  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent prototype) {
     return newBuilder().mergeFrom(prototype);
   }
   public Builder toBuilder() { return newBuilder(this); }
@@ -256,24 +256,24 @@ public  final class ReservationEndedEvent extends
     return builder;
   }
   /**
-   * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent}
+   * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder>
-     implements de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder {
+     implements de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEndedEvent_descriptor;
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationOpenedEvent_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEndedEvent_fieldAccessorTable
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationOpenedEvent_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder.class);
+              de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder.class);
     }
 
-    // Construct using de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.newBuilder()
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -304,23 +304,23 @@ public  final class ReservationEndedEvent extends
 
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEndedEvent_descriptor;
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationOpenedEvent_descriptor;
     }
 
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent getDefaultInstanceForType() {
-      return de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent getDefaultInstanceForType() {
+      return de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance();
     }
 
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent build() {
-      de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent result = buildPartial();
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent build() {
+      de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
       return result;
     }
 
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent buildPartial() {
-      de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent result = new de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent(this);
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent buildPartial() {
+      de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent result = new de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent(this);
       int from_bitField0_ = bitField0_;
       int to_bitField0_ = 0;
       if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -333,16 +333,16 @@ public  final class ReservationEndedEvent extends
     }
 
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent) {
-        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent)other);
+      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent) {
+        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent other) {
-      if (other == de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance()) return this;
+    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent other) {
+      if (other == de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance()) return this;
       if (other.hasSerializedKey()) {
         bitField0_ |= 0x00000001;
         serializedKey_ = other.serializedKey_;
@@ -364,11 +364,11 @@ public  final class ReservationEndedEvent extends
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent parsedMessage = null;
+      de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent parsedMessage = null;
       try {
         parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent) e.getUnfinishedMessage();
+        parsedMessage = (de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent) e.getUnfinishedMessage();
         throw e;
       } finally {
         if (parsedMessage != null) {
@@ -453,14 +453,14 @@ public  final class ReservationEndedEvent extends
       return this;
     }
 
-    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent)
+    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent)
   }
 
   static {
-    defaultInstance = new ReservationEndedEvent(true);
+    defaultInstance = new ReservationOpenedEvent(true);
     defaultInstance.initFields();
   }
 
-  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent)
+  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent)
 }
 

@@ -211,6 +211,18 @@ message ReservationCancelledEvent {
 	required string serializedKey = 1;
 }
 
+message ReservationOpenedEvent {
+    required string serializedKey = 1;
+}
+
+message ReservationFinalizedEvent {
+    required string serializedKey = 1;
+}
+
+message ReservationClosedEvent {
+    required string serializedKey = 1;
+}
+
 message DeviceConfigCreatedEvent {
 	required string nodeUrn = 1;
 }
@@ -242,6 +254,10 @@ message Event {
 		RESERVATION_MADE      = 42;  // downstream, sent by portal
 		RESERVATION_CANCELLED = 43;  // downstream, sent by portal
 
+        RESERVATION_OPENED = 44;  // downstream, sent by portal
+        RESERVATION_CLOSED = 45;  // downstream, sent by portal
+        RESERVATION_FINALIZED = 46;  // downstream, sent by portal
+
 		DEVICE_CONFIG_CREATED = 50;  // downstream, sent by portal
 		DEVICE_CONFIG_UPDATED = 51;  // downstream, sent by portal
 		DEVICE_CONFIG_DELETED = 52;  // downstream, sent by portal
@@ -264,6 +280,10 @@ message Event {
 	optional ReservationEndedEvent     reservationEndedEvent     = 141;
 	optional ReservationMadeEvent      reservationMadeEvent      = 142;
 	optional ReservationCancelledEvent reservationCancelledEvent = 143;
+
+    optional ReservationOpenedEvent reservationOpenedEvent = 144;
+    optional ReservationClosedEvent reservationClosedEvent = 145;
+    optional ReservationFinalizedEvent reservationFinalizedEvent = 146;
 
 	optional DeviceConfigCreatedEvent  deviceConfigCreatedEvent  = 150;
 	optional DeviceConfigUpdatedEvent  deviceConfigUpdatedEvent  = 151;
