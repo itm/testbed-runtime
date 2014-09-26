@@ -95,17 +95,20 @@ public class ReservationImpl extends AbstractService implements Reservation {
 						   final ReservationEventStoreFactory reservationEventStoreFactory,
 						   @Assisted final List<ConfidentialReservationData> confidentialReservationDataList,
 						   @Assisted("secretReservationKey") final String key,
-						   @Assisted("username") final String username,
+                           @Assisted("username") final String username,
+                           @Assisted("cancelled") final DateTime cancelled,
+                           @Assisted("finalized") final DateTime finalized,
 						   @Assisted final Set<NodeUrn> nodeUrns,
 						   @Assisted final Interval interval) {
-
-		this.rsPersistence = checkNotNull(rsPersistence);
+        this.rsPersistence = checkNotNull(rsPersistence);
 		this.commonConfig = checkNotNull(commonConfig);
 		this.responseTrackerCache = checkNotNull(responseTrackerCache);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.confidentialReservationData = newHashSet(checkNotNull(confidentialReservationDataList));
 		this.key = checkNotNull(key);
 		this.username = checkNotNull(username);
+        this.cancelled = cancelled;
+        this.finalized = finalized;
 		this.nodeUrns = checkNotNull(nodeUrns);
 		this.interval = checkNotNull(interval);
 		this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));

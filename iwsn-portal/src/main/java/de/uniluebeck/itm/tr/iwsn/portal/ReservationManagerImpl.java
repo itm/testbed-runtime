@@ -263,6 +263,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                 confidentialReservationDataList,
                 data.getSecretReservationKey().getKey(),
                 data.getUsername(),
+                data.getCancelled(),
+                data.getFinalized(),
                 reservedNodes,
                 new Interval(data.getFrom(), data.getTo())
         );
