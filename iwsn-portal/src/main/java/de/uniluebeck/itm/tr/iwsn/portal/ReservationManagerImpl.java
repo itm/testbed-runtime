@@ -330,12 +330,12 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             schedulerService.schedule(cancellCallable, cancellAfter.getMillis(), MS);
         } else if (reservation.getInterval().isBeforeNow()) {
             final Duration stopAfter = Duration.ZERO;
-            final ReservationStopCallable stopCallable = new ReservationStopCallable(portalEventBus, reservation);
+            final ReservationEndCallable stopCallable = new ReservationEndCallable(portalEventBus, reservation);
             schedulerService.schedule(stopCallable, stopAfter.getMillis(), MS);
         } else {
             log.trace("ReservationManagerImpl.scheduleLifecycleEvents(): scheduling stop for later");
             final Duration stopAfter = new Duration(now(), reservation.getInterval().getEnd());
-            final ReservationStopCallable stopCallable = new ReservationStopCallable(portalEventBus, reservation);
+            final ReservationEndCallable stopCallable = new ReservationEndCallable(portalEventBus, reservation);
             schedulerService.schedule(stopCallable, stopAfter.getMillis(), MS);
         }
 
