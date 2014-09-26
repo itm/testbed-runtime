@@ -79,6 +79,8 @@ public class ReservationImplTest {
 				newArrayList(confidentialReservationData),
 				"someRandomReservationIdHere",
 				username,
+                null,
+                null,
 				NODE_URNS,
 				INTERVAL
 		);

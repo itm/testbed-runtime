@@ -269,11 +269,11 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                 new Interval(data.getFrom(), data.getTo())
         );
 
-        if (!reservation.isFinalized()) {
+        if (!reservation.isFinalized() && !reservationMap.containsKey(srkSet1)) {
             scheduleLifecycleEvents(reservation);
+            reservationMap.put(srkSet1, reservation);
         }
 
-        reservationMap.put(srkSet1, reservation);
 
         return reservation;
     }

@@ -217,19 +217,6 @@ public class ReservationManagerImplTest {
         verify(schedulerService).schedule(isA(ReservationEndCallable.class), anyLong(), any(TimeUnit.class));
     }
 
-    @Test
-    public void testThatReservationStartAndStopIsNotScheduledIfReservationIntervalLiesInThePast() throws Exception {
-        // TODO: this test should fail now!
-        setUpReservation3();
-        when(reservation3.isRunning()).thenReturn(false);
-
-        reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_3);
-
-        verify(reservation3, never()).startAndWait();
-        verify(schedulerService, never()).schedule(any(ReservationStartCallable.class), anyLong(), any(TimeUnit.class));
-        verify(schedulerService, never()).schedule(any(ReservationEndCallable.class), anyLong(), any(TimeUnit.class));
-    }
-
 
     @Test
     public void testEventGenerationForReservationCancelledBeforeStart() throws Exception {
@@ -279,7 +266,7 @@ public class ReservationManagerImplTest {
         reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
 
         verify(portalEventBus).post(any(ReservationMadeEvent.class));
-        verify(schedulerService).schedule(any(ReservationStartCallable.class), 0, any(TimeUnit.class));
+        verify(schedulerService).schedule(any(ReservationStartCallable.class), eq(0l), any(TimeUnit.class));
         verify(schedulerService).schedule(any(ReservationEndCallable.class), anyLong(), any(TimeUnit.class));
 
         verify(portalEventBus, never()).post(any(ReservationEndedEvent.class));
@@ -294,8 +281,8 @@ public class ReservationManagerImplTest {
 
         verify(reservation3).isRunning();
         verify(portalEventBus).post(any(ReservationMadeEvent.class));
-        verify(schedulerService).schedule(any(ReservationStartCallable.class), 0, any(TimeUnit.class));
-        verify(schedulerService).schedule(any(ReservationEndCallable.class), 0, any(TimeUnit.class));
+        verify(schedulerService).schedule(any(ReservationStartCallable.class), eq(0l), any(TimeUnit.class));
+        verify(schedulerService).schedule(any(ReservationEndCallable.class), eq(0l), any(TimeUnit.class));
         verify(portalEventBus, never()).post(any(ReservationCancelledEvent.class));
     }
 
@@ -305,11 +292,14 @@ public class ReservationManagerImplTest {
                         anyListOf(ConfidentialReservationData.class),
                         eq(KNOWN_SECRET_RESERVATION_KEY_1.getKey()),
                         eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
                         eq(RESERVATION_NODE_URNS_1),
                         eq(RESERVATION_INTERVAL_1)
                 )
         ).thenReturn(reservation1);
         when(reservation1.getInterval()).thenReturn(RESERVATION_INTERVAL_1);
+        when(reservation1.getSerializedKey()).thenReturn(KNOWN_SECRET_RESERVATION_KEY_1.getKey());
     }
 
     private void setUpReservation2() throws RSFault_Exception, UnknownSecretReservationKeyFault {
@@ -318,11 +308,14 @@ public class ReservationManagerImplTest {
                         anyListOf(ConfidentialReservationData.class),
                         eq(KNOWN_SECRET_RESERVATION_KEY_2.getKey()),
                         eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
                         eq(RESERVATION_NODE_URNS_2),
                         eq(RESERVATION_INTERVAL_2)
                 )
         ).thenReturn(reservation2);
         when(reservation2.getInterval()).thenReturn(RESERVATION_INTERVAL_2);
+        when(reservation2.getSerializedKey()).thenReturn(KNOWN_SECRET_RESERVATION_KEY_2.getKey());
     }
 
     private void setUpReservation3() throws RSFault_Exception, UnknownSecretReservationKeyFault {
@@ -331,11 +324,14 @@ public class ReservationManagerImplTest {
                         anyListOf(ConfidentialReservationData.class),
                         eq(KNOWN_SECRET_RESERVATION_KEY_3.getKey()),
                         eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
                         eq(RESERVATION_NODE_URNS_3),
                         eq(RESERVATION_INTERVAL_3)
                 )
         ).thenReturn(reservation3);
         when(reservation3.getInterval()).thenReturn(RESERVATION_INTERVAL_3);
+        when(reservation3.getSerializedKey()).thenReturn(KNOWN_SECRET_RESERVATION_KEY_3.getKey());
     }
 
     private void setUpUnknownReservation() throws RSFault_Exception, UnknownSecretReservationKeyFault {

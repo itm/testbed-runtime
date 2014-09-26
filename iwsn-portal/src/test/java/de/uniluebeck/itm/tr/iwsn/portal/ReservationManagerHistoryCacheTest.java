@@ -235,6 +235,8 @@ public class ReservationManagerHistoryCacheTest {
 						Matchers.<List<ConfidentialReservationData>>any(),
 						eq(SRK_1.getKey()),
 						eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
 						eq(NODE_SET_1),
 						Matchers.<Interval>any()
 				)
@@ -244,6 +246,8 @@ public class ReservationManagerHistoryCacheTest {
 						Matchers.<List<ConfidentialReservationData>>any(),
 						eq(SRK_2.getKey()),
 						eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
 						eq(NODE_SET_2),
 						Matchers.<Interval>any()
 				)
@@ -253,6 +257,8 @@ public class ReservationManagerHistoryCacheTest {
 						Matchers.<List<ConfidentialReservationData>>any(),
 						eq(SRK_3.getKey()),
 						eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
 						eq(NODE_SET_3),
 						Matchers.<Interval>any()
 				)
@@ -262,6 +268,8 @@ public class ReservationManagerHistoryCacheTest {
 						Matchers.<List<ConfidentialReservationData>>any(),
 						eq(SRK_4.getKey()),
 						eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
 						eq(NODE_SET_4),
 						Matchers.<Interval>any()
 				)
