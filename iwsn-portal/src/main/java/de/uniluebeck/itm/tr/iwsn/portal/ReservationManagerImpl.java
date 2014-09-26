@@ -309,7 +309,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
         if (reservation.getCancelled() != null && reservation.getCancelled().isBefore(reservation.getInterval().getStart())) {
             // The reservation was cancelled before it was started
-            portalEventBus.post(ReservationCancelledEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build());
+            portalEventBus.post(ReservationCancelledEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).setTimestamp(reservation.getCancelled().getMillis()).build());
             return;
         } else if (reservation.getInterval().getStart().isBeforeNow()) {
             final Duration startAfter = Duration.ZERO;
@@ -325,10 +325,12 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         if (reservation.isCancelled()) {
             portalEventBus.post(ReservationCancelledEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build());
         } else if (reservation.getCancelled() != null && reservation.getInterval().contains(reservation.getCancelled())) {
+            log.trace("ReservationManagerImpl.scheduleLifecycleEvents(): scheduling cancellation for later");
             final Duration cancellAfter = new Duration(now(), reservation.getCancelled());
             final ReservationCancellCallable cancellCallable = new ReservationCancellCallable(portalEventBus, reservation);
             schedulerService.schedule(cancellCallable, cancellAfter.getMillis(), MS);
         } else if (reservation.getInterval().isBeforeNow()) {
+            log.trace("ReservationManagerImpl.scheduleLifecycleEvents(): scheduling stop for now");
             final Duration stopAfter = Duration.ZERO;
             final ReservationEndCallable stopCallable = new ReservationEndCallable(portalEventBus, reservation);
             schedulerService.schedule(stopCallable, stopAfter.getMillis(), MS);
