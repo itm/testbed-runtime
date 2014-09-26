@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
@@ -192,12 +193,22 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 		throw new UnsupportedOperationException("isFinalized() not yet implemented");
 	}
 
-	@Override
+    @Override
+    public boolean isCancelled() {
+        throw new UnsupportedOperationException("getCancelled() not yet implemented");
+    }
+
+    @Override
 	public String getSerializedKey() {
 		return serialize(getSecretReservationKeys());
 	}
 
-	@Override
+    @Override
+    public List<MessageLite> getPastLifecycleEvents() {
+        throw new UnsupportedOperationException("getCancelled() not yet implemented");
+    }
+
+    @Override
 	public Set<SecretReservationKey> getSecretReservationKeys() {
 		final ImmutableSet.Builder<SecretReservationKey> keys = ImmutableSet.builder();
 		for (ConfidentialReservationData crd : confidentialReservationDataList) {
