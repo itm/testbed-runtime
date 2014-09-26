@@ -56,19 +56,20 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             final String secretReservationKeysBase64 = serialize(crd);
 
             initReservation(crd);
-
-            final ReservationMadeEvent madeEvent =
-                    ReservationMadeEvent.newBuilder().setSerializedKey(secretReservationKeysBase64).build();
-            portalEventBus.post(madeEvent);
         }
 
         @Override
         public void onReservationCancelled(final List<ConfidentialReservationData> crd) {
             log.trace("ReservationManagerImpl.onReservationCancelled({})", crd);
             final String secretReservationKeyBase64 = serialize(crd);
-            scheduleFinalization(getReservation(secretReservationKeyBase64));
+            final Reservation reservation = getReservation(secretReservationKeyBase64);
+            scheduleFinalization(reservation);
 
-            final ReservationCancelledEvent cancelledEvent = ReservationCancelledEvent.newBuilder().setSerializedKey(secretReservationKeyBase64).build();
+            if (reservation.getCancelled() == null) {
+                log.error("reservation.getCancelled() is null. This is an error in the onReservationCancelled callback");
+                return;
+            }
+            final ReservationCancelledEvent cancelledEvent = ReservationCancelledEvent.newBuilder().setSerializedKey(secretReservationKeyBase64).setTimestamp(reservation.getCancelled().getMillis()).build();
             portalEventBus.post(cancelledEvent);
         }
 
@@ -304,11 +305,10 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
         portalEventBus.post(ReservationMadeEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build());
 
-        boolean cancelledEventAlreadyPosted = false;
         if (reservation.getCancelled() != null && reservation.getCancelled().isBefore(reservation.getInterval().getStart())) {
             // The reservation was cancelled before it was started
             portalEventBus.post(ReservationCancelledEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build());
-            cancelledEventAlreadyPosted = true;
+            return;
         } else if (reservation.getInterval().getStart().isBeforeNow()) {
             final Duration startAfter = Duration.ZERO;
             final ReservationStartCallable startCallable = new ReservationStartCallable(portalEventBus, reservation);
@@ -321,9 +321,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         }
 
         if (reservation.isCancelled()) {
-            if (!cancelledEventAlreadyPosted) {
-                portalEventBus.post(ReservationCancelledEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build());
-            }
+            portalEventBus.post(ReservationCancelledEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build());
         } else if (reservation.getCancelled() != null && reservation.getInterval().contains(reservation.getCancelled())) {
             final Duration cancellAfter = new Duration(now(), reservation.getCancelled());
             final ReservationCancellCallable cancellCallable = new ReservationCancellCallable(portalEventBus, reservation);

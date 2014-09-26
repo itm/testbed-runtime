@@ -197,10 +197,12 @@ message NotificationEvent {
 
 message ReservationStartedEvent {
 	required string serializedKey = 1;
+    required uint64 timestamp = 2;
 }
 
 message ReservationEndedEvent {
 	required string serializedKey = 1;
+    required uint64 timestamp = 2;
 }
 
 message ReservationMadeEvent {
@@ -209,13 +211,17 @@ message ReservationMadeEvent {
 
 message ReservationCancelledEvent {
 	required string serializedKey = 1;
-}
+    required uint64 timestamp = 2;
 
-message ReservationOpenedEvent {
-    required string serializedKey = 1;
 }
 
 message ReservationFinalizedEvent {
+    required string serializedKey = 1;
+    required uint64 timestamp = 2;
+
+}
+
+message ReservationOpenedEvent {
     required string serializedKey = 1;
 }
 

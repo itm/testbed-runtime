@@ -21,9 +21,13 @@ public class ReservationCancellCallable implements Callable<Void> {
         if (reservation.isFinalized()) {
             return null;
         }
+        if (reservation.getCancelled() == null) {
+            throw new IllegalStateException("Can not post ReservationCancelledEvent if reservation is not cancelled!");
+        }
         final ReservationCancelledEvent event = ReservationCancelledEvent
                 .newBuilder()
                 .setSerializedKey(reservation.getSerializedKey())
+                .setTimestamp(reservation.getCancelled().getMillis())
                 .build();
         portalEventBus.post(event);
         return null;

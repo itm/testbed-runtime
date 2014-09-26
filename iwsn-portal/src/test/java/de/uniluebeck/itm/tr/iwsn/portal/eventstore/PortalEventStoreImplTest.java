@@ -6,6 +6,7 @@ import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,11 +23,13 @@ public class PortalEventStoreImplTest {
     private static final ReservationEndedEvent RESERVATION_ENDED_EVENT = ReservationEndedEvent
             .newBuilder()
             .setSerializedKey(SERIALIZED_KEY)
+            .setTimestamp(DateTime.now().getMillis())
             .build();
 
     private static final ReservationStartedEvent RESERVATION_STARTED_EVENT = ReservationStartedEvent
             .newBuilder()
             .setSerializedKey(SERIALIZED_KEY)
+            .setTimestamp(DateTime.now().getMillis())
             .build();
 
 

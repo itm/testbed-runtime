@@ -20,4 +20,14 @@ public interface ReservationFinalizedEventOrBuilder
    */
   com.google.protobuf.ByteString
       getSerializedKeyBytes();
+
+  // required uint64 timestamp = 2;
+  /**
+   * <code>required uint64 timestamp = 2;</code>
+   */
+  boolean hasTimestamp();
+  /**
+   * <code>required uint64 timestamp = 2;</code>
+   */
+  long getTimestamp();
 }

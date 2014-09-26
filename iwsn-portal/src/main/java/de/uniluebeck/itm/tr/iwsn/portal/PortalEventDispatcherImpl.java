@@ -206,6 +206,17 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
     }
 
     @Subscribe
+    public void onReservationCancelledEventFromPortalEventBus(final ReservationCancelledEvent event) {
+        log.trace("PortalEventDispatcherImpl.onReservationCancelledEventFromPortalEventBus({})", event);
+        Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
+        if (reservation != null) {
+            reservation.getEventBus().post(event);
+        } else {
+            storeEventToPortalEventStore(event);
+        }
+    }
+
+    @Subscribe
     public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
 
         log.trace("PortalEventDispatcherImpl.onGetChannelPipelinesResponse({})", response);

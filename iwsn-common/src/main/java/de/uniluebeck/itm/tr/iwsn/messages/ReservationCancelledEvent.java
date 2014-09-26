@@ -59,6 +59,11 @@ public  final class ReservationCancelledEvent extends
             serializedKey_ = input.readBytes();
             break;
           }
+          case 16: {
+            bitField0_ |= 0x00000002;
+            timestamp_ = input.readUInt64();
+            break;
+          }
         }
       }
     } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -142,8 +147,25 @@ public  final class ReservationCancelledEvent extends
     }
   }
 
+  // required uint64 timestamp = 2;
+  public static final int TIMESTAMP_FIELD_NUMBER = 2;
+  private long timestamp_;
+  /**
+   * <code>required uint64 timestamp = 2;</code>
+   */
+  public boolean hasTimestamp() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  /**
+   * <code>required uint64 timestamp = 2;</code>
+   */
+  public long getTimestamp() {
+    return timestamp_;
+  }
+
   private void initFields() {
     serializedKey_ = "";
+    timestamp_ = 0L;
   }
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
@@ -151,6 +173,10 @@ public  final class ReservationCancelledEvent extends
     if (isInitialized != -1) return isInitialized == 1;
 
     if (!hasSerializedKey()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasTimestamp()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -164,6 +190,9 @@ public  final class ReservationCancelledEvent extends
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       output.writeBytes(1, getSerializedKeyBytes());
     }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeUInt64(2, timestamp_);
+    }
     getUnknownFields().writeTo(output);
   }
 
@@ -176,6 +205,10 @@ public  final class ReservationCancelledEvent extends
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
         .computeBytesSize(1, getSerializedKeyBytes());
+    }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeUInt64Size(2, timestamp_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -295,6 +328,8 @@ public  final class ReservationCancelledEvent extends
       super.clear();
       serializedKey_ = "";
       bitField0_ = (bitField0_ & ~0x00000001);
+      timestamp_ = 0L;
+      bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
 
@@ -327,6 +362,10 @@ public  final class ReservationCancelledEvent extends
         to_bitField0_ |= 0x00000001;
       }
       result.serializedKey_ = serializedKey_;
+      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        to_bitField0_ |= 0x00000002;
+      }
+      result.timestamp_ = timestamp_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -348,12 +387,19 @@ public  final class ReservationCancelledEvent extends
         serializedKey_ = other.serializedKey_;
         onChanged();
       }
+      if (other.hasTimestamp()) {
+        setTimestamp(other.getTimestamp());
+      }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
     }
 
     public final boolean isInitialized() {
       if (!hasSerializedKey()) {
+        
+        return false;
+      }
+      if (!hasTimestamp()) {
         
         return false;
       }
@@ -449,6 +495,39 @@ public  final class ReservationCancelledEvent extends
   }
   bitField0_ |= 0x00000001;
       serializedKey_ = value;
+      onChanged();
+      return this;
+    }
+
+    // required uint64 timestamp = 2;
+    private long timestamp_ ;
+    /**
+     * <code>required uint64 timestamp = 2;</code>
+     */
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required uint64 timestamp = 2;</code>
+     */
+    public long getTimestamp() {
+      return timestamp_;
+    }
+    /**
+     * <code>required uint64 timestamp = 2;</code>
+     */
+    public Builder setTimestamp(long value) {
+      bitField0_ |= 0x00000002;
+      timestamp_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>required uint64 timestamp = 2;</code>
+     */
+    public Builder clearTimestamp() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      timestamp_ = 0L;
       onChanged();
       return this;
     }

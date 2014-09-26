@@ -25,6 +25,7 @@ public class ReservationEndCallable implements Callable<Void> {
             final ReservationEndedEvent event = ReservationEndedEvent
                     .newBuilder()
                     .setSerializedKey(reservation.getSerializedKey())
+                    .setTimestamp(reservation.getInterval().getEndMillis())
                     .build();
             portalEventBus.post(event);
 

@@ -24,6 +24,7 @@ public class ReservationStartCallable implements Callable<Void> {
         final ReservationStartedEvent event = ReservationStartedEvent
                 .newBuilder()
                 .setSerializedKey(reservation.getSerializedKey())
+                .setTimestamp(reservation.getInterval().getStartMillis())
                 .build();
         portalEventBus.post(event);
         return null;

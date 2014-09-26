@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
-import de.uniluebeck.itm.eventstore.DefaultEventContainerImpl;
 import de.uniluebeck.itm.eventstore.EventContainer;
 import de.uniluebeck.itm.eventstore.EventStore;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
@@ -24,10 +23,8 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
     private static final Logger log = LoggerFactory.getLogger(ReservationEventStoreImpl.class);
 
     private final PortalEventStoreHelper helper;
-
-    private EventStore eventStore;
-
     private final Reservation reservation;
+    private EventStore eventStore;
 
     @Inject
     public ReservationEventStoreImpl(final PortalEventStoreHelper helper, @Assisted final Reservation reservation) {
@@ -107,8 +104,17 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
     }
 
     @Subscribe
-    public void on(final  ReservationEndedEvent reservationEndedEvent) {
+    public void on(final ReservationEndedEvent reservationEndedEvent) {
         storeEvent(reservationEndedEvent, reservation.getInterval().getEndMillis());
+    }
+
+    @Subscribe
+    public void on(final ReservationCancelledEvent reservationCancelledEvent) {
+        if (reservation.getCancelled() != null) {
+            storeEvent(reservationCancelledEvent, reservation.getCancelled().getMillis());
+        } else {
+            log.error("the reservation has not set any cancelled date. Hence the occurrence of the ReservationCancelledEvent ist wrong!");
+        }
     }
 
     private void storeEvent(final MessageLite event) {
