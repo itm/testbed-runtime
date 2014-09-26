@@ -6,2274 +6,2428 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 /**
  * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent}
  */
-public final class ReservationEvent extends
-        com.google.protobuf.GeneratedMessage
-        implements ReservationEventOrBuilder {
-    // required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;
-    public static final int TYPE_FIELD_NUMBER = 1;
-    // repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;
-    public static final int SECRETRESERVATIONKEYS_FIELD_NUMBER = 2;
-    // repeated string nodeUrns = 3;
-    public static final int NODEURNS_FIELD_NUMBER = 3;
-    // required string interval_start = 4;
-    public static final int INTERVAL_START_FIELD_NUMBER = 4;
-    // required string interval_end = 5;
-    public static final int INTERVAL_END_FIELD_NUMBER = 5;
-    private static final ReservationEvent defaultInstance;
-    private static final long serialVersionUID = 0L;
-    public static com.google.protobuf.Parser<ReservationEvent> PARSER =
-            new com.google.protobuf.AbstractParser<ReservationEvent>() {
-                public ReservationEvent parsePartialFrom(
-                        com.google.protobuf.CodedInputStream input,
-                        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                        throws com.google.protobuf.InvalidProtocolBufferException {
-                    return new ReservationEvent(input, extensionRegistry);
-                }
-            };
-    private final com.google.protobuf.UnknownFieldSet unknownFields;
-    private int bitField0_;
-    private de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type_;
-    private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey> secretReservationKeys_;
-    private com.google.protobuf.LazyStringList nodeUrns_;
-    private java.lang.Object intervalStart_;
-    private java.lang.Object intervalEnd_;
-    private byte memoizedIsInitialized = -1;
-    private int memoizedSerializedSize = -1;
+public  final class ReservationEvent extends
+    com.google.protobuf.GeneratedMessage
+    implements ReservationEventOrBuilder {
+  // Use ReservationEvent.newBuilder() to construct.
+  private ReservationEvent(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    super(builder);
+    this.unknownFields = builder.getUnknownFields();
+  }
+  private ReservationEvent(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
 
-    // Use ReservationEvent.newBuilder() to construct.
-    private ReservationEvent(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-        super(builder);
-        this.unknownFields = builder.getUnknownFields();
-    }
+  private static final ReservationEvent defaultInstance;
+  public static ReservationEvent getDefaultInstance() {
+    return defaultInstance;
+  }
 
-    private ReservationEvent(boolean noInit) {
-        this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-    }
+  public ReservationEvent getDefaultInstanceForType() {
+    return defaultInstance;
+  }
 
-    private ReservationEvent(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-        initFields();
-        int mutable_bitField0_ = 0;
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-                com.google.protobuf.UnknownFieldSet.newBuilder();
-        try {
-            boolean done = false;
-            while (!done) {
-                int tag = input.readTag();
-                switch (tag) {
-                    case 0:
-                        done = true;
-                        break;
-                    default: {
-                        if (!parseUnknownField(input, unknownFields,
-                                extensionRegistry, tag)) {
-                            done = true;
-                        }
-                        break;
-                    }
-                    case 8: {
-                        int rawValue = input.readEnum();
-                        de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type value = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.valueOf(rawValue);
-                        if (value == null) {
-                            unknownFields.mergeVarintField(1, rawValue);
-                        } else {
-                            bitField0_ |= 0x00000001;
-                            type_ = value;
-                        }
-                        break;
-                    }
-                    case 18: {
-                        if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                            secretReservationKeys_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey>();
-                            mutable_bitField0_ |= 0x00000002;
-                        }
-                        secretReservationKeys_.add(input.readMessage(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.PARSER, extensionRegistry));
-                        break;
-                    }
-                    case 26: {
-                        if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                            nodeUrns_ = new com.google.protobuf.LazyStringArrayList();
-                            mutable_bitField0_ |= 0x00000004;
-                        }
-                        nodeUrns_.add(input.readBytes());
-                        break;
-                    }
-                    case 34: {
-                        bitField0_ |= 0x00000002;
-                        intervalStart_ = input.readBytes();
-                        break;
-                    }
-                    case 42: {
-                        bitField0_ |= 0x00000004;
-                        intervalEnd_ = input.readBytes();
-                        break;
-                    }
-                }
+  private final com.google.protobuf.UnknownFieldSet unknownFields;
+  @java.lang.Override
+  public final com.google.protobuf.UnknownFieldSet
+      getUnknownFields() {
+    return this.unknownFields;
+  }
+  private ReservationEvent(
+      com.google.protobuf.CodedInputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws com.google.protobuf.InvalidProtocolBufferException {
+    initFields();
+    int mutable_bitField0_ = 0;
+    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+        com.google.protobuf.UnknownFieldSet.newBuilder();
+    try {
+      boolean done = false;
+      while (!done) {
+        int tag = input.readTag();
+        switch (tag) {
+          case 0:
+            done = true;
+            break;
+          default: {
+            if (!parseUnknownField(input, unknownFields,
+                                   extensionRegistry, tag)) {
+              done = true;
             }
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            throw e.setUnfinishedMessage(this);
-        } catch (java.io.IOException e) {
-            throw new com.google.protobuf.InvalidProtocolBufferException(
-                    e.getMessage()).setUnfinishedMessage(this);
-        } finally {
-            if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
-                secretReservationKeys_ = java.util.Collections.unmodifiableList(secretReservationKeys_);
+            break;
+          }
+          case 8: {
+            int rawValue = input.readEnum();
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type value = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.valueOf(rawValue);
+            if (value == null) {
+              unknownFields.mergeVarintField(1, rawValue);
+            } else {
+              bitField0_ |= 0x00000001;
+              type_ = value;
             }
-            if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                nodeUrns_ = new com.google.protobuf.UnmodifiableLazyStringList(nodeUrns_);
+            break;
+          }
+          case 18: {
+            if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+              secretReservationKeys_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey>();
+              mutable_bitField0_ |= 0x00000002;
             }
-            this.unknownFields = unknownFields.build();
-            makeExtensionsImmutable();
+            secretReservationKeys_.add(input.readMessage(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.PARSER, extensionRegistry));
+            break;
+          }
+          case 26: {
+            if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+              nodeUrns_ = new com.google.protobuf.LazyStringArrayList();
+              mutable_bitField0_ |= 0x00000004;
+            }
+            nodeUrns_.add(input.readBytes());
+            break;
+          }
+          case 34: {
+            bitField0_ |= 0x00000002;
+            intervalStart_ = input.readBytes();
+            break;
+          }
+          case 42: {
+            bitField0_ |= 0x00000004;
+            intervalEnd_ = input.readBytes();
+            break;
+          }
+          case 50: {
+            bitField0_ |= 0x00000008;
+            cancelled_ = input.readBytes();
+            break;
+          }
+          case 58: {
+            bitField0_ |= 0x00000010;
+            finalized_ = input.readBytes();
+            break;
+          }
         }
+      }
+    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+      throw e.setUnfinishedMessage(this);
+    } catch (java.io.IOException e) {
+      throw new com.google.protobuf.InvalidProtocolBufferException(
+          e.getMessage()).setUnfinishedMessage(this);
+    } finally {
+      if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+        secretReservationKeys_ = java.util.Collections.unmodifiableList(secretReservationKeys_);
+      }
+      if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
+        nodeUrns_ = new com.google.protobuf.UnmodifiableLazyStringList(nodeUrns_);
+      }
+      this.unknownFields = unknownFields.build();
+      makeExtensionsImmutable();
+    }
+  }
+  public static final com.google.protobuf.Descriptors.Descriptor
+      getDescriptor() {
+    return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_descriptor;
+  }
+
+  protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internalGetFieldAccessorTable() {
+    return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_fieldAccessorTable
+        .ensureFieldAccessorsInitialized(
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Builder.class);
+  }
+
+  public static com.google.protobuf.Parser<ReservationEvent> PARSER =
+      new com.google.protobuf.AbstractParser<ReservationEvent>() {
+    public ReservationEvent parsePartialFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return new ReservationEvent(input, extensionRegistry);
+    }
+  };
+
+  @java.lang.Override
+  public com.google.protobuf.Parser<ReservationEvent> getParserForType() {
+    return PARSER;
+  }
+
+  /**
+   * Protobuf enum {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type}
+   */
+  public enum Type
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>STARTED = 1;</code>
+     */
+    STARTED(0, 1),
+    /**
+     * <code>ENDED = 2;</code>
+     */
+    ENDED(1, 2),
+    /**
+     * <code>MADE = 3;</code>
+     */
+    MADE(2, 3),
+    /**
+     * <code>CANCELLED = 4;</code>
+     */
+    CANCELLED(3, 4),
+    /**
+     * <code>FINALIZED = 5;</code>
+     */
+    FINALIZED(4, 5),
+    /**
+     * <code>OPENED = 6;</code>
+     */
+    OPENED(5, 6),
+    /**
+     * <code>CLOSED = 7;</code>
+     */
+    CLOSED(6, 7),
+    ;
+
+    /**
+     * <code>STARTED = 1;</code>
+     */
+    public static final int STARTED_VALUE = 1;
+    /**
+     * <code>ENDED = 2;</code>
+     */
+    public static final int ENDED_VALUE = 2;
+    /**
+     * <code>MADE = 3;</code>
+     */
+    public static final int MADE_VALUE = 3;
+    /**
+     * <code>CANCELLED = 4;</code>
+     */
+    public static final int CANCELLED_VALUE = 4;
+    /**
+     * <code>FINALIZED = 5;</code>
+     */
+    public static final int FINALIZED_VALUE = 5;
+    /**
+     * <code>OPENED = 6;</code>
+     */
+    public static final int OPENED_VALUE = 6;
+    /**
+     * <code>CLOSED = 7;</code>
+     */
+    public static final int CLOSED_VALUE = 7;
+
+
+    public final int getNumber() { return value; }
+
+    public static Type valueOf(int value) {
+      switch (value) {
+        case 1: return STARTED;
+        case 2: return ENDED;
+        case 3: return MADE;
+        case 4: return CANCELLED;
+        case 5: return FINALIZED;
+        case 6: return OPENED;
+        case 7: return CLOSED;
+        default: return null;
+      }
     }
 
-    public static ReservationEvent getDefaultInstance() {
-        return defaultInstance;
+    public static com.google.protobuf.Internal.EnumLiteMap<Type>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<Type>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<Type>() {
+            public Type findValueByNumber(int number) {
+              return Type.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.getDescriptor().getEnumTypes().get(0);
     }
 
-    public static final com.google.protobuf.Descriptors.Descriptor
-    getDescriptor() {
-        return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_descriptor;
+    private static final Type[] VALUES = values();
+
+    public static Type valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
     }
 
-    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
-            com.google.protobuf.ByteString data)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data);
+    private final int index;
+    private final int value;
+
+    private Type(int index, int value) {
+      this.index = index;
+      this.value = value;
     }
 
-    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
-            com.google.protobuf.ByteString data,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data, extensionRegistry);
+    // @@protoc_insertion_point(enum_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type)
+  }
+
+  public interface SecretReservationKeyOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
+
+    // required string nodeUrnPrefix = 1;
+    /**
+     * <code>required string nodeUrnPrefix = 1;</code>
+     */
+    boolean hasNodeUrnPrefix();
+    /**
+     * <code>required string nodeUrnPrefix = 1;</code>
+     */
+    java.lang.String getNodeUrnPrefix();
+    /**
+     * <code>required string nodeUrnPrefix = 1;</code>
+     */
+    com.google.protobuf.ByteString
+        getNodeUrnPrefixBytes();
+
+    // required string username = 2;
+    /**
+     * <code>required string username = 2;</code>
+     */
+    boolean hasUsername();
+    /**
+     * <code>required string username = 2;</code>
+     */
+    java.lang.String getUsername();
+    /**
+     * <code>required string username = 2;</code>
+     */
+    com.google.protobuf.ByteString
+        getUsernameBytes();
+
+    // required string key = 3;
+    /**
+     * <code>required string key = 3;</code>
+     */
+    boolean hasKey();
+    /**
+     * <code>required string key = 3;</code>
+     */
+    java.lang.String getKey();
+    /**
+     * <code>required string key = 3;</code>
+     */
+    com.google.protobuf.ByteString
+        getKeyBytes();
+  }
+  /**
+   * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey}
+   */
+  public static final class SecretReservationKey extends
+      com.google.protobuf.GeneratedMessage
+      implements SecretReservationKeyOrBuilder {
+    // Use SecretReservationKey.newBuilder() to construct.
+    private SecretReservationKey(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private SecretReservationKey(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final SecretReservationKey defaultInstance;
+    public static SecretReservationKey getDefaultInstance() {
+      return defaultInstance;
     }
 
-    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(byte[] data)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data);
+    public SecretReservationKey getDefaultInstanceForType() {
+      return defaultInstance;
     }
 
-    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
-            byte[] data,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-        return PARSER.parseFrom(data, extensionRegistry);
-    }
-
-    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(java.io.InputStream input)
-            throws java.io.IOException {
-        return PARSER.parseFrom(input);
-    }
-
-    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
-            java.io.InputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
-    }
-
-    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseDelimitedFrom(java.io.InputStream input)
-            throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input);
-    }
-
-    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseDelimitedFrom(
-            java.io.InputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-        return PARSER.parseDelimitedFrom(input, extensionRegistry);
-    }
-
-    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
-            com.google.protobuf.CodedInputStream input)
-            throws java.io.IOException {
-        return PARSER.parseFrom(input);
-    }
-
-    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws java.io.IOException {
-        return PARSER.parseFrom(input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-        return Builder.create();
-    }
-
-    public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent prototype) {
-        return newBuilder().mergeFrom(prototype);
-    }
-
-    public ReservationEvent getDefaultInstanceForType() {
-        return defaultInstance;
-    }
-
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-        return this.unknownFields;
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private SecretReservationKey(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 10: {
+              bitField0_ |= 0x00000001;
+              nodeUrnPrefix_ = input.readBytes();
+              break;
+            }
+            case 18: {
+              bitField0_ |= 0x00000002;
+              username_ = input.readBytes();
+              break;
+            }
+            case 26: {
+              bitField0_ |= 0x00000004;
+              key_ = input.readBytes();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_descriptor;
     }
 
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internalGetFieldAccessorTable() {
-        return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_fieldAccessorTable
-                .ensureFieldAccessorsInitialized(
-                        de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Builder.class);
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder.class);
     }
+
+    public static com.google.protobuf.Parser<SecretReservationKey> PARSER =
+        new com.google.protobuf.AbstractParser<SecretReservationKey>() {
+      public SecretReservationKey parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new SecretReservationKey(input, extensionRegistry);
+      }
+    };
 
     @java.lang.Override
-    public com.google.protobuf.Parser<ReservationEvent> getParserForType() {
-        return PARSER;
+    public com.google.protobuf.Parser<SecretReservationKey> getParserForType() {
+      return PARSER;
     }
 
+    private int bitField0_;
+    // required string nodeUrnPrefix = 1;
+    public static final int NODEURNPREFIX_FIELD_NUMBER = 1;
+    private java.lang.Object nodeUrnPrefix_;
+    /**
+     * <code>required string nodeUrnPrefix = 1;</code>
+     */
+    public boolean hasNodeUrnPrefix() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required string nodeUrnPrefix = 1;</code>
+     */
+    public java.lang.String getNodeUrnPrefix() {
+      java.lang.Object ref = nodeUrnPrefix_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          nodeUrnPrefix_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string nodeUrnPrefix = 1;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNodeUrnPrefixBytes() {
+      java.lang.Object ref = nodeUrnPrefix_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        nodeUrnPrefix_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    // required string username = 2;
+    public static final int USERNAME_FIELD_NUMBER = 2;
+    private java.lang.Object username_;
+    /**
+     * <code>required string username = 2;</code>
+     */
+    public boolean hasUsername() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required string username = 2;</code>
+     */
+    public java.lang.String getUsername() {
+      java.lang.Object ref = username_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          username_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string username = 2;</code>
+     */
+    public com.google.protobuf.ByteString
+        getUsernameBytes() {
+      java.lang.Object ref = username_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        username_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    // required string key = 3;
+    public static final int KEY_FIELD_NUMBER = 3;
+    private java.lang.Object key_;
+    /**
+     * <code>required string key = 3;</code>
+     */
+    public boolean hasKey() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required string key = 3;</code>
+     */
+    public java.lang.String getKey() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          key_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string key = 3;</code>
+     */
+    public com.google.protobuf.ByteString
+        getKeyBytes() {
+      java.lang.Object ref = key_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        key_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    private void initFields() {
+      nodeUrnPrefix_ = "";
+      username_ = "";
+      key_ = "";
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized != -1) return isInitialized == 1;
+
+      if (!hasNodeUrnPrefix()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasUsername()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasKey()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeBytes(1, getNodeUrnPrefixBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(2, getUsernameBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeBytes(3, getKeyBytes());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(1, getNodeUrnPrefixBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(2, getUsernameBytes());
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, getKeyBytes());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder.class);
+      }
+
+      // Construct using de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        nodeUrnPrefix_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        username_ = "";
+        bitField0_ = (bitField0_ & ~0x00000002);
+        key_ = "";
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_descriptor;
+      }
+
+      public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey getDefaultInstanceForType() {
+        return de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.getDefaultInstance();
+      }
+
+      public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey build() {
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey buildPartial() {
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey result = new de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.nodeUrnPrefix_ = nodeUrnPrefix_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.username_ = username_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.key_ = key_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey) {
+          return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey other) {
+        if (other == de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.getDefaultInstance()) return this;
+        if (other.hasNodeUrnPrefix()) {
+          bitField0_ |= 0x00000001;
+          nodeUrnPrefix_ = other.nodeUrnPrefix_;
+          onChanged();
+        }
+        if (other.hasUsername()) {
+          bitField0_ |= 0x00000002;
+          username_ = other.username_;
+          onChanged();
+        }
+        if (other.hasKey()) {
+          bitField0_ |= 0x00000004;
+          key_ = other.key_;
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasNodeUrnPrefix()) {
+          
+          return false;
+        }
+        if (!hasUsername()) {
+          
+          return false;
+        }
+        if (!hasKey()) {
+          
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      // required string nodeUrnPrefix = 1;
+      private java.lang.Object nodeUrnPrefix_ = "";
+      /**
+       * <code>required string nodeUrnPrefix = 1;</code>
+       */
+      public boolean hasNodeUrnPrefix() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required string nodeUrnPrefix = 1;</code>
+       */
+      public java.lang.String getNodeUrnPrefix() {
+        java.lang.Object ref = nodeUrnPrefix_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          nodeUrnPrefix_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string nodeUrnPrefix = 1;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNodeUrnPrefixBytes() {
+        java.lang.Object ref = nodeUrnPrefix_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          nodeUrnPrefix_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string nodeUrnPrefix = 1;</code>
+       */
+      public Builder setNodeUrnPrefix(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        nodeUrnPrefix_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string nodeUrnPrefix = 1;</code>
+       */
+      public Builder clearNodeUrnPrefix() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        nodeUrnPrefix_ = getDefaultInstance().getNodeUrnPrefix();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string nodeUrnPrefix = 1;</code>
+       */
+      public Builder setNodeUrnPrefixBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
+        nodeUrnPrefix_ = value;
+        onChanged();
+        return this;
+      }
+
+      // required string username = 2;
+      private java.lang.Object username_ = "";
+      /**
+       * <code>required string username = 2;</code>
+       */
+      public boolean hasUsername() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required string username = 2;</code>
+       */
+      public java.lang.String getUsername() {
+        java.lang.Object ref = username_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          username_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string username = 2;</code>
+       */
+      public com.google.protobuf.ByteString
+          getUsernameBytes() {
+        java.lang.Object ref = username_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          username_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string username = 2;</code>
+       */
+      public Builder setUsername(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        username_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string username = 2;</code>
+       */
+      public Builder clearUsername() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        username_ = getDefaultInstance().getUsername();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string username = 2;</code>
+       */
+      public Builder setUsernameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        username_ = value;
+        onChanged();
+        return this;
+      }
+
+      // required string key = 3;
+      private java.lang.Object key_ = "";
+      /**
+       * <code>required string key = 3;</code>
+       */
+      public boolean hasKey() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required string key = 3;</code>
+       */
+      public java.lang.String getKey() {
+        java.lang.Object ref = key_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          key_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string key = 3;</code>
+       */
+      public com.google.protobuf.ByteString
+          getKeyBytes() {
+        java.lang.Object ref = key_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          key_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string key = 3;</code>
+       */
+      public Builder setKey(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string key = 3;</code>
+       */
+      public Builder clearKey() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        key_ = getDefaultInstance().getKey();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string key = 3;</code>
+       */
+      public Builder setKeyBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000004;
+        key_ = value;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey)
+    }
+
+    static {
+      defaultInstance = new SecretReservationKey(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey)
+  }
+
+  private int bitField0_;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;
+  public static final int TYPE_FIELD_NUMBER = 1;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type_;
+  /**
+   * <code>required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;</code>
+   */
+  public boolean hasType() {
+    return ((bitField0_ & 0x00000001) == 0x00000001);
+  }
+  /**
+   * <code>required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;</code>
+   */
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type getType() {
+    return type_;
+  }
+
+  // repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;
+  public static final int SECRETRESERVATIONKEYS_FIELD_NUMBER = 2;
+  private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey> secretReservationKeys_;
+  /**
+   * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+   */
+  public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey> getSecretReservationKeysList() {
+    return secretReservationKeys_;
+  }
+  /**
+   * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+   */
+  public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder> 
+      getSecretReservationKeysOrBuilderList() {
+    return secretReservationKeys_;
+  }
+  /**
+   * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+   */
+  public int getSecretReservationKeysCount() {
+    return secretReservationKeys_.size();
+  }
+  /**
+   * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+   */
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey getSecretReservationKeys(int index) {
+    return secretReservationKeys_.get(index);
+  }
+  /**
+   * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+   */
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder getSecretReservationKeysOrBuilder(
+      int index) {
+    return secretReservationKeys_.get(index);
+  }
+
+  // repeated string nodeUrns = 3;
+  public static final int NODEURNS_FIELD_NUMBER = 3;
+  private com.google.protobuf.LazyStringList nodeUrns_;
+  /**
+   * <code>repeated string nodeUrns = 3;</code>
+   */
+  public java.util.List<java.lang.String>
+      getNodeUrnsList() {
+    return nodeUrns_;
+  }
+  /**
+   * <code>repeated string nodeUrns = 3;</code>
+   */
+  public int getNodeUrnsCount() {
+    return nodeUrns_.size();
+  }
+  /**
+   * <code>repeated string nodeUrns = 3;</code>
+   */
+  public java.lang.String getNodeUrns(int index) {
+    return nodeUrns_.get(index);
+  }
+  /**
+   * <code>repeated string nodeUrns = 3;</code>
+   */
+  public com.google.protobuf.ByteString
+      getNodeUrnsBytes(int index) {
+    return nodeUrns_.getByteString(index);
+  }
+
+  // required string interval_start = 4;
+  public static final int INTERVAL_START_FIELD_NUMBER = 4;
+  private java.lang.Object intervalStart_;
+  /**
+   * <code>required string interval_start = 4;</code>
+   */
+  public boolean hasIntervalStart() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  /**
+   * <code>required string interval_start = 4;</code>
+   */
+  public java.lang.String getIntervalStart() {
+    java.lang.Object ref = intervalStart_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      if (bs.isValidUtf8()) {
+        intervalStart_ = s;
+      }
+      return s;
+    }
+  }
+  /**
+   * <code>required string interval_start = 4;</code>
+   */
+  public com.google.protobuf.ByteString
+      getIntervalStartBytes() {
+    java.lang.Object ref = intervalStart_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      intervalStart_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  // required string interval_end = 5;
+  public static final int INTERVAL_END_FIELD_NUMBER = 5;
+  private java.lang.Object intervalEnd_;
+  /**
+   * <code>required string interval_end = 5;</code>
+   */
+  public boolean hasIntervalEnd() {
+    return ((bitField0_ & 0x00000004) == 0x00000004);
+  }
+  /**
+   * <code>required string interval_end = 5;</code>
+   */
+  public java.lang.String getIntervalEnd() {
+    java.lang.Object ref = intervalEnd_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      if (bs.isValidUtf8()) {
+        intervalEnd_ = s;
+      }
+      return s;
+    }
+  }
+  /**
+   * <code>required string interval_end = 5;</code>
+   */
+  public com.google.protobuf.ByteString
+      getIntervalEndBytes() {
+    java.lang.Object ref = intervalEnd_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      intervalEnd_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  // optional string cancelled = 6;
+  public static final int CANCELLED_FIELD_NUMBER = 6;
+  private java.lang.Object cancelled_;
+  /**
+   * <code>optional string cancelled = 6;</code>
+   */
+  public boolean hasCancelled() {
+    return ((bitField0_ & 0x00000008) == 0x00000008);
+  }
+  /**
+   * <code>optional string cancelled = 6;</code>
+   */
+  public java.lang.String getCancelled() {
+    java.lang.Object ref = cancelled_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      if (bs.isValidUtf8()) {
+        cancelled_ = s;
+      }
+      return s;
+    }
+  }
+  /**
+   * <code>optional string cancelled = 6;</code>
+   */
+  public com.google.protobuf.ByteString
+      getCancelledBytes() {
+    java.lang.Object ref = cancelled_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      cancelled_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  // optional string finalized = 7;
+  public static final int FINALIZED_FIELD_NUMBER = 7;
+  private java.lang.Object finalized_;
+  /**
+   * <code>optional string finalized = 7;</code>
+   */
+  public boolean hasFinalized() {
+    return ((bitField0_ & 0x00000010) == 0x00000010);
+  }
+  /**
+   * <code>optional string finalized = 7;</code>
+   */
+  public java.lang.String getFinalized() {
+    java.lang.Object ref = finalized_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      if (bs.isValidUtf8()) {
+        finalized_ = s;
+      }
+      return s;
+    }
+  }
+  /**
+   * <code>optional string finalized = 7;</code>
+   */
+  public com.google.protobuf.ByteString
+      getFinalizedBytes() {
+    java.lang.Object ref = finalized_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      finalized_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  private void initFields() {
+    type_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.STARTED;
+    secretReservationKeys_ = java.util.Collections.emptyList();
+    nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+    intervalStart_ = "";
+    intervalEnd_ = "";
+    cancelled_ = "";
+    finalized_ = "";
+  }
+  private byte memoizedIsInitialized = -1;
+  public final boolean isInitialized() {
+    byte isInitialized = memoizedIsInitialized;
+    if (isInitialized != -1) return isInitialized == 1;
+
+    if (!hasType()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasIntervalStart()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasIntervalEnd()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    for (int i = 0; i < getSecretReservationKeysCount(); i++) {
+      if (!getSecretReservationKeys(i).isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    memoizedIsInitialized = 1;
+    return true;
+  }
+
+  public void writeTo(com.google.protobuf.CodedOutputStream output)
+                      throws java.io.IOException {
+    getSerializedSize();
+    if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      output.writeEnum(1, type_.getNumber());
+    }
+    for (int i = 0; i < secretReservationKeys_.size(); i++) {
+      output.writeMessage(2, secretReservationKeys_.get(i));
+    }
+    for (int i = 0; i < nodeUrns_.size(); i++) {
+      output.writeBytes(3, nodeUrns_.getByteString(i));
+    }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeBytes(4, getIntervalStartBytes());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      output.writeBytes(5, getIntervalEndBytes());
+    }
+    if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      output.writeBytes(6, getCancelledBytes());
+    }
+    if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      output.writeBytes(7, getFinalizedBytes());
+    }
+    getUnknownFields().writeTo(output);
+  }
+
+  private int memoizedSerializedSize = -1;
+  public int getSerializedSize() {
+    int size = memoizedSerializedSize;
+    if (size != -1) return size;
+
+    size = 0;
+    if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeEnumSize(1, type_.getNumber());
+    }
+    for (int i = 0; i < secretReservationKeys_.size(); i++) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(2, secretReservationKeys_.get(i));
+    }
+    {
+      int dataSize = 0;
+      for (int i = 0; i < nodeUrns_.size(); i++) {
+        dataSize += com.google.protobuf.CodedOutputStream
+          .computeBytesSizeNoTag(nodeUrns_.getByteString(i));
+      }
+      size += dataSize;
+      size += 1 * getNodeUrnsList().size();
+    }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(4, getIntervalStartBytes());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(5, getIntervalEndBytes());
+    }
+    if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(6, getCancelledBytes());
+    }
+    if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(7, getFinalizedBytes());
+    }
+    size += getUnknownFields().getSerializedSize();
+    memoizedSerializedSize = size;
+    return size;
+  }
+
+  private static final long serialVersionUID = 0L;
+  @java.lang.Override
+  protected java.lang.Object writeReplace()
+      throws java.io.ObjectStreamException {
+    return super.writeReplace();
+  }
+
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
+      com.google.protobuf.ByteString data)
+      throws com.google.protobuf.InvalidProtocolBufferException {
+    return PARSER.parseFrom(data);
+  }
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
+      com.google.protobuf.ByteString data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws com.google.protobuf.InvalidProtocolBufferException {
+    return PARSER.parseFrom(data, extensionRegistry);
+  }
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(byte[] data)
+      throws com.google.protobuf.InvalidProtocolBufferException {
+    return PARSER.parseFrom(data);
+  }
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
+      byte[] data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws com.google.protobuf.InvalidProtocolBufferException {
+    return PARSER.parseFrom(data, extensionRegistry);
+  }
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(java.io.InputStream input)
+      throws java.io.IOException {
+    return PARSER.parseFrom(input);
+  }
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
+    return PARSER.parseFrom(input, extensionRegistry);
+  }
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseDelimitedFrom(java.io.InputStream input)
+      throws java.io.IOException {
+    return PARSER.parseDelimitedFrom(input);
+  }
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseDelimitedFrom(
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
+    return PARSER.parseDelimitedFrom(input, extensionRegistry);
+  }
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
+      com.google.protobuf.CodedInputStream input)
+      throws java.io.IOException {
+    return PARSER.parseFrom(input);
+  }
+  public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parseFrom(
+      com.google.protobuf.CodedInputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
+    return PARSER.parseFrom(input, extensionRegistry);
+  }
+
+  public static Builder newBuilder() { return Builder.create(); }
+  public Builder newBuilderForType() { return newBuilder(); }
+  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent prototype) {
+    return newBuilder().mergeFrom(prototype);
+  }
+  public Builder toBuilder() { return newBuilder(this); }
+
+  @java.lang.Override
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+    Builder builder = new Builder(parent);
+    return builder;
+  }
+  /**
+   * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent}
+   */
+  public static final class Builder extends
+      com.google.protobuf.GeneratedMessage.Builder<Builder>
+     implements de.uniluebeck.itm.tr.iwsn.messages.ReservationEventOrBuilder {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Builder.class);
+    }
+
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.newBuilder()
+    private Builder() {
+      maybeForceBuilderInitialization();
+    }
+
+    private Builder(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      super(parent);
+      maybeForceBuilderInitialization();
+    }
+    private void maybeForceBuilderInitialization() {
+      if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        getSecretReservationKeysFieldBuilder();
+      }
+    }
+    private static Builder create() {
+      return new Builder();
+    }
+
+    public Builder clear() {
+      super.clear();
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.STARTED;
+      bitField0_ = (bitField0_ & ~0x00000001);
+      if (secretReservationKeysBuilder_ == null) {
+        secretReservationKeys_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+      } else {
+        secretReservationKeysBuilder_.clear();
+      }
+      nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      intervalStart_ = "";
+      bitField0_ = (bitField0_ & ~0x00000008);
+      intervalEnd_ = "";
+      bitField0_ = (bitField0_ & ~0x00000010);
+      cancelled_ = "";
+      bitField0_ = (bitField0_ & ~0x00000020);
+      finalized_ = "";
+      bitField0_ = (bitField0_ & ~0x00000040);
+      return this;
+    }
+
+    public Builder clone() {
+      return create().mergeFrom(buildPartial());
+    }
+
+    public com.google.protobuf.Descriptors.Descriptor
+        getDescriptorForType() {
+      return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_descriptor;
+    }
+
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent getDefaultInstanceForType() {
+      return de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.getDefaultInstance();
+    }
+
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent build() {
+      de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent result = buildPartial();
+      if (!result.isInitialized()) {
+        throw newUninitializedMessageException(result);
+      }
+      return result;
+    }
+
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent buildPartial() {
+      de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent result = new de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent(this);
+      int from_bitField0_ = bitField0_;
+      int to_bitField0_ = 0;
+      if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        to_bitField0_ |= 0x00000001;
+      }
+      result.type_ = type_;
+      if (secretReservationKeysBuilder_ == null) {
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          secretReservationKeys_ = java.util.Collections.unmodifiableList(secretReservationKeys_);
+          bitField0_ = (bitField0_ & ~0x00000002);
+        }
+        result.secretReservationKeys_ = secretReservationKeys_;
+      } else {
+        result.secretReservationKeys_ = secretReservationKeysBuilder_.build();
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        nodeUrns_ = new com.google.protobuf.UnmodifiableLazyStringList(
+            nodeUrns_);
+        bitField0_ = (bitField0_ & ~0x00000004);
+      }
+      result.nodeUrns_ = nodeUrns_;
+      if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+        to_bitField0_ |= 0x00000002;
+      }
+      result.intervalStart_ = intervalStart_;
+      if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+        to_bitField0_ |= 0x00000004;
+      }
+      result.intervalEnd_ = intervalEnd_;
+      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        to_bitField0_ |= 0x00000008;
+      }
+      result.cancelled_ = cancelled_;
+      if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+        to_bitField0_ |= 0x00000010;
+      }
+      result.finalized_ = finalized_;
+      result.bitField0_ = to_bitField0_;
+      onBuilt();
+      return result;
+    }
+
+    public Builder mergeFrom(com.google.protobuf.Message other) {
+      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent) {
+        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent)other);
+      } else {
+        super.mergeFrom(other);
+        return this;
+      }
+    }
+
+    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent other) {
+      if (other == de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.getDefaultInstance()) return this;
+      if (other.hasType()) {
+        setType(other.getType());
+      }
+      if (secretReservationKeysBuilder_ == null) {
+        if (!other.secretReservationKeys_.isEmpty()) {
+          if (secretReservationKeys_.isEmpty()) {
+            secretReservationKeys_ = other.secretReservationKeys_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensureSecretReservationKeysIsMutable();
+            secretReservationKeys_.addAll(other.secretReservationKeys_);
+          }
+          onChanged();
+        }
+      } else {
+        if (!other.secretReservationKeys_.isEmpty()) {
+          if (secretReservationKeysBuilder_.isEmpty()) {
+            secretReservationKeysBuilder_.dispose();
+            secretReservationKeysBuilder_ = null;
+            secretReservationKeys_ = other.secretReservationKeys_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+            secretReservationKeysBuilder_ = 
+              com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
+                 getSecretReservationKeysFieldBuilder() : null;
+          } else {
+            secretReservationKeysBuilder_.addAllMessages(other.secretReservationKeys_);
+          }
+        }
+      }
+      if (!other.nodeUrns_.isEmpty()) {
+        if (nodeUrns_.isEmpty()) {
+          nodeUrns_ = other.nodeUrns_;
+          bitField0_ = (bitField0_ & ~0x00000004);
+        } else {
+          ensureNodeUrnsIsMutable();
+          nodeUrns_.addAll(other.nodeUrns_);
+        }
+        onChanged();
+      }
+      if (other.hasIntervalStart()) {
+        bitField0_ |= 0x00000008;
+        intervalStart_ = other.intervalStart_;
+        onChanged();
+      }
+      if (other.hasIntervalEnd()) {
+        bitField0_ |= 0x00000010;
+        intervalEnd_ = other.intervalEnd_;
+        onChanged();
+      }
+      if (other.hasCancelled()) {
+        bitField0_ |= 0x00000020;
+        cancelled_ = other.cancelled_;
+        onChanged();
+      }
+      if (other.hasFinalized()) {
+        bitField0_ |= 0x00000040;
+        finalized_ = other.finalized_;
+        onChanged();
+      }
+      this.mergeUnknownFields(other.getUnknownFields());
+      return this;
+    }
+
+    public final boolean isInitialized() {
+      if (!hasType()) {
+        
+        return false;
+      }
+      if (!hasIntervalStart()) {
+        
+        return false;
+      }
+      if (!hasIntervalEnd()) {
+        
+        return false;
+      }
+      for (int i = 0; i < getSecretReservationKeysCount(); i++) {
+        if (!getSecretReservationKeys(i).isInitialized()) {
+          
+          return false;
+        }
+      }
+      return true;
+    }
+
+    public Builder mergeFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parsedMessage = null;
+      try {
+        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        parsedMessage = (de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent) e.getUnfinishedMessage();
+        throw e;
+      } finally {
+        if (parsedMessage != null) {
+          mergeFrom(parsedMessage);
+        }
+      }
+      return this;
+    }
+    private int bitField0_;
+
+    // required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.STARTED;
     /**
      * <code>required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;</code>
      */
     public boolean hasType() {
-        return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-
     /**
      * <code>required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;</code>
      */
     public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type getType() {
-        return type_;
+      return type_;
     }
+    /**
+     * <code>required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;</code>
+     */
+    public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      bitField0_ |= 0x00000001;
+      type_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;</code>
+     */
+    public Builder clearType() {
+      bitField0_ = (bitField0_ & ~0x00000001);
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.STARTED;
+      onChanged();
+      return this;
+    }
+
+    // repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;
+    private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey> secretReservationKeys_ =
+      java.util.Collections.emptyList();
+    private void ensureSecretReservationKeysIsMutable() {
+      if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+        secretReservationKeys_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey>(secretReservationKeys_);
+        bitField0_ |= 0x00000002;
+       }
+    }
+
+    private com.google.protobuf.RepeatedFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder> secretReservationKeysBuilder_;
 
     /**
      * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
      */
     public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey> getSecretReservationKeysList() {
-        return secretReservationKeys_;
+      if (secretReservationKeysBuilder_ == null) {
+        return java.util.Collections.unmodifiableList(secretReservationKeys_);
+      } else {
+        return secretReservationKeysBuilder_.getMessageList();
+      }
     }
-
-    /**
-     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-     */
-    public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder>
-    getSecretReservationKeysOrBuilderList() {
-        return secretReservationKeys_;
-    }
-
     /**
      * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
      */
     public int getSecretReservationKeysCount() {
+      if (secretReservationKeysBuilder_ == null) {
         return secretReservationKeys_.size();
+      } else {
+        return secretReservationKeysBuilder_.getCount();
+      }
     }
-
     /**
      * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
      */
     public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey getSecretReservationKeys(int index) {
+      if (secretReservationKeysBuilder_ == null) {
         return secretReservationKeys_.get(index);
+      } else {
+        return secretReservationKeysBuilder_.getMessage(index);
+      }
     }
-
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public Builder setSecretReservationKeys(
+        int index, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey value) {
+      if (secretReservationKeysBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureSecretReservationKeysIsMutable();
+        secretReservationKeys_.set(index, value);
+        onChanged();
+      } else {
+        secretReservationKeysBuilder_.setMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public Builder setSecretReservationKeys(
+        int index, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder builderForValue) {
+      if (secretReservationKeysBuilder_ == null) {
+        ensureSecretReservationKeysIsMutable();
+        secretReservationKeys_.set(index, builderForValue.build());
+        onChanged();
+      } else {
+        secretReservationKeysBuilder_.setMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public Builder addSecretReservationKeys(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey value) {
+      if (secretReservationKeysBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureSecretReservationKeysIsMutable();
+        secretReservationKeys_.add(value);
+        onChanged();
+      } else {
+        secretReservationKeysBuilder_.addMessage(value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public Builder addSecretReservationKeys(
+        int index, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey value) {
+      if (secretReservationKeysBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        ensureSecretReservationKeysIsMutable();
+        secretReservationKeys_.add(index, value);
+        onChanged();
+      } else {
+        secretReservationKeysBuilder_.addMessage(index, value);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public Builder addSecretReservationKeys(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder builderForValue) {
+      if (secretReservationKeysBuilder_ == null) {
+        ensureSecretReservationKeysIsMutable();
+        secretReservationKeys_.add(builderForValue.build());
+        onChanged();
+      } else {
+        secretReservationKeysBuilder_.addMessage(builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public Builder addSecretReservationKeys(
+        int index, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder builderForValue) {
+      if (secretReservationKeysBuilder_ == null) {
+        ensureSecretReservationKeysIsMutable();
+        secretReservationKeys_.add(index, builderForValue.build());
+        onChanged();
+      } else {
+        secretReservationKeysBuilder_.addMessage(index, builderForValue.build());
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public Builder addAllSecretReservationKeys(
+        java.lang.Iterable<? extends de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey> values) {
+      if (secretReservationKeysBuilder_ == null) {
+        ensureSecretReservationKeysIsMutable();
+        super.addAll(values, secretReservationKeys_);
+        onChanged();
+      } else {
+        secretReservationKeysBuilder_.addAllMessages(values);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public Builder clearSecretReservationKeys() {
+      if (secretReservationKeysBuilder_ == null) {
+        secretReservationKeys_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+      } else {
+        secretReservationKeysBuilder_.clear();
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public Builder removeSecretReservationKeys(int index) {
+      if (secretReservationKeysBuilder_ == null) {
+        ensureSecretReservationKeysIsMutable();
+        secretReservationKeys_.remove(index);
+        onChanged();
+      } else {
+        secretReservationKeysBuilder_.remove(index);
+      }
+      return this;
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder getSecretReservationKeysBuilder(
+        int index) {
+      return getSecretReservationKeysFieldBuilder().getBuilder(index);
+    }
     /**
      * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
      */
     public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder getSecretReservationKeysOrBuilder(
-            int index) {
-        return secretReservationKeys_.get(index);
+        int index) {
+      if (secretReservationKeysBuilder_ == null) {
+        return secretReservationKeys_.get(index);  } else {
+        return secretReservationKeysBuilder_.getMessageOrBuilder(index);
+      }
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder> 
+         getSecretReservationKeysOrBuilderList() {
+      if (secretReservationKeysBuilder_ != null) {
+        return secretReservationKeysBuilder_.getMessageOrBuilderList();
+      } else {
+        return java.util.Collections.unmodifiableList(secretReservationKeys_);
+      }
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder addSecretReservationKeysBuilder() {
+      return getSecretReservationKeysFieldBuilder().addBuilder(
+          de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.getDefaultInstance());
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder addSecretReservationKeysBuilder(
+        int index) {
+      return getSecretReservationKeysFieldBuilder().addBuilder(
+          index, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.getDefaultInstance());
+    }
+    /**
+     * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
+     */
+    public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder> 
+         getSecretReservationKeysBuilderList() {
+      return getSecretReservationKeysFieldBuilder().getBuilderList();
+    }
+    private com.google.protobuf.RepeatedFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder> 
+        getSecretReservationKeysFieldBuilder() {
+      if (secretReservationKeysBuilder_ == null) {
+        secretReservationKeysBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder>(
+                secretReservationKeys_,
+                ((bitField0_ & 0x00000002) == 0x00000002),
+                getParentForChildren(),
+                isClean());
+        secretReservationKeys_ = null;
+      }
+      return secretReservationKeysBuilder_;
     }
 
+    // repeated string nodeUrns = 3;
+    private com.google.protobuf.LazyStringList nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+    private void ensureNodeUrnsIsMutable() {
+      if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+        nodeUrns_ = new com.google.protobuf.LazyStringArrayList(nodeUrns_);
+        bitField0_ |= 0x00000004;
+       }
+    }
     /**
      * <code>repeated string nodeUrns = 3;</code>
      */
     public java.util.List<java.lang.String>
-    getNodeUrnsList() {
-        return nodeUrns_;
+        getNodeUrnsList() {
+      return java.util.Collections.unmodifiableList(nodeUrns_);
     }
-
     /**
      * <code>repeated string nodeUrns = 3;</code>
      */
     public int getNodeUrnsCount() {
-        return nodeUrns_.size();
+      return nodeUrns_.size();
     }
-
     /**
      * <code>repeated string nodeUrns = 3;</code>
      */
     public java.lang.String getNodeUrns(int index) {
-        return nodeUrns_.get(index);
+      return nodeUrns_.get(index);
     }
-
     /**
      * <code>repeated string nodeUrns = 3;</code>
      */
     public com.google.protobuf.ByteString
-    getNodeUrnsBytes(int index) {
-        return nodeUrns_.getByteString(index);
+        getNodeUrnsBytes(int index) {
+      return nodeUrns_.getByteString(index);
+    }
+    /**
+     * <code>repeated string nodeUrns = 3;</code>
+     */
+    public Builder setNodeUrns(
+        int index, java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureNodeUrnsIsMutable();
+      nodeUrns_.set(index, value);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>repeated string nodeUrns = 3;</code>
+     */
+    public Builder addNodeUrns(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureNodeUrnsIsMutable();
+      nodeUrns_.add(value);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>repeated string nodeUrns = 3;</code>
+     */
+    public Builder addAllNodeUrns(
+        java.lang.Iterable<java.lang.String> values) {
+      ensureNodeUrnsIsMutable();
+      super.addAll(values, nodeUrns_);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>repeated string nodeUrns = 3;</code>
+     */
+    public Builder clearNodeUrns() {
+      nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>repeated string nodeUrns = 3;</code>
+     */
+    public Builder addNodeUrnsBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  ensureNodeUrnsIsMutable();
+      nodeUrns_.add(value);
+      onChanged();
+      return this;
     }
 
+    // required string interval_start = 4;
+    private java.lang.Object intervalStart_ = "";
     /**
      * <code>required string interval_start = 4;</code>
      */
     public boolean hasIntervalStart() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
-
     /**
      * <code>required string interval_start = 4;</code>
      */
     public java.lang.String getIntervalStart() {
-        java.lang.Object ref = intervalStart_;
-        if (ref instanceof java.lang.String) {
-            return (java.lang.String) ref;
-        } else {
-            com.google.protobuf.ByteString bs =
-                    (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-                intervalStart_ = s;
-            }
-            return s;
-        }
+      java.lang.Object ref = intervalStart_;
+      if (!(ref instanceof java.lang.String)) {
+        java.lang.String s = ((com.google.protobuf.ByteString) ref)
+            .toStringUtf8();
+        intervalStart_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
     }
-
     /**
      * <code>required string interval_start = 4;</code>
      */
     public com.google.protobuf.ByteString
-    getIntervalStartBytes() {
-        java.lang.Object ref = intervalStart_;
-        if (ref instanceof java.lang.String) {
-            com.google.protobuf.ByteString b =
-                    com.google.protobuf.ByteString.copyFromUtf8(
-                            (java.lang.String) ref);
-            intervalStart_ = b;
-            return b;
-        } else {
-            return (com.google.protobuf.ByteString) ref;
-        }
+        getIntervalStartBytes() {
+      java.lang.Object ref = intervalStart_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        intervalStart_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>required string interval_start = 4;</code>
+     */
+    public Builder setIntervalStart(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+      intervalStart_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>required string interval_start = 4;</code>
+     */
+    public Builder clearIntervalStart() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      intervalStart_ = getDefaultInstance().getIntervalStart();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>required string interval_start = 4;</code>
+     */
+    public Builder setIntervalStartBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+      intervalStart_ = value;
+      onChanged();
+      return this;
     }
 
+    // required string interval_end = 5;
+    private java.lang.Object intervalEnd_ = "";
     /**
      * <code>required string interval_end = 5;</code>
      */
     public boolean hasIntervalEnd() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
-
     /**
      * <code>required string interval_end = 5;</code>
      */
     public java.lang.String getIntervalEnd() {
-        java.lang.Object ref = intervalEnd_;
-        if (ref instanceof java.lang.String) {
-            return (java.lang.String) ref;
-        } else {
-            com.google.protobuf.ByteString bs =
-                    (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
-            if (bs.isValidUtf8()) {
-                intervalEnd_ = s;
-            }
-            return s;
-        }
+      java.lang.Object ref = intervalEnd_;
+      if (!(ref instanceof java.lang.String)) {
+        java.lang.String s = ((com.google.protobuf.ByteString) ref)
+            .toStringUtf8();
+        intervalEnd_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
     }
-
     /**
      * <code>required string interval_end = 5;</code>
      */
     public com.google.protobuf.ByteString
-    getIntervalEndBytes() {
-        java.lang.Object ref = intervalEnd_;
-        if (ref instanceof java.lang.String) {
-            com.google.protobuf.ByteString b =
-                    com.google.protobuf.ByteString.copyFromUtf8(
-                            (java.lang.String) ref);
-            intervalEnd_ = b;
-            return b;
-        } else {
-            return (com.google.protobuf.ByteString) ref;
-        }
-    }
-
-    private void initFields() {
-        type_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.STARTED;
-        secretReservationKeys_ = java.util.Collections.emptyList();
-        nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        intervalStart_ = "";
-        intervalEnd_ = "";
-    }
-
-    public final boolean isInitialized() {
-        byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
-
-        if (!hasType()) {
-            memoizedIsInitialized = 0;
-            return false;
-        }
-        if (!hasIntervalStart()) {
-            memoizedIsInitialized = 0;
-            return false;
-        }
-        if (!hasIntervalEnd()) {
-            memoizedIsInitialized = 0;
-            return false;
-        }
-        for (int i = 0; i < getSecretReservationKeysCount(); i++) {
-            if (!getSecretReservationKeys(i).isInitialized()) {
-                memoizedIsInitialized = 0;
-                return false;
-            }
-        }
-        memoizedIsInitialized = 1;
-        return true;
-    }
-
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
-            throws java.io.IOException {
-        getSerializedSize();
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            output.writeEnum(1, type_.getNumber());
-        }
-        for (int i = 0; i < secretReservationKeys_.size(); i++) {
-            output.writeMessage(2, secretReservationKeys_.get(i));
-        }
-        for (int i = 0; i < nodeUrns_.size(); i++) {
-            output.writeBytes(3, nodeUrns_.getByteString(i));
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            output.writeBytes(4, getIntervalStartBytes());
-        }
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
-            output.writeBytes(5, getIntervalEndBytes());
-        }
-        getUnknownFields().writeTo(output);
-    }
-
-    public int getSerializedSize() {
-        int size = memoizedSerializedSize;
-        if (size != -1) return size;
-
-        size = 0;
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
-            size += com.google.protobuf.CodedOutputStream
-                    .computeEnumSize(1, type_.getNumber());
-        }
-        for (int i = 0; i < secretReservationKeys_.size(); i++) {
-            size += com.google.protobuf.CodedOutputStream
-                    .computeMessageSize(2, secretReservationKeys_.get(i));
-        }
-        {
-            int dataSize = 0;
-            for (int i = 0; i < nodeUrns_.size(); i++) {
-                dataSize += com.google.protobuf.CodedOutputStream
-                        .computeBytesSizeNoTag(nodeUrns_.getByteString(i));
-            }
-            size += dataSize;
-            size += 1 * getNodeUrnsList().size();
-        }
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
-            size += com.google.protobuf.CodedOutputStream
-                    .computeBytesSize(4, getIntervalStartBytes());
-        }
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
-            size += com.google.protobuf.CodedOutputStream
-                    .computeBytesSize(5, getIntervalEndBytes());
-        }
-        size += getUnknownFields().getSerializedSize();
-        memoizedSerializedSize = size;
-        return size;
-    }
-
-    @java.lang.Override
-    protected java.lang.Object writeReplace()
-            throws java.io.ObjectStreamException {
-        return super.writeReplace();
-    }
-
-    public Builder newBuilderForType() {
-        return newBuilder();
-    }
-
-    public Builder toBuilder() {
-        return newBuilder(this);
-    }
-
-    @java.lang.Override
-    protected Builder newBuilderForType(
-            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-        Builder builder = new Builder(parent);
-        return builder;
-    }
-
-    /**
-     * Protobuf enum {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type}
-     */
-    public enum Type
-            implements com.google.protobuf.ProtocolMessageEnum {
-        /**
-         * <code>STARTED = 1;</code>
-         */
-        STARTED(0, 1),
-        /**
-         * <code>ENDED = 2;</code>
-         */
-        ENDED(1, 2),
-        /**
-         * <code>OPENED = 3;</code>
-         */
-        OPENED(2, 3),
-        /**
-         * <code>CLOSED = 4;</code>
-         */
-        CLOSED(3, 4),
-        /**
-         * <code>FINALIZED = 5;</code>
-         */
-        FINALIZED(4, 5),;
-
-        /**
-         * <code>STARTED = 1;</code>
-         */
-        public static final int STARTED_VALUE = 1;
-        /**
-         * <code>ENDED = 2;</code>
-         */
-        public static final int ENDED_VALUE = 2;
-        /**
-         * <code>OPENED = 3;</code>
-         */
-        public static final int OPENED_VALUE = 3;
-        /**
-         * <code>CLOSED = 4;</code>
-         */
-        public static final int CLOSED_VALUE = 4;
-        /**
-         * <code>FINALIZED = 5;</code>
-         */
-        public static final int FINALIZED_VALUE = 5;
-        private static final Type[] VALUES = values();
-        private static com.google.protobuf.Internal.EnumLiteMap<Type>
-                internalValueMap =
-                new com.google.protobuf.Internal.EnumLiteMap<Type>() {
-                    public Type findValueByNumber(int number) {
-                        return Type.valueOf(number);
-                    }
-                };
-        private final int index;
-        private final int value;
-
-        private Type(int index, int value) {
-            this.index = index;
-            this.value = value;
-        }
-
-        public static Type valueOf(int value) {
-            switch (value) {
-                case 1:
-                    return STARTED;
-                case 2:
-                    return ENDED;
-                case 3:
-                    return OPENED;
-                case 4:
-                    return CLOSED;
-                case 5:
-                    return FINALIZED;
-                default:
-                    return null;
-            }
-        }
-
-        public static com.google.protobuf.Internal.EnumLiteMap<Type>
-        internalGetValueMap() {
-            return internalValueMap;
-        }
-
-        public static final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptor() {
-            return de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.getDescriptor().getEnumTypes().get(0);
-        }
-
-        public static Type valueOf(
-                com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-            if (desc.getType() != getDescriptor()) {
-                throw new java.lang.IllegalArgumentException(
-                        "EnumValueDescriptor is not for this type.");
-            }
-            return VALUES[desc.getIndex()];
-        }
-
-        public final int getNumber() {
-            return value;
-        }
-
-        public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-            return getDescriptor().getValues().get(index);
-        }
-
-        public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-            return getDescriptor();
-        }
-
-        // @@protoc_insertion_point(enum_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type)
-    }
-
-    public interface SecretReservationKeyOrBuilder
-            extends com.google.protobuf.MessageOrBuilder {
-
-        // required string nodeUrnPrefix = 1;
-
-        /**
-         * <code>required string nodeUrnPrefix = 1;</code>
-         */
-        boolean hasNodeUrnPrefix();
-
-        /**
-         * <code>required string nodeUrnPrefix = 1;</code>
-         */
-        java.lang.String getNodeUrnPrefix();
-
-        /**
-         * <code>required string nodeUrnPrefix = 1;</code>
-         */
-        com.google.protobuf.ByteString
-        getNodeUrnPrefixBytes();
-
-        // required string username = 2;
-
-        /**
-         * <code>required string username = 2;</code>
-         */
-        boolean hasUsername();
-
-        /**
-         * <code>required string username = 2;</code>
-         */
-        java.lang.String getUsername();
-
-        /**
-         * <code>required string username = 2;</code>
-         */
-        com.google.protobuf.ByteString
-        getUsernameBytes();
-
-        // required string key = 3;
-
-        /**
-         * <code>required string key = 3;</code>
-         */
-        boolean hasKey();
-
-        /**
-         * <code>required string key = 3;</code>
-         */
-        java.lang.String getKey();
-
-        /**
-         * <code>required string key = 3;</code>
-         */
-        com.google.protobuf.ByteString
-        getKeyBytes();
-    }
-
-    /**
-     * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey}
-     */
-    public static final class SecretReservationKey extends
-            com.google.protobuf.GeneratedMessage
-            implements SecretReservationKeyOrBuilder {
-        // required string nodeUrnPrefix = 1;
-        public static final int NODEURNPREFIX_FIELD_NUMBER = 1;
-        // required string username = 2;
-        public static final int USERNAME_FIELD_NUMBER = 2;
-        // required string key = 3;
-        public static final int KEY_FIELD_NUMBER = 3;
-        private static final SecretReservationKey defaultInstance;
-        private static final long serialVersionUID = 0L;
-        public static com.google.protobuf.Parser<SecretReservationKey> PARSER =
-                new com.google.protobuf.AbstractParser<SecretReservationKey>() {
-                    public SecretReservationKey parsePartialFrom(
-                            com.google.protobuf.CodedInputStream input,
-                            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                            throws com.google.protobuf.InvalidProtocolBufferException {
-                        return new SecretReservationKey(input, extensionRegistry);
-                    }
-                };
-        private final com.google.protobuf.UnknownFieldSet unknownFields;
-        private int bitField0_;
-        private java.lang.Object nodeUrnPrefix_;
-        private java.lang.Object username_;
-        private java.lang.Object key_;
-        private byte memoizedIsInitialized = -1;
-        private int memoizedSerializedSize = -1;
-
-        // Use SecretReservationKey.newBuilder() to construct.
-        private SecretReservationKey(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
-            super(builder);
-            this.unknownFields = builder.getUnknownFields();
-        }
-
-        private SecretReservationKey(boolean noInit) {
-            this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-        }
-
-        private SecretReservationKey(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            initFields();
-            int mutable_bitField0_ = 0;
-            com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-                    com.google.protobuf.UnknownFieldSet.newBuilder();
-            try {
-                boolean done = false;
-                while (!done) {
-                    int tag = input.readTag();
-                    switch (tag) {
-                        case 0:
-                            done = true;
-                            break;
-                        default: {
-                            if (!parseUnknownField(input, unknownFields,
-                                    extensionRegistry, tag)) {
-                                done = true;
-                            }
-                            break;
-                        }
-                        case 10: {
-                            bitField0_ |= 0x00000001;
-                            nodeUrnPrefix_ = input.readBytes();
-                            break;
-                        }
-                        case 18: {
-                            bitField0_ |= 0x00000002;
-                            username_ = input.readBytes();
-                            break;
-                        }
-                        case 26: {
-                            bitField0_ |= 0x00000004;
-                            key_ = input.readBytes();
-                            break;
-                        }
-                    }
-                }
-            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                throw e.setUnfinishedMessage(this);
-            } catch (java.io.IOException e) {
-                throw new com.google.protobuf.InvalidProtocolBufferException(
-                        e.getMessage()).setUnfinishedMessage(this);
-            } finally {
-                this.unknownFields = unknownFields.build();
-                makeExtensionsImmutable();
-            }
-        }
-
-        public static SecretReservationKey getDefaultInstance() {
-            return defaultInstance;
-        }
-
-        public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-            return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_descriptor;
-        }
-
-        public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
-                com.google.protobuf.ByteString data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
-                com.google.protobuf.ByteString data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(byte[] data)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data);
-        }
-
-        public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
-                byte[] data,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws com.google.protobuf.InvalidProtocolBufferException {
-            return PARSER.parseFrom(data, extensionRegistry);
-        }
-
-        public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return PARSER.parseFrom(input);
-        }
-
-        public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return PARSER.parseFrom(input, extensionRegistry);
-        }
-
-        public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseDelimitedFrom(java.io.InputStream input)
-                throws java.io.IOException {
-            return PARSER.parseDelimitedFrom(input);
-        }
-
-        public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseDelimitedFrom(
-                java.io.InputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return PARSER.parseDelimitedFrom(input, extensionRegistry);
-        }
-
-        public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
-                com.google.protobuf.CodedInputStream input)
-                throws java.io.IOException {
-            return PARSER.parseFrom(input);
-        }
-
-        public static de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parseFrom(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            return PARSER.parseFrom(input, extensionRegistry);
-        }
-
-        public static Builder newBuilder() {
-            return Builder.create();
-        }
-
-        public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey prototype) {
-            return newBuilder().mergeFrom(prototype);
-        }
-
-        public SecretReservationKey getDefaultInstanceForType() {
-            return defaultInstance;
-        }
-
-        @java.lang.Override
-        public final com.google.protobuf.UnknownFieldSet
-        getUnknownFields() {
-            return this.unknownFields;
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder.class);
-        }
-
-        @java.lang.Override
-        public com.google.protobuf.Parser<SecretReservationKey> getParserForType() {
-            return PARSER;
-        }
-
-        /**
-         * <code>required string nodeUrnPrefix = 1;</code>
-         */
-        public boolean hasNodeUrnPrefix() {
-            return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-
-        /**
-         * <code>required string nodeUrnPrefix = 1;</code>
-         */
-        public java.lang.String getNodeUrnPrefix() {
-            java.lang.Object ref = nodeUrnPrefix_;
-            if (ref instanceof java.lang.String) {
-                return (java.lang.String) ref;
-            } else {
-                com.google.protobuf.ByteString bs =
-                        (com.google.protobuf.ByteString) ref;
-                java.lang.String s = bs.toStringUtf8();
-                if (bs.isValidUtf8()) {
-                    nodeUrnPrefix_ = s;
-                }
-                return s;
-            }
-        }
-
-        /**
-         * <code>required string nodeUrnPrefix = 1;</code>
-         */
-        public com.google.protobuf.ByteString
-        getNodeUrnPrefixBytes() {
-            java.lang.Object ref = nodeUrnPrefix_;
-            if (ref instanceof java.lang.String) {
-                com.google.protobuf.ByteString b =
-                        com.google.protobuf.ByteString.copyFromUtf8(
-                                (java.lang.String) ref);
-                nodeUrnPrefix_ = b;
-                return b;
-            } else {
-                return (com.google.protobuf.ByteString) ref;
-            }
-        }
-
-        /**
-         * <code>required string username = 2;</code>
-         */
-        public boolean hasUsername() {
-            return ((bitField0_ & 0x00000002) == 0x00000002);
-        }
-
-        /**
-         * <code>required string username = 2;</code>
-         */
-        public java.lang.String getUsername() {
-            java.lang.Object ref = username_;
-            if (ref instanceof java.lang.String) {
-                return (java.lang.String) ref;
-            } else {
-                com.google.protobuf.ByteString bs =
-                        (com.google.protobuf.ByteString) ref;
-                java.lang.String s = bs.toStringUtf8();
-                if (bs.isValidUtf8()) {
-                    username_ = s;
-                }
-                return s;
-            }
-        }
-
-        /**
-         * <code>required string username = 2;</code>
-         */
-        public com.google.protobuf.ByteString
-        getUsernameBytes() {
-            java.lang.Object ref = username_;
-            if (ref instanceof java.lang.String) {
-                com.google.protobuf.ByteString b =
-                        com.google.protobuf.ByteString.copyFromUtf8(
-                                (java.lang.String) ref);
-                username_ = b;
-                return b;
-            } else {
-                return (com.google.protobuf.ByteString) ref;
-            }
-        }
-
-        /**
-         * <code>required string key = 3;</code>
-         */
-        public boolean hasKey() {
-            return ((bitField0_ & 0x00000004) == 0x00000004);
-        }
-
-        /**
-         * <code>required string key = 3;</code>
-         */
-        public java.lang.String getKey() {
-            java.lang.Object ref = key_;
-            if (ref instanceof java.lang.String) {
-                return (java.lang.String) ref;
-            } else {
-                com.google.protobuf.ByteString bs =
-                        (com.google.protobuf.ByteString) ref;
-                java.lang.String s = bs.toStringUtf8();
-                if (bs.isValidUtf8()) {
-                    key_ = s;
-                }
-                return s;
-            }
-        }
-
-        /**
-         * <code>required string key = 3;</code>
-         */
-        public com.google.protobuf.ByteString
-        getKeyBytes() {
-            java.lang.Object ref = key_;
-            if (ref instanceof java.lang.String) {
-                com.google.protobuf.ByteString b =
-                        com.google.protobuf.ByteString.copyFromUtf8(
-                                (java.lang.String) ref);
-                key_ = b;
-                return b;
-            } else {
-                return (com.google.protobuf.ByteString) ref;
-            }
-        }
-
-        private void initFields() {
-            nodeUrnPrefix_ = "";
-            username_ = "";
-            key_ = "";
-        }
-
-        public final boolean isInitialized() {
-            byte isInitialized = memoizedIsInitialized;
-            if (isInitialized != -1) return isInitialized == 1;
-
-            if (!hasNodeUrnPrefix()) {
-                memoizedIsInitialized = 0;
-                return false;
-            }
-            if (!hasUsername()) {
-                memoizedIsInitialized = 0;
-                return false;
-            }
-            if (!hasKey()) {
-                memoizedIsInitialized = 0;
-                return false;
-            }
-            memoizedIsInitialized = 1;
-            return true;
-        }
-
-        public void writeTo(com.google.protobuf.CodedOutputStream output)
-                throws java.io.IOException {
-            getSerializedSize();
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                output.writeBytes(1, getNodeUrnPrefixBytes());
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                output.writeBytes(2, getUsernameBytes());
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                output.writeBytes(3, getKeyBytes());
-            }
-            getUnknownFields().writeTo(output);
-        }
-
-        public int getSerializedSize() {
-            int size = memoizedSerializedSize;
-            if (size != -1) return size;
-
-            size = 0;
-            if (((bitField0_ & 0x00000001) == 0x00000001)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeBytesSize(1, getNodeUrnPrefixBytes());
-            }
-            if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeBytesSize(2, getUsernameBytes());
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                size += com.google.protobuf.CodedOutputStream
-                        .computeBytesSize(3, getKeyBytes());
-            }
-            size += getUnknownFields().getSerializedSize();
-            memoizedSerializedSize = size;
-            return size;
-        }
-
-        @java.lang.Override
-        protected java.lang.Object writeReplace()
-                throws java.io.ObjectStreamException {
-            return super.writeReplace();
-        }
-
-        public Builder newBuilderForType() {
-            return newBuilder();
-        }
-
-        public Builder toBuilder() {
-            return newBuilder(this);
-        }
-
-        @java.lang.Override
-        protected Builder newBuilderForType(
-                com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-            Builder builder = new Builder(parent);
-            return builder;
-        }
-
-        /**
-         * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey}
-         */
-        public static final class Builder extends
-                com.google.protobuf.GeneratedMessage.Builder<Builder>
-                implements de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder {
-            private int bitField0_;
-            // required string nodeUrnPrefix = 1;
-            private java.lang.Object nodeUrnPrefix_ = "";
-            // required string username = 2;
-            private java.lang.Object username_ = "";
-            // required string key = 3;
-            private java.lang.Object key_ = "";
-
-            // Construct using de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.newBuilder()
-            private Builder() {
-                maybeForceBuilderInitialization();
-            }
-
-            private Builder(
-                    com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-                super(parent);
-                maybeForceBuilderInitialization();
-            }
-
-            public static final com.google.protobuf.Descriptors.Descriptor
-            getDescriptor() {
-                return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_descriptor;
-            }
-
-            private static Builder create() {
-                return new Builder();
-            }
-
-            protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-            internalGetFieldAccessorTable() {
-                return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_fieldAccessorTable
-                        .ensureFieldAccessorsInitialized(
-                                de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder.class);
-            }
-
-            private void maybeForceBuilderInitialization() {
-                if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-                }
-            }
-
-            public Builder clear() {
-                super.clear();
-                nodeUrnPrefix_ = "";
-                bitField0_ = (bitField0_ & ~0x00000001);
-                username_ = "";
-                bitField0_ = (bitField0_ & ~0x00000002);
-                key_ = "";
-                bitField0_ = (bitField0_ & ~0x00000004);
-                return this;
-            }
-
-            public Builder clone() {
-                return create().mergeFrom(buildPartial());
-            }
-
-            public com.google.protobuf.Descriptors.Descriptor
-            getDescriptorForType() {
-                return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_SecretReservationKey_descriptor;
-            }
-
-            public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey getDefaultInstanceForType() {
-                return de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.getDefaultInstance();
-            }
-
-            public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey build() {
-                de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey result = buildPartial();
-                if (!result.isInitialized()) {
-                    throw newUninitializedMessageException(result);
-                }
-                return result;
-            }
-
-            public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey buildPartial() {
-                de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey result = new de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey(this);
-                int from_bitField0_ = bitField0_;
-                int to_bitField0_ = 0;
-                if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-                    to_bitField0_ |= 0x00000001;
-                }
-                result.nodeUrnPrefix_ = nodeUrnPrefix_;
-                if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-                    to_bitField0_ |= 0x00000002;
-                }
-                result.username_ = username_;
-                if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-                    to_bitField0_ |= 0x00000004;
-                }
-                result.key_ = key_;
-                result.bitField0_ = to_bitField0_;
-                onBuilt();
-                return result;
-            }
-
-            public Builder mergeFrom(com.google.protobuf.Message other) {
-                if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey) {
-                    return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey) other);
-                } else {
-                    super.mergeFrom(other);
-                    return this;
-                }
-            }
-
-            public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey other) {
-                if (other == de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.getDefaultInstance())
-                    return this;
-                if (other.hasNodeUrnPrefix()) {
-                    bitField0_ |= 0x00000001;
-                    nodeUrnPrefix_ = other.nodeUrnPrefix_;
-                    onChanged();
-                }
-                if (other.hasUsername()) {
-                    bitField0_ |= 0x00000002;
-                    username_ = other.username_;
-                    onChanged();
-                }
-                if (other.hasKey()) {
-                    bitField0_ |= 0x00000004;
-                    key_ = other.key_;
-                    onChanged();
-                }
-                this.mergeUnknownFields(other.getUnknownFields());
-                return this;
-            }
-
-            public final boolean isInitialized() {
-                if (!hasNodeUrnPrefix()) {
-
-                    return false;
-                }
-                if (!hasUsername()) {
-
-                    return false;
-                }
-                if (!hasKey()) {
-
-                    return false;
-                }
-                return true;
-            }
-
-            public Builder mergeFrom(
-                    com.google.protobuf.CodedInputStream input,
-                    com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                    throws java.io.IOException {
-                de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey parsedMessage = null;
-                try {
-                    parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-                } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                    parsedMessage = (de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey) e.getUnfinishedMessage();
-                    throw e;
-                } finally {
-                    if (parsedMessage != null) {
-                        mergeFrom(parsedMessage);
-                    }
-                }
-                return this;
-            }
-
-            /**
-             * <code>required string nodeUrnPrefix = 1;</code>
-             */
-            public boolean hasNodeUrnPrefix() {
-                return ((bitField0_ & 0x00000001) == 0x00000001);
-            }
-
-            /**
-             * <code>required string nodeUrnPrefix = 1;</code>
-             */
-            public java.lang.String getNodeUrnPrefix() {
-                java.lang.Object ref = nodeUrnPrefix_;
-                if (!(ref instanceof java.lang.String)) {
-                    java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                            .toStringUtf8();
-                    nodeUrnPrefix_ = s;
-                    return s;
-                } else {
-                    return (java.lang.String) ref;
-                }
-            }
-
-            /**
-             * <code>required string nodeUrnPrefix = 1;</code>
-             */
-            public Builder setNodeUrnPrefix(
-                    java.lang.String value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                bitField0_ |= 0x00000001;
-                nodeUrnPrefix_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <code>required string nodeUrnPrefix = 1;</code>
-             */
-            public com.google.protobuf.ByteString
-            getNodeUrnPrefixBytes() {
-                java.lang.Object ref = nodeUrnPrefix_;
-                if (ref instanceof String) {
-                    com.google.protobuf.ByteString b =
-                            com.google.protobuf.ByteString.copyFromUtf8(
-                                    (java.lang.String) ref);
-                    nodeUrnPrefix_ = b;
-                    return b;
-                } else {
-                    return (com.google.protobuf.ByteString) ref;
-                }
-            }
-
-            /**
-             * <code>required string nodeUrnPrefix = 1;</code>
-             */
-            public Builder setNodeUrnPrefixBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                bitField0_ |= 0x00000001;
-                nodeUrnPrefix_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <code>required string nodeUrnPrefix = 1;</code>
-             */
-            public Builder clearNodeUrnPrefix() {
-                bitField0_ = (bitField0_ & ~0x00000001);
-                nodeUrnPrefix_ = getDefaultInstance().getNodeUrnPrefix();
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <code>required string username = 2;</code>
-             */
-            public boolean hasUsername() {
-                return ((bitField0_ & 0x00000002) == 0x00000002);
-            }
-
-            /**
-             * <code>required string username = 2;</code>
-             */
-            public java.lang.String getUsername() {
-                java.lang.Object ref = username_;
-                if (!(ref instanceof java.lang.String)) {
-                    java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                            .toStringUtf8();
-                    username_ = s;
-                    return s;
-                } else {
-                    return (java.lang.String) ref;
-                }
-            }
-
-            /**
-             * <code>required string username = 2;</code>
-             */
-            public Builder setUsername(
-                    java.lang.String value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                bitField0_ |= 0x00000002;
-                username_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <code>required string username = 2;</code>
-             */
-            public com.google.protobuf.ByteString
-            getUsernameBytes() {
-                java.lang.Object ref = username_;
-                if (ref instanceof String) {
-                    com.google.protobuf.ByteString b =
-                            com.google.protobuf.ByteString.copyFromUtf8(
-                                    (java.lang.String) ref);
-                    username_ = b;
-                    return b;
-                } else {
-                    return (com.google.protobuf.ByteString) ref;
-                }
-            }
-
-            /**
-             * <code>required string username = 2;</code>
-             */
-            public Builder setUsernameBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                bitField0_ |= 0x00000002;
-                username_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <code>required string username = 2;</code>
-             */
-            public Builder clearUsername() {
-                bitField0_ = (bitField0_ & ~0x00000002);
-                username_ = getDefaultInstance().getUsername();
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <code>required string key = 3;</code>
-             */
-            public boolean hasKey() {
-                return ((bitField0_ & 0x00000004) == 0x00000004);
-            }
-
-            /**
-             * <code>required string key = 3;</code>
-             */
-            public java.lang.String getKey() {
-                java.lang.Object ref = key_;
-                if (!(ref instanceof java.lang.String)) {
-                    java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                            .toStringUtf8();
-                    key_ = s;
-                    return s;
-                } else {
-                    return (java.lang.String) ref;
-                }
-            }
-
-            /**
-             * <code>required string key = 3;</code>
-             */
-            public Builder setKey(
-                    java.lang.String value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                bitField0_ |= 0x00000004;
-                key_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <code>required string key = 3;</code>
-             */
-            public com.google.protobuf.ByteString
-            getKeyBytes() {
-                java.lang.Object ref = key_;
-                if (ref instanceof String) {
-                    com.google.protobuf.ByteString b =
-                            com.google.protobuf.ByteString.copyFromUtf8(
-                                    (java.lang.String) ref);
-                    key_ = b;
-                    return b;
-                } else {
-                    return (com.google.protobuf.ByteString) ref;
-                }
-            }
-
-            /**
-             * <code>required string key = 3;</code>
-             */
-            public Builder setKeyBytes(
-                    com.google.protobuf.ByteString value) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                bitField0_ |= 0x00000004;
-                key_ = value;
-                onChanged();
-                return this;
-            }
-
-            /**
-             * <code>required string key = 3;</code>
-             */
-            public Builder clearKey() {
-                bitField0_ = (bitField0_ & ~0x00000004);
-                key_ = getDefaultInstance().getKey();
-                onChanged();
-                return this;
-            }
-
-            // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey)
-        }
-
-        static {
-            defaultInstance = new SecretReservationKey(true);
-            defaultInstance.initFields();
-        }
-
-        // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey)
-    }
-
-    /**
-     * Protobuf type {@code de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent}
-     */
-    public static final class Builder extends
-            com.google.protobuf.GeneratedMessage.Builder<Builder>
-            implements de.uniluebeck.itm.tr.iwsn.messages.ReservationEventOrBuilder {
-        private int bitField0_;
-        // required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;
-        private de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.STARTED;
-        // repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;
-        private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey> secretReservationKeys_ =
-                java.util.Collections.emptyList();
-        private com.google.protobuf.RepeatedFieldBuilder<
-                de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder> secretReservationKeysBuilder_;
-        // repeated string nodeUrns = 3;
-        private com.google.protobuf.LazyStringList nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        // required string interval_start = 4;
-        private java.lang.Object intervalStart_ = "";
-        // required string interval_end = 5;
-        private java.lang.Object intervalEnd_ = "";
-
-        // Construct using de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.newBuilder()
-        private Builder() {
-            maybeForceBuilderInitialization();
-        }
-
-        private Builder(
-                com.google.protobuf.GeneratedMessage.BuilderParent parent) {
-            super(parent);
-            maybeForceBuilderInitialization();
-        }
-
-        public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-            return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_descriptor;
-        }
-
-        private static Builder create() {
-            return new Builder();
-        }
-
-        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-            return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_fieldAccessorTable
-                    .ensureFieldAccessorsInitialized(
-                            de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.class, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Builder.class);
-        }
-
-        private void maybeForceBuilderInitialization() {
-            if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-                getSecretReservationKeysFieldBuilder();
-            }
-        }
-
-        public Builder clear() {
-            super.clear();
-            type_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.STARTED;
-            bitField0_ = (bitField0_ & ~0x00000001);
-            if (secretReservationKeysBuilder_ == null) {
-                secretReservationKeys_ = java.util.Collections.emptyList();
-                bitField0_ = (bitField0_ & ~0x00000002);
-            } else {
-                secretReservationKeysBuilder_.clear();
-            }
-            nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-            bitField0_ = (bitField0_ & ~0x00000004);
-            intervalStart_ = "";
-            bitField0_ = (bitField0_ & ~0x00000008);
-            intervalEnd_ = "";
-            bitField0_ = (bitField0_ & ~0x00000010);
-            return this;
-        }
-
-        public Builder clone() {
-            return create().mergeFrom(buildPartial());
-        }
-
-        public com.google.protobuf.Descriptors.Descriptor
-        getDescriptorForType() {
-            return de.uniluebeck.itm.tr.iwsn.messages.InternalMessages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_ReservationEvent_descriptor;
-        }
-
-        public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent getDefaultInstanceForType() {
-            return de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.getDefaultInstance();
-        }
-
-        public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent build() {
-            de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent result = buildPartial();
-            if (!result.isInitialized()) {
-                throw newUninitializedMessageException(result);
-            }
-            return result;
-        }
-
-        public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent buildPartial() {
-            de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent result = new de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent(this);
-            int from_bitField0_ = bitField0_;
-            int to_bitField0_ = 0;
-            if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
-                to_bitField0_ |= 0x00000001;
-            }
-            result.type_ = type_;
-            if (secretReservationKeysBuilder_ == null) {
-                if (((bitField0_ & 0x00000002) == 0x00000002)) {
-                    secretReservationKeys_ = java.util.Collections.unmodifiableList(secretReservationKeys_);
-                    bitField0_ = (bitField0_ & ~0x00000002);
-                }
-                result.secretReservationKeys_ = secretReservationKeys_;
-            } else {
-                result.secretReservationKeys_ = secretReservationKeysBuilder_.build();
-            }
-            if (((bitField0_ & 0x00000004) == 0x00000004)) {
-                nodeUrns_ = new com.google.protobuf.UnmodifiableLazyStringList(
-                        nodeUrns_);
-                bitField0_ = (bitField0_ & ~0x00000004);
-            }
-            result.nodeUrns_ = nodeUrns_;
-            if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-                to_bitField0_ |= 0x00000002;
-            }
-            result.intervalStart_ = intervalStart_;
-            if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-                to_bitField0_ |= 0x00000004;
-            }
-            result.intervalEnd_ = intervalEnd_;
-            result.bitField0_ = to_bitField0_;
-            onBuilt();
-            return result;
-        }
-
-        public Builder mergeFrom(com.google.protobuf.Message other) {
-            if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent) {
-                return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent) other);
-            } else {
-                super.mergeFrom(other);
-                return this;
-            }
-        }
-
-        public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent other) {
-            if (other == de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.getDefaultInstance()) return this;
-            if (other.hasType()) {
-                setType(other.getType());
-            }
-            if (secretReservationKeysBuilder_ == null) {
-                if (!other.secretReservationKeys_.isEmpty()) {
-                    if (secretReservationKeys_.isEmpty()) {
-                        secretReservationKeys_ = other.secretReservationKeys_;
-                        bitField0_ = (bitField0_ & ~0x00000002);
-                    } else {
-                        ensureSecretReservationKeysIsMutable();
-                        secretReservationKeys_.addAll(other.secretReservationKeys_);
-                    }
-                    onChanged();
-                }
-            } else {
-                if (!other.secretReservationKeys_.isEmpty()) {
-                    if (secretReservationKeysBuilder_.isEmpty()) {
-                        secretReservationKeysBuilder_.dispose();
-                        secretReservationKeysBuilder_ = null;
-                        secretReservationKeys_ = other.secretReservationKeys_;
-                        bitField0_ = (bitField0_ & ~0x00000002);
-                        secretReservationKeysBuilder_ =
-                                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                                        getSecretReservationKeysFieldBuilder() : null;
-                    } else {
-                        secretReservationKeysBuilder_.addAllMessages(other.secretReservationKeys_);
-                    }
-                }
-            }
-            if (!other.nodeUrns_.isEmpty()) {
-                if (nodeUrns_.isEmpty()) {
-                    nodeUrns_ = other.nodeUrns_;
-                    bitField0_ = (bitField0_ & ~0x00000004);
-                } else {
-                    ensureNodeUrnsIsMutable();
-                    nodeUrns_.addAll(other.nodeUrns_);
-                }
-                onChanged();
-            }
-            if (other.hasIntervalStart()) {
-                bitField0_ |= 0x00000008;
-                intervalStart_ = other.intervalStart_;
-                onChanged();
-            }
-            if (other.hasIntervalEnd()) {
-                bitField0_ |= 0x00000010;
-                intervalEnd_ = other.intervalEnd_;
-                onChanged();
-            }
-            this.mergeUnknownFields(other.getUnknownFields());
-            return this;
-        }
-
-        public final boolean isInitialized() {
-            if (!hasType()) {
-
-                return false;
-            }
-            if (!hasIntervalStart()) {
-
-                return false;
-            }
-            if (!hasIntervalEnd()) {
-
-                return false;
-            }
-            for (int i = 0; i < getSecretReservationKeysCount(); i++) {
-                if (!getSecretReservationKeys(i).isInitialized()) {
-
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public Builder mergeFrom(
-                com.google.protobuf.CodedInputStream input,
-                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-                throws java.io.IOException {
-            de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent parsedMessage = null;
-            try {
-                parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-                parsedMessage = (de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent) e.getUnfinishedMessage();
-                throw e;
-            } finally {
-                if (parsedMessage != null) {
-                    mergeFrom(parsedMessage);
-                }
-            }
-            return this;
-        }
-
-        /**
-         * <code>required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;</code>
-         */
-        public boolean hasType() {
-            return ((bitField0_ & 0x00000001) == 0x00000001);
-        }
-
-        /**
-         * <code>required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;</code>
-         */
-        public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type getType() {
-            return type_;
-        }
-
-        /**
-         * <code>required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;</code>
-         */
-        public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type value) {
-            if (value == null) {
-                throw new NullPointerException();
-            }
-            bitField0_ |= 0x00000001;
-            type_ = value;
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>required .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type type = 1;</code>
-         */
-        public Builder clearType() {
-            bitField0_ = (bitField0_ & ~0x00000001);
-            type_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.STARTED;
-            onChanged();
-            return this;
-        }
-
-        private void ensureSecretReservationKeysIsMutable() {
-            if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-                secretReservationKeys_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey>(secretReservationKeys_);
-                bitField0_ |= 0x00000002;
-            }
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey> getSecretReservationKeysList() {
-            if (secretReservationKeysBuilder_ == null) {
-                return java.util.Collections.unmodifiableList(secretReservationKeys_);
-            } else {
-                return secretReservationKeysBuilder_.getMessageList();
-            }
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public int getSecretReservationKeysCount() {
-            if (secretReservationKeysBuilder_ == null) {
-                return secretReservationKeys_.size();
-            } else {
-                return secretReservationKeysBuilder_.getCount();
-            }
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey getSecretReservationKeys(int index) {
-            if (secretReservationKeysBuilder_ == null) {
-                return secretReservationKeys_.get(index);
-            } else {
-                return secretReservationKeysBuilder_.getMessage(index);
-            }
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public Builder setSecretReservationKeys(
-                int index, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey value) {
-            if (secretReservationKeysBuilder_ == null) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                ensureSecretReservationKeysIsMutable();
-                secretReservationKeys_.set(index, value);
-                onChanged();
-            } else {
-                secretReservationKeysBuilder_.setMessage(index, value);
-            }
-            return this;
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public Builder setSecretReservationKeys(
-                int index, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder builderForValue) {
-            if (secretReservationKeysBuilder_ == null) {
-                ensureSecretReservationKeysIsMutable();
-                secretReservationKeys_.set(index, builderForValue.build());
-                onChanged();
-            } else {
-                secretReservationKeysBuilder_.setMessage(index, builderForValue.build());
-            }
-            return this;
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public Builder addSecretReservationKeys(de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey value) {
-            if (secretReservationKeysBuilder_ == null) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                ensureSecretReservationKeysIsMutable();
-                secretReservationKeys_.add(value);
-                onChanged();
-            } else {
-                secretReservationKeysBuilder_.addMessage(value);
-            }
-            return this;
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public Builder addSecretReservationKeys(
-                int index, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey value) {
-            if (secretReservationKeysBuilder_ == null) {
-                if (value == null) {
-                    throw new NullPointerException();
-                }
-                ensureSecretReservationKeysIsMutable();
-                secretReservationKeys_.add(index, value);
-                onChanged();
-            } else {
-                secretReservationKeysBuilder_.addMessage(index, value);
-            }
-            return this;
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public Builder addSecretReservationKeys(
-                de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder builderForValue) {
-            if (secretReservationKeysBuilder_ == null) {
-                ensureSecretReservationKeysIsMutable();
-                secretReservationKeys_.add(builderForValue.build());
-                onChanged();
-            } else {
-                secretReservationKeysBuilder_.addMessage(builderForValue.build());
-            }
-            return this;
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public Builder addSecretReservationKeys(
-                int index, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder builderForValue) {
-            if (secretReservationKeysBuilder_ == null) {
-                ensureSecretReservationKeysIsMutable();
-                secretReservationKeys_.add(index, builderForValue.build());
-                onChanged();
-            } else {
-                secretReservationKeysBuilder_.addMessage(index, builderForValue.build());
-            }
-            return this;
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public Builder addAllSecretReservationKeys(
-                java.lang.Iterable<? extends de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey> values) {
-            if (secretReservationKeysBuilder_ == null) {
-                ensureSecretReservationKeysIsMutable();
-                super.addAll(values, secretReservationKeys_);
-                onChanged();
-            } else {
-                secretReservationKeysBuilder_.addAllMessages(values);
-            }
-            return this;
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public Builder clearSecretReservationKeys() {
-            if (secretReservationKeysBuilder_ == null) {
-                secretReservationKeys_ = java.util.Collections.emptyList();
-                bitField0_ = (bitField0_ & ~0x00000002);
-                onChanged();
-            } else {
-                secretReservationKeysBuilder_.clear();
-            }
-            return this;
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public Builder removeSecretReservationKeys(int index) {
-            if (secretReservationKeysBuilder_ == null) {
-                ensureSecretReservationKeysIsMutable();
-                secretReservationKeys_.remove(index);
-                onChanged();
-            } else {
-                secretReservationKeysBuilder_.remove(index);
-            }
-            return this;
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder getSecretReservationKeysBuilder(
-                int index) {
-            return getSecretReservationKeysFieldBuilder().getBuilder(index);
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder getSecretReservationKeysOrBuilder(
-                int index) {
-            if (secretReservationKeysBuilder_ == null) {
-                return secretReservationKeys_.get(index);
-            } else {
-                return secretReservationKeysBuilder_.getMessageOrBuilder(index);
-            }
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public java.util.List<? extends de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder>
-        getSecretReservationKeysOrBuilderList() {
-            if (secretReservationKeysBuilder_ != null) {
-                return secretReservationKeysBuilder_.getMessageOrBuilderList();
-            } else {
-                return java.util.Collections.unmodifiableList(secretReservationKeys_);
-            }
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder addSecretReservationKeysBuilder() {
-            return getSecretReservationKeysFieldBuilder().addBuilder(
-                    de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.getDefaultInstance());
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder addSecretReservationKeysBuilder(
-                int index) {
-            return getSecretReservationKeysFieldBuilder().addBuilder(
-                    index, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.getDefaultInstance());
-        }
-
-        /**
-         * <code>repeated .de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey secretReservationKeys = 2;</code>
-         */
-        public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder>
-        getSecretReservationKeysBuilderList() {
-            return getSecretReservationKeysFieldBuilder().getBuilderList();
-        }
-
-        private com.google.protobuf.RepeatedFieldBuilder<
-                de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder>
-        getSecretReservationKeysFieldBuilder() {
-            if (secretReservationKeysBuilder_ == null) {
-                secretReservationKeysBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-                        de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKey.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.SecretReservationKeyOrBuilder>(
-                        secretReservationKeys_,
-                        ((bitField0_ & 0x00000002) == 0x00000002),
-                        getParentForChildren(),
-                        isClean());
-                secretReservationKeys_ = null;
-            }
-            return secretReservationKeysBuilder_;
-        }
-
-        private void ensureNodeUrnsIsMutable() {
-            if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-                nodeUrns_ = new com.google.protobuf.LazyStringArrayList(nodeUrns_);
-                bitField0_ |= 0x00000004;
-            }
-        }
-
-        /**
-         * <code>repeated string nodeUrns = 3;</code>
-         */
-        public java.util.List<java.lang.String>
-        getNodeUrnsList() {
-            return java.util.Collections.unmodifiableList(nodeUrns_);
-        }
-
-        /**
-         * <code>repeated string nodeUrns = 3;</code>
-         */
-        public int getNodeUrnsCount() {
-            return nodeUrns_.size();
-        }
-
-        /**
-         * <code>repeated string nodeUrns = 3;</code>
-         */
-        public java.lang.String getNodeUrns(int index) {
-            return nodeUrns_.get(index);
-        }
-
-        /**
-         * <code>repeated string nodeUrns = 3;</code>
-         */
-        public com.google.protobuf.ByteString
-        getNodeUrnsBytes(int index) {
-            return nodeUrns_.getByteString(index);
-        }
-
-        /**
-         * <code>repeated string nodeUrns = 3;</code>
-         */
-        public Builder setNodeUrns(
-                int index, java.lang.String value) {
-            if (value == null) {
-                throw new NullPointerException();
-            }
-            ensureNodeUrnsIsMutable();
-            nodeUrns_.set(index, value);
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>repeated string nodeUrns = 3;</code>
-         */
-        public Builder addNodeUrns(
-                java.lang.String value) {
-            if (value == null) {
-                throw new NullPointerException();
-            }
-            ensureNodeUrnsIsMutable();
-            nodeUrns_.add(value);
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>repeated string nodeUrns = 3;</code>
-         */
-        public Builder addAllNodeUrns(
-                java.lang.Iterable<java.lang.String> values) {
-            ensureNodeUrnsIsMutable();
-            super.addAll(values, nodeUrns_);
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>repeated string nodeUrns = 3;</code>
-         */
-        public Builder clearNodeUrns() {
-            nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-            bitField0_ = (bitField0_ & ~0x00000004);
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>repeated string nodeUrns = 3;</code>
-         */
-        public Builder addNodeUrnsBytes(
-                com.google.protobuf.ByteString value) {
-            if (value == null) {
-                throw new NullPointerException();
-            }
-            ensureNodeUrnsIsMutable();
-            nodeUrns_.add(value);
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>required string interval_start = 4;</code>
-         */
-        public boolean hasIntervalStart() {
-            return ((bitField0_ & 0x00000008) == 0x00000008);
-        }
-
-        /**
-         * <code>required string interval_start = 4;</code>
-         */
-        public java.lang.String getIntervalStart() {
-            java.lang.Object ref = intervalStart_;
-            if (!(ref instanceof java.lang.String)) {
-                java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                        .toStringUtf8();
-                intervalStart_ = s;
-                return s;
-            } else {
-                return (java.lang.String) ref;
-            }
-        }
-
-        /**
-         * <code>required string interval_start = 4;</code>
-         */
-        public Builder setIntervalStart(
-                java.lang.String value) {
-            if (value == null) {
-                throw new NullPointerException();
-            }
-            bitField0_ |= 0x00000008;
-            intervalStart_ = value;
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>required string interval_start = 4;</code>
-         */
-        public com.google.protobuf.ByteString
-        getIntervalStartBytes() {
-            java.lang.Object ref = intervalStart_;
-            if (ref instanceof String) {
-                com.google.protobuf.ByteString b =
-                        com.google.protobuf.ByteString.copyFromUtf8(
-                                (java.lang.String) ref);
-                intervalStart_ = b;
-                return b;
-            } else {
-                return (com.google.protobuf.ByteString) ref;
-            }
-        }
-
-        /**
-         * <code>required string interval_start = 4;</code>
-         */
-        public Builder setIntervalStartBytes(
-                com.google.protobuf.ByteString value) {
-            if (value == null) {
-                throw new NullPointerException();
-            }
-            bitField0_ |= 0x00000008;
-            intervalStart_ = value;
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>required string interval_start = 4;</code>
-         */
-        public Builder clearIntervalStart() {
-            bitField0_ = (bitField0_ & ~0x00000008);
-            intervalStart_ = getDefaultInstance().getIntervalStart();
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>required string interval_end = 5;</code>
-         */
-        public boolean hasIntervalEnd() {
-            return ((bitField0_ & 0x00000010) == 0x00000010);
-        }
-
-        /**
-         * <code>required string interval_end = 5;</code>
-         */
-        public java.lang.String getIntervalEnd() {
-            java.lang.Object ref = intervalEnd_;
-            if (!(ref instanceof java.lang.String)) {
-                java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                        .toStringUtf8();
-                intervalEnd_ = s;
-                return s;
-            } else {
-                return (java.lang.String) ref;
-            }
-        }
-
-        /**
-         * <code>required string interval_end = 5;</code>
-         */
-        public Builder setIntervalEnd(
-                java.lang.String value) {
-            if (value == null) {
-                throw new NullPointerException();
-            }
-            bitField0_ |= 0x00000010;
-            intervalEnd_ = value;
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>required string interval_end = 5;</code>
-         */
-        public com.google.protobuf.ByteString
         getIntervalEndBytes() {
-            java.lang.Object ref = intervalEnd_;
-            if (ref instanceof String) {
-                com.google.protobuf.ByteString b =
-                        com.google.protobuf.ByteString.copyFromUtf8(
-                                (java.lang.String) ref);
-                intervalEnd_ = b;
-                return b;
-            } else {
-                return (com.google.protobuf.ByteString) ref;
-            }
-        }
-
-        /**
-         * <code>required string interval_end = 5;</code>
-         */
-        public Builder setIntervalEndBytes(
-                com.google.protobuf.ByteString value) {
-            if (value == null) {
-                throw new NullPointerException();
-            }
-            bitField0_ |= 0x00000010;
-            intervalEnd_ = value;
-            onChanged();
-            return this;
-        }
-
-        /**
-         * <code>required string interval_end = 5;</code>
-         */
-        public Builder clearIntervalEnd() {
-            bitField0_ = (bitField0_ & ~0x00000010);
-            intervalEnd_ = getDefaultInstance().getIntervalEnd();
-            onChanged();
-            return this;
-        }
-
-        // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent)
+      java.lang.Object ref = intervalEnd_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        intervalEnd_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>required string interval_end = 5;</code>
+     */
+    public Builder setIntervalEnd(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+      intervalEnd_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>required string interval_end = 5;</code>
+     */
+    public Builder clearIntervalEnd() {
+      bitField0_ = (bitField0_ & ~0x00000010);
+      intervalEnd_ = getDefaultInstance().getIntervalEnd();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>required string interval_end = 5;</code>
+     */
+    public Builder setIntervalEndBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+      intervalEnd_ = value;
+      onChanged();
+      return this;
     }
 
-    static {
-        defaultInstance = new ReservationEvent(true);
-        defaultInstance.initFields();
+    // optional string cancelled = 6;
+    private java.lang.Object cancelled_ = "";
+    /**
+     * <code>optional string cancelled = 6;</code>
+     */
+    public boolean hasCancelled() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional string cancelled = 6;</code>
+     */
+    public java.lang.String getCancelled() {
+      java.lang.Object ref = cancelled_;
+      if (!(ref instanceof java.lang.String)) {
+        java.lang.String s = ((com.google.protobuf.ByteString) ref)
+            .toStringUtf8();
+        cancelled_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>optional string cancelled = 6;</code>
+     */
+    public com.google.protobuf.ByteString
+        getCancelledBytes() {
+      java.lang.Object ref = cancelled_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        cancelled_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>optional string cancelled = 6;</code>
+     */
+    public Builder setCancelled(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+      cancelled_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional string cancelled = 6;</code>
+     */
+    public Builder clearCancelled() {
+      bitField0_ = (bitField0_ & ~0x00000020);
+      cancelled_ = getDefaultInstance().getCancelled();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional string cancelled = 6;</code>
+     */
+    public Builder setCancelledBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+      cancelled_ = value;
+      onChanged();
+      return this;
     }
 
-    // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent)
+    // optional string finalized = 7;
+    private java.lang.Object finalized_ = "";
+    /**
+     * <code>optional string finalized = 7;</code>
+     */
+    public boolean hasFinalized() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional string finalized = 7;</code>
+     */
+    public java.lang.String getFinalized() {
+      java.lang.Object ref = finalized_;
+      if (!(ref instanceof java.lang.String)) {
+        java.lang.String s = ((com.google.protobuf.ByteString) ref)
+            .toStringUtf8();
+        finalized_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>optional string finalized = 7;</code>
+     */
+    public com.google.protobuf.ByteString
+        getFinalizedBytes() {
+      java.lang.Object ref = finalized_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        finalized_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>optional string finalized = 7;</code>
+     */
+    public Builder setFinalized(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+      finalized_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional string finalized = 7;</code>
+     */
+    public Builder clearFinalized() {
+      bitField0_ = (bitField0_ & ~0x00000040);
+      finalized_ = getDefaultInstance().getFinalized();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>optional string finalized = 7;</code>
+     */
+    public Builder setFinalizedBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+      finalized_ = value;
+      onChanged();
+      return this;
+    }
+
+    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent)
+  }
+
+  static {
+    defaultInstance = new ReservationEvent(true);
+    defaultInstance.initFields();
+  }
+
+  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent)
 }
 

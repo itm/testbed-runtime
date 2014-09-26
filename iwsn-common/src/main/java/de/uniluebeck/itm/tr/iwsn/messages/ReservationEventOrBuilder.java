@@ -90,4 +90,34 @@ public interface ReservationEventOrBuilder
    */
   com.google.protobuf.ByteString
       getIntervalEndBytes();
+
+  // optional string cancelled = 6;
+  /**
+   * <code>optional string cancelled = 6;</code>
+   */
+  boolean hasCancelled();
+  /**
+   * <code>optional string cancelled = 6;</code>
+   */
+  java.lang.String getCancelled();
+  /**
+   * <code>optional string cancelled = 6;</code>
+   */
+  com.google.protobuf.ByteString
+      getCancelledBytes();
+
+  // optional string finalized = 7;
+  /**
+   * <code>optional string finalized = 7;</code>
+   */
+  boolean hasFinalized();
+  /**
+   * <code>optional string finalized = 7;</code>
+   */
+  java.lang.String getFinalized();
+  /**
+   * <code>optional string finalized = 7;</code>
+   */
+  com.google.protobuf.ByteString
+      getFinalizedBytes();
 }
