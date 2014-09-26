@@ -154,7 +154,6 @@ import java.io.Serializable;
         @NamedQuery(
                 name = ReservationDataInternal.QGetNonFinalized.QUERY_NAME,
                 query = "FROM ReservationDataInternal data WHERE"
-                        + " ("
                         + "  data.confidentialReservationData.finalizedDate IS NULL"
         ),
 		@NamedQuery(
