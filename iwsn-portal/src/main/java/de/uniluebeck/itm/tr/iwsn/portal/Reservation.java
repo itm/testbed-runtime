@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.util.concurrent.Service;
+import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
@@ -12,6 +13,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Set;
 
 public interface Reservation extends Service {
@@ -88,6 +90,8 @@ public interface Reservation extends Service {
     boolean isCancelled();
 
 	String getSerializedKey();
+
+    List<MessageLite> getPastLifecycleEvents();
 
 	Set<SecretReservationKey> getSecretReservationKeys();
 

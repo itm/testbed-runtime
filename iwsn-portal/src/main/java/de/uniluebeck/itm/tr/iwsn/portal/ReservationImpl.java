@@ -3,13 +3,12 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStoreFactory;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
@@ -29,6 +28,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.common.ReservationHelper.serialize;
 
@@ -207,7 +207,26 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		}
 	}
 
-	private SecretReservationKey getSecretReservationKey() {
+    @Override
+    public List<MessageLite> getPastLifecycleEvents() {
+        List<MessageLite> events = newLinkedList();
+
+        events.add(ReservationMadeEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
+
+        if (getInterval().getStart().isBeforeNow() && (getCancelled() == null || getCancelled().isAfter(getInterval().getStart()))) {
+            events.add(ReservationStartedEvent.newBuilder().setSerializedKey(getSerializedKey()).setTimestamp(getInterval().getStartMillis()).build());
+        }
+
+        if (getCancelled() != null && isCancelled()) {
+            events.add(ReservationCancelledEvent.newBuilder().setSerializedKey(getSerializedKey()).setTimestamp(getCancelled().getMillis()).build());
+        } else if(getInterval().isBeforeNow()) {
+            events.add(ReservationEndedEvent.newBuilder().setSerializedKey(getSerializedKey()).setTimestamp(getInterval().getEndMillis()).build());
+        }
+
+        return events;
+    }
+
+    private SecretReservationKey getSecretReservationKey() {
 		return new SecretReservationKey().withKey(key).withUrnPrefix(commonConfig.getUrnPrefix());
 	}
 

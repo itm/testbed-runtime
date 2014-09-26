@@ -1,20 +1,21 @@
 package de.uniluebeck.itm.tr.iwsn.portal.externalplugins;
 
 import com.google.inject.Inject;
+import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.List;
 
 import static com.google.common.collect.Iterables.transform;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
@@ -41,9 +42,48 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 		log.trace("ExternalPluginServiceChannelHandler.channelConnected()");
 		allChannels.add(ctx.getChannel());
 		super.channelConnected(ctx, e);
+
+        replayLifeCycleEvents(ctx.getChannel());
 	}
 
-	@Override
+    private void replayLifeCycleEvents(Channel channel) {
+        Collection<Reservation> reservations = reservationManager.getNonFinalizedReservations();
+
+        for(Reservation reservation : reservations) {
+            List<MessageLite> events = reservation.getPastLifecycleEvents();
+            for (MessageLite event : events) {
+                try {
+                    ReservationEvent.Type type = getReservationEventType(event);
+                    channel.write(createReservationEvent(reservation, type));
+                } catch (UnsupportedOperationException e) {
+                    log.warn("ExternalPluginServiceChannelHandler.replayLifeCycleEvents(): Unknown reservation event: {}", event);
+                }
+            }
+        }
+    }
+
+    private ReservationEvent.Type getReservationEventType(MessageLite event) throws UnsupportedOperationException{
+        if (event instanceof ReservationMadeEvent) {
+            return ReservationEvent.Type.MADE;
+        }
+        if (event instanceof ReservationStartedEvent) {
+            return ReservationEvent.Type.STARTED;
+        }
+        if (event instanceof ReservationEndedEvent) {
+            return ReservationEvent.Type.ENDED;
+        }
+        if (event instanceof ReservationCancelledEvent) {
+            return ReservationEvent.Type.CANCELLED;
+        }
+        if (event instanceof ReservationFinalizedEvent) {
+            return ReservationEvent.Type.FINALIZED;
+        }
+
+        throw new UnsupportedOperationException("Unexpected message type "+event.getClass().getSimpleName());
+
+    }
+
+    @Override
 	public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 		log.trace("ExternalPluginServiceChannelHandler.channelDisconnected()");
 		allChannels.remove(ctx.getChannel());
@@ -161,6 +201,11 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
         writeReservationEvent(event.getSerializedKey(), ReservationEvent.Type.FINALIZED);
     }
 
+    public void on(final ReservationMadeEvent event) {
+        writeReservationEvent(event.getSerializedKey(), ReservationEvent.Type.MADE);
+    }
+
+
     private void writeReservationEvent(String reservationKey, ReservationEvent.Type type) {
         final Reservation reservation = reservationManager.getReservation(reservationKey);
         allChannels.write(createReservationEvent(reservation, type));
@@ -175,6 +220,12 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 				.addAllNodeUrns(transform(reservation.getNodeUrns(), NODE_URN_TO_STRING))
 				.setIntervalStart(reservation.getInterval().getStart().toString())
 				.setIntervalEnd(reservation.getInterval().getEnd().toString());
+        if (reservation.getCancelled() != null) {
+            reservationEvent.setCancelled(reservation.getCancelled().toString());
+        }
+        if (reservation.getFinalized() != null) {
+            reservationEvent.setFinalized(reservation.getFinalized().toString());
+        }
 
 
 		for (Reservation.Entry entry : reservation.getEntries()) {

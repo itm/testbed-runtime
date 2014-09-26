@@ -149,4 +149,9 @@ class ExternalPluginServiceImpl extends AbstractService implements ExternalPlugi
     public void on(final ReservationFinalizedEvent event) {
         channelHandler.on(event);
     }
+
+    @Subscribe
+    public void on(final ReservationMadeEvent event) {
+        channelHandler.on(event);
+    }
 }

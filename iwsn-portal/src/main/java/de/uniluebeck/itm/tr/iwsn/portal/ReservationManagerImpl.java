@@ -420,6 +420,12 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         }
     }
 
+
+    @Override
+    public Collection<Reservation> getNonFinalizedReservations() {
+        return reservationMap.values();
+    }
+
     private Optional<Reservation> lookupInCache(final NodeUrn nodeUrn, final DateTime timestamp) {
         log.trace("ReservationManagerImpl.lookupInCache({}, {})", nodeUrn, timestamp);
         synchronized (nodeUrnToReservationCache) {
