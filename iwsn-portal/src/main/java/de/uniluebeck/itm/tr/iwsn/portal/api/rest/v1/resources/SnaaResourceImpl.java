@@ -81,7 +81,7 @@ public class SnaaResourceImpl implements SnaaResource {
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
-		return Response.ok().build();
+		return Response.status(Status.NO_CONTENT).build();
 	}
 
 	@Override
