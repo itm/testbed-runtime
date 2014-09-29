@@ -220,6 +220,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     private void touchFinalizationCache(Reservation reservation) {
         synchronized (finalizationSchedules) {
             if (finalizationSchedules.containsKey(reservation)) {
+                log.trace("ReservationManagerImpl.touchFinalizationCache({})", reservation);
                 scheduleFinalization(reservation);
             }
         }
@@ -271,12 +272,11 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                 new Interval(data.getFrom(), data.getTo())
         );
 
-        if (!reservation.isFinalized() && !reservationMap.containsKey(srkSet1)) {
+        if (!reservationMap.containsKey(srkSet1)) {
             scheduleLifecycleEvents(reservation);
             reservationMap.put(srkSet1, reservation);
         }
 
-        // TODO if finalized: startAndWait + schedule for finalization (do only stopAndWait)
 
         return reservation;
     }
@@ -305,7 +305,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         }
 
         if (reservation.isFinalized()) {
-            // TODO startAndWait, scheduleFinalization
+            reservation.startAndWait();
+            scheduleFinalization(reservation);
             return;
         }
 
@@ -533,6 +534,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
         @Override
         public Void call() throws Exception {
+            log.trace("ReservationFinalizeCallable.call({})", reservation);
             if (!reservation.isFinalized()) {
                 Set<SecretReservationKey> srks;
                 synchronized (finalizationSchedules) {
