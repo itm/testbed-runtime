@@ -96,8 +96,8 @@ public class ReservationImpl extends AbstractService implements Reservation {
 						   @Assisted final List<ConfidentialReservationData> confidentialReservationDataList,
 						   @Assisted("secretReservationKey") final String key,
                            @Assisted("username") final String username,
-                           @Assisted("cancelled") final DateTime cancelled,
-                           @Assisted("finalized") final DateTime finalized,
+                           @Nullable @Assisted("cancelled") final DateTime cancelled,
+                           @Nullable @Assisted("finalized") final DateTime finalized,
 						   @Assisted final Set<NodeUrn> nodeUrns,
 						   @Assisted final Interval interval) {
         this.rsPersistence = checkNotNull(rsPersistence);

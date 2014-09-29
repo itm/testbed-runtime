@@ -134,8 +134,10 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         log.trace("ReservationManagerImpl.doStop()");
         try {
             cacheCleanupSchedule.cancel(false);
-            for (Reservation reservation : reservationMap.values()) {
-                reservation.stopAndWait();
+            synchronized (reservationMap) {
+                for (Reservation reservation : reservationMap.values()) {
+                    reservation.stopAndWait();
+                }
             }
             portalEventBus.unregister(this);
             schedulerService.stopAndWait();
@@ -274,6 +276,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             reservationMap.put(srkSet1, reservation);
         }
 
+        // TODO if finalized: startAndWait + schedule for finalization (do only stopAndWait)
 
         return reservation;
     }
@@ -302,6 +305,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         }
 
         if (reservation.isFinalized()) {
+            // TODO startAndWait, scheduleFinalization
             return;
         }
 
@@ -346,9 +350,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
     private void scheduleFinalization(Reservation reservation) {
         synchronized (finalizationSchedules) {
-            if (reservation.isFinalized()) {
-                return;
-            }
             if (finalizationSchedules.containsKey(reservation)) {
                 ScheduledFuture<Void> future = finalizationSchedules.remove(reservation);
                 if (future != null) {
@@ -532,14 +533,16 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
         @Override
         public Void call() throws Exception {
-            synchronized (finalizationSchedules) {
-                finalizationSchedules.remove(reservation);
-                Set<SecretReservationKey> srks = deserialize(reservation.getSerializedKey());
-                // Finalize reservations of this testbed, filter federated reservations
-                for (Iterator<SecretReservationKey> it = srks.iterator(); it.hasNext(); ) {
-                    SecretReservationKey current = it.next();
-                    if (commonConfig.getUrnPrefix().equals(current.getUrnPrefix())) {
-                        rsPersistence.get().finalizeReservation(current);
+            if (!reservation.isFinalized()) {
+                Set<SecretReservationKey> srks;
+                synchronized (finalizationSchedules) {
+                    finalizationSchedules.remove(reservation);
+                    srks = deserialize(reservation.getSerializedKey());
+                    // Finalize reservations of this testbed, filter federated reservations
+                    for (SecretReservationKey current : srks) {
+                        if (commonConfig.getUrnPrefix().equals(current.getUrnPrefix())) {
+                            rsPersistence.get().finalizeReservation(current);
+                        }
                     }
                 }
                 synchronized (reservationMap) {
@@ -547,9 +550,9 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                 }
                 final ReservationFinalizedEvent event = ReservationFinalizedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build();
                 portalEventBus.post(event);
-                if (reservation.isRunning()) {
-                    reservation.stopAndWait();
-                }
+            }
+            if (reservation.isRunning()) {
+                reservation.stopAndWait();
             }
 
 
