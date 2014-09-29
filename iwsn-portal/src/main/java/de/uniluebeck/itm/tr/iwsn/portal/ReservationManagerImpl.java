@@ -327,7 +327,11 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         }
 
         if (reservation.isCancelled()) {
-            portalEventBus.post(ReservationCancelledEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build());
+			final ReservationCancelledEvent cancelledEvent = ReservationCancelledEvent.newBuilder()
+					.setTimestamp(reservation.getCancelled().getMillis())
+					.setSerializedKey(reservation.getSerializedKey())
+					.build();
+			portalEventBus.post(cancelledEvent);
         } else if (reservation.getCancelled() != null && reservation.getInterval().contains(reservation.getCancelled())) {
             log.trace("ReservationManagerImpl.scheduleLifecycleEvents(): scheduling cancellation for later");
             final Duration cancellAfter = new Duration(now(), reservation.getCancelled());
