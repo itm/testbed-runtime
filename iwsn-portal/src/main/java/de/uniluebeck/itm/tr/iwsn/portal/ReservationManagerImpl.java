@@ -134,7 +134,9 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     }
 
     @Subscribe
-    public void on(ReservationFinalizedEvent reservationFinalizedEvent) {
+    public void on(final ReservationFinalizedEvent reservationFinalizedEvent) {
+
+        // TODO this should happen on the ReservationClosedEvent
         Reservation reservation = reservationMap.remove(deserialize(reservationFinalizedEvent.getSerializedKey()));
         log.trace("ReservationManagerImpl.onReservationFinalizedEvent({})", reservation);
     }

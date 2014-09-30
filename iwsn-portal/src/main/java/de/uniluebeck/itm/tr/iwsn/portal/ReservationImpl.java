@@ -123,7 +123,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
                            @Nullable @Assisted("finalized") final DateTime finalized,
                            @Assisted final Set<NodeUrn> nodeUrns,
                            @Assisted final Interval interval) {
-        this.portalEventBus = portalEventBus;
+        this.portalEventBus = checkNotNull(portalEventBus);
         this.rsPersistence = checkNotNull(rsPersistence);
         this.commonConfig = checkNotNull(commonConfig);
         this.responseTrackerCache = checkNotNull(responseTrackerCache);
@@ -138,7 +138,6 @@ public class ReservationImpl extends AbstractService implements Reservation {
         this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));
         this.reservationEventStore = reservationEventStoreFactory.createOrLoad(this);
         this.schedulerService = checkNotNull(schedulerService);
-
         scheduleFirstLifecycleCallable();
     }
 
@@ -232,12 +231,12 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
     @Override
     public boolean isFinalized() {
-        return getFinalized() != null && getFinalized().isBeforeNow();
+        return getFinalized() != null && (getFinalized().isBeforeNow() || getFinalized().isEqualNow());
     }
 
     @Override
     public boolean isCancelled() {
-        return getCancelled() != null && getCancelled().isBeforeNow();
+        return getCancelled() != null && (getCancelled().isBeforeNow() || getCancelled().isEqualNow());
     }
 
     @Override
@@ -361,7 +360,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
         if (nextScheduledEvent instanceof ReservationFinalizeCallable) {
             nextScheduledEventFuture.cancel(true);
         }
-        scheduleEvent(new ReservationFinalizeCallable(), DateTime.now().plusMinutes(5));
+        scheduleEvent(new ReservationFinalizeCallable(), DateTime.now().plusMinutes(2));
     }
 
 

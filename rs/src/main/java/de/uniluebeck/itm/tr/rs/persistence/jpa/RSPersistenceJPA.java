@@ -215,7 +215,7 @@ public class RSPersistenceJPA implements RSPersistence {
         }
         final long nowMillis = DateTime.now(DateTimeZone.forTimeZone(this.localTimeZone)).getMillis();
 
-        if (reservationData.getConfidentialReservationData().getToDate() > nowMillis) {
+        if (reservationData.getConfidentialReservationData().getToDate() > nowMillis && reservationData.getConfidentialReservationData().getCancelledDate() != null && reservationData.getConfidentialReservationData().getCancelledDate() > nowMillis) {
             final String msg = "Reservation time span lies in the future and can't therefore be finalized yet";
             final RSFault faultInfo = new RSFault();
             faultInfo.setMessage(msg);
