@@ -117,6 +117,14 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		sendMessage(toJSON(new ReservationEndedMessage(reservation)));
 	}
 
+    @Subscribe
+    public void onReservationCancelled(final ReservationCancelledEvent event) {
+        if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+            throw new RuntimeException("This should not be possible!");
+        }
+        sendMessage(toJSON(new ReservationCancelledMessage(reservation)));
+    }
+
 	@Override
 	public void onOpen(final Connection connection) {
 

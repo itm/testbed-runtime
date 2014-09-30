@@ -50,6 +50,9 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
         Collection<Reservation> reservations = reservationManager.getNonFinalizedReservations();
 
         for(Reservation reservation : reservations) {
+            if(reservation.isFinalized()) {
+                continue;
+            }
             List<MessageLite> events = reservation.getPastLifecycleEvents();
             for (MessageLite event : events) {
                 try {

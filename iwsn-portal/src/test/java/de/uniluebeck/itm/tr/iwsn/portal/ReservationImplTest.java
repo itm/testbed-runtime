@@ -6,6 +6,7 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStoreFactory;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import org.joda.time.DateTime;
@@ -63,6 +64,9 @@ public class ReservationImplTest {
 	@Mock
 	private RSPersistence rsPersistence;
 
+    @Mock
+    private SchedulerService schedulerService;
+
 	private ReservationImpl reservation;
 
 	@Before
@@ -76,6 +80,8 @@ public class ReservationImplTest {
 				responseTrackerTimedCache,
 				responseTrackerFactory,
 				reservationEventStoreFactory,
+                portalEventBus,
+                schedulerService,
 				newArrayList(confidentialReservationData),
 				"someRandomReservationIdHere",
 				username,

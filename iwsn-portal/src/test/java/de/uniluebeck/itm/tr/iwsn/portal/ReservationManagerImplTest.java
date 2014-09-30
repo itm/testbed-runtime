@@ -204,87 +204,6 @@ public class ReservationManagerImplTest {
         verify(reservation2).stopAndWait();
     }
 
-    @Test
-    public void testThatReservationStartAndStopIsScheduledIfIntervalIsNotYetMet() throws Exception {
-
-        setUpReservation2();
-        when(reservation2.isRunning()).thenReturn(false);
-
-        reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_2);
-
-        verify(reservation2, never()).startAndWait();
-        verify(schedulerService).schedule(isA(ReservationStartCallable.class), anyLong(), any(TimeUnit.class));
-        verify(schedulerService).schedule(isA(ReservationEndCallable.class), anyLong(), any(TimeUnit.class));
-    }
-
-
-    @Test
-    public void testEventGenerationForReservationCancelledBeforeStart() throws Exception {
-        // Life Cycle: made -> cancelled -> finalized
-        setUpReservation1();
-        when(reservation1.getInterval()).thenReturn(new Interval(DateTime.now().plusHours(1), DateTime.now().plusHours(2)));
-        when(reservation1.getCancelled()).thenReturn(DateTime.now().plusMinutes(30));
-        when(reservation1.isRunning()).thenReturn(false);
-
-        reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
-
-        verify(portalEventBus).post(isA(ReservationMadeEvent.class));
-        verify(portalEventBus).post(isA(ReservationCancelledEvent.class));
-
-        verify(schedulerService, never()).schedule(isA(ReservationStartCallable.class), anyLong(), any(TimeUnit.class));
-        verify(schedulerService, never()).schedule(isA(ReservationEndCallable.class), anyLong(), any(TimeUnit.class));
-        verify(portalEventBus, never()).post(isA(ReservationStartedEvent.class));
-        verify(portalEventBus, never()).post(isA(ReservationEndedEvent.class));
-    }
-
-    @Test
-    public void testEventGenerationForReservationCancelledAfterStart() throws Exception {
-        // Life Cycle: made -> started (scheduled) -> cancelled (scheduled) -> finalized
-        setUpReservation1();
-        when(reservation1.getInterval()).thenReturn(new Interval(DateTime.now().plusHours(1), DateTime.now().plusHours(2)));
-        when(reservation1.getCancelled()).thenReturn(DateTime.now().plusMinutes(90));
-        when(reservation1.isRunning()).thenReturn(false);
-
-        reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
-
-        verify(portalEventBus).post(isA(ReservationMadeEvent.class));
-        verify(schedulerService).schedule(isA(ReservationStartCallable.class), anyLong(), any(TimeUnit.class));
-        verify(schedulerService).schedule(isA(ReservationCancellCallable.class), anyLong(), any(TimeUnit.class));
-
-        verify(schedulerService, never()).schedule(isA(ReservationEndCallable.class), anyLong(), any(TimeUnit.class));
-        verify(portalEventBus, never()).post(isA(ReservationEndedEvent.class));
-    }
-
-    @Test
-    public void testEventGenerationForReservationStartedButNotEnded() throws Exception {
-        // Life Cycle: made -> started -> ended (scheduled) -> finalized
-        setUpReservation1();
-        when(reservation1.getInterval()).thenReturn(new Interval(DateTime.now().minusHours(1), DateTime.now().plusHours(2)));
-        when(reservation1.isRunning()).thenReturn(false);
-
-        reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
-
-        verify(portalEventBus).post(isA(ReservationMadeEvent.class));
-        verify(schedulerService).schedule(isA(ReservationStartCallable.class), eq(0l), any(TimeUnit.class));
-        verify(schedulerService).schedule(isA(ReservationEndCallable.class), anyLong(), any(TimeUnit.class));
-
-        verify(portalEventBus, never()).post(isA(ReservationEndedEvent.class));
-        verify(portalEventBus, never()).post(isA(ReservationCancelledEvent.class));
-    }
-
-    @Test
-    public void testEventGenerationForReservationStartedAndEnded() throws Exception {
-        setUpReservation3();
-        when(reservation3.isRunning()).thenReturn(false);
-        reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_3);
-
-        verify(reservation3).isRunning();
-        verify(portalEventBus).post(isA(ReservationMadeEvent.class));
-
-        verify(schedulerService).schedule(isA(ReservationStartCallable.class), eq(0l), any(TimeUnit.class));
-        verify(schedulerService).schedule(isA(ReservationEndCallable.class), eq(0l), any(TimeUnit.class));
-        verify(portalEventBus, never()).post(isA(ReservationCancelledEvent.class));
-    }
 
     private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
         when(rsPersistence.getReservation(KNOWN_SECRET_RESERVATION_KEY_1)).thenReturn(RESERVATION_DATA_1);
@@ -294,6 +213,7 @@ public class ReservationManagerImplTest {
                         eq(USERNAME),
                         any(DateTime.class),
                         any(DateTime.class),
+                        any(SchedulerService.class),
                         eq(RESERVATION_NODE_URNS_1),
                         eq(RESERVATION_INTERVAL_1)
                 )
@@ -310,6 +230,7 @@ public class ReservationManagerImplTest {
                         eq(USERNAME),
                         any(DateTime.class),
                         any(DateTime.class),
+                        any(SchedulerService.class),
                         eq(RESERVATION_NODE_URNS_2),
                         eq(RESERVATION_INTERVAL_2)
                 )
@@ -326,6 +247,7 @@ public class ReservationManagerImplTest {
                         eq(USERNAME),
                         any(DateTime.class),
                         any(DateTime.class),
+                        any(SchedulerService.class),
                         eq(RESERVATION_NODE_URNS_3),
                         eq(RESERVATION_INTERVAL_3)
                 )

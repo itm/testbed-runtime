@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.inject.assistedinject.Assisted;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import org.joda.time.DateTime;
@@ -17,6 +18,7 @@ public interface ReservationFactory {
 			@Assisted("username") String username,
             @Assisted("cancelled") DateTime cancelled,
             @Assisted("finalized") DateTime finalized,
+            SchedulerService schedulerService,
 			Set<NodeUrn> nodeUrns,
 			Interval interval
 	);

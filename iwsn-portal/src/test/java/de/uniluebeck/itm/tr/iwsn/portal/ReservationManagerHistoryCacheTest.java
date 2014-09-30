@@ -237,6 +237,7 @@ public class ReservationManagerHistoryCacheTest {
 						eq(USERNAME),
                         any(DateTime.class),
                         any(DateTime.class),
+                        any(SchedulerService.class),
 						eq(NODE_SET_1),
 						Matchers.<Interval>any()
 				)
@@ -248,6 +249,7 @@ public class ReservationManagerHistoryCacheTest {
 						eq(USERNAME),
                         any(DateTime.class),
                         any(DateTime.class),
+                        any(SchedulerService.class),
 						eq(NODE_SET_2),
 						Matchers.<Interval>any()
 				)
@@ -259,6 +261,7 @@ public class ReservationManagerHistoryCacheTest {
 						eq(USERNAME),
                         any(DateTime.class),
                         any(DateTime.class),
+                        any(SchedulerService.class),
 						eq(NODE_SET_3),
 						Matchers.<Interval>any()
 				)
@@ -270,6 +273,7 @@ public class ReservationManagerHistoryCacheTest {
 						eq(USERNAME),
                         any(DateTime.class),
                         any(DateTime.class),
+                        any(SchedulerService.class),
 						eq(NODE_SET_4),
 						Matchers.<Interval>any()
 				)

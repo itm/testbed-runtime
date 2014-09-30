@@ -75,6 +75,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         Optional<Reservation> reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
 
         while (reservation.isPresent()) {
+            reservation.get().touch();
 
             final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.get().getNodeUrns()));
 
@@ -100,6 +101,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         final Optional<Reservation> reservation = reservationManager.getReservation(sourceNodeUrn, new DateTime(event.getTimestamp()));
 
         if (reservation.isPresent()) {
+            reservation.get().touch();
             reservation.get().getEventBus().post(event);
         } else {
             storeEventToPortalEventStore(event, event.getTimestamp());
@@ -118,6 +120,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         Optional<Reservation> reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
 
         while (reservation.isPresent()) {
+            reservation.get().touch();
             final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.get().getNodeUrns()));
 
             if (!reservedNodeUrnsOfEvent.isEmpty()) {
@@ -142,6 +145,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         if (event.hasNodeUrn()) {
             Optional<Reservation> reservation = reservationManager.getReservation(new NodeUrn(event.getNodeUrn()), new DateTime(event.getTimestamp()));
             if (reservation.isPresent()) {
+                reservation.get();
                 reservation.get().getEventBus().post(event);
             } else {
                 storeEventToPortalEventStore(event, event.getTimestamp());
@@ -149,6 +153,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         } else {
             List<Reservation> reservations = reservationManager.getReservations(new DateTime(event.getTimestamp()));
             for (Reservation reservation : reservations) {
+                reservation.touch();
                 reservation.getEventBus().post(event);
             }
 
@@ -164,6 +169,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
 
         Reservation reservation = reservationManager.getReservation(progress.getReservationId());
         if (reservation != null) {
+            reservation.touch();
             reservation.getEventBus().post(progress);
         } else {
             storeEventToPortalEventStore(progress);
@@ -176,6 +182,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
 
         Reservation reservation = reservationManager.getReservation(response.getReservationId());
         if (reservation != null) {
+            reservation.touch();
             reservation.getEventBus().post(response);
         } else {
             storeEventToPortalEventStore(response);
@@ -188,6 +195,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
 
         Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
         if (reservation != null) {
+            reservation.touch();
             reservation.getEventBus().post(event);
         } else {
             storeEventToPortalEventStore(event);
@@ -199,6 +207,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         log.trace("PortalEventDispatcherImpl.onReservationEndedEventFromPortalEventBus({})", event);
         Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
         if (reservation != null) {
+            reservation.touch();
             reservation.getEventBus().post(event);
         } else {
             storeEventToPortalEventStore(event);
@@ -210,6 +219,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
         log.trace("PortalEventDispatcherImpl.onReservationCancelledEventFromPortalEventBus({})", event);
         Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
         if (reservation != null) {
+            reservation.touch();
             reservation.getEventBus().post(event);
         } else {
             storeEventToPortalEventStore(event);
@@ -223,6 +233,7 @@ public class PortalEventDispatcherImpl extends AbstractService implements Portal
 
         Reservation reservation = reservationManager.getReservation(response.getReservationId());
         if (reservation != null) {
+            reservation.touch();
             reservation.getEventBus().post(response);
         } else {
             storeEventToPortalEventStore(response);
