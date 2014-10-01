@@ -259,6 +259,11 @@ public class FederatedReservationImpl extends AbstractService implements Federat
         throw new RuntimeException("Implement me!");
     }
 
+    @Override
+    public boolean isOutdated() {
+        throw new RuntimeException("Implement me!");
+    }
+
     private Interval extractInterval(final List<ConfidentialReservationData> reservationDataList) {
 
 		DateTime earliestEnd = null;

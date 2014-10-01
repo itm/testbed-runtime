@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceListener;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -35,7 +35,6 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.common.ReservationHelper.deserialize;
 import static de.uniluebeck.itm.tr.common.ReservationHelper.serialize;
-import static org.joda.time.DateTime.now;
 
 public class ReservationManagerImpl extends AbstractService implements ReservationManager {
 
@@ -134,11 +133,14 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     }
 
     @Subscribe
-    public void on(final ReservationFinalizedEvent reservationFinalizedEvent) {
+    public void on(final ReservationClosedEvent event) {
 
-        // TODO this should happen on the ReservationClosedEvent
-        Reservation reservation = reservationMap.remove(deserialize(reservationFinalizedEvent.getSerializedKey()));
-        log.trace("ReservationManagerImpl.onReservationFinalizedEvent({})", reservation);
+        Reservation reservation = reservationMap.remove(deserialize(event.getSerializedKey()));
+        if (reservation != null) {
+            log.trace("ReservationManagerImpl.onReservationClosedEvent({}): Removing reservation from cache", event.getSerializedKey());
+        } else {
+            log.trace("ReservationManagerImpl.onReservationClosedEvent({}): No matching reservation in cache", event.getSerializedKey());
+        }
     }
 
     /**
@@ -229,6 +231,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     private Reservation initReservation(final List<ConfidentialReservationData> confidentialReservationDataList) {
 
         final ConfidentialReservationData data = confidentialReservationDataList.get(0);
+        log.trace("ReservationManagerImpl.initReservation({})", data);
         final Set<SecretReservationKey> srkSet1 = newHashSet(data.getSecretReservationKey());
         final Set<NodeUrn> reservedNodes = newHashSet(data.getNodeUrns());
 
@@ -355,7 +358,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     private void cleanUpCache() {
         log.trace("ReservationManagerImpl.cleanUpCache() starting");
 
-        int removed = 0;
+        int removedNodeCacheEntries = 0;
 
         synchronized (nodeUrnToReservationCache) {
 
@@ -369,7 +372,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                     final CacheItem<Reservation> item = itemIterator.next();
                     if (item.isOutdated()) {
                         itemIterator.remove();
-                        removed++;
+                        removedNodeCacheEntries++;
                     }
                 }
 
@@ -379,7 +382,19 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             }
         }
 
-        log.trace("ReservationManagerImpl.cleanUpCache() removed {} entries", removed);
+        int removedReservationMapEntries = 0;
+        synchronized (reservationMap) {
+            for (Iterator<Map.Entry<Set<SecretReservationKey>, Reservation>> iterator = reservationMap.entrySet().iterator(); iterator.hasNext();) {
+                final Map.Entry<Set<SecretReservationKey>, Reservation> entry = iterator.next();
+
+                if (entry.getValue().isOutdated()) {
+                    iterator.remove();
+                    removedReservationMapEntries++;
+                }
+            }
+        }
+
+        log.trace("ReservationManagerImpl.cleanUpCache() removed {} node cache entries AND {} reservation map entries", removedNodeCacheEntries, removedReservationMapEntries);
     }
 
     @VisibleForTesting

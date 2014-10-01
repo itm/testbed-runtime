@@ -61,8 +61,12 @@ public class EventStoreResourceImpl implements EventStoreResource {
         // check if reservation is (still) known to RS (could have been deleted in the meantime, or given key is invalid)
         try {
             final Reservation reservation = reservationManager.getReservation(secretReservationKeyBase64);
+            if (reservation.touch()) {
+                 log.trace("EventStoreResource: Got reservation {} from RM", reservation);
 
-            log.trace("EventStoreResource: Got reservation {} from RM", reservation);
+            } else {
+                log.warn("Failed to touch reservation {}.", reservation);
+            }
         } catch (ReservationUnknownException e) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -149,6 +153,12 @@ public class EventStoreResourceImpl implements EventStoreResource {
             final String serializedKey = ((ReservationEndedEvent) event).getSerializedKey();
             final Reservation reservation = reservationManager.getReservation(serializedKey);
             return toJSON(new ReservationEndedMessage(reservation), true);
+
+        } else if (event instanceof ReservationCancelledEvent) {
+
+            final String serializedKey = ((ReservationCancelledEvent) event).getSerializedKey();
+            final Reservation reservation = reservationManager.getReservation(serializedKey);
+            return toJSON(new ReservationCancelledMessage(reservation), true);
 
         } else if (event instanceof SingleNodeResponse) {
 

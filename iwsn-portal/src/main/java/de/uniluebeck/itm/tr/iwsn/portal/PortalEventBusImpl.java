@@ -30,8 +30,6 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	private final SchedulerService schedulerService;
 
-	private final ReservationManager reservationManager;
-
 	private final EventBus eventBus;
 
 	private final NettyServerFactory nettyServerFactory;
@@ -45,11 +43,9 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 							  final EventBusFactory eventBusFactory,
 							  final NettyServerFactory nettyServerFactory,
 							  final PortalChannelHandler portalChannelHandler,
-							  final SchedulerService schedulerService,
-							  final ReservationManager reservationManager) {
+							  final SchedulerService schedulerService) {
 		this.config = config;
 		this.schedulerService = schedulerService;
-		this.reservationManager = reservationManager;
 		this.eventBus = eventBusFactory.create("PortalEventBus");
 		this.nettyServerFactory = nettyServerFactory;
 		this.portalChannelHandler = portalChannelHandler;
@@ -74,16 +70,6 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 	public void onRequest(final Request request) {
 		eventBus.post(request);
 	}
-
-    @Subscribe
-    public void on(final ReservationOpenedEvent event) {
-        eventBus.post(event);
-    }
-
-    @Subscribe
-    public void on(final ReservationClosedEvent event) {
-        eventBus.post(event);
-    }
 
 	@Override
 	protected void doStart() {

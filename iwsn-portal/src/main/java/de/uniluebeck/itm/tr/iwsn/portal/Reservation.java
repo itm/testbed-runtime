@@ -80,11 +80,18 @@ public interface Reservation extends Service {
     ReservationEventStore getEventStore();
 
     /**
-     * If the reservation is scheduled for finalization, calling this method delays the finalization and keeps the reservation service running.
+     * If the reservation is scheduled for finalization, calling this method delays the finalization and keeps the reservation service running. If the reservation isn't running, it will be started.
      *
      * @return <code>true</code> if this method has had an effect, <code>false</code> otherwise.
      */
     boolean touch();
+
+
+    /**
+     * This method returns <code>true</code> for reservations which have finished their lifecycle and where not requested for a specific time. Outdated reservations are supposed to be removed from the ReservationManager cache.
+     * @return <code>true</code> if the reservation is finalized, not running and not requested for a specific time, <code>false</code> otherwise.
+     */
+    boolean isOutdated();
 
     public static class Entry {
 
@@ -134,6 +141,7 @@ public interface Reservation extends Service {
         public String getUsername() {
             return username;
         }
+
 
     }
 }
