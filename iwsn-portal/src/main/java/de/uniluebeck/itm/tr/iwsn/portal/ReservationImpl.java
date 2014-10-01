@@ -162,8 +162,8 @@ public class ReservationImpl extends AbstractService implements Reservation {
         try {
             reservationEventStore.startAndWait();
             reservationEventBus.startAndWait();
-            reservationEventBus.post(ReservationOpenedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
             rsPersistence.addListener(rsPersistenceListener);
+            portalEventBus.post(ReservationOpenedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
             notifyStarted();
         } catch (Exception e) {
             notifyFailed(e);
@@ -174,7 +174,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
     protected void doStop() {
         log.trace("ReservationImpl.doStop()");
         try {
-            reservationEventBus.post(ReservationClosedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
+            portalEventBus.post(ReservationClosedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
             rsPersistence.removeListener(rsPersistenceListener);
             reservationEventBus.stopAndWait();
             reservationEventStore.stopAndWait();
@@ -463,9 +463,10 @@ public class ReservationImpl extends AbstractService implements Reservation {
         @Override
         public Void call() throws Exception {
             log.trace("ReservationFinalizeCallable.call({})", key);
-            if (!ReservationImpl.this.isFinalized()) {
+            final Reservation reservation = ReservationImpl.this;
+            if (!reservation.isFinalized()) {
                 Set<SecretReservationKey> srks;
-                srks = deserialize(ReservationImpl.this.getSerializedKey());
+                srks = deserialize(reservation.getSerializedKey());
                 // Finalize reservations of this testbed, filter federated reservations
                 for (SecretReservationKey current : srks) {
                     if (commonConfig.getUrnPrefix().equals(current.getUrnPrefix())) {
@@ -473,11 +474,15 @@ public class ReservationImpl extends AbstractService implements Reservation {
                     }
                 }
 
-                final ReservationFinalizedEvent event = ReservationFinalizedEvent.newBuilder().setSerializedKey(ReservationImpl.this.getSerializedKey()).build();
-                portalEventBus.post(event);
+                if (reservation.getFinalized() != null) {
+                    final ReservationFinalizedEvent event = ReservationFinalizedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).setTimestamp(reservation.getFinalized().getMillis()).build();
+                    portalEventBus.post(event);
+                } else {
+                    log.error("ReservationFinalizeCallable.call({}): finalized field not in reservation after finalizing the reservation.", reservation.getSerializedKey());
+                }
             }
-            if (ReservationImpl.this.isRunning()) {
-                ReservationImpl.this.stopAndWait();
+            if (reservation.isRunning()) {
+                reservation.stopAndWait();
             }
 
 

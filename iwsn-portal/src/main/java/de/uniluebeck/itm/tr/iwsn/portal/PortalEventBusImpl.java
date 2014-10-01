@@ -75,16 +75,6 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 		eventBus.post(request);
 	}
 
-    @Subscribe
-    public void on(final ReservationOpenedEvent event) {
-        eventBus.post(event);
-    }
-
-    @Subscribe
-    public void on(final ReservationClosedEvent event) {
-        eventBus.post(event);
-    }
-
 	@Override
 	protected void doStart() {
 

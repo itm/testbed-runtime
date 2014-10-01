@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceListener;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -35,7 +35,6 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.common.ReservationHelper.deserialize;
 import static de.uniluebeck.itm.tr.common.ReservationHelper.serialize;
-import static org.joda.time.DateTime.now;
 
 public class ReservationManagerImpl extends AbstractService implements ReservationManager {
 
@@ -106,7 +105,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                                                                             public void run() {
                                                                                 cleanUpCache();
                                                                             }
-                                                                        }, 1, 1, TimeUnit.MINUTES
+                                                                        }, 30, 2, TimeUnit.MINUTES
             );
             notifyStarted();
         } catch (Exception e) {
@@ -134,11 +133,14 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     }
 
     @Subscribe
-    public void on(final ReservationFinalizedEvent reservationFinalizedEvent) {
+    public void on(final ReservationClosedEvent event) {
 
-        // TODO this should happen on the ReservationClosedEvent
-        Reservation reservation = reservationMap.remove(deserialize(reservationFinalizedEvent.getSerializedKey()));
-        log.trace("ReservationManagerImpl.onReservationFinalizedEvent({})", reservation);
+        Reservation reservation = reservationMap.remove(deserialize(event.getSerializedKey()));
+        if (reservation != null) {
+            log.trace("ReservationManagerImpl.onReservationClosedEvent({}): Removing reservation from cache", event.getSerializedKey());
+        } else {
+            log.trace("ReservationManagerImpl.onReservationClosedEvent({}): No matching reservation in cache", event.getSerializedKey());
+        }
     }
 
     /**
