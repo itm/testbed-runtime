@@ -1,0 +1,5 @@
+
+description = 'TR :: iWSN Portal Debian Package'
+dependencies {
+  compile project(':tr.iwsn-portal')
+}

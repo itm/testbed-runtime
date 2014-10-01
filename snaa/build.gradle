@@ -1,0 +1,33 @@
+
+description = 'TR :: SNAA'
+dependencies {
+    compile group: 'eu.wisebed', name: 'api', version:'3.0-SNAPSHOT'
+  compile project(':tr.snaa-common')
+  compile project(':tr.common')
+  compile project(':tr.federator-utils')
+    compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.0-api', version:'1.0.1.Final'
+    compile group: 'de.uniluebeck.itm.service-publisher', name: 'service-publisher-api', version:'1.1-SNAPSHOT'
+    compile group: 'de.uniluebeck.itm.service-publisher', name: 'service-publisher-cxf', version:'1.1-SNAPSHOT'
+    compile group: 'com.google.inject', name: 'guice', version:'3.0'
+    compile group: 'com.google.inject.extensions', name: 'guice-persist', version:'3.0'
+    compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version:'3.0'
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
+    compile group: 'com.google.guava', name: 'guava', version:'14.0.1'
+    compile group: 'edu.vt.middleware', name: 'crypt', version:'1.5'
+    compile group: 'org.apache.shiro', name: 'shiro-core', version:'1.2.2'
+    compile group: 'org.apache.shiro', name: 'shiro-guice', version:'1.2.2'
+    compile group: 'org.apache.shiro', name: 'shiro-web', version:'1.2.2'
+    compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.23'
+    compile group: 'commons-logging', name: 'commons-logging-api', version:'1.1'
+    runtime(group: 'org.hibernate', name: 'hibernate-c3p0', version:'4.2.8.Final') {
+exclude(module: 'jboss-logging')
+exclude(module: 'javassist')
+    }
+    runtime(group: 'org.hibernate', name: 'hibernate-ehcache', version:'4.2.8.Final') {
+exclude(module: 'jboss-logging')
+exclude(module: 'javassist')
+    }
+    testCompile group: 'junit', name: 'junit', version:'4.11'
+    testCompile group: 'org.mockito', name: 'mockito-all', version:'1.9.5'
+    testCompile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.5'
+}

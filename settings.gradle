@@ -1,0 +1,44 @@
+rootProject.name = 'tr'
+include ':tr.common'
+include ':tr.device-db'
+include ':tr.federator-utils'
+include ':tr.federator'
+include ':tr.federator-server'
+include ':tr.federator-deb'
+include ':tr.iwsn-common'
+include ':tr.iwsn-gateway'
+include ':tr.iwsn-gateway-deb'
+include ':tr.iwsn-portal'
+include ':tr.iwsn-portal-deb'
+include ':tr.iwsn-federator'
+include ':tr.rs'
+include ':tr.rs-federator'
+include ':tr.snaa-common'
+include ':tr.snaa'
+include ':tr.snaa-federator'
+include ':tr.plugins.default-image'
+include ':tr.plugins.mock-deviceadapter'
+include ':tr.plugins.waspmote-deviceadapter'
+include ':tr.plugins.waspmote-mobile-deviceadapter'
+
+project(':tr.common').projectDir = "$rootDir/common" as File
+project(':tr.device-db').projectDir = "$rootDir/device-db" as File
+project(':tr.federator-utils').projectDir = "$rootDir/federator-utils" as File
+project(':tr.federator').projectDir = "$rootDir/federator" as File
+project(':tr.federator-server').projectDir = "$rootDir/federator-server" as File
+project(':tr.federator-deb').projectDir = "$rootDir/federator-deb" as File
+project(':tr.iwsn-common').projectDir = "$rootDir/iwsn-common" as File
+project(':tr.iwsn-gateway').projectDir = "$rootDir/iwsn-gateway" as File
+project(':tr.iwsn-gateway-deb').projectDir = "$rootDir/iwsn-gateway-deb" as File
+project(':tr.iwsn-portal').projectDir = "$rootDir/iwsn-portal" as File
+project(':tr.iwsn-portal-deb').projectDir = "$rootDir/iwsn-portal-deb" as File
+project(':tr.iwsn-federator').projectDir = "$rootDir/iwsn-federator" as File
+project(':tr.rs').projectDir = "$rootDir/rs" as File
+project(':tr.rs-federator').projectDir = "$rootDir/rs-federator" as File
+project(':tr.snaa-common').projectDir = "$rootDir/snaa-common" as File
+project(':tr.snaa').projectDir = "$rootDir/snaa" as File
+project(':tr.snaa-federator').projectDir = "$rootDir/snaa-federator" as File
+project(':tr.plugins.default-image').projectDir = "$rootDir/plugins/default-image" as File
+project(':tr.plugins.mock-deviceadapter').projectDir = "$rootDir/plugins/mock-deviceadapter" as File
+project(':tr.plugins.waspmote-deviceadapter').projectDir = "$rootDir/plugins/waspmote-deviceadapter" as File
+project(':tr.plugins.waspmote-mobile-deviceadapter').projectDir = "$rootDir/plugins/waspmote-mobile-deviceadapter" as File

@@ -1,0 +1,52 @@
+allprojects  {
+  apply plugin: 'maven'
+    apply plugin: 'idea'
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
+
+  group = 'de.uniluebeck.itm'
+version = '0.9-SNAPSHOT'
+
+
+    sourceSets.all {
+        output.resourcesDir = output.classesDir
+    }
+}
+
+subprojects {
+
+
+  
+  repositories {
+    mavenLocal()
+    
+    maven { url "http://maven.itm.uni-luebeck.de/content/repositories/releases/" }
+    maven { url "http://maven.itm.uni-luebeck.de/content/repositories/snapshots/" }
+    maven { url "http://wisebed.eu/maven/releases/" }
+    maven { url "http://wisebed.eu/maven/snapshots/" }
+    maven { url "http://repo.maven.apache.org/maven2" }
+  }
+
+  configurations.all {
+		resolutionStrategy {
+				failOnVersionConflict()
+				force 'com.google.code.findbugs:jsr305:1.3.9', 
+						'de.uniluebeck.itm.util:files:0.7-SNAPSHOT',
+						'org.slf4j:slf4j-api:1.7.5',
+						'asm:asm:3.3.1',
+						'de.uniluebeck.itm.util:logging:0.7-SNAPSHOT',
+						'de.uniluebeck.itm.util:util:0.7-SNAPSHOT',
+						'com.google.guava:guava:14.0.1',
+						'joda-time:joda-time:2.3',
+						'org.slf4j:slf4j-log4j12:1.7.7',
+						'de.uniluebeck.itm.util:concurrent:0.6',
+						'de.uniluebeck.itm.netty-protocols:netty-protocols:1.9-SNAPSHOT',
+						'org.osgi:org.osgi.core:4.3.0',
+						'junit:junit:4.11'
+		}
+  }
+  
+  
+}

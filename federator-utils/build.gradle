@@ -1,0 +1,12 @@
+
+description = 'TR :: Federator Utilities'
+dependencies {
+  compile project(':tr.common')
+    compile group: 'de.uniluebeck.itm.util', name: 'util', version:'0.7-SNAPSHOT'
+    compile group: 'de.uniluebeck.itm.util', name: 'propconf', version:'0.7-SNAPSHOT'
+    compile group: 'eu.wisebed', name: 'api', version:'3.0-SNAPSHOT'
+    compile group: 'com.google.guava', name: 'guava', version:'14.0.1'
+    compile group: 'com.google.inject', name: 'guice', version:'3.0'
+    compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version:'3.0'
+    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
+}

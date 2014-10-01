@@ -1,0 +1,5 @@
+
+description = 'TR :: Federator Debian Package'
+dependencies {
+  compile project(':tr.federator-server')
+}

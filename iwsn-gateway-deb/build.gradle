@@ -1,0 +1,5 @@
+
+description = 'TR :: iWSN Gateway Debian Package'
+dependencies {
+  compile project(':tr.iwsn-gateway')
+}
