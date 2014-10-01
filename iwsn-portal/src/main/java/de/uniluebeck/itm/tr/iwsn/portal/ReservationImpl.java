@@ -65,8 +65,6 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	private final CommonConfig commonConfig;
 
-	private final Set<ConfidentialReservationData> confidentialReservationData;
-
 	private final ReservationEventStore reservationEventStore;
 
 	private final RSPersistence rsPersistence;
@@ -77,6 +75,8 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	@VisibleForTesting
 	private Callable<Void> nextScheduledEvent;
+
+	private Set<ConfidentialReservationData> confidentialReservationData;
 
 	@VisibleForTesting
 	private ScheduledFuture<Void> nextScheduledEventFuture;
@@ -96,9 +96,10 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		@Override
 		public void onReservationCancelled(final List<ConfidentialReservationData> crd) {
 			if (crd.get(0).getSecretReservationKey().equals(ReservationImpl.this.getSecretReservationKey())) {
+				ReservationImpl.this.confidentialReservationData = newHashSet(crd);
 				ReservationImpl.this.cancelled = crd.get(0).getCancelled();
 				if (nextScheduledEvent instanceof ReservationEndCallable) {
-					// now is between start and end -> cancel the end callable and schedule the cancelation
+					// now is between start and end -> cancel the end callable and schedule the cancellation
 					nextScheduledEventFuture.cancel(true);
 					scheduleEvent(new ReservationCancelCallable(), cancelled);
 				}
@@ -485,6 +486,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 			if (reservation.isFinalized()) {
 				return null;
 			}
+			assert reservation.getCancelled() != null;
 			final ReservationCancelledEvent event = ReservationCancelledEvent
 					.newBuilder()
 					.setSerializedKey(reservation.getSerializedKey())
@@ -558,6 +560,4 @@ public class ReservationImpl extends AbstractService implements Reservation {
 			return null;
 		}
 	}
-
-
 }

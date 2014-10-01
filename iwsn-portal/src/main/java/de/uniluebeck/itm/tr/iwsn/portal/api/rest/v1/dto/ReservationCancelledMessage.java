@@ -27,11 +27,10 @@ public class ReservationCancelledMessage {
     }
 
     public ReservationCancelledMessage(final Reservation reservation) {
-        if (reservation.getCancelled() != null) {
-            this.timestamp = reservation.getCancelled().toString(ISODateTimeFormat.dateTime());
-        }
-        this.reservationData = newArrayList(reservation.getConfidentialReservationData());
-    }
+		assert reservation.getCancelled() != null;
+		this.timestamp = reservation.getCancelled().toString(ISODateTimeFormat.dateTime());
+		this.reservationData = newArrayList(reservation.getConfidentialReservationData());
+	}
 
     @Override
     public String toString() {
