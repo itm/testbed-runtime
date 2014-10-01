@@ -43,447 +43,492 @@ import static org.joda.time.DateTime.now;
 
 public class ReservationImpl extends AbstractService implements Reservation {
 
-    private static final Logger log = LoggerFactory.getLogger(Reservation.class);
+	private static final Logger log = LoggerFactory.getLogger(Reservation.class);
 
-    private final Set<NodeUrn> nodeUrns;
+	private final Set<NodeUrn> nodeUrns;
 
-    private final ReservationEventBus reservationEventBus;
+	private final ReservationEventBus reservationEventBus;
 
-    private final Interval interval;
+	private final Interval interval;
 
-    private final String username;
+	private final String username;
 
-    private final String key;
+	private final String key;
 
-    private final ResponseTrackerCache responseTrackerCache;
+	private final ResponseTrackerCache responseTrackerCache;
 
-    private final ResponseTrackerFactory responseTrackerFactory;
+	private final ResponseTrackerFactory responseTrackerFactory;
 
-    private final CommonConfig commonConfig;
+	private final CommonConfig commonConfig;
 
-    private final Set<ConfidentialReservationData> confidentialReservationData;
+	private final Set<ConfidentialReservationData> confidentialReservationData;
 
-    private final ReservationEventStore reservationEventStore;
-    private final RSPersistence rsPersistence;
-    private final PortalEventBus portalEventBus;
-    private final SchedulerService schedulerService;
+	private final ReservationEventStore reservationEventStore;
 
-    @VisibleForTesting
-    private Callable<Void> nextScheduledEvent;
+	private final RSPersistence rsPersistence;
 
-    @VisibleForTesting
-    private ScheduledFuture<Void> nextScheduledEventFuture;
+	private final PortalEventBus portalEventBus;
 
-    @Nullable
-    private DateTime cancelled;
+	private final SchedulerService schedulerService;
 
-    @Nullable
-    private DateTime finalized;
+	@VisibleForTesting
+	private Callable<Void> nextScheduledEvent;
 
-    private final RSPersistenceListener rsPersistenceListener = new RSPersistenceListener() {
-        @Override
-        public void onReservationMade(final List<ConfidentialReservationData> crd) {
-            // nothing to do
-        }
+	@VisibleForTesting
+	private ScheduledFuture<Void> nextScheduledEventFuture;
 
-        @Override
-        public void onReservationCancelled(final List<ConfidentialReservationData> crd) {
-            if (crd.get(0).getSecretReservationKey().equals(ReservationImpl.this.getSecretReservationKey())) {
-                ReservationImpl.this.cancelled = crd.get(0).getCancelled();
-                if (nextScheduledEvent instanceof ReservationEndCallable) {
-                    // now is between start and end -> cancel the end callable and schedule the cancelation
-                    nextScheduledEventFuture.cancel(true);
-                    scheduleEvent(new ReservationCancelCallable(), cancelled);
-                }
-            }
-        }
+	@Nullable
+	private DateTime cancelled;
 
-        @Override
-        public void onReservationFinalized(
-                final List<ConfidentialReservationData> crd) {
-            if (crd.get(0).getSecretReservationKey().equals(ReservationImpl.this.getSecretReservationKey())) {
-                ReservationImpl.this.finalized = crd.get(0).getFinalized();
-            }
-        }
-    };
+	@Nullable
+	private DateTime finalized;
 
-    @Inject
-    public ReservationImpl(final CommonConfig commonConfig,
-                           final RSPersistence rsPersistence,
-                           final ReservationEventBusFactory reservationEventBusFactory,
-                           final ResponseTrackerCache responseTrackerCache,
-                           final ResponseTrackerFactory responseTrackerFactory,
-                           final ReservationEventStoreFactory reservationEventStoreFactory,
-                           final PortalEventBus portalEventBus,
-                           @Assisted final SchedulerService schedulerService,
-                           @Assisted final List<ConfidentialReservationData> confidentialReservationDataList,
-                           @Assisted("secretReservationKey") final String key,
-                           @Assisted("username") final String username,
-                           @Nullable @Assisted("cancelled") final DateTime cancelled,
-                           @Nullable @Assisted("finalized") final DateTime finalized,
-                           @Assisted final Set<NodeUrn> nodeUrns,
-                           @Assisted final Interval interval) {
-        this.portalEventBus = checkNotNull(portalEventBus);
-        this.rsPersistence = checkNotNull(rsPersistence);
-        this.commonConfig = checkNotNull(commonConfig);
-        this.responseTrackerCache = checkNotNull(responseTrackerCache);
-        this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
-        this.confidentialReservationData = newHashSet(checkNotNull(confidentialReservationDataList));
-        this.key = checkNotNull(key);
-        this.username = checkNotNull(username);
-        this.cancelled = cancelled;
-        this.finalized = finalized;
-        this.nodeUrns = checkNotNull(nodeUrns);
-        this.interval = checkNotNull(interval);
-        this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));
-        this.reservationEventStore = reservationEventStoreFactory.createOrLoad(this);
-        this.schedulerService = checkNotNull(schedulerService);
-        scheduleFirstLifecycleCallable();
-    }
+	private final RSPersistenceListener rsPersistenceListener = new RSPersistenceListener() {
+		@Override
+		public void onReservationMade(final List<ConfidentialReservationData> crd) {
+			// nothing to do
+		}
 
-    private void scheduleFirstLifecycleCallable() {
-        if (isFinalized()) {
-            // Just starting the service and scheduling it for finalization
-            scheduleEvent(new ReservationStartCallable(), now());
-        } else {
-            // the reservation isn't finalized yet. Replay all events that should have occurred in the past and schedule future events.
-            scheduleEvent(new ReservationMadeCallable(), now());
-        }
-    }
+		@Override
+		public void onReservationCancelled(final List<ConfidentialReservationData> crd) {
+			if (crd.get(0).getSecretReservationKey().equals(ReservationImpl.this.getSecretReservationKey())) {
+				ReservationImpl.this.cancelled = crd.get(0).getCancelled();
+				if (nextScheduledEvent instanceof ReservationEndCallable) {
+					// now is between start and end -> cancel the end callable and schedule the cancelation
+					nextScheduledEventFuture.cancel(true);
+					scheduleEvent(new ReservationCancelCallable(), cancelled);
+				}
+			}
+		}
 
-    private static Duration calculateDurationFromNow(ReadableInstant to) {
-        ReadableInstant now = now();
-        return (now.isAfter(to) || now.isEqual(to)) ? Duration.ZERO : new Duration(now, to);
-    }
+		@Override
+		public void onReservationFinalized(
+				final List<ConfidentialReservationData> crd) {
+			if (crd.get(0).getSecretReservationKey().equals(ReservationImpl.this.getSecretReservationKey())) {
+				ReservationImpl.this.finalized = crd.get(0).getFinalized();
+			}
+		}
+	};
 
-    @Override
-    protected void doStart() {
-        log.trace("ReservationImpl.doStart()");
-        try {
-            reservationEventStore.startAndWait();
-            reservationEventBus.startAndWait();
-            reservationEventBus.post(ReservationOpenedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
-            rsPersistence.addListener(rsPersistenceListener);
-            notifyStarted();
-        } catch (Exception e) {
-            notifyFailed(e);
-        }
-    }
+	@Inject
+	public ReservationImpl(final CommonConfig commonConfig,
+						   final RSPersistence rsPersistence,
+						   final ReservationEventBusFactory reservationEventBusFactory,
+						   final ResponseTrackerCache responseTrackerCache,
+						   final ResponseTrackerFactory responseTrackerFactory,
+						   final ReservationEventStoreFactory reservationEventStoreFactory,
+						   final PortalEventBus portalEventBus,
+						   @Assisted final SchedulerService schedulerService,
+						   @Assisted final List<ConfidentialReservationData> confidentialReservationDataList,
+						   @Assisted("secretReservationKey") final String key,
+						   @Assisted("username") final String username,
+						   @Nullable @Assisted("cancelled") final DateTime cancelled,
+						   @Nullable @Assisted("finalized") final DateTime finalized,
+						   @Assisted final Set<NodeUrn> nodeUrns,
+						   @Assisted final Interval interval) {
+		this.portalEventBus = checkNotNull(portalEventBus);
+		this.rsPersistence = checkNotNull(rsPersistence);
+		this.commonConfig = checkNotNull(commonConfig);
+		this.responseTrackerCache = checkNotNull(responseTrackerCache);
+		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
+		this.confidentialReservationData = newHashSet(checkNotNull(confidentialReservationDataList));
+		this.key = checkNotNull(key);
+		this.username = checkNotNull(username);
+		this.cancelled = cancelled;
+		this.finalized = finalized;
+		this.nodeUrns = checkNotNull(nodeUrns);
+		this.interval = checkNotNull(interval);
+		this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));
+		this.reservationEventStore = reservationEventStoreFactory.createOrLoad(this);
+		this.schedulerService = checkNotNull(schedulerService);
+		scheduleFirstLifecycleCallable();
+	}
 
-    @Override
-    protected void doStop() {
-        log.trace("ReservationImpl.doStop()");
-        try {
-            reservationEventBus.post(ReservationClosedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
-            rsPersistence.removeListener(rsPersistenceListener);
-            reservationEventBus.stopAndWait();
-            reservationEventStore.stopAndWait();
-            notifyStopped();
-        } catch (Exception e) {
-            notifyFailed(e);
-        }
-    }
+	private void scheduleFirstLifecycleCallable() {
+		if (isFinalized()) {
+			// Just starting the service and scheduling it for finalization
+			scheduleEvent(new ReservationStartCallable(), now());
+		} else {
+			// the reservation isn't finalized yet. Replay all events that should have occurred in the past and schedule future events.
+			scheduleEvent(new ReservationMadeCallable(), now());
+		}
+	}
 
-    @Override
-    public Set<Entry> getEntries() {
-        return newHashSet(new Entry(
-                        commonConfig.getUrnPrefix(),
-                        username,
-                        key,
-                        nodeUrns,
-                        interval,
-                        reservationEventBus
-                )
-        );
-    }
+	private static Duration calculateDurationFromNow(ReadableInstant to) {
+		ReadableInstant now = now();
+		return (now.isAfter(to) || now.isEqual(to)) ? Duration.ZERO : new Duration(now, to);
+	}
 
-    @Override
-    public Set<NodeUrnPrefix> getNodeUrnPrefixes() {
-        return newHashSet(commonConfig.getUrnPrefix());
-    }
+	@Override
+	protected void doStart() {
+		log.trace("ReservationImpl.doStart()");
+		try {
+			reservationEventStore.startAndWait();
+			reservationEventBus.startAndWait();
+			reservationEventBus.post(ReservationOpenedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
+			rsPersistence.addListener(rsPersistenceListener);
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 
-    @Override
-    public Set<NodeUrn> getNodeUrns() {
-        return nodeUrns;
-    }
+	@Override
+	protected void doStop() {
+		log.trace("ReservationImpl.doStop()");
+		try {
+			reservationEventBus.post(ReservationClosedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
+			rsPersistence.removeListener(rsPersistenceListener);
+			reservationEventBus.stopAndWait();
+			reservationEventStore.stopAndWait();
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 
-    @Override
-    public ReservationEventBus getEventBus() {
-        return reservationEventBus;
-    }
+	@Override
+	public Set<Entry> getEntries() {
+		return newHashSet(new Entry(
+						commonConfig.getUrnPrefix(),
+						username,
+						key,
+						nodeUrns,
+						interval,
+						reservationEventBus
+				)
+		);
+	}
 
-    @Override
-    public Interval getInterval() {
-        return interval;
-    }
+	@Override
+	public Set<NodeUrnPrefix> getNodeUrnPrefixes() {
+		return newHashSet(commonConfig.getUrnPrefix());
+	}
 
-    @Override
-    @Nullable
-    public DateTime getCancelled() {
-        return cancelled;
-    }
+	@Override
+	public Set<NodeUrn> getNodeUrns() {
+		return nodeUrns;
+	}
 
-    @Nullable
-    @Override
-    public DateTime getFinalized() {
-        return finalized;
-    }
+	@Override
+	public ReservationEventBus getEventBus() {
+		return reservationEventBus;
+	}
 
-    @Override
-    public boolean isFinalized() {
-        return getFinalized() != null && (getFinalized().isBeforeNow() || getFinalized().isEqualNow());
-    }
+	@Override
+	public Interval getInterval() {
+		return interval;
+	}
 
-    @Override
-    public boolean isCancelled() {
-        return getCancelled() != null && (getCancelled().isBeforeNow() || getCancelled().isEqualNow());
-    }
+	@Override
+	@Nullable
+	public DateTime getCancelled() {
+		return cancelled;
+	}
 
-    @Override
-    public String getSerializedKey() {
-        try {
-            return serialize(getSecretReservationKey());
-        } catch (Exception e) {
-            throw propagate(e);
-        }
-    }
+	@Nullable
+	@Override
+	public DateTime getFinalized() {
+		return finalized;
+	}
 
-    @Override
-    public List<MessageLite> getPastLifecycleEvents() {
-        List<MessageLite> events = newLinkedList();
+	@Override
+	public boolean isFinalized() {
+		return getFinalized() != null && (getFinalized().isBeforeNow() || getFinalized().isEqualNow());
+	}
 
-        events.add(ReservationMadeEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
+	@Override
+	public boolean isCancelled() {
+		return getCancelled() != null && (getCancelled().isBeforeNow() || getCancelled().isEqualNow());
+	}
 
-        if (getInterval().getStart().isBeforeNow() && (getCancelled() == null || getCancelled().isAfter(getInterval().getStart()))) {
-            events.add(ReservationStartedEvent.newBuilder().setSerializedKey(getSerializedKey()).setTimestamp(getInterval().getStartMillis()).build());
-        }
+	@Override
+	public String getSerializedKey() {
+		try {
+			return serialize(getSecretReservationKey());
+		} catch (Exception e) {
+			throw propagate(e);
+		}
+	}
 
-        if (getCancelled() != null && isCancelled()) {
-            events.add(ReservationCancelledEvent.newBuilder().setSerializedKey(getSerializedKey()).setTimestamp(getCancelled().getMillis()).build());
-        } else if (getInterval().isBeforeNow()) {
-            events.add(ReservationEndedEvent.newBuilder().setSerializedKey(getSerializedKey()).setTimestamp(getInterval().getEndMillis()).build());
-        }
+	@Override
+	public List<MessageLite> getPastLifecycleEvents() {
+		List<MessageLite> events = newLinkedList();
 
-        return events;
-    }
+		events.add(ReservationMadeEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
 
-    private SecretReservationKey getSecretReservationKey() {
-        return new SecretReservationKey().withKey(key).withUrnPrefix(commonConfig.getUrnPrefix());
-    }
+		final boolean started = getInterval().getStart().isBeforeNow() &&
+				(getCancelled() == null || getCancelled().isAfter(getInterval().getStart()));
 
-    @Override
-    public Set<SecretReservationKey> getSecretReservationKeys() {
-        return newHashSet(getSecretReservationKey());
-    }
+		if (started) {
 
-    @Override
-    public Set<ConfidentialReservationData> getConfidentialReservationData() {
-        return confidentialReservationData;
-    }
+			final ReservationStartedEvent event = ReservationStartedEvent.newBuilder()
+					.setSerializedKey(getSerializedKey())
+					.setTimestamp(getInterval().getStartMillis())
+					.build();
+			events.add(event);
+		}
 
-    @Override
-    public ResponseTracker createResponseTracker(final Request request) {
-        if (responseTrackerCache.getIfPresent(request.getRequestId()) != null) {
-            throw new IllegalArgumentException(
-                    "ResponseTracker for requestId \"" + request.getRequestId() + "\" already exists!"
-            );
-        }
-        final ResponseTracker responseTracker = responseTrackerFactory.create(request, reservationEventBus);
-        responseTrackerCache.put(request.getRequestId(), responseTracker);
-        return responseTracker;
-    }
+		final boolean cancelled = getCancelled() != null && isCancelled();
+		final boolean ended = getInterval().isBeforeNow();
+		final boolean finalized = getFinalized() != null && getFinalized().isBeforeNow();
 
-    @Override
-    public ResponseTracker getResponseTracker(final long requestId) {
-        return responseTrackerCache.getIfPresent(requestId);
-    }
+		if (cancelled) {
 
-    @Override
-    public void enableVirtualization() {
-        reservationEventBus.enableVirtualization();
-    }
+			final ReservationCancelledEvent event = ReservationCancelledEvent.newBuilder()
+					.setSerializedKey(getSerializedKey())
+					.setTimestamp(getCancelled().getMillis())
+					.build();
+			events.add(event);
 
-    @Override
-    public void disableVirtualization() {
-        reservationEventBus.disableVirtualization();
-    }
+		} else if (ended) {
 
-    @Override
-    public boolean isVirtualizationEnabled() {
-        return reservationEventBus.isVirtualizationEnabled();
-    }
+			final ReservationEndedEvent event = ReservationEndedEvent.newBuilder()
+					.setSerializedKey(getSerializedKey())
+					.setTimestamp(getInterval().getEndMillis())
+					.build();
+			events.add(event);
+		}
 
-    @Override
-    public ReservationEventStore getEventStore() {
-        return reservationEventStore;
-    }
+		if (finalized) {
 
-    @Override
-    public boolean touch() {
-        if (nextScheduledEvent instanceof ReservationFinalizeCallable) {
-            rescheduleFinalization();
-            return !nextScheduledEventFuture.isDone() && !nextScheduledEventFuture.isCancelled();
-        }
-        return false;
-    }
+			final ReservationFinalizedEvent event = ReservationFinalizedEvent.newBuilder()
+					.setSerializedKey(getSerializedKey())
+					.setTimestamp(getFinalized().getMillis())
+					.build();
+			events.add(event);
+		}
 
-    @Override
-    public boolean equals(final Object o) {
+		return events;
+	}
 
-        if (this == o) {
-            return true;
-        }
+	private SecretReservationKey getSecretReservationKey() {
+		return new SecretReservationKey().withKey(key).withUrnPrefix(commonConfig.getUrnPrefix());
+	}
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+	@Override
+	public Set<SecretReservationKey> getSecretReservationKeys() {
+		return newHashSet(getSecretReservationKey());
+	}
 
-        final ReservationImpl that = (ReservationImpl) o;
-        return interval.equals(that.interval) && nodeUrns.equals(that.nodeUrns);
-    }
+	@Override
+	public Set<ConfidentialReservationData> getConfidentialReservationData() {
+		return confidentialReservationData;
+	}
 
-    @Override
-    public int hashCode() {
-        int result = nodeUrns.hashCode();
-        result = 31 * result + interval.hashCode();
-        return result;
-    }
+	@Override
+	public ResponseTracker createResponseTracker(final Request request) {
+		if (responseTrackerCache.getIfPresent(request.getRequestId()) != null) {
+			throw new IllegalArgumentException(
+					"ResponseTracker for requestId \"" + request.getRequestId() + "\" already exists!"
+			);
+		}
+		final ResponseTracker responseTracker = responseTrackerFactory.create(request, reservationEventBus);
+		responseTrackerCache.put(request.getRequestId(), responseTracker);
+		return responseTracker;
+	}
 
-    private void scheduleEvent(Callable<Void> callable, DateTime time) {
-        nextScheduledEvent = callable;
-        Duration duration = calculateDurationFromNow(time);
-        log.trace("Reservation[{}]: scheduled {} in {}", key, callable.getClass().getSimpleName(), duration);
-        nextScheduledEventFuture = schedulerService.schedule(nextScheduledEvent, duration.getMillis(), TimeUnit.MILLISECONDS);
-    }
+	@Override
+	public ResponseTracker getResponseTracker(final long requestId) {
+		return responseTrackerCache.getIfPresent(requestId);
+	}
 
-    private void rescheduleFinalization() {
-        if (nextScheduledEvent instanceof ReservationFinalizeCallable) {
-            nextScheduledEventFuture.cancel(true);
-        }
-        scheduleEvent(new ReservationFinalizeCallable(), DateTime.now().plusMinutes(2));
-    }
+	@Override
+	public void enableVirtualization() {
+		reservationEventBus.enableVirtualization();
+	}
 
+	@Override
+	public void disableVirtualization() {
+		reservationEventBus.disableVirtualization();
+	}
 
-    @VisibleForTesting
-    private class ReservationMadeCallable implements Callable<Void> {
-        @Override
-        public Void call() throws Exception {
-            log.trace("ReservationMadeCallable.call({})", key);
-            final Reservation reservation = ReservationImpl.this;
-            if (reservation.isFinalized()) {
-                return null;
-            }
-            final ReservationMadeEvent event = ReservationMadeEvent
-                    .newBuilder()
-                    .setSerializedKey(reservation.getSerializedKey())
-                    .build();
-            portalEventBus.post(event);
-            if (reservation.getCancelled() != null && reservation.getCancelled().isBefore(reservation.getInterval().getStart())) {
-                // Reservation is cancelled before start
-                scheduleEvent(new ReservationCancelCallable(), now());
-            } else {
-                scheduleEvent(new ReservationStartCallable(), reservation.getInterval().getStart());
-            }
-            return null;
-        }
-    }
+	@Override
+	public boolean isVirtualizationEnabled() {
+		return reservationEventBus.isVirtualizationEnabled();
+	}
 
-    @VisibleForTesting
-    private class ReservationStartCallable implements Callable<Void> {
-        @Override
-        public Void call() throws Exception {
-            log.trace("ReservationStartCallable.call({})", key);
-            final Reservation reservation = ReservationImpl.this;
-            reservation.startAndWait();
-            if (reservation.isFinalized()) {
-                rescheduleFinalization();
-                return null;
-            }
-            final ReservationStartedEvent event = ReservationStartedEvent
-                    .newBuilder()
-                    .setSerializedKey(reservation.getSerializedKey())
-                    .setTimestamp(reservation.getInterval().getStartMillis())
-                    .build();
-            portalEventBus.post(event);
-            if (reservation.getCancelled() != null && reservation.getCancelled().isBefore(reservation.getInterval().getEnd())) {
-                scheduleEvent(new ReservationCancelCallable(), reservation.getCancelled());
-            } else {
-                scheduleEvent(new ReservationEndCallable(), reservation.getInterval().getEnd());
-            }
-            return null;
-        }
-    }
+	@Override
+	public ReservationEventStore getEventStore() {
+		return reservationEventStore;
+	}
 
-    @VisibleForTesting
-    private class ReservationCancelCallable implements Callable<Void> {
-        @Override
-        public Void call() throws Exception {
-            log.trace("ReservationCancelCallable.call({})", key);
-            final Reservation reservation = ReservationImpl.this;
-            if (reservation.isFinalized()) {
-                return null;
-            }
-            final ReservationCancelledEvent event = ReservationCancelledEvent
-                    .newBuilder()
-                    .setSerializedKey(reservation.getSerializedKey())
-                    .setTimestamp(reservation.getCancelled().getMillis())
-                    .build();
-            portalEventBus.post(event);
-            if (!reservation.isRunning()) {
-                scheduleEvent(new ReservationFinalizeCallable(), now());
-            } else {
-                rescheduleFinalization();
-            }
-            return null;
-        }
-    }
+	@Override
+	public boolean touch() {
+		if (nextScheduledEvent instanceof ReservationFinalizeCallable) {
+			rescheduleFinalization();
+			return !nextScheduledEventFuture.isDone() && !nextScheduledEventFuture.isCancelled();
+		}
+		return false;
+	}
 
-    @VisibleForTesting
-    private class ReservationEndCallable implements Callable<Void> {
-        @Override
-        public Void call() throws Exception {
-            log.trace("ReservationEndCallable.call({})", key);
-            final Reservation reservation = ReservationImpl.this;
-            if (reservation.isFinalized()) {
-                return null;
-            }
-            final ReservationEndedEvent event = ReservationEndedEvent
-                    .newBuilder()
-                    .setSerializedKey(reservation.getSerializedKey())
-                    .setTimestamp(reservation.getInterval().getEndMillis())
-                    .build();
-            portalEventBus.post(event);
-            rescheduleFinalization();
-            return null;
-        }
-    }
+	@Override
+	public boolean equals(final Object o) {
 
-    @VisibleForTesting
-    private class ReservationFinalizeCallable implements Callable<Void> {
-        @Override
-        public Void call() throws Exception {
-            log.trace("ReservationFinalizeCallable.call({})", key);
-            if (!ReservationImpl.this.isFinalized()) {
-                Set<SecretReservationKey> srks;
-                srks = deserialize(ReservationImpl.this.getSerializedKey());
-                // Finalize reservations of this testbed, filter federated reservations
-                for (SecretReservationKey current : srks) {
-                    if (commonConfig.getUrnPrefix().equals(current.getUrnPrefix())) {
-                        rsPersistence.finalizeReservation(current);
-                    }
-                }
+		if (this == o) {
+			return true;
+		}
 
-                final ReservationFinalizedEvent event = ReservationFinalizedEvent.newBuilder().setSerializedKey(ReservationImpl.this.getSerializedKey()).build();
-                portalEventBus.post(event);
-            }
-            if (ReservationImpl.this.isRunning()) {
-                ReservationImpl.this.stopAndWait();
-            }
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		final ReservationImpl that = (ReservationImpl) o;
+		return interval.equals(that.interval) && nodeUrns.equals(that.nodeUrns);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = nodeUrns.hashCode();
+		result = 31 * result + interval.hashCode();
+		return result;
+	}
+
+	private void scheduleEvent(Callable<Void> callable, DateTime time) {
+		nextScheduledEvent = callable;
+		Duration duration = calculateDurationFromNow(time);
+		log.trace("Reservation[{}]: scheduled {} in {}", key, callable.getClass().getSimpleName(), duration);
+		nextScheduledEventFuture =
+				schedulerService.schedule(nextScheduledEvent, duration.getMillis(), TimeUnit.MILLISECONDS);
+	}
+
+	private void rescheduleFinalization() {
+		if (nextScheduledEvent instanceof ReservationFinalizeCallable) {
+			nextScheduledEventFuture.cancel(true);
+		}
+		scheduleEvent(new ReservationFinalizeCallable(), DateTime.now().plusMinutes(2));
+	}
 
 
-            return null;
-        }
-    }
+	@VisibleForTesting
+	private class ReservationMadeCallable implements Callable<Void> {
+
+		@Override
+		public Void call() throws Exception {
+			log.trace("ReservationMadeCallable.call({})", key);
+			final Reservation reservation = ReservationImpl.this;
+			if (reservation.isFinalized()) {
+				return null;
+			}
+			final ReservationMadeEvent event = ReservationMadeEvent
+					.newBuilder()
+					.setSerializedKey(reservation.getSerializedKey())
+					.build();
+			portalEventBus.post(event);
+			if (reservation.getCancelled() != null && reservation.getCancelled()
+					.isBefore(reservation.getInterval().getStart())) {
+				// Reservation is cancelled before start
+				scheduleEvent(new ReservationCancelCallable(), now());
+			} else {
+				scheduleEvent(new ReservationStartCallable(), reservation.getInterval().getStart());
+			}
+			return null;
+		}
+	}
+
+	@VisibleForTesting
+	private class ReservationStartCallable implements Callable<Void> {
+
+		@Override
+		public Void call() throws Exception {
+			log.trace("ReservationStartCallable.call({})", key);
+			final Reservation reservation = ReservationImpl.this;
+			reservation.startAndWait();
+			if (reservation.isFinalized()) {
+				rescheduleFinalization();
+				return null;
+			}
+			final ReservationStartedEvent event = ReservationStartedEvent
+					.newBuilder()
+					.setSerializedKey(reservation.getSerializedKey())
+					.setTimestamp(reservation.getInterval().getStartMillis())
+					.build();
+			portalEventBus.post(event);
+			if (reservation.getCancelled() != null && reservation.getCancelled()
+					.isBefore(reservation.getInterval().getEnd())) {
+				scheduleEvent(new ReservationCancelCallable(), reservation.getCancelled());
+			} else {
+				scheduleEvent(new ReservationEndCallable(), reservation.getInterval().getEnd());
+			}
+			return null;
+		}
+	}
+
+	@VisibleForTesting
+	private class ReservationCancelCallable implements Callable<Void> {
+
+		@Override
+		public Void call() throws Exception {
+			log.trace("ReservationCancelCallable.call({})", key);
+			final Reservation reservation = ReservationImpl.this;
+			if (reservation.isFinalized()) {
+				return null;
+			}
+			final ReservationCancelledEvent event = ReservationCancelledEvent
+					.newBuilder()
+					.setSerializedKey(reservation.getSerializedKey())
+					.setTimestamp(reservation.getCancelled().getMillis())
+					.build();
+			portalEventBus.post(event);
+			if (!reservation.isRunning()) {
+				scheduleEvent(new ReservationFinalizeCallable(), now());
+			} else {
+				rescheduleFinalization();
+			}
+			return null;
+		}
+	}
+
+	@VisibleForTesting
+	private class ReservationEndCallable implements Callable<Void> {
+
+		@Override
+		public Void call() throws Exception {
+			log.trace("ReservationEndCallable.call({})", key);
+			final Reservation reservation = ReservationImpl.this;
+			if (reservation.isFinalized()) {
+				return null;
+			}
+			final ReservationEndedEvent event = ReservationEndedEvent
+					.newBuilder()
+					.setSerializedKey(reservation.getSerializedKey())
+					.setTimestamp(reservation.getInterval().getEndMillis())
+					.build();
+			portalEventBus.post(event);
+			rescheduleFinalization();
+			return null;
+		}
+	}
+
+	@VisibleForTesting
+	private class ReservationFinalizeCallable implements Callable<Void> {
+
+		@Override
+		public Void call() throws Exception {
+			log.trace("ReservationFinalizeCallable.call({})", key);
+			if (!ReservationImpl.this.isFinalized()) {
+				Set<SecretReservationKey> srks;
+				srks = deserialize(ReservationImpl.this.getSerializedKey());
+				// Finalize reservations of this testbed, filter federated reservations
+				for (SecretReservationKey current : srks) {
+					if (commonConfig.getUrnPrefix().equals(current.getUrnPrefix())) {
+						rsPersistence.finalizeReservation(current);
+					}
+				}
+
+				final ReservationFinalizedEvent event =
+						ReservationFinalizedEvent.newBuilder().setSerializedKey(ReservationImpl.this.getSerializedKey())
+								.build();
+				portalEventBus.post(event);
+			}
+			if (ReservationImpl.this.isRunning()) {
+				ReservationImpl.this.stopAndWait();
+			}
+
+
+			return null;
+		}
+	}
 
 
 }
