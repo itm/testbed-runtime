@@ -211,6 +211,10 @@ class ExternalPluginServiceChannelHandler extends SimpleChannelUpstreamHandler {
 
     private void writeReservationEvent(String reservationKey, ReservationEvent.Type type) {
         final Reservation reservation = reservationManager.getReservation(reservationKey);
+        if (reservation == null) {
+            log.warn("Can't get reservation for {}", reservationKey);
+            return;
+        }
         allChannels.write(createReservationEvent(reservation, type));
     }
 

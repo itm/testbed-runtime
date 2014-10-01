@@ -43,6 +43,8 @@ import static org.joda.time.DateTime.now;
 
 public class ReservationImpl extends AbstractService implements Reservation {
 
+    private static final Duration KEEP_ALIVE_TIME = Duration.standardMinutes(5);
+
     private static final Logger log = LoggerFactory.getLogger(Reservation.class);
 
     private final Set<NodeUrn> nodeUrns;
@@ -54,6 +56,8 @@ public class ReservationImpl extends AbstractService implements Reservation {
     private final String username;
 
     private final String key;
+
+    private DateTime lastTouched;
 
     private final ResponseTrackerCache responseTrackerCache;
 
@@ -138,13 +142,14 @@ public class ReservationImpl extends AbstractService implements Reservation {
         this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));
         this.reservationEventStore = reservationEventStoreFactory.createOrLoad(this);
         this.schedulerService = checkNotNull(schedulerService);
+        this.lastTouched = now();
         scheduleFirstLifecycleCallable();
     }
 
     private void scheduleFirstLifecycleCallable() {
         if (isFinalized()) {
             // Just starting the service and scheduling it for finalization
-            scheduleEvent(new ReservationStartCallable(), now());
+            //scheduleEvent(new ReservationStartCallable(), now());
         } else {
             // the reservation isn't finalized yet. Replay all events that should have occurred in the past and schedule future events.
             scheduleEvent(new ReservationMadeCallable(), now());
@@ -320,11 +325,26 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
     @Override
     public boolean touch() {
+        if (isFinalized() && !isRunning()) {
+            startAndWait();
+            rescheduleFinalization();
+            lastTouched = now();
+            return true;
+        }
         if (nextScheduledEvent instanceof ReservationFinalizeCallable) {
             rescheduleFinalization();
-            return !nextScheduledEventFuture.isDone() && !nextScheduledEventFuture.isCancelled();
+            boolean touched =  !nextScheduledEventFuture.isDone() && !nextScheduledEventFuture.isCancelled();
+            if (touched) {
+                lastTouched = now();
+                return true;
+            }
         }
         return false;
+    }
+
+    @Override
+    public boolean isOutdated() {
+        return lastTouched.plus(KEEP_ALIVE_TIME).isBeforeNow() && isFinalized() && !isRunning();
     }
 
     @Override
@@ -360,7 +380,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
         if (nextScheduledEvent instanceof ReservationFinalizeCallable) {
             nextScheduledEventFuture.cancel(true);
         }
-        scheduleEvent(new ReservationFinalizeCallable(), DateTime.now().plusMinutes(2));
+        scheduleEvent(new ReservationFinalizeCallable(), now().plus(KEEP_ALIVE_TIME));
     }
 
 
