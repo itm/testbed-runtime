@@ -1,10 +1,10 @@
 group = 'eu.smartsantander'
 description = 'TR :: Plugins :: SmartSantanderWaspmoteDeviceAdapter'
+
 apply plugin: 'war'
+
 dependencies {
     compile group: 'es.unican.tlmat.smartsantander', name: 'sms.waspmote-driver-fixed', version:'1.0-SNAPSHOT'
-    testCompile group: 'junit', name: 'junit', version:'4.11'
-    testCompile group: 'org.mockito', name: 'mockito-all', version:'1.9.5'
   providedCompile project(':tr.iwsn-common')
   providedCompile project(':tr.iwsn-gateway')
   providedCompile project(':tr.device-db')
