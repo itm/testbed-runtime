@@ -98,8 +98,9 @@ public class ReservationImpl extends AbstractService implements Reservation {
 			if (crd.get(0).getSecretReservationKey().equals(ReservationImpl.this.getSecretReservationKey())) {
 				ReservationImpl.this.confidentialReservationData = newHashSet(crd);
 				ReservationImpl.this.cancelled = crd.get(0).getCancelled();
-				if (nextScheduledEvent instanceof ReservationEndCallable) {
+				if (nextScheduledEvent instanceof ReservationEndCallable || (cancelled != null  && cancelled.isBefore(getInterval().getStart()) && nextScheduledEvent instanceof ReservationStartCallable)) {
 					// now is between start and end -> cancel the end callable and schedule the cancellation
+                    // or cancel is before start -> schedule cancellation instead of starting
 					nextScheduledEventFuture.cancel(true);
 					scheduleEvent(new ReservationCancelCallable(), cancelled);
 				}
@@ -276,11 +277,9 @@ public class ReservationImpl extends AbstractService implements Reservation {
 			events.add(event);
 		}
 
-		final boolean cancelled = getCancelled() != null && isCancelled();
 		final boolean ended = getInterval().isBeforeNow();
-		final boolean finalized = getFinalized() != null && getFinalized().isBeforeNow();
 
-		if (cancelled) {
+		if (isCancelled()) {
 
 			final ReservationCancelledEvent event = ReservationCancelledEvent.newBuilder()
 					.setSerializedKey(getSerializedKey())
@@ -297,7 +296,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 			events.add(event);
 		}
 
-		if (finalized) {
+		if (isFinalized()) {
 
 			final ReservationFinalizedEvent event = ReservationFinalizedEvent.newBuilder()
 					.setSerializedKey(getSerializedKey())
@@ -422,8 +421,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	}
 
 
-	@VisibleForTesting
-	private class ReservationMadeCallable implements Callable<Void> {
+	protected class ReservationMadeCallable implements Callable<Void> {
 
 		@Override
 		public Void call() throws Exception {
@@ -448,8 +446,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		}
 	}
 
-	@VisibleForTesting
-	private class ReservationStartCallable implements Callable<Void> {
+	protected class ReservationStartCallable implements Callable<Void> {
 
 		@Override
 		public Void call() throws Exception {
@@ -476,8 +473,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		}
 	}
 
-	@VisibleForTesting
-	private class ReservationCancelCallable implements Callable<Void> {
+	protected class ReservationCancelCallable implements Callable<Void> {
 
 		@Override
 		public Void call() throws Exception {
@@ -502,8 +498,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		}
 	}
 
-	@VisibleForTesting
-	private class ReservationEndCallable implements Callable<Void> {
+	protected class ReservationEndCallable implements Callable<Void> {
 
 		@Override
 		public Void call() throws Exception {
@@ -523,8 +518,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		}
 	}
 
-	@VisibleForTesting
-	private class ReservationFinalizeCallable implements Callable<Void> {
+	protected class ReservationFinalizeCallable implements Callable<Void> {
 
 		@Override
 		public Void call() throws Exception {
