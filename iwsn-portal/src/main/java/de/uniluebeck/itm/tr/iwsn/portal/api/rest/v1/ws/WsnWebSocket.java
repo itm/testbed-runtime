@@ -166,18 +166,24 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 	@Override
 	public void onClose(final int closeCode, final String message) {
 
-		if (keepAliveSchedule != null) {
-			keepAliveSchedule.cancel(false);
-			keepAliveSchedule = null;
-		}
-
 		if (log.isTraceEnabled()) {
 			log.trace("Websocket connection closed with code {} and message \"{}\": {}", closeCode, message, connection
 			);
 		}
 
-		reservation.getEventBus().unregister(this);
+		stopKeepAliveAndUnregister();
+
 		this.connection = null;
+	}
+
+	private void stopKeepAliveAndUnregister() {
+
+		if (keepAliveSchedule != null) {
+			keepAliveSchedule.cancel(false);
+			keepAliveSchedule = null;
+		}
+
+		reservation.getEventBus().unregister(this);
 	}
 
 	@Override
@@ -190,7 +196,9 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 			if (connection != null) {
 				connection.sendMessage(data);
 			} else {
-				log.warn("Trying to send message over closed WebSocket!");
+				log.warn("Trying to send message over closed WebSocket. Stopping keep alive thread and unregister "
+								+ "from the event bus");
+				stopKeepAliveAndUnregister();
 			}
 		} catch (IOException e) {
 			log.error("IOException while sending message over websocket connection " + connection);
