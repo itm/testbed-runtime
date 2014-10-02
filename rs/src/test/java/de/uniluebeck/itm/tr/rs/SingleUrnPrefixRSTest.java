@@ -147,25 +147,34 @@ public class SingleUrnPrefixRSTest {
 		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider, snaa);
 	}
 
-	/*@Test
+	@Test
 	public void testIfCancelledDateIsSetWhenCancellingReservation() throws Exception {
-		fail("Implement me");
+
+        final ConfidentialReservationData crd = new ConfidentialReservationData();
+        crd.setFrom(DateTime.now().plusHours(1));
+        crd.setTo(DateTime.now().plusHours(2));
+
+        AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
+        successfulAuthorizationResponse.setAuthorized(true);
+
+        List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
+                USER1_SAKS,
+                Lists.<NodeUrn>newArrayList()
+        );
+
+        when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS))
+                .thenReturn(successfulAuthorizationResponse);
+        when(persistence.getReservation(USER1_SRK)).thenReturn(crd);
+
+        when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_CANCEL_RESERVATION))
+                .thenReturn(successfulAuthorizationResponse);
+        when(persistence.cancelReservation(USER1_SRK)).thenReturn(crd);
+
+
+        rs.cancelReservation(USER1_SAKS, USER1_SRKS);
+        verify(persistence).cancelReservation(USER1_SRK);
 	}
 
-	@Test
-	public void testIfListenersAreNotifiedOfCancelledReservation() throws Exception {
-		fail("Implement me");
-	}
-
-	@Test
-	public void testIfListenersAreNotifiedOfMadeReservation() throws Exception {
-		fail("Implement me");
-	}
-
-	@Test
-	public void testIfListenersAreNotifiedOfFinalizedReservation() throws Exception {
-		fail("Implement me");
-	}*/
 
 	@Test
 	public void throwNoExceptionWhenTryingToCancelReservationInTheFuture() throws Exception {

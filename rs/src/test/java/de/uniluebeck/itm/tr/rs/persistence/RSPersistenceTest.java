@@ -36,11 +36,13 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public abstract class RSPersistenceTest {
 
@@ -67,6 +69,7 @@ public abstract class RSPersistenceTest {
 	protected static final NodeUrnPrefix NODE_URN_PREFIX = new NodeUrnPrefix("urn:wisebed:uzl1:");
 
 	protected static final int RESERVATION_COUNT = 5;
+
 
 	public void setPersistence(RSPersistence persistence) {
 		this.persistence = persistence;
@@ -172,6 +175,8 @@ public abstract class RSPersistenceTest {
 
 			reservationDataMap.put(i, crd);
 		}
+
+
 	}
 
 	@After
