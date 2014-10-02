@@ -27,8 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
@@ -225,6 +224,26 @@ public class ReservationImplTest {
         );
     }
 
+    private void setupReservationCancelledAfterEnd() {
+        reservation = new ReservationImpl(
+                commonConfig,
+                rsPersistence,
+                reservationEventBusFactory,
+                responseTrackerTimedCache,
+                responseTrackerFactory,
+                reservationEventStoreFactory,
+                portalEventBus,
+                schedulerService,
+                newArrayList(confidentialReservationData),
+                "someRandomReservationIdHere",
+                username,
+                DateTime.now().minusHours(1),
+                null,
+                NODE_URNS,
+                INTERVAL_IN_THE_PAST
+        );
+    }
+
 	@Test
 	public void testThatReservationEventBusIsCreatedAndStartedWhenStartingReservation() throws Exception {
         setupReservationJustStarted();
@@ -261,18 +280,13 @@ public class ReservationImplTest {
         setupReservationOngoing();
         verify(schedulerService).schedule(isA(ReservationImpl.ReservationMadeCallable.class), eq(0l), any(TimeUnit.class));
 
-        // TODO test life cycle callables
-        //verify(schedulerService).schedule(isA(ReservationImpl.ReservationStartCallable.class), eq(0l), any(TimeUnit.class));
-
     }
 
     @Test
     public void testThatMadeReservationIsNotStartedIfFinalized() throws Exception {
         setupReservationEndedAndFinalized();
-        //when(res.getFinalized()).thenReturn(DateTime.now().minusHours(1));
 
         verify(schedulerService, never()).schedule(any(Callable.class), anyLong(), any(TimeUnit.class));
-
 
     }
 
@@ -354,4 +368,76 @@ public class ReservationImplTest {
 
     }
 
+
+    @Test
+    public void testMadeCallableForOngoingReservation() throws Exception {
+        setupReservationOngoing();
+        ReservationImpl.ReservationMadeCallable callable = reservation.new ReservationMadeCallable();
+
+        callable.call();
+        verify(portalEventBus).post(isA(ReservationMadeEvent.class));
+        verify(schedulerService).schedule(isA(ReservationImpl.ReservationStartCallable.class), eq(0l), any(TimeUnit.class));
+    }
+
+    @Test
+    public void testStartCallableForEndedReservation() throws Exception {
+        setupReservationEnded();
+        ReservationImpl.ReservationStartCallable callable = reservation.new ReservationStartCallable();
+
+        callable.call();
+        verify(portalEventBus).post(isA(ReservationStartedEvent.class));
+        verify(schedulerService).schedule(isA(ReservationImpl.ReservationEndCallable.class), eq(0l), any(TimeUnit.class));
+    }
+
+    @Test
+    public void testStartCallableForReservationCancelledBeforeEnd() throws Exception {
+        setupReservationCancelledAfterStart();
+        ReservationImpl.ReservationStartCallable callable = reservation.new ReservationStartCallable();
+
+        callable.call();
+        verify(portalEventBus).post(isA(ReservationStartedEvent.class));
+        verify(schedulerService).schedule(isA(ReservationImpl.ReservationCancelCallable.class), anyLong(), any(TimeUnit.class));
+    }
+
+    @Test
+    public void testStartCallableForReservationCancelledAfterEnd() throws Exception {
+        setupReservationCancelledAfterEnd();
+        ReservationImpl.ReservationStartCallable callable = reservation.new ReservationStartCallable();
+
+        callable.call();
+        verify(portalEventBus).post(isA(ReservationStartedEvent.class));
+        verify(schedulerService).schedule(isA(ReservationImpl.ReservationEndCallable.class), anyLong(), any(TimeUnit.class));
+        verify(schedulerService, never()).schedule(isA(ReservationImpl.ReservationCancelCallable.class), anyLong(), any(TimeUnit.class));
+    }
+
+    @Test
+    public void testStartCallableForFinalizedReservation() throws Exception {
+        setupReservationEndedAndFinalized();
+        ReservationImpl.ReservationStartCallable callable = reservation.new ReservationStartCallable();
+
+        callable.call();
+        verify(portalEventBus, never()).post(isA(ReservationStartedEvent.class));
+        verify(schedulerService).schedule(isA(ReservationImpl.ReservationFinalizeCallable.class), anyLong(), any(TimeUnit.class));
+    }
+
+    @Test
+    public void testEndCallableForEndedReservation() throws Exception {
+        setupReservationEnded();
+        ReservationImpl.ReservationEndCallable callable = reservation.new ReservationEndCallable();
+
+        callable.call();
+        verify(portalEventBus).post(isA(ReservationEndedEvent.class));
+        verify(schedulerService).schedule(isA(ReservationImpl.ReservationFinalizeCallable.class), anyLong(), any(TimeUnit.class));
+    }
+
+    @Test
+    public void testFinalizeCallableForNonFinalizedReservation() throws Exception {
+        setupReservationEnded();
+        when(commonConfig.getUrnPrefix()).thenReturn(new NodeUrn("urn:unit-test:0x0001").getPrefix());
+        ReservationImpl.ReservationFinalizeCallable callable = reservation.new ReservationFinalizeCallable();
+
+        callable.call();
+        verify(portalEventBus).post(isA(ReservationFinalizedEvent.class));
+        assertFalse(reservation.isRunning());
+    }
 }
