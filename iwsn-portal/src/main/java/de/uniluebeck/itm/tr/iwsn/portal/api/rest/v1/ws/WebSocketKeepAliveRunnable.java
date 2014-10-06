@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws;
 
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.KeepAliveMessage;
+import org.eclipse.jetty.io.EofException;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,9 @@ public class WebSocketKeepAliveRunnable implements Runnable {
 		log.trace("WebSocketKeepAliveRunnable.run()");
 		try {
 			connection.sendMessage(toJSON(new KeepAliveMessage()));
+		} catch (EofException e) {
+			log.warn("EofException while sending WebSocket keepalive message. Closing WebSocket...");
+			connection.close();
 		} catch (Exception e) {
 			log.warn("Exception while sending WebSocket keepalive message: ", e);
 		}
