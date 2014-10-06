@@ -38,3 +38,4 @@ iwsn-portal/dependency-reduced-pom.xml
 **/dependency-reduced-pom.xml
 .build.gradle.swp
 .gradle
+**/build
