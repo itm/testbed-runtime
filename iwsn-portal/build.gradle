@@ -1,28 +1,75 @@
-
 description = 'TR :: iWSN Portal'
+
+apply plugin: 'application'
+apply plugin: 'java'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+mainClassName = 'de.uniluebeck.itm.tr.iwsn.portal.PortalServer'
+
 dependencies {
-    compile group: 'eu.wisebed', name: 'api', version:'3.0-SNAPSHOT'
-    compile group: 'eu.wisebed', name: 'wiseml', version:'2.0-SNAPSHOT'
-  compile project(':tr.common')
-  compile project(':tr.iwsn-common')
-  compile project(':tr.device-db')
-  compile project(':tr.rs')
-  compile project(':tr.snaa')
-    compile group: 'de.uniluebeck.itm.util', name: 'logging', version:'0.7-SNAPSHOT'
-    compile group: 'de.uniluebeck.itm.util', name: 'propconf', version:'0.7-SNAPSHOT'
-    compile group: 'de.uniluebeck.itm', name: 'de.uniluebeck.itm.eventstore', version:'1.0-SNAPSHOT'
-    compile group: 'de.uniluebeck.itm.netty-protocols', name: 'netty-protocols', version:'1.9-SNAPSHOT'
-    compile group: 'de.uniluebeck.itm.service-publisher', name: 'service-publisher-api', version:'1.1-SNAPSHOT'
-    compile group: 'de.uniluebeck.itm.service-publisher', name: 'service-publisher-cxf', version:'1.1-SNAPSHOT'
-    compile group: 'args4j', name: 'args4j', version:'2.0.23'
-    compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.5'
-    compile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.5'
-    compile group: 'com.google.guava', name: 'guava', version:'14.0.1'
-    compile group: 'com.google.inject', name: 'guice', version:'3.0'
-    compile group: 'com.google.inject.extensions', name: 'guice-multibindings', version:'3.0'
-    compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version:'3.0'
-    compile group: 'com.google.protobuf', name: 'protobuf-java', version:'2.4.1'
-    compile group: 'io.netty', name: 'netty', version:'3.5.8.Final'
-    compile group: 'org.apache.derby', name: 'derby', version:'10.9.1.0'
-    compile group: 'com.googlecode.protobuf-java-format', name: 'protobuf-java-format', version:'1.2'
+    compile group: 'eu.wisebed', name: 'api', version: '3.0-SNAPSHOT'
+    compile group: 'eu.wisebed', name: 'wiseml', version: '2.0-SNAPSHOT'
+    compile project(':tr.common')
+    compile project(':tr.iwsn-common')
+    compile project(':tr.device-db')
+    compile project(':tr.rs')
+    compile project(':tr.snaa')
+    compile group: 'de.uniluebeck.itm.util', name: 'logging', version: '0.7-SNAPSHOT'
+    compile group: 'de.uniluebeck.itm.util', name: 'propconf', version: '0.7-SNAPSHOT'
+    compile group: 'de.uniluebeck.itm', name: 'de.uniluebeck.itm.eventstore', version: '1.0-SNAPSHOT'
+    compile group: 'de.uniluebeck.itm.netty-protocols', name: 'netty-protocols', version: '1.9-SNAPSHOT'
+    compile group: 'de.uniluebeck.itm.service-publisher', name: 'service-publisher-api', version: '1.1-SNAPSHOT'
+    compile group: 'de.uniluebeck.itm.service-publisher', name: 'service-publisher-cxf', version: '1.1-SNAPSHOT'
+    compile group: 'args4j', name: 'args4j', version: '2.0.23'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.5'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.5'
+    compile group: 'com.google.guava', name: 'guava', version: '14.0.1'
+    compile group: 'com.google.inject', name: 'guice', version: '3.0'
+    compile group: 'com.google.inject.extensions', name: 'guice-multibindings', version: '3.0'
+    compile group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '3.0'
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '2.4.1'
+    compile group: 'io.netty', name: 'netty', version: '3.5.8.Final'
+    compile group: 'org.apache.derby', name: 'derby', version: '10.9.1.0'
+    compile group: 'com.googlecode.protobuf-java-format', name: 'protobuf-java-format', version: '1.2'
+
+
+}
+
+buildscript {
+    repositories { jcenter() }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.1.1'
+    }
+}
+
+
+sourceSets.all {
+    output.resourcesDir = output.classesDir
+}
+
+run {
+    if (project.hasProperty('appArgs')) {
+        args appArgs.split(' ')
+    }
+}
+
+
+import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+
+shadowJar {
+    classifier = 'server'
+    mergeServiceFiles {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+
+    /*transform(ManifestResourceTransformer) {
+      mainClass = 'de.uniluebeck.itm.tr.iwsn.portal.PortalServer'
+    }*/
+
+    transform(AppendingTransformer) {
+        resource = 'META-INF/cfx/bus-extensions.txt'
+    }
+
 }
