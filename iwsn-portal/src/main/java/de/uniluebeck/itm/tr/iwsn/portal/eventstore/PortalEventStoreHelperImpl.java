@@ -76,6 +76,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
         // events (upstream)
         serializers.put(ReservationStartedEvent.class, PROTOBUF_MESSAGE_SERIALIZER);
         serializers.put(ReservationEndedEvent.class, PROTOBUF_MESSAGE_SERIALIZER);
+        serializers.put(ReservationCancelledEvent.class, PROTOBUF_MESSAGE_SERIALIZER);
         serializers.put(DevicesAttachedEvent.class, PROTOBUF_MESSAGE_SERIALIZER);
         serializers.put(DevicesDetachedEvent.class, PROTOBUF_MESSAGE_SERIALIZER);
         serializers.put(NotificationEvent.class, PROTOBUF_MESSAGE_SERIALIZER);
@@ -95,6 +96,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
                 new Deserializer(ReservationStartedEvent.getDefaultInstance())
         );
         deserializers.put(ReservationEndedEvent.class, new Deserializer(ReservationEndedEvent.getDefaultInstance()));
+        deserializers.put(ReservationCancelledEvent.class, new Deserializer(ReservationCancelledEvent.getDefaultInstance()));
         deserializers.put(DevicesAttachedEvent.class, new Deserializer(DevicesAttachedEvent.getDefaultInstance()));
         deserializers.put(DevicesDetachedEvent.class, new Deserializer(DevicesDetachedEvent.getDefaultInstance()));
         deserializers.put(NotificationEvent.class, new Deserializer(NotificationEvent.getDefaultInstance()));

@@ -50,7 +50,8 @@ public interface RSPersistence {
 			@Nullable final DateTime from,
 			@Nullable final DateTime to,
 			@Nullable final Integer offset,
-			@Nullable final Integer amount)
+			@Nullable final Integer amount,
+			@Nullable final Boolean showCancelled)
 			throws RSFault_Exception;
 
 	List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception;
@@ -59,6 +60,7 @@ public interface RSPersistence {
 
 	List<ConfidentialReservationData> getActiveAndFutureReservations() throws RSFault_Exception;
 
+    List<ConfidentialReservationData> getNonFinalizedReservations() throws RSFault_Exception;
 	/**
 	 * Returns the reservation data for a reservation containing {@code nodeUrn} that is/was/will be active at {@code
 	 * timestamp}.
@@ -73,6 +75,13 @@ public interface RSPersistence {
 	ConfidentialReservationData getReservation(SecretReservationKey secretReservationKey)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception;
 
-	ConfidentialReservationData deleteReservation(SecretReservationKey secretReservationKey)
+	ConfidentialReservationData cancelReservation(SecretReservationKey secretReservationKey)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception;
+
+    ConfidentialReservationData finalizeReservation(SecretReservationKey secretReservationKey) throws UnknownSecretReservationKeyFault, RSFault_Exception;
+
+	void addListener(RSPersistenceListener rsPersistenceListener);
+
+	void removeListener(RSPersistenceListener rsPersistenceListener);
+
 }

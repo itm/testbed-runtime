@@ -24,10 +24,12 @@
 package de.uniluebeck.itm.tr.rs.persistence.jpa;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceListener;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.ReservationDataInternal;
 import de.uniluebeck.itm.tr.rs.persistence.jpa.entity.SecretReservationKeyInternal;
 import de.uniluebeck.itm.util.SecureIdGenerator;
@@ -40,6 +42,7 @@ import eu.wisebed.api.v3.rs.RSFault;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +55,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.rs.persistence.jpa.TypeConverter.convertConfidentialReservationData;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
 import static org.joda.time.DateTimeZone.forTimeZone;
@@ -65,6 +69,10 @@ public class RSPersistenceJPA implements RSPersistence {
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
 
 	private final TimeZone localTimeZone;
+
+	private final Object listenersLock = new Object();
+
+	private ImmutableSet<RSPersistenceListener> listeners = ImmutableSet.of();
 
 	@Inject
 	public RSPersistenceJPA(final Provider<EntityManager> em, final TimeZone timeZone) {
@@ -114,8 +122,9 @@ public class RSPersistenceJPA implements RSPersistence {
 
 		em.get().persist(reservationData);
 
+		final ConfidentialReservationData data;
 		try {
-			return TypeConverter.convert(reservationData.getConfidentialReservationData(), localTimeZone);
+			data = TypeConverter.convert(reservationData.getConfidentialReservationData(), localTimeZone);
 		} catch (DatatypeConfigurationException e) {
 			String msg = "Could not add Reservation because of: " + e.getMessage();
 			log.error(msg);
@@ -123,6 +132,16 @@ public class RSPersistenceJPA implements RSPersistence {
 			exception.setMessage(msg);
 			throw new RSFault_Exception(msg, exception, e);
 		}
+
+		for (RSPersistenceListener listener : listeners) {
+			try {
+				listener.onReservationMade(newArrayList(data));
+			} catch (Exception e) {
+				log.error("Listener threw exception while being notified of newly created reservation: {}", e);
+			}
+		}
+
+		return crd;
 	}
 
 	@Override
@@ -146,7 +165,7 @@ public class RSPersistenceJPA implements RSPersistence {
 
 	@Override
 	@Transactional
-	public ConfidentialReservationData deleteReservation(SecretReservationKey srk)
+	public ConfidentialReservationData cancelReservation(SecretReservationKey srk)
 			throws UnknownSecretReservationKeyFault, RSFault_Exception {
 
 		Query query = em.get().createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
@@ -157,13 +176,86 @@ public class RSPersistenceJPA implements RSPersistence {
 		} catch (NoResultException e) {
 			throw createRSUnknownSecretReservationKeyFault("Reservation not found", srk);
 		}
-		reservationData.delete();
+		final long nowMillis = DateTime.now(DateTimeZone.forTimeZone(this.localTimeZone)).getMillis();
+
+		if (reservationData.getConfidentialReservationData().getToDate() < nowMillis) {
+			final String msg = "Reservation time span lies in the past and can't therefore be cancelled anymore";
+			final RSFault faultInfo = new RSFault();
+			faultInfo.setMessage(msg);
+			throw new RSFault_Exception(msg, faultInfo);
+		}
+
+		reservationData.getConfidentialReservationData().setCancelledDate(nowMillis);
 		em.get().persist(reservationData);
 
+		final ConfidentialReservationData data;
 		try {
-			return TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
+			data = TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
 		} catch (DatatypeConfigurationException e) {
 			throw new RSFault_Exception(e.getMessage(), new RSFault());
+		}
+
+		for (RSPersistenceListener listener : listeners) {
+			listener.onReservationCancelled(newArrayList(data));
+		}
+
+		return data;
+	}
+
+    @Override
+    @Transactional
+    public ConfidentialReservationData finalizeReservation(SecretReservationKey secretReservationKey) throws UnknownSecretReservationKeyFault, RSFault_Exception {
+        Query query = em.get().createNamedQuery(ReservationDataInternal.QGetByReservationKey.QUERY_NAME);
+        query.setParameter(ReservationDataInternal.QGetByReservationKey.P_SECRET_RESERVATION_KEY, secretReservationKey.getKey());
+        ReservationDataInternal reservationData;
+        try {
+            reservationData = (ReservationDataInternal) query.getSingleResult();
+        } catch (NoResultException e) {
+            throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
+        }
+        final long nowMillis = DateTime.now(DateTimeZone.forTimeZone(this.localTimeZone)).getMillis();
+
+        if (reservationData.getConfidentialReservationData().getToDate() > nowMillis && reservationData.getConfidentialReservationData().getCancelledDate() != null && reservationData.getConfidentialReservationData().getCancelledDate() > nowMillis) {
+            final String msg = "Reservation time span lies in the future and can't therefore be finalized yet";
+            final RSFault faultInfo = new RSFault();
+            faultInfo.setMessage(msg);
+            throw new RSFault_Exception(msg, faultInfo);
+        }
+
+        reservationData.getConfidentialReservationData().setFinalizedDate(nowMillis);
+        em.get().persist(reservationData);
+
+        final ConfidentialReservationData data;
+        try {
+            data = TypeConverter.convert(reservationData.getConfidentialReservationData(), this.localTimeZone);
+        } catch (DatatypeConfigurationException e) {
+            throw new RSFault_Exception(e.getMessage(), new RSFault());
+        }
+
+        for (RSPersistenceListener listener : listeners) {
+            listener.onReservationFinalized(newArrayList(data));
+        }
+
+        return data;
+    }
+
+    @Override
+	public void addListener(final RSPersistenceListener rsPersistenceListener) {
+		synchronized (listenersLock) {
+			listeners = ImmutableSet.<RSPersistenceListener>builder().addAll(listeners).add(rsPersistenceListener).build();
+		}
+	}
+
+	@Override
+	public void removeListener(final RSPersistenceListener listener) {
+		final ImmutableSet.Builder<RSPersistenceListener> builder = ImmutableSet.builder();
+		for (RSPersistenceListener old : listeners) {
+			if (old != listener) {
+				builder.add(old);
+			}
+		}
+		synchronized (listenersLock) {
+			listeners = builder.build();
 		}
 	}
 
@@ -173,34 +265,74 @@ public class RSPersistenceJPA implements RSPersistence {
 	public List<ConfidentialReservationData> getReservations(@Nullable final DateTime from,
 															 @Nullable final DateTime to,
 															 @Nullable final Integer offset,
-															 @Nullable final Integer amount) throws RSFault_Exception {
+															 @Nullable final Integer amount,
+															 @Nullable Boolean showCancelled)
+			throws RSFault_Exception {
+
+		if (showCancelled == null) {
+			showCancelled = true; // default value
+		}
 
 		Query query;
 
 		if (from == null && to == null) {
 
-			query = em.get().createNamedQuery(ReservationDataInternal.QGetAll.QUERY_NAME);
+			if (showCancelled) {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetAll.QUERY_NAME);
+
+			} else {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetAllWithoutCancelled.QUERY_NAME);
+			}
 
 		} else if (from == null && to != null) {
 
 			DateTime localTo = to.toDateTime(forTimeZone(localTimeZone));
-			query = em.get().createNamedQuery(ReservationDataInternal.QGetTo.QUERY_NAME);
-			query.setParameter(ReservationDataInternal.QGetTo.P_TO, localTo.getMillis());
+			if (showCancelled) {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetTo.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetTo.P_TO, localTo.getMillis());
+
+			} else {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetToWithoutCancelled.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetToWithoutCancelled.P_TO, localTo.getMillis());
+			}
+
 
 		} else if (from != null && to == null) {
 
 			DateTime localFrom = from.toDateTime(forTimeZone(localTimeZone));
-			query = em.get().createNamedQuery(ReservationDataInternal.QGetFrom.QUERY_NAME);
-			query.setParameter(ReservationDataInternal.QGetFrom.P_FROM, localFrom.getMillis());
+			if (showCancelled) {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetFrom.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetFrom.P_FROM, localFrom.getMillis());
+
+			} else {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetFromWithoutCancelled.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetFromWithoutCancelled.P_FROM, localFrom.getMillis());
+			}
 
 		} else {
 
 			DateTime localFrom = from.toDateTime(forTimeZone(localTimeZone));
 			DateTime localTo = to.toDateTime(forTimeZone(localTimeZone));
 
-			query = em.get().createNamedQuery(ReservationDataInternal.QGetByInterval.QUERY_NAME);
-			query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, localFrom.getMillis());
-			query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, localTo.getMillis());
+			if (showCancelled) {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetByInterval.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetByInterval.P_FROM, localFrom.getMillis());
+				query.setParameter(ReservationDataInternal.QGetByInterval.P_TO, localTo.getMillis());
+
+			} else {
+
+				query = em.get().createNamedQuery(ReservationDataInternal.QGetByIntervalWithoutCancelled.QUERY_NAME);
+				query.setParameter(ReservationDataInternal.QGetByIntervalWithoutCancelled.P_FROM, localFrom.getMillis()
+				);
+				query.setParameter(ReservationDataInternal.QGetByIntervalWithoutCancelled.P_TO, localTo.getMillis());
+			}
 		}
 
 		if (offset != null) {
@@ -223,7 +355,20 @@ public class RSPersistenceJPA implements RSPersistence {
 		}
 	}
 
-	@Override
+    @Override
+    public List<ConfidentialReservationData> getNonFinalizedReservations() throws RSFault_Exception {
+        @SuppressWarnings("unchecked")
+        final List<ReservationDataInternal> resultList = (List<ReservationDataInternal>) em.get()
+                .createNamedQuery(ReservationDataInternal.QGetNonFinalized.QUERY_NAME).getResultList();
+
+        try {
+            return convertConfidentialReservationData(resultList, localTimeZone);
+        } catch (DatatypeConfigurationException e) {
+            throw new RSFault_Exception(e.getMessage(), new RSFault());
+        }
+    }
+
+    @Override
 	public List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception {
 
 		@SuppressWarnings("unchecked")

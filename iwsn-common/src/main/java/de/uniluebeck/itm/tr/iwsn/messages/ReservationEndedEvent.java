@@ -63,8 +63,19 @@ public  final class ReservationEndedEvent extends
     }
   }
   
+  // required uint64 timestamp = 2;
+  public static final int TIMESTAMP_FIELD_NUMBER = 2;
+  private long timestamp_;
+  public boolean hasTimestamp() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public long getTimestamp() {
+    return timestamp_;
+  }
+  
   private void initFields() {
     serializedKey_ = "";
+    timestamp_ = 0L;
   }
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
@@ -72,6 +83,10 @@ public  final class ReservationEndedEvent extends
     if (isInitialized != -1) return isInitialized == 1;
     
     if (!hasSerializedKey()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasTimestamp()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -85,6 +100,9 @@ public  final class ReservationEndedEvent extends
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       output.writeBytes(1, getSerializedKeyBytes());
     }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeUInt64(2, timestamp_);
+    }
     getUnknownFields().writeTo(output);
   }
   
@@ -97,6 +115,10 @@ public  final class ReservationEndedEvent extends
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
         .computeBytesSize(1, getSerializedKeyBytes());
+    }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeUInt64Size(2, timestamp_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -224,6 +246,8 @@ public  final class ReservationEndedEvent extends
       super.clear();
       serializedKey_ = "";
       bitField0_ = (bitField0_ & ~0x00000001);
+      timestamp_ = 0L;
+      bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
     
@@ -266,6 +290,10 @@ public  final class ReservationEndedEvent extends
         to_bitField0_ |= 0x00000001;
       }
       result.serializedKey_ = serializedKey_;
+      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        to_bitField0_ |= 0x00000002;
+      }
+      result.timestamp_ = timestamp_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -285,12 +313,19 @@ public  final class ReservationEndedEvent extends
       if (other.hasSerializedKey()) {
         setSerializedKey(other.getSerializedKey());
       }
+      if (other.hasTimestamp()) {
+        setTimestamp(other.getTimestamp());
+      }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
     }
     
     public final boolean isInitialized() {
       if (!hasSerializedKey()) {
+        
+        return false;
+      }
+      if (!hasTimestamp()) {
         
         return false;
       }
@@ -323,6 +358,11 @@ public  final class ReservationEndedEvent extends
           case 10: {
             bitField0_ |= 0x00000001;
             serializedKey_ = input.readBytes();
+            break;
+          }
+          case 16: {
+            bitField0_ |= 0x00000002;
+            timestamp_ = input.readUInt64();
             break;
           }
         }
@@ -365,6 +405,27 @@ public  final class ReservationEndedEvent extends
       bitField0_ |= 0x00000001;
       serializedKey_ = value;
       onChanged();
+    }
+    
+    // required uint64 timestamp = 2;
+    private long timestamp_ ;
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public long getTimestamp() {
+      return timestamp_;
+    }
+    public Builder setTimestamp(long value) {
+      bitField0_ |= 0x00000002;
+      timestamp_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearTimestamp() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      timestamp_ = 0L;
+      onChanged();
+      return this;
     }
     
     // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent)

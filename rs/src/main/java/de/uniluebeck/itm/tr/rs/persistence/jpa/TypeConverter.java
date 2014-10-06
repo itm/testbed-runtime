@@ -52,20 +52,13 @@ public class TypeConverter {
 	public static ConfidentialReservationDataInternal convert(ConfidentialReservationData external,
 															  TimeZone localTimeZone) {
 
-		ConfidentialReservationDataInternal internal = new ConfidentialReservationDataInternal();
+		final ConfidentialReservationDataInternal internal = new ConfidentialReservationDataInternal();
+		final List<String> nodeUrnStringList = newArrayList();
 
-		GregorianCalendar fromGregorianCalendar = external.getFrom().toGregorianCalendar();
-
-		// strange workaround to initialize object before setting timezone
-		fromGregorianCalendar.getTimeInMillis();
-
-		fromGregorianCalendar.setTimeZone(localTimeZone);
-		internal.setFromDate(fromGregorianCalendar.getTimeInMillis());
-
-		List<String> nodeUrnStringList = newArrayList();
 		for (NodeUrn nodeUrn : external.getNodeUrns()) {
 			nodeUrnStringList.add(nodeUrn.toString());
 		}
+
 		internal.setNodeUrns(nodeUrnStringList);
 		internal.setUrnPrefix(external.getSecretReservationKey().getUrnPrefix().toString());
 		internal.setSecretReservationKey(external.getSecretReservationKey().getKey());
@@ -78,13 +71,17 @@ public class TypeConverter {
 		}
 		internal.setOptions(options);
 
-		GregorianCalendar toGregorianCalendar = external.getTo().toGregorianCalendar();
+		final DateTimeZone dateTimeZone = DateTimeZone.forTimeZone(localTimeZone);
+		internal.setFromDate(external.getFrom().withZone(dateTimeZone).getMillis());
+		internal.setToDate(external.getTo().withZone(dateTimeZone).getMillis());
 
-		// strange workaround to initialize object before setting timezone
-		toGregorianCalendar.getTimeInMillis();
+		if (external.getCancelled() != null) {
+			internal.setCancelledDate(external.getCancelled().withZone(dateTimeZone).getMillis());
+		}
 
-		toGregorianCalendar.setTimeZone(localTimeZone);
-		internal.setToDate(toGregorianCalendar.getTimeInMillis());
+		if (external.getFinalized() != null) {
+			internal.setFinalizedDate(external.getFinalized().withZone(dateTimeZone).getMillis());
+		}
 
 		return internal;
 	}
@@ -111,6 +108,14 @@ public class TypeConverter {
 
 		final DateTime to = new DateTime(internal.getToDate(), DateTimeZone.forTimeZone(localTimeZone));
 		external.setTo(to.toDateTime(DateTimeZone.getDefault()));
+
+		if (internal.getCancelledDate() != null) {
+			external.setCancelled(new DateTime(internal.getCancelledDate(), DateTimeZone.forTimeZone(localTimeZone)));
+		}
+
+		if (internal.getFinalizedDate() != null) {
+			external.setFinalized(new DateTime(internal.getFinalizedDate(), DateTimeZone.forTimeZone(localTimeZone)));
+		}
 
 		external.setDescription(internal.getDescription());
 		external.getOptions().addAll(convert(internal.getOptions()));

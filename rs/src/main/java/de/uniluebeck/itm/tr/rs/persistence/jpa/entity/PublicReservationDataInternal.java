@@ -23,6 +23,7 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.jpa.entity;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
@@ -42,13 +43,22 @@ public class PublicReservationDataInternal implements Serializable {
 	@Column(nullable = false)
 	protected long toDate;
 
+	@Column(nullable = true)
+	protected Long cancelledDate;
+
+	@Column(nullable = true)
+	protected Long finalizedDate;
+
 	public PublicReservationDataInternal() {
 	}
 
-	public PublicReservationDataInternal(long fromDate, long toDate, List<String> nodeUrns) {
+	public PublicReservationDataInternal(long fromDate, long toDate, @Nullable Long cancelledDate,
+										 @Nullable Long finalizedDate, List<String> nodeUrns) {
 		this.fromDate = fromDate;
 		this.toDate = toDate;
+		this.finalizedDate = finalizedDate;
 		this.nodeUrns = nodeUrns;
+		this.cancelledDate = cancelledDate;
 	}
 
 	public long getId() {
@@ -87,5 +97,23 @@ public class PublicReservationDataInternal implements Serializable {
 
 	public void setToDate(long value) {
 		this.toDate = value;
+	}
+
+	@Nullable
+	public Long getCancelledDate() {
+		return cancelledDate;
+	}
+
+	public void setCancelledDate(@Nullable final Long cancelledDate) {
+		this.cancelledDate = cancelledDate;
+	}
+
+	@Nullable
+	public Long getFinalizedDate() {
+		return finalizedDate;
+	}
+
+	public void setFinalizedDate(@Nullable final Long finalizedDate) {
+		this.finalizedDate = finalizedDate;
 	}
 }

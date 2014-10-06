@@ -70,7 +70,7 @@ public class ShiroSNAATest extends ShiroSNAATestBase {
 		map.setUrnPrefix(NODE_URN_PREFIX_1);
 		map.setUsername("NonExistentUser1");
 		final AuthorizationResponse authorizationResponse =
-				shiroSNAA.isAuthorized(newArrayList(map), Action.RS_DELETE_RESERVATION);
+				shiroSNAA.isAuthorized(newArrayList(map), Action.RS_CANCEL_RESERVATION);
 		assertFalse(authorizationResponse.isAuthorized());
 	}
 }

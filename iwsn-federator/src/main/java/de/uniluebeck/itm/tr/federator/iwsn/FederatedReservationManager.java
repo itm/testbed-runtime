@@ -28,10 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -131,6 +128,11 @@ public class FederatedReservationManager extends AbstractService implements Rese
     public List<Reservation> getReservations(DateTime timestamp) {
         throw new RuntimeException("Not yet implemented!");
 
+    }
+
+    @Override
+    public Collection<Reservation> getNonFinalizedReservations() {
+        throw new RuntimeException("Not yet implemented!");
     }
 
     @Nullable

@@ -23,6 +23,7 @@ package de.uniluebeck.itm.tr.rs.persistence.jpa; /******************************
 
 import com.google.inject.Guice;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
+import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceListener;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceTest;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -33,14 +34,22 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RSPersistenceJPATest extends RSPersistenceTest {
 
 	private static final Map<String, String> properties = new HashMap<String, String>() {{
@@ -79,6 +88,11 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 
 	private static final ConfidentialReservationData CRD;
 
+
+
+    @Mock
+    private RSPersistenceListener persistenceListener;
+
 	static {
 
 		CRD_SRK = new SecretReservationKey();
@@ -101,6 +115,7 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 		final RSPersistenceJPAModule module = new RSPersistenceJPAModule(TimeZone.getDefault(), mapToProperties());
 		final RSPersistence rsPersistence = Guice.createInjector(module).getInstance(RSPersistence.class);
 		super.setPersistence(rsPersistence);
+        persistence.addListener(persistenceListener);
 	}
 
 	private Properties mapToProperties() {
@@ -111,6 +126,18 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 		return props;
 	}
 
+    private ConfidentialReservationData insertReservation() throws Exception{
+        return persistence.addReservation(
+                CRD.getNodeUrns(),
+                CRD.getFrom(),
+                CRD.getTo(),
+                CRD.getUsername(),
+                CRD.getSecretReservationKey().getUrnPrefix(),
+                CRD.getDescription(),
+                CRD.getOptions()
+        );
+    }
+
 	@After
 	public void tearDown() throws Exception {
 		super.tearDown();
@@ -119,17 +146,37 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
 	@Test
 	public void testGetReservations() throws Exception {
 
-		final ConfidentialReservationData inserted = persistence.addReservation(
-				CRD.getNodeUrns(),
-				CRD.getFrom(),
-				CRD.getTo(),
-				CRD.getUsername(),
-				CRD.getSecretReservationKey().getUrnPrefix(),
-				CRD.getDescription(),
-				CRD.getOptions()
-		);
+		final ConfidentialReservationData inserted = insertReservation();
 
 		final ConfidentialReservationData retrieved = persistence.getReservation(inserted.getSecretReservationKey());
 		assertEquals(inserted, retrieved);
 	}
+
+
+    @Test
+    public void testIfListenersAreNotifiedOfCancelledReservation() throws Exception {
+
+        final ConfidentialReservationData inserted = insertReservation();
+
+        persistence.cancelReservation(inserted.getSecretReservationKey());
+        verify(persistenceListener).onReservationCancelled(anyList());
+    }
+
+    @Test
+    public void testIfListenersAreNotifiedOfMadeReservation() throws Exception {
+        insertReservation();
+
+        verify(persistenceListener).onReservationMade(anyList());
+    }
+
+    @Test
+    public void testIfListenersAreNotifiedOfFinalizedReservation() throws Exception {
+        final ConfidentialReservationData inserted = insertReservation();
+
+        persistence.finalizeReservation(inserted.getSecretReservationKey());
+        verify(persistenceListener).onReservationFinalized(anyList());
+    }
+
+
+
 }

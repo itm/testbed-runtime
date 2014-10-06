@@ -60,18 +60,14 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	 */
 	private final eu.wisebed.api.v3.rs.RS reservationSystem;
 
-	private final RSServiceConfig rsServiceConfig;
-
 	private final ServicePublisher servicePublisher;
 
 	private ServicePublisherService jaxWsService;
 
 	@Inject
-	public SingleUrnPrefixRSService(final ServicePublisher servicePublisher, final RS rs,
-									final RSServiceConfig rsServiceConfig) {
+	public SingleUrnPrefixRSService(final ServicePublisher servicePublisher, final RS rs) {
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.reservationSystem = checkNotNull(rs);
-		this.rsServiceConfig = checkNotNull(rsServiceConfig);
 	}
 
 	@Override
@@ -83,11 +79,11 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	}
 
 	@Override
-	public void deleteReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
+	public void cancelReservation(final List<SecretAuthenticationKey> secretAuthenticationKeys,
 								  final List<SecretReservationKey> secretReservationKeys)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault, AuthenticationFault {
 
-		reservationSystem.deleteReservation(secretAuthenticationKeys, secretReservationKeys);
+		reservationSystem.cancelReservation(secretAuthenticationKeys, secretReservationKeys);
 	}
 
 	@Override
@@ -104,20 +100,29 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 
 	@Override
 	public List<PublicReservationData> getReservations(final DateTime from, final DateTime to,
-													   final Integer offset, final Integer amount)
+													   final Integer offset, final Integer amount,
+													   final Boolean showCancelled)
 			throws RSFault_Exception {
 
-		return reservationSystem.getReservations(from, to, offset, amount);
+		return reservationSystem.getReservations(from, to, offset, amount, showCancelled);
 	}
 
 	@Override
 	public List<ConfidentialReservationData> getConfidentialReservations(
 			final List<SecretAuthenticationKey> secretAuthenticationKey,
 			final DateTime from, final DateTime to,
-			final Integer offset, final Integer amount)
+			final Integer offset, final Integer amount,
+			final Boolean showCancelled)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault {
 
-		return reservationSystem.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount);
+		return reservationSystem.getConfidentialReservations(
+				secretAuthenticationKey,
+				from,
+				to,
+				offset,
+				amount,
+				showCancelled
+		);
 	}
 
 

@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
@@ -82,27 +83,27 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 	}
 
 	@Subscribe
-	public void onUpstreamMessageEvent(final UpstreamMessageEvent event) {
+	public void on(final UpstreamMessageEvent event) {
 		sendMessage(toJSON(new WebSocketUpstreamMessage(event)));
 	}
 
 	@Subscribe
-	public void onNotificationsEvent(final NotificationEvent event) {
+	public void on(final NotificationEvent event) {
 		sendMessage(toJSON(new WebSocketNotificationMessage(event)));
 	}
 
 	@Subscribe
-	public void onDevicesAttachedEvent(final DevicesAttachedEvent event) {
+	public void on(final DevicesAttachedEvent event) {
 		sendMessage(toJSON(new DevicesAttachedMessage(event)));
 	}
 
 	@Subscribe
-	public void onDevicesDetachedEvent(final DevicesDetachedEvent event) {
+	public void on(final DevicesDetachedEvent event) {
 		sendMessage(toJSON(new DevicesDetachedMessage(event)));
 	}
 
 	@Subscribe
-	public void onReservationStarted(final ReservationStartedEvent event) {
+	public void on(final ReservationStartedEvent event) {
 		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
 			throw new RuntimeException("This should not be possible!");
 		}
@@ -110,11 +111,27 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 	}
 
 	@Subscribe
-	public void onReservationEnded(final ReservationEndedEvent event) {
+	public void on(final ReservationEndedEvent event) {
 		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
 			throw new RuntimeException("This should not be possible!");
 		}
 		sendMessage(toJSON(new ReservationEndedMessage(reservation)));
+	}
+
+    @Subscribe
+    public void on(final ReservationCancelledEvent event) {
+        if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+            throw new RuntimeException("This should not be possible!");
+        }
+        sendMessage(toJSON(new ReservationCancelledMessage(reservation)));
+    }
+
+	@Subscribe
+	public void on(final ReservationFinalizedEvent event) {
+		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+			throw new RuntimeException("This should not be possible!");
+		}
+		sendMessage(toJSON(new ReservationFinalizedMessage(reservation)));
 	}
 
 	@Override
@@ -127,13 +144,18 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		this.connection = connection;
 		reservation.getEventBus().register(this);
 
-		final DateTime start = reservation.getInterval().getStart();
-		final DateTime end = reservation.getInterval().getEnd();
-
-		if (end.isBeforeNow()) {
-			sendMessage(toJSON(new ReservationEndedMessage(reservation)));
-		} else if (start.isBeforeNow()) {
-			sendMessage(toJSON(new ReservationStartedMessage(reservation)));
+		for (MessageLite event : reservation.getPastLifecycleEvents()) {
+			if (event instanceof ReservationMadeEvent) {
+				// nothing to do
+			} else if (event instanceof ReservationEndedEvent) {
+				sendMessage(toJSON(new ReservationEndedMessage(reservation)));
+			} else if (event instanceof ReservationStartedEvent) {
+				sendMessage(toJSON(new ReservationStartedMessage(reservation)));
+			} else if (event instanceof ReservationCancelledEvent) {
+				sendMessage(toJSON(new ReservationCancelledMessage(reservation)));
+			} else if (event instanceof ReservationFinalizedEvent) {
+				sendMessage(toJSON(new ReservationFinalizedMessage(reservation)));
+			}
 		}
 
 		keepAliveSchedule = schedulerService.scheduleAtFixedRate(

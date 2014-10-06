@@ -34,10 +34,20 @@ public  final class ReservationEvent extends
       implements com.google.protobuf.ProtocolMessageEnum {
     STARTED(0, 1),
     ENDED(1, 2),
+    MADE(2, 3),
+    CANCELLED(3, 4),
+    FINALIZED(4, 5),
+    OPENED(5, 6),
+    CLOSED(6, 7),
     ;
     
     public static final int STARTED_VALUE = 1;
     public static final int ENDED_VALUE = 2;
+    public static final int MADE_VALUE = 3;
+    public static final int CANCELLED_VALUE = 4;
+    public static final int FINALIZED_VALUE = 5;
+    public static final int OPENED_VALUE = 6;
+    public static final int CLOSED_VALUE = 7;
     
     
     public final int getNumber() { return value; }
@@ -46,6 +56,11 @@ public  final class ReservationEvent extends
       switch (value) {
         case 1: return STARTED;
         case 2: return ENDED;
+        case 3: return MADE;
+        case 4: return CANCELLED;
+        case 5: return FINALIZED;
+        case 6: return OPENED;
+        case 7: return CLOSED;
         default: return null;
       }
     }
@@ -76,7 +91,7 @@ public  final class ReservationEvent extends
     }
     
     private static final Type[] VALUES = {
-      STARTED, ENDED, 
+      STARTED, ENDED, MADE, CANCELLED, FINALIZED, OPENED, CLOSED, 
     };
     
     public static Type valueOf(
@@ -796,12 +811,78 @@ public  final class ReservationEvent extends
     }
   }
   
+  // optional string cancelled = 6;
+  public static final int CANCELLED_FIELD_NUMBER = 6;
+  private java.lang.Object cancelled_;
+  public boolean hasCancelled() {
+    return ((bitField0_ & 0x00000008) == 0x00000008);
+  }
+  public String getCancelled() {
+    java.lang.Object ref = cancelled_;
+    if (ref instanceof String) {
+      return (String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      String s = bs.toStringUtf8();
+      if (com.google.protobuf.Internal.isValidUtf8(bs)) {
+        cancelled_ = s;
+      }
+      return s;
+    }
+  }
+  private com.google.protobuf.ByteString getCancelledBytes() {
+    java.lang.Object ref = cancelled_;
+    if (ref instanceof String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+      cancelled_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+  
+  // optional string finalized = 7;
+  public static final int FINALIZED_FIELD_NUMBER = 7;
+  private java.lang.Object finalized_;
+  public boolean hasFinalized() {
+    return ((bitField0_ & 0x00000010) == 0x00000010);
+  }
+  public String getFinalized() {
+    java.lang.Object ref = finalized_;
+    if (ref instanceof String) {
+      return (String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      String s = bs.toStringUtf8();
+      if (com.google.protobuf.Internal.isValidUtf8(bs)) {
+        finalized_ = s;
+      }
+      return s;
+    }
+  }
+  private com.google.protobuf.ByteString getFinalizedBytes() {
+    java.lang.Object ref = finalized_;
+    if (ref instanceof String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+      finalized_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+  
   private void initFields() {
     type_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEvent.Type.STARTED;
     secretReservationKeys_ = java.util.Collections.emptyList();
     nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
     intervalStart_ = "";
     intervalEnd_ = "";
+    cancelled_ = "";
+    finalized_ = "";
   }
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
@@ -848,6 +929,12 @@ public  final class ReservationEvent extends
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
       output.writeBytes(5, getIntervalEndBytes());
     }
+    if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      output.writeBytes(6, getCancelledBytes());
+    }
+    if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      output.writeBytes(7, getFinalizedBytes());
+    }
     getUnknownFields().writeTo(output);
   }
   
@@ -881,6 +968,14 @@ public  final class ReservationEvent extends
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
         .computeBytesSize(5, getIntervalEndBytes());
+    }
+    if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(6, getCancelledBytes());
+    }
+    if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(7, getFinalizedBytes());
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -1021,6 +1116,10 @@ public  final class ReservationEvent extends
       bitField0_ = (bitField0_ & ~0x00000008);
       intervalEnd_ = "";
       bitField0_ = (bitField0_ & ~0x00000010);
+      cancelled_ = "";
+      bitField0_ = (bitField0_ & ~0x00000020);
+      finalized_ = "";
+      bitField0_ = (bitField0_ & ~0x00000040);
       return this;
     }
     
@@ -1086,6 +1185,14 @@ public  final class ReservationEvent extends
         to_bitField0_ |= 0x00000004;
       }
       result.intervalEnd_ = intervalEnd_;
+      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        to_bitField0_ |= 0x00000008;
+      }
+      result.cancelled_ = cancelled_;
+      if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+        to_bitField0_ |= 0x00000010;
+      }
+      result.finalized_ = finalized_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -1146,6 +1253,12 @@ public  final class ReservationEvent extends
       }
       if (other.hasIntervalEnd()) {
         setIntervalEnd(other.getIntervalEnd());
+      }
+      if (other.hasCancelled()) {
+        setCancelled(other.getCancelled());
+      }
+      if (other.hasFinalized()) {
+        setFinalized(other.getFinalized());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
@@ -1226,6 +1339,16 @@ public  final class ReservationEvent extends
           case 42: {
             bitField0_ |= 0x00000010;
             intervalEnd_ = input.readBytes();
+            break;
+          }
+          case 50: {
+            bitField0_ |= 0x00000020;
+            cancelled_ = input.readBytes();
+            break;
+          }
+          case 58: {
+            bitField0_ |= 0x00000040;
+            finalized_ = input.readBytes();
             break;
           }
         }
@@ -1569,6 +1692,78 @@ public  final class ReservationEvent extends
     void setIntervalEnd(com.google.protobuf.ByteString value) {
       bitField0_ |= 0x00000010;
       intervalEnd_ = value;
+      onChanged();
+    }
+    
+    // optional string cancelled = 6;
+    private java.lang.Object cancelled_ = "";
+    public boolean hasCancelled() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    public String getCancelled() {
+      java.lang.Object ref = cancelled_;
+      if (!(ref instanceof String)) {
+        String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
+        cancelled_ = s;
+        return s;
+      } else {
+        return (String) ref;
+      }
+    }
+    public Builder setCancelled(String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
+      cancelled_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearCancelled() {
+      bitField0_ = (bitField0_ & ~0x00000020);
+      cancelled_ = getDefaultInstance().getCancelled();
+      onChanged();
+      return this;
+    }
+    void setCancelled(com.google.protobuf.ByteString value) {
+      bitField0_ |= 0x00000020;
+      cancelled_ = value;
+      onChanged();
+    }
+    
+    // optional string finalized = 7;
+    private java.lang.Object finalized_ = "";
+    public boolean hasFinalized() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    public String getFinalized() {
+      java.lang.Object ref = finalized_;
+      if (!(ref instanceof String)) {
+        String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
+        finalized_ = s;
+        return s;
+      } else {
+        return (String) ref;
+      }
+    }
+    public Builder setFinalized(String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+      finalized_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearFinalized() {
+      bitField0_ = (bitField0_ & ~0x00000040);
+      finalized_ = getDefaultInstance().getFinalized();
+      onChanged();
+      return this;
+    }
+    void setFinalized(com.google.protobuf.ByteString value) {
+      bitField0_ |= 0x00000040;
+      finalized_ = value;
       onChanged();
     }
     

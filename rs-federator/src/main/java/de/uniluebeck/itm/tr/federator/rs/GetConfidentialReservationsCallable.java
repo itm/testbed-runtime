@@ -14,6 +14,8 @@ public class GetConfidentialReservationsCallable implements Callable<List<Confid
 
 	private final Integer amount;
 
+	private final Boolean showCancelled;
+
 	private final DateTime from;
 
 	private final DateTime to;
@@ -25,17 +27,19 @@ public class GetConfidentialReservationsCallable implements Callable<List<Confid
 	public GetConfidentialReservationsCallable(final RS rs,
 											   final List<SecretAuthenticationKey> secretAuthenticationKeys,
 											   final DateTime from, final DateTime to,
-											   final Integer offset, final Integer amount) {
+											   final Integer offset, final Integer amount,
+											   final Boolean showCancelled) {
 		this.rs = rs;
 		this.from = from;
 		this.to = to;
 		this.secretAuthenticationKeys = secretAuthenticationKeys;
 		this.offset = offset;
 		this.amount = amount;
+		this.showCancelled = showCancelled;
 	}
 
 	@Override
 	public List<ConfidentialReservationData> call() throws Exception {
-		return rs.getConfidentialReservations(secretAuthenticationKeys, from, to, offset, amount);
+		return rs.getConfidentialReservations(secretAuthenticationKeys, from, to, offset, amount, showCancelled);
 	}
 }

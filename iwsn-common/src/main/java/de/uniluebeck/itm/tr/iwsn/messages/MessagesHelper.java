@@ -711,11 +711,11 @@ public abstract class MessagesHelper {
 				.build();
 	}
 
-	public static Event newEvent(final long eventId, final ReservationDeletedEvent event) {
+	public static Event newEvent(final long eventId, final ReservationCancelledEvent event) {
 		return Event.newBuilder()
-				.setType(Event.Type.RESERVATION_DELETED)
+				.setType(Event.Type.RESERVATION_CANCELLED)
 				.setEventId(eventId)
-				.setReservationDeletedEvent(event)
+				.setReservationCancelledEvent(event)
 				.build();
 	}
 

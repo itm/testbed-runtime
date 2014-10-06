@@ -205,13 +205,13 @@ public class RSFederatorServiceImplTest {
 	 * 		if anything goes wrong
 	 */
 	@Test
-	public void testDeleteReservation() throws Exception {
+	public void testCancelReservation() throws Exception {
 		// TODO implement
 	}
 
 	/**
-	 * Tests if the call of {@link RS#getReservations(org.joda.time.DateTime, org.joda.time.DateTime, Integer,
-	 * Integer)}
+	 * Tests if the call of {@link RS#getReservations(org.joda.time.DateTime, org.joda.time.DateTime, Integer, Integer,
+	 * Boolean)}
 	 * is made on all federated RS instances and the results are merged correctly.
 	 *
 	 * @throws Exception
@@ -224,8 +224,8 @@ public class RSFederatorServiceImplTest {
 
 	/**
 	 * Tests if the call of {@link RS#getConfidentialReservations(java.util.List, org.joda.time.DateTime,
-	 * org.joda.time.DateTime, Integer, Integer)} is made on all federated RS instances and the results are merged
-	 * correctly.
+	 * org.joda.time.DateTime, Integer, Integer, Boolean)}  is made on all federated RS instances and the results are
+	 * merged correctly.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong

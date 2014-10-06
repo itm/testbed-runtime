@@ -58,10 +58,25 @@ public interface EventOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent getReservationMadeEvent();
   de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEventOrBuilder getReservationMadeEventOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent = 143;
-  boolean hasReservationDeletedEvent();
-  de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent getReservationDeletedEvent();
-  de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder getReservationDeletedEventOrBuilder();
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent = 143;
+  boolean hasReservationCancelledEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent getReservationCancelledEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder getReservationCancelledEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent reservationOpenedEvent = 144;
+  boolean hasReservationOpenedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent getReservationOpenedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder getReservationOpenedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent reservationClosedEvent = 145;
+  boolean hasReservationClosedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent getReservationClosedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder getReservationClosedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent reservationFinalizedEvent = 146;
+  boolean hasReservationFinalizedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent getReservationFinalizedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder getReservationFinalizedEventOrBuilder();
   
   // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent = 150;
   boolean hasDeviceConfigCreatedEvent();

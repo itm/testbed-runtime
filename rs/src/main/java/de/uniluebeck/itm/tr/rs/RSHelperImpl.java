@@ -77,7 +77,7 @@ public class RSHelperImpl implements RSHelper {
 	@Override
 	public Set<NodeUrn> getReservedNodes(final Interval interval) {
 		try {
-			return toNodeUrnSet(rs.getReservations(interval.getStart(), interval.getEnd(), null, null));
+			return toNodeUrnSet(rs.getReservations(interval.getStart(), interval.getEnd(), null, null, false));
 		} catch (Exception e) {
 			throw propagate(e);
 		}

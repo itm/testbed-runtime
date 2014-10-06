@@ -8,6 +8,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.rs.RSHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,12 +47,14 @@ public class NodeStatusTrackerTest {
 			RESERVATION_ENDED_EVENT = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent
 			.newBuilder()
 			.setSerializedKey(SERIALIZED_KEY)
+            .setTimestamp(DateTime.now().getMillis())
 			.build();
 
 	private static final de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent
 			RESERVATION_STARTED_EVENT = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent
 			.newBuilder()
 			.setSerializedKey(SERIALIZED_KEY)
+            .setTimestamp(DateTime.now().getMillis())
 			.build();
 
 	@Mock

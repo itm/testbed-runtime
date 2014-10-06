@@ -36,11 +36,13 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public abstract class RSPersistenceTest {
 
@@ -68,6 +70,7 @@ public abstract class RSPersistenceTest {
 
 	protected static final int RESERVATION_COUNT = 5;
 
+
 	public void setPersistence(RSPersistence persistence) {
 		this.persistence = persistence;
 	}
@@ -77,7 +80,7 @@ public abstract class RSPersistenceTest {
 		final String description =
 				"query interval overlaps, ranging from the exact starting point until the exact ending point in time";
 		makeReservations();
-		int actual = persistence.getReservations(START, END, null, null).size();
+		int actual = persistence.getReservations(START, END, null, null, null).size();
 		assertSame(description, RESERVATION_COUNT, actual);
 	}
 
@@ -86,7 +89,7 @@ public abstract class RSPersistenceTest {
 		final String description = "query interval does not overlap, since it lies before reservation interval";
 		makeReservations();
 		final int actual =
-				persistence.getReservations(START.minusMillis(20000), START.minusMillis(1), null, null).size();
+				persistence.getReservations(START.minusMillis(20000), START.minusMillis(1), null, null, null).size();
 		assertSame(description, 0, actual);
 	}
 
@@ -94,7 +97,7 @@ public abstract class RSPersistenceTest {
 	public void testNoOverlapAfterEnd() throws Exception {
 		final String description = "query interval does not overlap, since it lies after reservation interval";
 		makeReservations();
-		final int actual = persistence.getReservations(END.plusMillis(1), END.plusMillis(20000), null, null).size();
+		final int actual = persistence.getReservations(END.plusMillis(1), END.plusMillis(20000), null, null, null).size();
 		assertSame(description, 0, actual);
 	}
 
@@ -102,7 +105,7 @@ public abstract class RSPersistenceTest {
 	public void testOverlapAtEnd() throws Exception {
 		final String description = "query interval overlaps on the end of the reservation interval";
 		makeReservations();
-		final int actual = persistence.getReservations(END.minusMillis(1), END.plusMillis(20000), null, null).size();
+		final int actual = persistence.getReservations(END.minusMillis(1), END.plusMillis(20000), null, null, null).size();
 		assertSame(description, RESERVATION_COUNT, actual);
 	}
 
@@ -111,7 +114,7 @@ public abstract class RSPersistenceTest {
 		final String description = "query interval overlaps on the start of the reservation interval";
 		makeReservations();
 		final int actual =
-				persistence.getReservations(START.minusMillis(20000), START.plusMillis(1), null, null).size();
+				persistence.getReservations(START.minusMillis(20000), START.plusMillis(1), null, null, null).size();
 		assertSame(description, RESERVATION_COUNT, actual);
 	}
 
@@ -119,7 +122,7 @@ public abstract class RSPersistenceTest {
 	public void testOverlapAtExactStart() throws Exception {
 		final String description = "query interval overlaps on the exact millisecond on reservation start";
 		makeReservations();
-		final int actual = persistence.getReservations(START.minusMillis(20000), START, null, null).size();
+		final int actual = persistence.getReservations(START.minusMillis(20000), START, null, null, null).size();
 		assertSame(description, 0, actual);
 	}
 
@@ -127,7 +130,7 @@ public abstract class RSPersistenceTest {
 	public void testOverlapAtExactEnd() throws Exception {
 		final String description = "query interval overlaps on the exact millisecond on reservation end";
 		makeReservations();
-		final int actual = persistence.getReservations(END, END.plusMillis(20000), null, null).size();
+		final int actual = persistence.getReservations(END, END.plusMillis(20000), null, null, null).size();
 		assertSame(description, 0, actual);
 	}
 
@@ -136,7 +139,7 @@ public abstract class RSPersistenceTest {
 		final String description =
 				"query interval fully overlaps, ranging from a point after reservation start until before reservation end";
 		makeReservations();
-		final int actual = persistence.getReservations(START.plusMillis(5), END.minusMillis(5), null, null).size();
+		final int actual = persistence.getReservations(START.plusMillis(5), END.minusMillis(5), null, null, null).size();
 		assertSame(description, RESERVATION_COUNT, actual);
 	}
 
@@ -145,7 +148,7 @@ public abstract class RSPersistenceTest {
 		final String description =
 				"query interval fully overlaps, ranging from a point before reservation start until after reservation interval";
 		makeReservations();
-		final int actual = persistence.getReservations(START.minusMillis(5), END.plusMillis(5), null, null).size();
+		final int actual = persistence.getReservations(START.minusMillis(5), END.plusMillis(5), null, null, null).size();
 		assertSame(description, RESERVATION_COUNT, actual);
 	}
 
@@ -172,26 +175,19 @@ public abstract class RSPersistenceTest {
 
 			reservationDataMap.put(i, crd);
 		}
+
+
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
 			try {
-				persistence.deleteReservation(reservationKeyMap.get(i));
+				persistence.cancelReservation(reservationKeyMap.get(i));
 			} catch (UnknownSecretReservationKeyFault ignored) {
 			}
 		}
 		reservationDataMap = null;
-	}
-
-	@Test
-	public void test() throws Throwable {
-		makeReservations();
-		checkGetReservationBeforeDeletion();
-		checkDeleteReservation();
-		checkGetReservationAfterDeletion();
-		checkDeleteReservationAfterDeletion();
 	}
 
 	/**
@@ -219,8 +215,11 @@ public abstract class RSPersistenceTest {
 		}
 	}
 
-	public void checkGetReservationBeforeDeletion()
-			throws RSFault_Exception, UnknownSecretReservationKeyFault {
+	@Test
+	public void testIfGetReservationReturnsCorrectData() throws Exception {
+
+		makeReservations();
+
 		for (int i = 0; i < reservationDataMap.size(); i++) {
 
 			ConfidentialReservationData rememberedCRD = reservationDataMap.get(i);
@@ -234,26 +233,18 @@ public abstract class RSPersistenceTest {
 		}
 	}
 
-	public void checkGetReservationAfterDeletion() throws RSFault_Exception {
+	@Test
+	public void testCancelReservation() throws Exception {
+		makeReservations();
 		for (int i = 0; i < reservationKeyMap.size(); i++) {
-			try {
-				persistence.getReservation(reservationKeyMap.get(i));
-				fail("Should have raised an ReservationNotFoundFault_Exception");
-			} catch (UnknownSecretReservationKeyFault ignored) {
-			}
-		}
-	}
-
-	public void checkDeleteReservation()
-			throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		for (int i = 0; i < reservationKeyMap.size(); i++) {
-			ConfidentialReservationData actual = persistence.deleteReservation(reservationKeyMap.get(i));
+			ConfidentialReservationData actual = persistence.cancelReservation(reservationKeyMap.get(i));
 			ConfidentialReservationData expected = reservationDataMap.get(i);
 			assertEquals(actual.getFrom(), expected.getFrom());
 			assertEquals(actual.getTo(), expected.getTo());
 			assertEquals(actual.getNodeUrns(), expected.getNodeUrns());
 			assertEquals(actual.getDescription(), expected.getDescription());
 			assertEqualOptions(actual, expected);
+			assertNotNull(actual.getCancelled());
 		}
 	}
 
@@ -270,15 +261,4 @@ public abstract class RSPersistenceTest {
 			assertTrue(foundPair);
 		}
 	}
-
-	public void checkDeleteReservationAfterDeletion() throws RSFault_Exception {
-		for (int i = 0; i < reservationKeyMap.size(); i++) {
-			try {
-				persistence.deleteReservation(reservationKeyMap.get(i));
-				fail("Should have raised an ReservationNotFoundFault_Exception");
-			} catch (UnknownSecretReservationKeyFault ignored) {
-			}
-		}
-	}
-
 }
