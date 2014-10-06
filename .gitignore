@@ -36,3 +36,8 @@ target
 iwsn-portal/dependency-reduced-pom.xml
 .idea
 **/dependency-reduced-pom.xml
+.gradle
+build
+**/build
+**/**/build
+classes
