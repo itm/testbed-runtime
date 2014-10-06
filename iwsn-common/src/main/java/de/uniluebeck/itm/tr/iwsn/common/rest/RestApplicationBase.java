@@ -11,6 +11,7 @@ import org.codehaus.jackson.Version;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.ext.JodaDeserializers;
 import org.codehaus.jackson.map.ext.JodaSerializers;
 import org.codehaus.jackson.map.module.SimpleModule;
@@ -63,6 +64,7 @@ public abstract class RestApplicationBase extends Application {
 		final JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
 		jsonProvider.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, true);
 		final ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 		objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ"));
 		final SimpleModule module = new SimpleModule(
 				"TR REST API Custom Serialization Module",

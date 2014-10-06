@@ -6,6 +6,7 @@ import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import org.codehaus.jackson.Version;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.codehaus.jackson.map.module.SimpleModule;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
@@ -34,6 +35,7 @@ public class JSONHelper {
 		module.addSerializer(DateTime.class, new DateTimeSerializer());
 		module.addDeserializer(DateTime.class, new DateTimeDeserializer());
 
+		mapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
 		mapper.registerModule(module);
 	}
 
