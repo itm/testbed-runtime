@@ -1,23 +1,40 @@
 allprojects  {
   apply plugin: 'maven'
+  apply plugin: 'idea'
 
   group = 'de.uniluebeck.itm'
   version = '0.9-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    
+    maven { 
+      name 'itmMavenRepositoryReleases'
+      url "http://maven.itm.uni-luebeck.de/content/repositories/releases/" 
+   }
+    maven { 
+      name 'itmMavenRepositorySnapshots'
+      url "http://maven.itm.uni-luebeck.de/content/repositories/snapshots/" 
+    }
+    maven { 
+      name 'wisebed-maven-repository-releases'
+      url "http://wisebed.eu/maven/releases/" 
+    }
+    maven { 
+      name 'wisebed-maven-repository-snapshots'
+      url "http://wisebed.eu/maven/snapshots/" 
+    }
+    maven { url "http://repo.maven.apache.org/maven2" }
+  }
+
+
+
 }
 
 subprojects {
   apply plugin: 'java'
-
-  
-  repositories {
-    mavenLocal()
-    
-    maven { url "http://maven.itm.uni-luebeck.de/content/repositories/releases/" }
-    maven { url "http://maven.itm.uni-luebeck.de/content/repositories/snapshots/" }
-    maven { url "http://wisebed.eu/maven/releases/" }
-    maven { url "http://wisebed.eu/maven/snapshots/" }
-    maven { url "http://repo.maven.apache.org/maven2" }
-  }
+  sourceCompatibility = 1.6
+  targetCompatibility = 1.6
 
   dependencies {
     testCompile group: 'junit', name: 'junit', version:'4.11'
@@ -25,7 +42,41 @@ subprojects {
   }
 
   configurations.all {
-}
+    resolutionStrategy {
+      failOnVersionConflict()
+      
+      force 'com.google.code.findbugs:jsr305:2.0.1',
+		    'de.uniluebeck.itm.util:files:0.7-SNAPSHOT',
+		    'org.slf4j:slf4j-api:1.7.5',
+		    'asm:asm:3.3.1',
+		    'de.uniluebeck.itm.util:logging:0.7-SNAPSHOT',
+		    'de.uniluebeck.itm.util:util:0.7-SNAPSHOT',
+		    'com.google.guava:guava:14.0.1',
+		    'joda-time:joda-time:2.3',
+		    'org.slf4j:slf4j-log4j12:1.7.5',
+		    'junit:junit:4.11',
+		    'de.uniluebeck.itm.util:concurrent:0.7-SNAPSHOT',
+		    'de.uniluebeck.itm.netty-protocols:netty-protocols:1.9-SNAPSHOT',
+		    'org.osgi:org.osgi.core:4.3.0'
+    }
+
+  }
   
   
 }
+
+uploadArchives {
+  repositories {
+    add project.repositories.itmMavenRepositoryReleases
+    add project.repositories.itmMavenRepositorySnapshots
+  }
+}
+
+/*apply plugin: 'maven'
+
+pom.project {
+  scm {
+    connection 'scm:git:git@github.com:itm/testbed-runtime.git'
+  }
+}*/
+
