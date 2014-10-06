@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.util.concurrent.Service;
+import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
@@ -8,115 +9,139 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Set;
 
 public interface Reservation extends Service {
 
-	public static class Entry {
+    Set<Reservation.Entry> getEntries();
 
-		private NodeUrnPrefix nodeUrnPrefix;
+    Set<NodeUrnPrefix> getNodeUrnPrefixes();
 
-		private String key;
+    Set<NodeUrn> getNodeUrns();
 
-		private String username;
+    ReservationEventBus getEventBus();
 
-		private Set<NodeUrn> nodeUrns;
+    Interval getInterval();
 
-		private Interval interval;
+    @Nullable
+    DateTime getCancelled();
 
-		private ReservationEventBus reservationEventBus;
+    @Nullable
+    DateTime getFinalized();
 
-		public Entry(final NodeUrnPrefix nodeUrnPrefix, final String username, final String key,
-					 final Set<NodeUrn> nodeUrns, final Interval interval,
-					 final ReservationEventBus reservationEventBus) {
-			this.nodeUrnPrefix = nodeUrnPrefix;
-			this.username = username;
-			this.key = key;
-			this.nodeUrns = nodeUrns;
-			this.interval = interval;
-			this.reservationEventBus = reservationEventBus;
-		}
+    boolean isFinalized();
 
-		public Interval getInterval() {
-			return interval;
-		}
+    boolean isCancelled();
 
-		public String getKey() {
-			return key;
-		}
+    String getSerializedKey();
 
-		public NodeUrnPrefix getNodeUrnPrefix() {
-			return nodeUrnPrefix;
-		}
+    List<MessageLite> getPastLifecycleEvents();
 
-		public Set<NodeUrn> getNodeUrns() {
-			return nodeUrns;
-		}
+    Set<SecretReservationKey> getSecretReservationKeys();
 
-		public ReservationEventBus getReservationEventBus() {
-			return reservationEventBus;
-		}
+    Set<ConfidentialReservationData> getConfidentialReservationData();
 
-		public String getUsername() {
-			return username;
-		}
+    /**
+     * Creates a response tracker for the given {@code requestId}. ResponseTracker instances are held in a cache until
+     * a certain reasonable time limit and will then be removed.
+     *
+     * @param request the request to track
+     * @return a newly created ResponseTracker instance
+     * @throws IllegalArgumentException if an entry for the given requestId already exists
+     */
+    ResponseTracker createResponseTracker(Request request);
 
-	}
+    /**
+     * Gets a response tracker for the given {@code requestId}. ResponseTracker instances are held in a cache until a
+     * certain reasonable time limit and will then be removed.
+     *
+     * @param requestId the requestId of the request
+     * @return a ResponseTracker instance for the given {@code requestId} or {@code null} if no ResponseTracker instance
+     * was found
+     */
+    ResponseTracker getResponseTracker(long requestId);
 
-	Set<Reservation.Entry> getEntries();
+    void enableVirtualization();
 
-	Set<NodeUrnPrefix> getNodeUrnPrefixes();
+    void disableVirtualization();
 
-	Set<NodeUrn> getNodeUrns();
+    boolean isVirtualizationEnabled();
 
-	ReservationEventBus getEventBus();
+    /**
+     * Returns the {@link ReservationEventStore} associated with this reservation.
+     *
+     * @return an event store
+     */
+    ReservationEventStore getEventStore();
 
-	Interval getInterval();
+    /**
+     * If the reservation is scheduled for finalization, calling this method delays the finalization and keeps the reservation service running. If the reservation isn't running, it will be started.
+     *
+     * @return <code>true</code> if this method has had an effect, <code>false</code> otherwise.
+     */
+    boolean touch();
 
-	String getSerializedKey();
 
-	Set<SecretReservationKey> getSecretReservationKeys();
+    /**
+     * This method returns <code>true</code> for reservations which have finished their lifecycle and where not requested for a specific time. Outdated reservations are supposed to be removed from the ReservationManager cache.
+     * @return <code>true</code> if the reservation is finalized, not running and not requested for a specific time, <code>false</code> otherwise.
+     */
+    boolean isOutdated();
 
-	Set<ConfidentialReservationData> getConfidentialReservationData();
+    public static class Entry {
 
-	/**
-	 * Creates a response tracker for the given {@code requestId}. ResponseTracker instances are held in a cache until
-	 * a certain reasonable time limit and will then be removed.
-	 *
-	 * @param request
-	 * 		the request to track
-	 *
-	 * @return a newly created ResponseTracker instance
-	 *
-	 * @throws IllegalArgumentException
-	 * 		if an entry for the given requestId already exists
-	 */
-	ResponseTracker createResponseTracker(Request request);
+        private NodeUrnPrefix nodeUrnPrefix;
 
-	/**
-	 * Gets a response tracker for the given {@code requestId}. ResponseTracker instances are held in a cache until a
-	 * certain reasonable time limit and will then be removed.
-	 *
-	 * @param requestId
-	 * 		the requestId of the request
-	 *
-	 * @return a ResponseTracker instance for the given {@code requestId} or {@code null} if no ResponseTracker instance
-	 * was found
-	 */
-	ResponseTracker getResponseTracker(long requestId);
+        private String key;
 
-	void enableVirtualization();
+        private String username;
 
-	void disableVirtualization();
+        private Set<NodeUrn> nodeUrns;
 
-	boolean isVirtualizationEnabled();
+        private Interval interval;
 
-	/**
-	 * Returns the {@link ReservationEventStore} associated with this reservation.
-	 *
-	 * @return an event store
-	 */
-	ReservationEventStore getEventStore();
+        private ReservationEventBus reservationEventBus;
+
+        public Entry(final NodeUrnPrefix nodeUrnPrefix, final String username, final String key,
+                     final Set<NodeUrn> nodeUrns, final Interval interval,
+                     final ReservationEventBus reservationEventBus) {
+            this.nodeUrnPrefix = nodeUrnPrefix;
+            this.username = username;
+            this.key = key;
+            this.nodeUrns = nodeUrns;
+            this.interval = interval;
+            this.reservationEventBus = reservationEventBus;
+        }
+
+        public Interval getInterval() {
+            return interval;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public NodeUrnPrefix getNodeUrnPrefix() {
+            return nodeUrnPrefix;
+        }
+
+        public Set<NodeUrn> getNodeUrns() {
+            return nodeUrns;
+        }
+
+        public ReservationEventBus getReservationEventBus() {
+            return reservationEventBus;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+
+    }
 }

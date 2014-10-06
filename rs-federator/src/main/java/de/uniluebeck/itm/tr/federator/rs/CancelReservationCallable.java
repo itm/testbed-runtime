@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class DeleteReservationCallable implements Callable<Void> {
+public class CancelReservationCallable implements Callable<Void> {
 
 	private final List<SecretAuthenticationKey> secretAuthenticationKeys;
 
@@ -17,7 +17,7 @@ public class DeleteReservationCallable implements Callable<Void> {
 
 	private RS rs;
 
-	public DeleteReservationCallable(final RS rs) {
+	public CancelReservationCallable(final RS rs) {
 		this.rs = rs;
 		this.secretAuthenticationKeys = newArrayList();
 		this.secretReservationKeys = newArrayList();
@@ -37,7 +37,7 @@ public class DeleteReservationCallable implements Callable<Void> {
 
 	@Override
 	public Void call() throws Exception {
-		rs.deleteReservation(secretAuthenticationKeys, secretReservationKeys);
+		rs.cancelReservation(secretAuthenticationKeys, secretReservationKeys);
 		return null;
 	}
 

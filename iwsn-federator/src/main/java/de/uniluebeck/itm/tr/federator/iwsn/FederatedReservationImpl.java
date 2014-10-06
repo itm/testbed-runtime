@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
@@ -24,6 +25,7 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
@@ -174,12 +176,39 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 		return interval;
 	}
 
+	@Nullable
 	@Override
+	public DateTime getCancelled() {
+		throw new UnsupportedOperationException("getCancelled() not yet implemented");
+	}
+
+	@Nullable
+	@Override
+	public DateTime getFinalized() {
+		throw new UnsupportedOperationException("getFinalized() not yet implemented");
+	}
+
+	@Override
+	public boolean isFinalized() {
+		throw new UnsupportedOperationException("isFinalized() not yet implemented");
+	}
+
+    @Override
+    public boolean isCancelled() {
+        throw new UnsupportedOperationException("getCancelled() not yet implemented");
+    }
+
+    @Override
 	public String getSerializedKey() {
 		return serialize(getSecretReservationKeys());
 	}
 
-	@Override
+    @Override
+    public List<MessageLite> getPastLifecycleEvents() {
+        throw new UnsupportedOperationException("getCancelled() not yet implemented");
+    }
+
+    @Override
 	public Set<SecretReservationKey> getSecretReservationKeys() {
 		final ImmutableSet.Builder<SecretReservationKey> keys = ImmutableSet.builder();
 		for (ConfidentialReservationData crd : confidentialReservationDataList) {
@@ -225,7 +254,17 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 		throw new RuntimeException("Not yet implemented!");
 	}
 
-	private Interval extractInterval(final List<ConfidentialReservationData> reservationDataList) {
+    @Override
+    public boolean touch() {
+        throw new RuntimeException("Implement me!");
+    }
+
+    @Override
+    public boolean isOutdated() {
+        throw new RuntimeException("Implement me!");
+    }
+
+    private Interval extractInterval(final List<ConfidentialReservationData> reservationDataList) {
 
 		DateTime earliestEnd = null;
 		DateTime latestStart = null;

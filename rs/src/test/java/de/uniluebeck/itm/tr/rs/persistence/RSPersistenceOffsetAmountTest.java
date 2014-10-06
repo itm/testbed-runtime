@@ -8,7 +8,6 @@ import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.junit.After;
 import org.junit.Test;
 
 import java.util.List;
@@ -105,13 +104,6 @@ public abstract class RSPersistenceOffsetAmountTest {
 		matchingReservations.add(res5);
 	}
 
-	@After
-	public void tearDown() throws Exception {
-		for (ConfidentialReservationData reservation : reservations) {
-			persistence.deleteReservation(reservation.getSecretReservationKey());
-		}
-	}
-
 	@Test
 	public void test() throws Exception {
 		assertMatch(query(0, 5), matchingReservations);
@@ -131,6 +123,6 @@ public abstract class RSPersistenceOffsetAmountTest {
 	}
 
 	private Set<ConfidentialReservationData> query(final int offset, final int amount) throws RSFault_Exception {
-		return newHashSet(persistence.getReservations(INTERVAL.getStart(), INTERVAL.getEnd(), offset, amount));
+		return newHashSet(persistence.getReservations(INTERVAL.getStart(), INTERVAL.getEnd(), offset, amount, null));
 	}
 }

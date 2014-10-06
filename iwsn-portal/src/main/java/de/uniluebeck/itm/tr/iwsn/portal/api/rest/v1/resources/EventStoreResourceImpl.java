@@ -12,6 +12,8 @@ import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +33,8 @@ import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
 
 @Path("/events/")
 public class EventStoreResourceImpl implements EventStoreResource {
+
+    private static final Logger log = LoggerFactory.getLogger(EventStoreResource.class);
 
     private final ReservationManager reservationManager;
 
@@ -53,9 +57,16 @@ public class EventStoreResourceImpl implements EventStoreResource {
                               @DefaultValue("-1") @QueryParam("from") long fromTimestamp,
                               @DefaultValue("-1") @QueryParam("to") long toTimestamp) {
 
+        log.trace("EventStoreResource.getEvents(key = {}, from = {}, to = {})", secretReservationKeyBase64, fromTimestamp, toTimestamp);
         // check if reservation is (still) known to RS (could have been deleted in the meantime, or given key is invalid)
         try {
-            reservationManager.getReservation(secretReservationKeyBase64);
+            final Reservation reservation = reservationManager.getReservation(secretReservationKeyBase64);
+            if (reservation.touch()) {
+                 log.trace("EventStoreResource: Got reservation {} from RM", reservation);
+
+            } else {
+                log.warn("Failed to touch reservation {}.", reservation);
+            }
         } catch (ReservationUnknownException e) {
             return Response
                     .status(Response.Status.NOT_FOUND)
@@ -142,6 +153,12 @@ public class EventStoreResourceImpl implements EventStoreResource {
             final String serializedKey = ((ReservationEndedEvent) event).getSerializedKey();
             final Reservation reservation = reservationManager.getReservation(serializedKey);
             return toJSON(new ReservationEndedMessage(reservation), true);
+
+        } else if (event instanceof ReservationCancelledEvent) {
+
+            final String serializedKey = ((ReservationCancelledEvent) event).getSerializedKey();
+            final Reservation reservation = reservationManager.getReservation(serializedKey);
+            return toJSON(new ReservationCancelledMessage(reservation), true);
 
         } else if (event instanceof SingleNodeResponse) {
 

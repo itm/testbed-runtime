@@ -2,14 +2,10 @@
 
 package de.uniluebeck.itm.tr.iwsn.messages;
 
-public interface ReservationStartedEventOrBuilder
+public interface ReservationClosedEventOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
   // required string serializedKey = 1;
   boolean hasSerializedKey();
   String getSerializedKey();
-  
-  // required uint64 timestamp = 2;
-  boolean hasTimestamp();
-  long getTimestamp();
 }

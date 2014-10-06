@@ -92,8 +92,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	}
 
 	@Subscribe
-	public void on(final ReservationDeletedEvent reservationDeletedEvent) {
-		forward(newEvent(idProvider.get(), reservationDeletedEvent));
+	public void on(final ReservationCancelledEvent reservationCancelledEvent) {
+		forward(newEvent(idProvider.get(), reservationCancelledEvent));
 	}
 
 	private void forward(final Event event) {

@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.rs.persistence.jpa;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 import com.google.inject.persist.jpa.JpaPersistModule;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.common.jpa.JPAInitializer;
@@ -30,6 +31,6 @@ public class RSPersistenceJPAModule extends AbstractModule {
 		bind(TimeZone.class).toInstance(timeZone);
 		install(new JpaPersistModule("RS").properties(jpaProperties));
 		bind(JPAInitializer.class).asEagerSingleton();
-		bind(RSPersistence.class).to(RSPersistenceJPA.class);
+		bind(RSPersistence.class).to(RSPersistenceJPA.class).in(Singleton.class);
 	}
 }

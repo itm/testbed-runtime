@@ -31,4 +31,12 @@ public interface ReservationEventOrBuilder
   // required string interval_end = 5;
   boolean hasIntervalEnd();
   String getIntervalEnd();
+  
+  // optional string cancelled = 6;
+  boolean hasCancelled();
+  String getCancelled();
+  
+  // optional string finalized = 7;
+  boolean hasFinalized();
+  String getFinalized();
 }

@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.TimeLimiter;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
@@ -137,9 +136,6 @@ public class SingleUrnPrefixRSTest {
 	@Mock
 	private CommonConfig config;
 
-	@Mock
-	private EventBusService eventBusService;
-
 	private RS rs;
 
 	@Before
@@ -148,40 +144,40 @@ public class SingleUrnPrefixRSTest {
 		when(snaaProvider.get()).thenReturn(snaa);
 		when(config.getUrnPrefix()).thenReturn(URN_PREFIX);
 
-		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider, snaa, eventBusService);
+		rs = new SingleUrnPrefixRS(config, persistence, servedNodeUrnsProvider, snaa);
 	}
 
 	@Test
-	public void throwExceptionWhenTryingToDeleteReservationThatAlreadyStarted() throws Exception {
+	public void testIfCancelledDateIsSetWhenCancellingReservation() throws Exception {
 
-		final ConfidentialReservationData crd = new ConfidentialReservationData();
-		crd.setFrom(DateTime.now().minusSeconds(1));
-		crd.setTo(DateTime.now().minusSeconds(1).plusHours(1));
+        final ConfidentialReservationData crd = new ConfidentialReservationData();
+        crd.setFrom(DateTime.now().plusHours(1));
+        crd.setTo(DateTime.now().plusHours(2));
 
-		final AuthorizationResponse authorizationResponse = new AuthorizationResponse();
-		authorizationResponse.setAuthorized(true);
+        AuthorizationResponse successfulAuthorizationResponse = new AuthorizationResponse();
+        successfulAuthorizationResponse.setAuthorized(true);
 
-		List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
-				USER1_SAKS,
-				Lists.<NodeUrn>newArrayList()
-		);
+        List<UsernameNodeUrnsMap> usernameNodeUrnsMap = convertToUsernameNodeUrnsMap(
+                USER1_SAKS,
+                Lists.<NodeUrn>newArrayList()
+        );
 
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION)).thenReturn(authorizationResponse);
-		when(persistence.getReservation(USER1_SRK)).thenReturn(crd);
+        when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_GET_RESERVATIONS))
+                .thenReturn(successfulAuthorizationResponse);
+        when(persistence.getReservation(USER1_SRK)).thenReturn(crd);
 
-		try {
-			rs.deleteReservation(USER1_SAKS, USER1_SRKS);
-			fail();
-		} catch (RSFault_Exception e) {
-			// this should be thrown
-		}
+        when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_CANCEL_RESERVATION))
+                .thenReturn(successfulAuthorizationResponse);
+        when(persistence.cancelReservation(USER1_SRK)).thenReturn(crd);
 
-		verify(persistence).getReservation(USER1_SRK);
-		verify(persistence, never()).deleteReservation(USER1_SRK);
+
+        rs.cancelReservation(USER1_SAKS, USER1_SRKS);
+        verify(persistence).cancelReservation(USER1_SRK);
 	}
 
+
 	@Test
-	public void throwNoExceptionWhenTryingToDeleteReservationInTheFuture() throws Exception {
+	public void throwNoExceptionWhenTryingToCancelReservationInTheFuture() throws Exception {
 
 		final ConfidentialReservationData crd = new ConfidentialReservationData();
 		crd.setFrom(DateTime.now().plusHours(1));
@@ -199,14 +195,14 @@ public class SingleUrnPrefixRSTest {
 				.thenReturn(successfulAuthorizationResponse);
 		when(persistence.getReservation(USER1_SRK)).thenReturn(crd);
 
-		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_DELETE_RESERVATION))
+		when(snaa.isAuthorized(usernameNodeUrnsMap, Action.RS_CANCEL_RESERVATION))
 				.thenReturn(successfulAuthorizationResponse);
-		when(persistence.deleteReservation(USER1_SRK)).thenReturn(crd);
+		when(persistence.cancelReservation(USER1_SRK)).thenReturn(crd);
 
-		rs.deleteReservation(USER1_SAKS, USER1_SRKS);
+		rs.cancelReservation(USER1_SAKS, USER1_SRKS);
 
 		verify(persistence).getReservation(USER1_SRK);
-		verify(persistence).deleteReservation(USER1_SRK);
+		verify(persistence).cancelReservation(USER1_SRK);
 	}
 
 	@Test
@@ -243,22 +239,23 @@ public class SingleUrnPrefixRSTest {
 				.thenReturn(newHashSet(new NodeUrn("urn:local:0xcbe4")));
 
 		when(persistence.addReservation(
-				Matchers.<List<NodeUrn>>any(),
-				eq(from),
-				eq(to),
-				eq(USER1_USERNAME),
-				eq(URN_PREFIX),
-				eq("Hello, World"),
-				Matchers.<List<KeyValuePair>>any()
-		)
+						Matchers.<List<NodeUrn>>any(),
+						eq(from),
+						eq(to),
+						eq(USER1_USERNAME),
+						eq(URN_PREFIX),
+						eq("Hello, World"),
+						Matchers.<List<KeyValuePair>>any()
+				)
 		).thenReturn(confidentialReservationData);
 
 		when(persistence.getReservations(
-				Matchers.<DateTime>any(),
-				Matchers.<DateTime>any(),
-				Matchers.<Integer>any(),
-				Matchers.<Integer>any()
-		)
+						Matchers.<DateTime>any(),
+						Matchers.<DateTime>any(),
+						Matchers.<Integer>any(),
+						Matchers.<Integer>any(),
+						Matchers.<Boolean>any()
+				)
 		).thenReturn(reservedNodes);
 
 		// try to reserve in uppercase
@@ -272,6 +269,7 @@ public class SingleUrnPrefixRSTest {
 		} catch (RSFault_Exception e) {
 			fail();
 		} catch (ReservationConflictFault_Exception expected) {
+			// expected
 		}
 
 		// try to reserve in lowercase
@@ -283,6 +281,7 @@ public class SingleUrnPrefixRSTest {
 		} catch (RSFault_Exception e) {
 			fail();
 		} catch (ReservationConflictFault_Exception expected) {
+			// expected
 		}
 
 	}
@@ -290,7 +289,7 @@ public class SingleUrnPrefixRSTest {
 	/**
 	 * Given there are reservations by more than one user, the RS should only return reservations of the authenticated
 	 * user when {@link eu.wisebed.api.v3.rs.RS#getConfidentialReservations(java.util.List, org.joda.time.DateTime,
-	 * org.joda.time.DateTime, Integer, Integer)}  is called.
+	 * org.joda.time.DateTime, Integer, Integer, Boolean)} is called.
 	 *
 	 * @throws Exception
 	 * 		if anything goes wrong
@@ -328,21 +327,23 @@ public class SingleUrnPrefixRSTest {
 		final ConfidentialReservationData reservation2 =
 				buildConfidentialReservationData(from, to, USER2_USERNAME, USER2_SECRET_RESERVATION_KEY, user2Node);
 		when(persistence.getReservations(
-				Matchers.<DateTime>any(),
-				Matchers.<DateTime>any(),
-				Matchers.<Integer>any(),
-				Matchers.<Integer>any()
-		)).thenReturn(newArrayList(reservation1, reservation2));
+						Matchers.<DateTime>any(),
+						Matchers.<DateTime>any(),
+						Matchers.<Integer>any(),
+						Matchers.<Integer>any(),
+						Matchers.<Boolean>any()
+				)
+		).thenReturn(newArrayList(reservation1, reservation2));
 
 		final List<ConfidentialReservationData> user1Reservations =
-				rs.getConfidentialReservations(USER1_SAKS, from, to, null, null);
+				rs.getConfidentialReservations(USER1_SAKS, from, to, null, null, null);
 
 		assertEquals(1, user1Reservations.size());
 		assertEquals(1, user1Reservations.get(0).getNodeUrns().size());
 		assertEquals(user1Node, user1Reservations.get(0).getNodeUrns().get(0));
 
 		final List<ConfidentialReservationData> user2Reservations =
-				rs.getConfidentialReservations(USER2_SAKS, from, to, null, null);
+				rs.getConfidentialReservations(USER2_SAKS, from, to, null, null, null);
 
 		assertEquals(1, user2Reservations.size());
 		assertEquals(1, user2Reservations.get(0).getNodeUrns().size());
@@ -363,15 +364,15 @@ public class SingleUrnPrefixRSTest {
 	}
 
 	@Test(expected = AuthenticationFault.class)
-	public void testIfAuthenticationFaultIsThrownForDeleteReservation() throws Exception {
+	public void testIfAuthenticationFaultIsThrownForCancelReservation() throws Exception {
 		when(snaa.isValid(anyListOf(SecretAuthenticationKey.class))).thenReturn(VALIDATION_RESULT_LIST);
-		rs.deleteReservation(USER1_SAKS, USER1_SRKS);
+		rs.cancelReservation(USER1_SAKS, USER1_SRKS);
 	}
 
 	@Test(expected = AuthenticationFault.class)
 	public void testIfAuthenticationFaultIsThrownForGetConfidentialReservations() throws Exception {
 		when(snaa.isValid(anyListOf(SecretAuthenticationKey.class))).thenReturn(VALIDATION_RESULT_LIST);
-		rs.getConfidentialReservations(USER1_SAKS, DateTime.now(), DateTime.now().plusHours(1), null, null);
+		rs.getConfidentialReservations(USER1_SAKS, DateTime.now(), DateTime.now().plusHours(1), null, null, null);
 	}
 
 	private ConfidentialReservationData buildConfidentialReservationData(final DateTime from, final DateTime to,

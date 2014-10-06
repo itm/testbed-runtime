@@ -6,7 +6,6 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
-import de.uniluebeck.itm.eventstore.DefaultEventContainerImpl;
 import de.uniluebeck.itm.eventstore.EventContainer;
 import de.uniluebeck.itm.eventstore.EventStore;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
@@ -24,10 +23,8 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
     private static final Logger log = LoggerFactory.getLogger(ReservationEventStoreImpl.class);
 
     private final PortalEventStoreHelper helper;
-
+    private final Reservation reservation;
     private EventStore eventStore;
-
-    private Reservation reservation;
 
     @Inject
     public ReservationEventStoreImpl(final PortalEventStoreHelper helper, @Assisted final Reservation reservation) {
@@ -101,6 +98,25 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
         storeEvent(request);
     }
 
+    @Subscribe
+    public void on(final ReservationStartedEvent reservationStartedEvent) {
+        storeEvent(reservationStartedEvent, reservation.getInterval().getStartMillis());
+    }
+
+    @Subscribe
+    public void on(final ReservationEndedEvent reservationEndedEvent) {
+        storeEvent(reservationEndedEvent, reservation.getInterval().getEndMillis());
+    }
+
+    @Subscribe
+    public void on(final ReservationCancelledEvent reservationCancelledEvent) {
+        if (reservation.getCancelled() != null) {
+            storeEvent(reservationCancelledEvent, reservation.getCancelled().getMillis());
+        } else {
+            log.error("the reservation has not set any cancelled date. Hence the occurrence of the ReservationCancelledEvent ist wrong!");
+        }
+    }
+
     private void storeEvent(final MessageLite event) {
         log.trace("ReservationEventStoreImpl.storeEvent({})", event);
         try {
@@ -152,21 +168,21 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
             throws IOException {
         checkState(isRunning(), "Reservation Event Store is not running");
         //noinspection unchecked
-        return new EventIterator(eventStore.getEventsBetweenTimestamps(fromTime, toTime), fromTime, toTime);
+        return eventStore.getEventsBetweenTimestamps(fromTime, toTime);
     }
 
     @Override
     public CloseableIterator<EventContainer> getEventsFromTimestamp(long fromTime) throws IOException {
         checkState(isRunning(), "Reservation Event Store is not running");
         //noinspection unchecked
-        return new EventIterator(eventStore.getEventsFromTimestamp(fromTime), fromTime, Long.MAX_VALUE);
+        return eventStore.getEventsFromTimestamp(fromTime);
     }
 
     @Override
     public CloseableIterator<EventContainer> getAllEvents() throws IOException {
         checkState(isRunning(), "Reservation Event Store is not running");
         //noinspection unchecked
-        return new EventIterator(eventStore.getAllEvents());
+        return eventStore.getAllEvents();
     }
 
     @Override
@@ -202,70 +218,15 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
     public CloseableIterator<EventContainer> getEvents() throws IOException {
         checkState(isRunning(), "Reservation Event Store is not running");
         //noinspection unchecked
-        return new EventIterator(eventStore.getAllEvents());
+        return eventStore.getAllEvents();
     }
 
     @Override
     public CloseableIterator<EventContainer> getEventsBetween(long startTime, long endTime) throws IOException {
         checkState(isRunning(), "Reservation Event Store is not running");
         //noinspection unchecked
-        return new EventIterator(eventStore.getEventsBetweenTimestamps(startTime, endTime), startTime, endTime);
+        return eventStore.getEventsBetweenTimestamps(startTime, endTime);
     }
 
 
-    /**
-     * The EventIterator extends the event store iterator by adding the ReservationStated- and -EndedEvent to the event stream if necessary.
-     */
-    private class EventIterator implements CloseableIterator<EventContainer> {
-
-        private final CloseableIterator<EventContainer> underlyingIterator;
-        private boolean shouldCreateStartedEvent;
-        private boolean shouldCreateEndedEvent;
-
-        EventIterator(CloseableIterator<EventContainer> underlyingIterator) {
-            this(underlyingIterator, reservation.getInterval().getStartMillis(), reservation.getInterval().getEndMillis());
-        }
-
-        EventIterator(CloseableIterator<EventContainer> underlyingIterator, final long startTime, final long endTime) {
-            this.underlyingIterator = underlyingIterator;
-            shouldCreateStartedEvent = (startTime <= reservation.getInterval().getStartMillis());
-            shouldCreateEndedEvent = (endTime >= reservation.getInterval().getEndMillis());
-        }
-
-        @Override
-        public void close() throws IOException {
-            underlyingIterator.close();
-        }
-
-        @Override
-        public boolean hasNext() {
-            return underlyingIterator.hasNext() || shouldCreateStartedEvent || shouldCreateEndedEventNow();
-        }
-
-        @Override
-        public EventContainer next() {
-            EventContainer container = null;
-            if (shouldCreateStartedEvent) {
-                //noinspection unchecked
-                container = new DefaultEventContainerImpl(ReservationStartedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build(), reservation.getInterval().getStartMillis());
-                shouldCreateStartedEvent = false;
-            } else if (underlyingIterator.hasNext()) {
-                return underlyingIterator.next();
-            } else if (shouldCreateEndedEventNow()) {
-                //noinspection unchecked
-                container = new DefaultEventContainerImpl(ReservationEndedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey()).build(), reservation.getInterval().getEndMillis());
-                shouldCreateEndedEvent = false;
-            }
-            return container;
-        }
-
-        private boolean shouldCreateEndedEventNow() {
-            return shouldCreateEndedEvent && !reservation.getInterval().getEnd().isAfterNow();
-        }
-
-        @Override
-        public void remove() {
-            underlyingIterator.remove();
-        }
-    }
 }

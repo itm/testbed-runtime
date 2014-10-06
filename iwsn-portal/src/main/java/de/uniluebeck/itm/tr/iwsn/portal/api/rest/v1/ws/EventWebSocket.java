@@ -48,26 +48,26 @@ public class EventWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	@Override
 	public void onMessage(final String data) {
-		// ignore
+		// ignore incoming messages from client, this is a push only websocket
 	}
 
 	@Subscribe
-	public void onDevicesAttachedEvent(final DevicesAttachedEvent event) {
+	public void on(final DevicesAttachedEvent event) {
 		sendMessage(toJSON(new DevicesAttachedMessage(event)));
 	}
 
 	@Subscribe
-	public void onDevicesDetachedEvent(final DevicesDetachedEvent event) {
+	public void on(final DevicesDetachedEvent event) {
 		sendMessage(toJSON(new DevicesDetachedMessage(event)));
 	}
 
 	@Subscribe
-	public void onGatewayConnectedEvent(final GatewayConnectedEvent event) {
+	public void on(final GatewayConnectedEvent event) {
 		sendMessage(toJSON(new GatewayConnectedMessage(event)));
 	}
 
 	@Subscribe
-	public void onGatewayDisconnectedEvent(final GatewayDisconnectedEvent event) {
+	public void on(final GatewayDisconnectedEvent event) {
 		sendMessage(toJSON(new GatewayDisconnectedMessage(event)));
 	}
 

@@ -33,18 +33,18 @@ public class RSAuthorizationDecorator implements RS {
 
 	@Override
 	@WebMethod
-	@RequestWrapper(localName = "deleteReservation", targetNamespace = "http://wisebed.eu/api/v3/rs",
-			className = "eu.wisebed.api.v3.rs.DeleteReservation")
-	@ResponseWrapper(localName = "deleteReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
-			className = "eu.wisebed.api.v3.rs.DeleteReservationResponse")
-	public void deleteReservation(
+	@RequestWrapper(localName = "cancelReservation", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.CancelReservation")
+	@ResponseWrapper(localName = "cancelReservationResponse", targetNamespace = "http://wisebed.eu/api/v3/rs",
+			className = "eu.wisebed.api.v3.rs.CancelReservationResponse")
+	public void cancelReservation(
 			@WebParam(name = "secretAuthenticationKeys", targetNamespace = "") final
 			List<SecretAuthenticationKey> secretAuthenticationKeys,
 			@WebParam(name = "secretReservationKey", targetNamespace = "") final
 			List<SecretReservationKey> secretReservationKey)
 			throws AuthorizationFault, RSFault_Exception, UnknownSecretReservationKeyFault, AuthenticationFault {
-		assertAuthorized(Action.RS_DELETE_RESERVATION, secretReservationKey);
-		rs.deleteReservation(secretAuthenticationKeys, secretReservationKey);
+		assertAuthorized(Action.RS_CANCEL_RESERVATION, secretReservationKey);
+		rs.cancelReservation(secretAuthenticationKeys, secretReservationKey);
 	}
 
 	@Override
@@ -62,7 +62,9 @@ public class RSAuthorizationDecorator implements RS {
 			@WebParam(name = "offset", targetNamespace = "")
 			Integer offset,
 			@WebParam(name = "amount", targetNamespace = "")
-			Integer amount)
+			Integer amount,
+			@WebParam(name = "showCancelled", targetNamespace = "")
+			Boolean showCancelled)
 			throws AuthorizationFault, RSFault_Exception, AuthenticationFault {
 
 		try {
@@ -76,7 +78,7 @@ public class RSAuthorizationDecorator implements RS {
 			throw new RSFault_Exception(e.getMessage(), faultInfo);
 		}
 
-		return rs.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount);
+		return rs.getConfidentialReservations(secretAuthenticationKey, from, to, offset, amount, showCancelled);
 	}
 
 	@Override
@@ -106,9 +108,11 @@ public class RSAuthorizationDecorator implements RS {
 			@WebParam(name = "offset", targetNamespace = "")
 			Integer offset,
 			@WebParam(name = "amount", targetNamespace = "")
-			Integer amount)
+			Integer amount,
+			@WebParam(name = "showCancelled", targetNamespace = "")
+			Boolean showCancelled)
 			throws RSFault_Exception {
-		return rs.getReservations(from, to, offset, amount);
+		return rs.getReservations(from, to, offset, amount, showCancelled);
 	}
 
 	@Override
@@ -191,6 +195,7 @@ public class RSAuthorizationDecorator implements RS {
 			usernameNodeUrnsMap.setUsername(confidentialReservationData.getUsername());
 			usernameNodeUrnsMap.setUrnPrefix(confidentialReservationData.getSecretReservationKey().getUrnPrefix());
 			usernameNodeUrnsMap.getNodeUrns().addAll(confidentialReservationData.getNodeUrns());
+			usernameNodeUrnsMapList.add(usernameNodeUrnsMap);
 		}
 
 		final AuthorizationResponse response;

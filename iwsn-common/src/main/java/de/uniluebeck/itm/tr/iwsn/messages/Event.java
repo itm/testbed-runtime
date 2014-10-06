@@ -41,10 +41,13 @@ public  final class Event extends
     RESERVATION_STARTED(6, 40),
     RESERVATION_ENDED(7, 41),
     RESERVATION_MADE(8, 42),
-    RESERVATION_DELETED(9, 43),
-    DEVICE_CONFIG_CREATED(10, 50),
-    DEVICE_CONFIG_UPDATED(11, 51),
-    DEVICE_CONFIG_DELETED(12, 52),
+    RESERVATION_CANCELLED(9, 43),
+    RESERVATION_OPENED(10, 44),
+    RESERVATION_CLOSED(11, 45),
+    RESERVATION_FINALIZED(12, 46),
+    DEVICE_CONFIG_CREATED(13, 50),
+    DEVICE_CONFIG_UPDATED(14, 51),
+    DEVICE_CONFIG_DELETED(15, 52),
     ;
     
     public static final int UPSTREAM_MESSAGE_VALUE = 1;
@@ -56,7 +59,10 @@ public  final class Event extends
     public static final int RESERVATION_STARTED_VALUE = 40;
     public static final int RESERVATION_ENDED_VALUE = 41;
     public static final int RESERVATION_MADE_VALUE = 42;
-    public static final int RESERVATION_DELETED_VALUE = 43;
+    public static final int RESERVATION_CANCELLED_VALUE = 43;
+    public static final int RESERVATION_OPENED_VALUE = 44;
+    public static final int RESERVATION_CLOSED_VALUE = 45;
+    public static final int RESERVATION_FINALIZED_VALUE = 46;
     public static final int DEVICE_CONFIG_CREATED_VALUE = 50;
     public static final int DEVICE_CONFIG_UPDATED_VALUE = 51;
     public static final int DEVICE_CONFIG_DELETED_VALUE = 52;
@@ -75,7 +81,10 @@ public  final class Event extends
         case 40: return RESERVATION_STARTED;
         case 41: return RESERVATION_ENDED;
         case 42: return RESERVATION_MADE;
-        case 43: return RESERVATION_DELETED;
+        case 43: return RESERVATION_CANCELLED;
+        case 44: return RESERVATION_OPENED;
+        case 45: return RESERVATION_CLOSED;
+        case 46: return RESERVATION_FINALIZED;
         case 50: return DEVICE_CONFIG_CREATED;
         case 51: return DEVICE_CONFIG_UPDATED;
         case 52: return DEVICE_CONFIG_DELETED;
@@ -109,7 +118,7 @@ public  final class Event extends
     }
     
     private static final Type[] VALUES = {
-      UPSTREAM_MESSAGE, DEVICES_ATTACHED, DEVICES_DETACHED, GATEWAY_CONNECTED, GATEWAY_DISCONNECTED, NOTIFICATION, RESERVATION_STARTED, RESERVATION_ENDED, RESERVATION_MADE, RESERVATION_DELETED, DEVICE_CONFIG_CREATED, DEVICE_CONFIG_UPDATED, DEVICE_CONFIG_DELETED, 
+      UPSTREAM_MESSAGE, DEVICES_ATTACHED, DEVICES_DETACHED, GATEWAY_CONNECTED, GATEWAY_DISCONNECTED, NOTIFICATION, RESERVATION_STARTED, RESERVATION_ENDED, RESERVATION_MADE, RESERVATION_CANCELLED, RESERVATION_OPENED, RESERVATION_CLOSED, RESERVATION_FINALIZED, DEVICE_CONFIG_CREATED, DEVICE_CONFIG_UPDATED, DEVICE_CONFIG_DELETED, 
     };
     
     public static Type valueOf(
@@ -270,24 +279,63 @@ public  final class Event extends
     return reservationMadeEvent_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent = 143;
-  public static final int RESERVATIONDELETEDEVENT_FIELD_NUMBER = 143;
-  private de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent_;
-  public boolean hasReservationDeletedEvent() {
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent = 143;
+  public static final int RESERVATIONCANCELLEDEVENT_FIELD_NUMBER = 143;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent_;
+  public boolean hasReservationCancelledEvent() {
     return ((bitField0_ & 0x00000800) == 0x00000800);
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent getReservationDeletedEvent() {
-    return reservationDeletedEvent_;
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent getReservationCancelledEvent() {
+    return reservationCancelledEvent_;
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder getReservationDeletedEventOrBuilder() {
-    return reservationDeletedEvent_;
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder getReservationCancelledEventOrBuilder() {
+    return reservationCancelledEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent reservationOpenedEvent = 144;
+  public static final int RESERVATIONOPENEDEVENT_FIELD_NUMBER = 144;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent reservationOpenedEvent_;
+  public boolean hasReservationOpenedEvent() {
+    return ((bitField0_ & 0x00001000) == 0x00001000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent getReservationOpenedEvent() {
+    return reservationOpenedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder getReservationOpenedEventOrBuilder() {
+    return reservationOpenedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent reservationClosedEvent = 145;
+  public static final int RESERVATIONCLOSEDEVENT_FIELD_NUMBER = 145;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent reservationClosedEvent_;
+  public boolean hasReservationClosedEvent() {
+    return ((bitField0_ & 0x00002000) == 0x00002000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent getReservationClosedEvent() {
+    return reservationClosedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder getReservationClosedEventOrBuilder() {
+    return reservationClosedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent reservationFinalizedEvent = 146;
+  public static final int RESERVATIONFINALIZEDEVENT_FIELD_NUMBER = 146;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent reservationFinalizedEvent_;
+  public boolean hasReservationFinalizedEvent() {
+    return ((bitField0_ & 0x00004000) == 0x00004000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent getReservationFinalizedEvent() {
+    return reservationFinalizedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder getReservationFinalizedEventOrBuilder() {
+    return reservationFinalizedEvent_;
   }
   
   // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent = 150;
   public static final int DEVICECONFIGCREATEDEVENT_FIELD_NUMBER = 150;
   private de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent_;
   public boolean hasDeviceConfigCreatedEvent() {
-    return ((bitField0_ & 0x00001000) == 0x00001000);
+    return ((bitField0_ & 0x00008000) == 0x00008000);
   }
   public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent getDeviceConfigCreatedEvent() {
     return deviceConfigCreatedEvent_;
@@ -300,7 +348,7 @@ public  final class Event extends
   public static final int DEVICECONFIGUPDATEDEVENT_FIELD_NUMBER = 151;
   private de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent deviceConfigUpdatedEvent_;
   public boolean hasDeviceConfigUpdatedEvent() {
-    return ((bitField0_ & 0x00002000) == 0x00002000);
+    return ((bitField0_ & 0x00010000) == 0x00010000);
   }
   public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent getDeviceConfigUpdatedEvent() {
     return deviceConfigUpdatedEvent_;
@@ -313,7 +361,7 @@ public  final class Event extends
   public static final int DEVICECONFIGDELETEDEVENT_FIELD_NUMBER = 152;
   private de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent deviceConfigDeletedEvent_;
   public boolean hasDeviceConfigDeletedEvent() {
-    return ((bitField0_ & 0x00004000) == 0x00004000);
+    return ((bitField0_ & 0x00020000) == 0x00020000);
   }
   public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent getDeviceConfigDeletedEvent() {
     return deviceConfigDeletedEvent_;
@@ -334,7 +382,10 @@ public  final class Event extends
     reservationStartedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance();
     reservationEndedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
     reservationMadeEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.getDefaultInstance();
-    reservationDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance();
+    reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
+    reservationOpenedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance();
+    reservationClosedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.getDefaultInstance();
+    reservationFinalizedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.getDefaultInstance();
     deviceConfigCreatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.getDefaultInstance();
     deviceConfigUpdatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.getDefaultInstance();
     deviceConfigDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.getDefaultInstance();
@@ -406,8 +457,26 @@ public  final class Event extends
         return false;
       }
     }
-    if (hasReservationDeletedEvent()) {
-      if (!getReservationDeletedEvent().isInitialized()) {
+    if (hasReservationCancelledEvent()) {
+      if (!getReservationCancelledEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationOpenedEvent()) {
+      if (!getReservationOpenedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationClosedEvent()) {
+      if (!getReservationClosedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationFinalizedEvent()) {
+      if (!getReservationFinalizedEvent().isInitialized()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -471,15 +540,24 @@ public  final class Event extends
       output.writeMessage(142, reservationMadeEvent_);
     }
     if (((bitField0_ & 0x00000800) == 0x00000800)) {
-      output.writeMessage(143, reservationDeletedEvent_);
+      output.writeMessage(143, reservationCancelledEvent_);
     }
     if (((bitField0_ & 0x00001000) == 0x00001000)) {
-      output.writeMessage(150, deviceConfigCreatedEvent_);
+      output.writeMessage(144, reservationOpenedEvent_);
     }
     if (((bitField0_ & 0x00002000) == 0x00002000)) {
-      output.writeMessage(151, deviceConfigUpdatedEvent_);
+      output.writeMessage(145, reservationClosedEvent_);
     }
     if (((bitField0_ & 0x00004000) == 0x00004000)) {
+      output.writeMessage(146, reservationFinalizedEvent_);
+    }
+    if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      output.writeMessage(150, deviceConfigCreatedEvent_);
+    }
+    if (((bitField0_ & 0x00010000) == 0x00010000)) {
+      output.writeMessage(151, deviceConfigUpdatedEvent_);
+    }
+    if (((bitField0_ & 0x00020000) == 0x00020000)) {
       output.writeMessage(152, deviceConfigDeletedEvent_);
     }
     getUnknownFields().writeTo(output);
@@ -537,17 +615,29 @@ public  final class Event extends
     }
     if (((bitField0_ & 0x00000800) == 0x00000800)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(143, reservationDeletedEvent_);
+        .computeMessageSize(143, reservationCancelledEvent_);
     }
     if (((bitField0_ & 0x00001000) == 0x00001000)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(150, deviceConfigCreatedEvent_);
+        .computeMessageSize(144, reservationOpenedEvent_);
     }
     if (((bitField0_ & 0x00002000) == 0x00002000)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(151, deviceConfigUpdatedEvent_);
+        .computeMessageSize(145, reservationClosedEvent_);
     }
     if (((bitField0_ & 0x00004000) == 0x00004000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(146, reservationFinalizedEvent_);
+    }
+    if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(150, deviceConfigCreatedEvent_);
+    }
+    if (((bitField0_ & 0x00010000) == 0x00010000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(151, deviceConfigUpdatedEvent_);
+    }
+    if (((bitField0_ & 0x00020000) == 0x00020000)) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(152, deviceConfigDeletedEvent_);
     }
@@ -676,7 +766,10 @@ public  final class Event extends
         getReservationStartedEventFieldBuilder();
         getReservationEndedEventFieldBuilder();
         getReservationMadeEventFieldBuilder();
-        getReservationDeletedEventFieldBuilder();
+        getReservationCancelledEventFieldBuilder();
+        getReservationOpenedEventFieldBuilder();
+        getReservationClosedEventFieldBuilder();
+        getReservationFinalizedEventFieldBuilder();
         getDeviceConfigCreatedEventFieldBuilder();
         getDeviceConfigUpdatedEventFieldBuilder();
         getDeviceConfigDeletedEventFieldBuilder();
@@ -746,30 +839,48 @@ public  final class Event extends
         reservationMadeEventBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000400);
-      if (reservationDeletedEventBuilder_ == null) {
-        reservationDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance();
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
       } else {
-        reservationDeletedEventBuilder_.clear();
+        reservationCancelledEventBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000800);
+      if (reservationOpenedEventBuilder_ == null) {
+        reservationOpenedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance();
+      } else {
+        reservationOpenedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00001000);
+      if (reservationClosedEventBuilder_ == null) {
+        reservationClosedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.getDefaultInstance();
+      } else {
+        reservationClosedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00002000);
+      if (reservationFinalizedEventBuilder_ == null) {
+        reservationFinalizedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.getDefaultInstance();
+      } else {
+        reservationFinalizedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00004000);
       if (deviceConfigCreatedEventBuilder_ == null) {
         deviceConfigCreatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.getDefaultInstance();
       } else {
         deviceConfigCreatedEventBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00001000);
+      bitField0_ = (bitField0_ & ~0x00008000);
       if (deviceConfigUpdatedEventBuilder_ == null) {
         deviceConfigUpdatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.getDefaultInstance();
       } else {
         deviceConfigUpdatedEventBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00002000);
+      bitField0_ = (bitField0_ & ~0x00010000);
       if (deviceConfigDeletedEventBuilder_ == null) {
         deviceConfigDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.getDefaultInstance();
       } else {
         deviceConfigDeletedEventBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00004000);
+      bitField0_ = (bitField0_ & ~0x00020000);
       return this;
     }
     
@@ -891,29 +1002,53 @@ public  final class Event extends
       if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
         to_bitField0_ |= 0x00000800;
       }
-      if (reservationDeletedEventBuilder_ == null) {
-        result.reservationDeletedEvent_ = reservationDeletedEvent_;
+      if (reservationCancelledEventBuilder_ == null) {
+        result.reservationCancelledEvent_ = reservationCancelledEvent_;
       } else {
-        result.reservationDeletedEvent_ = reservationDeletedEventBuilder_.build();
+        result.reservationCancelledEvent_ = reservationCancelledEventBuilder_.build();
       }
       if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
         to_bitField0_ |= 0x00001000;
+      }
+      if (reservationOpenedEventBuilder_ == null) {
+        result.reservationOpenedEvent_ = reservationOpenedEvent_;
+      } else {
+        result.reservationOpenedEvent_ = reservationOpenedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+        to_bitField0_ |= 0x00002000;
+      }
+      if (reservationClosedEventBuilder_ == null) {
+        result.reservationClosedEvent_ = reservationClosedEvent_;
+      } else {
+        result.reservationClosedEvent_ = reservationClosedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
+        to_bitField0_ |= 0x00004000;
+      }
+      if (reservationFinalizedEventBuilder_ == null) {
+        result.reservationFinalizedEvent_ = reservationFinalizedEvent_;
+      } else {
+        result.reservationFinalizedEvent_ = reservationFinalizedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
+        to_bitField0_ |= 0x00008000;
       }
       if (deviceConfigCreatedEventBuilder_ == null) {
         result.deviceConfigCreatedEvent_ = deviceConfigCreatedEvent_;
       } else {
         result.deviceConfigCreatedEvent_ = deviceConfigCreatedEventBuilder_.build();
       }
-      if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
-        to_bitField0_ |= 0x00002000;
+      if (((from_bitField0_ & 0x00010000) == 0x00010000)) {
+        to_bitField0_ |= 0x00010000;
       }
       if (deviceConfigUpdatedEventBuilder_ == null) {
         result.deviceConfigUpdatedEvent_ = deviceConfigUpdatedEvent_;
       } else {
         result.deviceConfigUpdatedEvent_ = deviceConfigUpdatedEventBuilder_.build();
       }
-      if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
-        to_bitField0_ |= 0x00004000;
+      if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
+        to_bitField0_ |= 0x00020000;
       }
       if (deviceConfigDeletedEventBuilder_ == null) {
         result.deviceConfigDeletedEvent_ = deviceConfigDeletedEvent_;
@@ -969,8 +1104,17 @@ public  final class Event extends
       if (other.hasReservationMadeEvent()) {
         mergeReservationMadeEvent(other.getReservationMadeEvent());
       }
-      if (other.hasReservationDeletedEvent()) {
-        mergeReservationDeletedEvent(other.getReservationDeletedEvent());
+      if (other.hasReservationCancelledEvent()) {
+        mergeReservationCancelledEvent(other.getReservationCancelledEvent());
+      }
+      if (other.hasReservationOpenedEvent()) {
+        mergeReservationOpenedEvent(other.getReservationOpenedEvent());
+      }
+      if (other.hasReservationClosedEvent()) {
+        mergeReservationClosedEvent(other.getReservationClosedEvent());
+      }
+      if (other.hasReservationFinalizedEvent()) {
+        mergeReservationFinalizedEvent(other.getReservationFinalizedEvent());
       }
       if (other.hasDeviceConfigCreatedEvent()) {
         mergeDeviceConfigCreatedEvent(other.getDeviceConfigCreatedEvent());
@@ -1048,8 +1192,26 @@ public  final class Event extends
           return false;
         }
       }
-      if (hasReservationDeletedEvent()) {
-        if (!getReservationDeletedEvent().isInitialized()) {
+      if (hasReservationCancelledEvent()) {
+        if (!getReservationCancelledEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationOpenedEvent()) {
+        if (!getReservationOpenedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationClosedEvent()) {
+        if (!getReservationClosedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationFinalizedEvent()) {
+        if (!getReservationFinalizedEvent().isInitialized()) {
           
           return false;
         }
@@ -1196,12 +1358,39 @@ public  final class Event extends
             break;
           }
           case 1146: {
-            de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.newBuilder();
-            if (hasReservationDeletedEvent()) {
-              subBuilder.mergeFrom(getReservationDeletedEvent());
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.newBuilder();
+            if (hasReservationCancelledEvent()) {
+              subBuilder.mergeFrom(getReservationCancelledEvent());
             }
             input.readMessage(subBuilder, extensionRegistry);
-            setReservationDeletedEvent(subBuilder.buildPartial());
+            setReservationCancelledEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1154: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.newBuilder();
+            if (hasReservationOpenedEvent()) {
+              subBuilder.mergeFrom(getReservationOpenedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationOpenedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1162: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.newBuilder();
+            if (hasReservationClosedEvent()) {
+              subBuilder.mergeFrom(getReservationClosedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationClosedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1170: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.newBuilder();
+            if (hasReservationFinalizedEvent()) {
+              subBuilder.mergeFrom(getReservationFinalizedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationFinalizedEvent(subBuilder.buildPartial());
             break;
           }
           case 1202: {
@@ -2092,94 +2281,364 @@ public  final class Event extends
       return reservationMadeEventBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent = 143;
-    private de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent reservationDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance();
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent = 143;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder> reservationDeletedEventBuilder_;
-    public boolean hasReservationDeletedEvent() {
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder> reservationCancelledEventBuilder_;
+    public boolean hasReservationCancelledEvent() {
       return ((bitField0_ & 0x00000800) == 0x00000800);
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent getReservationDeletedEvent() {
-      if (reservationDeletedEventBuilder_ == null) {
-        return reservationDeletedEvent_;
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent getReservationCancelledEvent() {
+      if (reservationCancelledEventBuilder_ == null) {
+        return reservationCancelledEvent_;
       } else {
-        return reservationDeletedEventBuilder_.getMessage();
+        return reservationCancelledEventBuilder_.getMessage();
       }
     }
-    public Builder setReservationDeletedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent value) {
-      if (reservationDeletedEventBuilder_ == null) {
+    public Builder setReservationCancelledEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent value) {
+      if (reservationCancelledEventBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
         }
-        reservationDeletedEvent_ = value;
+        reservationCancelledEvent_ = value;
         onChanged();
       } else {
-        reservationDeletedEventBuilder_.setMessage(value);
+        reservationCancelledEventBuilder_.setMessage(value);
       }
       bitField0_ |= 0x00000800;
       return this;
     }
-    public Builder setReservationDeletedEvent(
-        de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder builderForValue) {
-      if (reservationDeletedEventBuilder_ == null) {
-        reservationDeletedEvent_ = builderForValue.build();
+    public Builder setReservationCancelledEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder builderForValue) {
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEvent_ = builderForValue.build();
         onChanged();
       } else {
-        reservationDeletedEventBuilder_.setMessage(builderForValue.build());
+        reservationCancelledEventBuilder_.setMessage(builderForValue.build());
       }
       bitField0_ |= 0x00000800;
       return this;
     }
-    public Builder mergeReservationDeletedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent value) {
-      if (reservationDeletedEventBuilder_ == null) {
+    public Builder mergeReservationCancelledEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent value) {
+      if (reservationCancelledEventBuilder_ == null) {
         if (((bitField0_ & 0x00000800) == 0x00000800) &&
-            reservationDeletedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance()) {
-          reservationDeletedEvent_ =
-            de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.newBuilder(reservationDeletedEvent_).mergeFrom(value).buildPartial();
+            reservationCancelledEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance()) {
+          reservationCancelledEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.newBuilder(reservationCancelledEvent_).mergeFrom(value).buildPartial();
         } else {
-          reservationDeletedEvent_ = value;
+          reservationCancelledEvent_ = value;
         }
         onChanged();
       } else {
-        reservationDeletedEventBuilder_.mergeFrom(value);
+        reservationCancelledEventBuilder_.mergeFrom(value);
       }
       bitField0_ |= 0x00000800;
       return this;
     }
-    public Builder clearReservationDeletedEvent() {
-      if (reservationDeletedEventBuilder_ == null) {
-        reservationDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.getDefaultInstance();
+    public Builder clearReservationCancelledEvent() {
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
         onChanged();
       } else {
-        reservationDeletedEventBuilder_.clear();
+        reservationCancelledEventBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000800);
       return this;
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder getReservationDeletedEventBuilder() {
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder getReservationCancelledEventBuilder() {
       bitField0_ |= 0x00000800;
       onChanged();
-      return getReservationDeletedEventFieldBuilder().getBuilder();
+      return getReservationCancelledEventFieldBuilder().getBuilder();
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder getReservationDeletedEventOrBuilder() {
-      if (reservationDeletedEventBuilder_ != null) {
-        return reservationDeletedEventBuilder_.getMessageOrBuilder();
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder getReservationCancelledEventOrBuilder() {
+      if (reservationCancelledEventBuilder_ != null) {
+        return reservationCancelledEventBuilder_.getMessageOrBuilder();
       } else {
-        return reservationDeletedEvent_;
+        return reservationCancelledEvent_;
       }
     }
     private com.google.protobuf.SingleFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder> 
-        getReservationDeletedEventFieldBuilder() {
-      if (reservationDeletedEventBuilder_ == null) {
-        reservationDeletedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-            de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationDeletedEventOrBuilder>(
-                reservationDeletedEvent_,
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder> 
+        getReservationCancelledEventFieldBuilder() {
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder>(
+                reservationCancelledEvent_,
                 getParentForChildren(),
                 isClean());
-        reservationDeletedEvent_ = null;
+        reservationCancelledEvent_ = null;
       }
-      return reservationDeletedEventBuilder_;
+      return reservationCancelledEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent reservationOpenedEvent = 144;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent reservationOpenedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder> reservationOpenedEventBuilder_;
+    public boolean hasReservationOpenedEvent() {
+      return ((bitField0_ & 0x00001000) == 0x00001000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent getReservationOpenedEvent() {
+      if (reservationOpenedEventBuilder_ == null) {
+        return reservationOpenedEvent_;
+      } else {
+        return reservationOpenedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationOpenedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent value) {
+      if (reservationOpenedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationOpenedEvent_ = value;
+        onChanged();
+      } else {
+        reservationOpenedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00001000;
+      return this;
+    }
+    public Builder setReservationOpenedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder builderForValue) {
+      if (reservationOpenedEventBuilder_ == null) {
+        reservationOpenedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationOpenedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00001000;
+      return this;
+    }
+    public Builder mergeReservationOpenedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent value) {
+      if (reservationOpenedEventBuilder_ == null) {
+        if (((bitField0_ & 0x00001000) == 0x00001000) &&
+            reservationOpenedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance()) {
+          reservationOpenedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.newBuilder(reservationOpenedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationOpenedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationOpenedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00001000;
+      return this;
+    }
+    public Builder clearReservationOpenedEvent() {
+      if (reservationOpenedEventBuilder_ == null) {
+        reservationOpenedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationOpenedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00001000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder getReservationOpenedEventBuilder() {
+      bitField0_ |= 0x00001000;
+      onChanged();
+      return getReservationOpenedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder getReservationOpenedEventOrBuilder() {
+      if (reservationOpenedEventBuilder_ != null) {
+        return reservationOpenedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationOpenedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder> 
+        getReservationOpenedEventFieldBuilder() {
+      if (reservationOpenedEventBuilder_ == null) {
+        reservationOpenedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder>(
+                reservationOpenedEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationOpenedEvent_ = null;
+      }
+      return reservationOpenedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent reservationClosedEvent = 145;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent reservationClosedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder> reservationClosedEventBuilder_;
+    public boolean hasReservationClosedEvent() {
+      return ((bitField0_ & 0x00002000) == 0x00002000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent getReservationClosedEvent() {
+      if (reservationClosedEventBuilder_ == null) {
+        return reservationClosedEvent_;
+      } else {
+        return reservationClosedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationClosedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent value) {
+      if (reservationClosedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationClosedEvent_ = value;
+        onChanged();
+      } else {
+        reservationClosedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00002000;
+      return this;
+    }
+    public Builder setReservationClosedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder builderForValue) {
+      if (reservationClosedEventBuilder_ == null) {
+        reservationClosedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationClosedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00002000;
+      return this;
+    }
+    public Builder mergeReservationClosedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent value) {
+      if (reservationClosedEventBuilder_ == null) {
+        if (((bitField0_ & 0x00002000) == 0x00002000) &&
+            reservationClosedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.getDefaultInstance()) {
+          reservationClosedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.newBuilder(reservationClosedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationClosedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationClosedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00002000;
+      return this;
+    }
+    public Builder clearReservationClosedEvent() {
+      if (reservationClosedEventBuilder_ == null) {
+        reservationClosedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationClosedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00002000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder getReservationClosedEventBuilder() {
+      bitField0_ |= 0x00002000;
+      onChanged();
+      return getReservationClosedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder getReservationClosedEventOrBuilder() {
+      if (reservationClosedEventBuilder_ != null) {
+        return reservationClosedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationClosedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder> 
+        getReservationClosedEventFieldBuilder() {
+      if (reservationClosedEventBuilder_ == null) {
+        reservationClosedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder>(
+                reservationClosedEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationClosedEvent_ = null;
+      }
+      return reservationClosedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent reservationFinalizedEvent = 146;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent reservationFinalizedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder> reservationFinalizedEventBuilder_;
+    public boolean hasReservationFinalizedEvent() {
+      return ((bitField0_ & 0x00004000) == 0x00004000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent getReservationFinalizedEvent() {
+      if (reservationFinalizedEventBuilder_ == null) {
+        return reservationFinalizedEvent_;
+      } else {
+        return reservationFinalizedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationFinalizedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent value) {
+      if (reservationFinalizedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationFinalizedEvent_ = value;
+        onChanged();
+      } else {
+        reservationFinalizedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00004000;
+      return this;
+    }
+    public Builder setReservationFinalizedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder builderForValue) {
+      if (reservationFinalizedEventBuilder_ == null) {
+        reservationFinalizedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationFinalizedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00004000;
+      return this;
+    }
+    public Builder mergeReservationFinalizedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent value) {
+      if (reservationFinalizedEventBuilder_ == null) {
+        if (((bitField0_ & 0x00004000) == 0x00004000) &&
+            reservationFinalizedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.getDefaultInstance()) {
+          reservationFinalizedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.newBuilder(reservationFinalizedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationFinalizedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationFinalizedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00004000;
+      return this;
+    }
+    public Builder clearReservationFinalizedEvent() {
+      if (reservationFinalizedEventBuilder_ == null) {
+        reservationFinalizedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationFinalizedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00004000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder getReservationFinalizedEventBuilder() {
+      bitField0_ |= 0x00004000;
+      onChanged();
+      return getReservationFinalizedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder getReservationFinalizedEventOrBuilder() {
+      if (reservationFinalizedEventBuilder_ != null) {
+        return reservationFinalizedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationFinalizedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder> 
+        getReservationFinalizedEventFieldBuilder() {
+      if (reservationFinalizedEventBuilder_ == null) {
+        reservationFinalizedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder>(
+                reservationFinalizedEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationFinalizedEvent_ = null;
+      }
+      return reservationFinalizedEventBuilder_;
     }
     
     // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent = 150;
@@ -2187,7 +2646,7 @@ public  final class Event extends
     private com.google.protobuf.SingleFieldBuilder<
         de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEventOrBuilder> deviceConfigCreatedEventBuilder_;
     public boolean hasDeviceConfigCreatedEvent() {
-      return ((bitField0_ & 0x00001000) == 0x00001000);
+      return ((bitField0_ & 0x00008000) == 0x00008000);
     }
     public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent getDeviceConfigCreatedEvent() {
       if (deviceConfigCreatedEventBuilder_ == null) {
@@ -2206,7 +2665,7 @@ public  final class Event extends
       } else {
         deviceConfigCreatedEventBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00001000;
+      bitField0_ |= 0x00008000;
       return this;
     }
     public Builder setDeviceConfigCreatedEvent(
@@ -2217,12 +2676,12 @@ public  final class Event extends
       } else {
         deviceConfigCreatedEventBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00001000;
+      bitField0_ |= 0x00008000;
       return this;
     }
     public Builder mergeDeviceConfigCreatedEvent(de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent value) {
       if (deviceConfigCreatedEventBuilder_ == null) {
-        if (((bitField0_ & 0x00001000) == 0x00001000) &&
+        if (((bitField0_ & 0x00008000) == 0x00008000) &&
             deviceConfigCreatedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.getDefaultInstance()) {
           deviceConfigCreatedEvent_ =
             de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.newBuilder(deviceConfigCreatedEvent_).mergeFrom(value).buildPartial();
@@ -2233,7 +2692,7 @@ public  final class Event extends
       } else {
         deviceConfigCreatedEventBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00001000;
+      bitField0_ |= 0x00008000;
       return this;
     }
     public Builder clearDeviceConfigCreatedEvent() {
@@ -2243,11 +2702,11 @@ public  final class Event extends
       } else {
         deviceConfigCreatedEventBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00001000);
+      bitField0_ = (bitField0_ & ~0x00008000);
       return this;
     }
     public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.Builder getDeviceConfigCreatedEventBuilder() {
-      bitField0_ |= 0x00001000;
+      bitField0_ |= 0x00008000;
       onChanged();
       return getDeviceConfigCreatedEventFieldBuilder().getBuilder();
     }
@@ -2277,7 +2736,7 @@ public  final class Event extends
     private com.google.protobuf.SingleFieldBuilder<
         de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEventOrBuilder> deviceConfigUpdatedEventBuilder_;
     public boolean hasDeviceConfigUpdatedEvent() {
-      return ((bitField0_ & 0x00002000) == 0x00002000);
+      return ((bitField0_ & 0x00010000) == 0x00010000);
     }
     public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent getDeviceConfigUpdatedEvent() {
       if (deviceConfigUpdatedEventBuilder_ == null) {
@@ -2296,7 +2755,7 @@ public  final class Event extends
       } else {
         deviceConfigUpdatedEventBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00002000;
+      bitField0_ |= 0x00010000;
       return this;
     }
     public Builder setDeviceConfigUpdatedEvent(
@@ -2307,12 +2766,12 @@ public  final class Event extends
       } else {
         deviceConfigUpdatedEventBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00002000;
+      bitField0_ |= 0x00010000;
       return this;
     }
     public Builder mergeDeviceConfigUpdatedEvent(de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent value) {
       if (deviceConfigUpdatedEventBuilder_ == null) {
-        if (((bitField0_ & 0x00002000) == 0x00002000) &&
+        if (((bitField0_ & 0x00010000) == 0x00010000) &&
             deviceConfigUpdatedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.getDefaultInstance()) {
           deviceConfigUpdatedEvent_ =
             de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.newBuilder(deviceConfigUpdatedEvent_).mergeFrom(value).buildPartial();
@@ -2323,7 +2782,7 @@ public  final class Event extends
       } else {
         deviceConfigUpdatedEventBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00002000;
+      bitField0_ |= 0x00010000;
       return this;
     }
     public Builder clearDeviceConfigUpdatedEvent() {
@@ -2333,11 +2792,11 @@ public  final class Event extends
       } else {
         deviceConfigUpdatedEventBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00002000);
+      bitField0_ = (bitField0_ & ~0x00010000);
       return this;
     }
     public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.Builder getDeviceConfigUpdatedEventBuilder() {
-      bitField0_ |= 0x00002000;
+      bitField0_ |= 0x00010000;
       onChanged();
       return getDeviceConfigUpdatedEventFieldBuilder().getBuilder();
     }
@@ -2367,7 +2826,7 @@ public  final class Event extends
     private com.google.protobuf.SingleFieldBuilder<
         de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEventOrBuilder> deviceConfigDeletedEventBuilder_;
     public boolean hasDeviceConfigDeletedEvent() {
-      return ((bitField0_ & 0x00004000) == 0x00004000);
+      return ((bitField0_ & 0x00020000) == 0x00020000);
     }
     public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent getDeviceConfigDeletedEvent() {
       if (deviceConfigDeletedEventBuilder_ == null) {
@@ -2386,7 +2845,7 @@ public  final class Event extends
       } else {
         deviceConfigDeletedEventBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00004000;
+      bitField0_ |= 0x00020000;
       return this;
     }
     public Builder setDeviceConfigDeletedEvent(
@@ -2397,12 +2856,12 @@ public  final class Event extends
       } else {
         deviceConfigDeletedEventBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00004000;
+      bitField0_ |= 0x00020000;
       return this;
     }
     public Builder mergeDeviceConfigDeletedEvent(de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent value) {
       if (deviceConfigDeletedEventBuilder_ == null) {
-        if (((bitField0_ & 0x00004000) == 0x00004000) &&
+        if (((bitField0_ & 0x00020000) == 0x00020000) &&
             deviceConfigDeletedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.getDefaultInstance()) {
           deviceConfigDeletedEvent_ =
             de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.newBuilder(deviceConfigDeletedEvent_).mergeFrom(value).buildPartial();
@@ -2413,7 +2872,7 @@ public  final class Event extends
       } else {
         deviceConfigDeletedEventBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00004000;
+      bitField0_ |= 0x00020000;
       return this;
     }
     public Builder clearDeviceConfigDeletedEvent() {
@@ -2423,11 +2882,11 @@ public  final class Event extends
       } else {
         deviceConfigDeletedEventBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00004000);
+      bitField0_ = (bitField0_ & ~0x00020000);
       return this;
     }
     public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.Builder getDeviceConfigDeletedEventBuilder() {
-      bitField0_ |= 0x00004000;
+      bitField0_ |= 0x00020000;
       onChanged();
       return getDeviceConfigDeletedEventFieldBuilder().getBuilder();
     }

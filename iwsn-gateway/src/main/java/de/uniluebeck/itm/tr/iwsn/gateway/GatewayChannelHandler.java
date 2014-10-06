@@ -111,8 +111,8 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
             case DEVICE_CONFIG_UPDATED:
                 gatewayEventBus.post(event.getDeviceConfigUpdatedEvent());
                 break;
-            case RESERVATION_DELETED:
-                gatewayEventBus.post(event.getReservationDeletedEvent());
+            case RESERVATION_CANCELLED:
+                gatewayEventBus.post(event.getReservationCancelledEvent());
                 break;
             case RESERVATION_ENDED:
                 gatewayEventBus.post(event.getReservationEndedEvent());

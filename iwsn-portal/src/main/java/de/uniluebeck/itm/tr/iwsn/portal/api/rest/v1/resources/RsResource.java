@@ -17,7 +17,8 @@ public interface RsResource {
 	List<PublicReservationData> listPublicReservations(@QueryParam("from") DateTime from,
 													   @QueryParam("to") DateTime to,
 													   @Nullable @QueryParam("offset") Integer offset,
-													   @Nullable @QueryParam("amount") Integer amount)
+													   @Nullable @QueryParam("amount") Integer amount,
+													   @DefaultValue("true") boolean showCancelled)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault;
 
 	@GET
@@ -25,7 +26,8 @@ public interface RsResource {
 	List<ConfidentialReservationData> listPersonalReservations(@QueryParam("from") DateTime from,
 															   @QueryParam("to") DateTime to,
 															   @Nullable @QueryParam("offset") Integer offset,
-															   @Nullable @QueryParam("amount") Integer amount)
+															   @Nullable @QueryParam("amount") Integer amount,
+															   @DefaultValue("true") boolean showCancelled)
 			throws RSFault_Exception, AuthorizationFault, AuthenticationFault;
 
 	@POST
@@ -36,9 +38,9 @@ public interface RsResource {
 			throws RSFault_Exception, AuthorizationFault, ReservationConflictFault_Exception, AuthenticationFault;
 
 	@DELETE
-	@Consumes({MediaType.APPLICATION_JSON})
 	@Produces({MediaType.TEXT_PLAIN})
-	void deleteReservation(List<SecretReservationKey> secretReservationKeys)
+	@Path("byExperimentId/{secretReservationKeysBase64}")
+	void deleteReservation(@PathParam("secretReservationKeysBase64") String secretReservationKeysBase64)
 			throws RSFault_Exception, UnknownSecretReservationKeyFault, AuthorizationFault, AuthenticationFault;
 
 	@GET

@@ -6,6 +6,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.joda.time.DateTime;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -61,5 +62,8 @@ public interface ReservationManager extends Service {
      * @return a list of reservation instances matching the criteria
      */
     List<Reservation> getReservations(DateTime timestamp);
+
+
+    Collection<Reservation> getNonFinalizedReservations();
 
 }

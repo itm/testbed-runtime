@@ -44,7 +44,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
     protected void doStart() {
 
         log.trace("ReservationEventBus[{}].doStart()", reservationId);
-
+        this.register(portalEventBus);
         try {
             notifyStarted();
         } catch (Exception e) {
@@ -56,7 +56,7 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
     protected void doStop() {
 
         log.trace("ReservationEventBus[{}].doStop()", reservationId);
-
+        this.unregister(portalEventBus);
         try {
             notifyStopped();
         } catch (Exception e) {

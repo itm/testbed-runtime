@@ -8,4 +8,8 @@ public interface ReservationEndedEventOrBuilder
   // required string serializedKey = 1;
   boolean hasSerializedKey();
   String getSerializedKey();
+  
+  // required uint64 timestamp = 2;
+  boolean hasTimestamp();
+  long getTimestamp();
 }

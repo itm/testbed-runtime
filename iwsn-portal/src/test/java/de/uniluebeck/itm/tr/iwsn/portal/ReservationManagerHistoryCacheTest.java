@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -13,7 +12,6 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
-import eu.wisebed.api.v3.rs.RS;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.junit.Before;
@@ -156,12 +154,6 @@ public class ReservationManagerHistoryCacheTest {
 	private static final DateTime QUERY_TIMESTAMP_5 = DateTime.now().plusMinutes(5);
 
 	@Mock
-	private Provider<RS> rsProvider;
-
-	@Mock
-	private RS rs;
-
-	@Mock
 	private Provider<RSPersistence> rsPersistenceProvider;
 
 	@Mock
@@ -204,7 +196,6 @@ public class ReservationManagerHistoryCacheTest {
 
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX);
 		when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
-		when(rsProvider.get()).thenReturn(rs);
 		when(rsPersistenceProvider.get()).thenReturn(rsPersistence);
 
 		final Optional<ConfidentialReservationData> absent = Optional.absent();
@@ -244,6 +235,9 @@ public class ReservationManagerHistoryCacheTest {
 						Matchers.<List<ConfidentialReservationData>>any(),
 						eq(SRK_1.getKey()),
 						eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
+                        any(SchedulerService.class),
 						eq(NODE_SET_1),
 						Matchers.<Interval>any()
 				)
@@ -253,6 +247,9 @@ public class ReservationManagerHistoryCacheTest {
 						Matchers.<List<ConfidentialReservationData>>any(),
 						eq(SRK_2.getKey()),
 						eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
+                        any(SchedulerService.class),
 						eq(NODE_SET_2),
 						Matchers.<Interval>any()
 				)
@@ -262,6 +259,9 @@ public class ReservationManagerHistoryCacheTest {
 						Matchers.<List<ConfidentialReservationData>>any(),
 						eq(SRK_3.getKey()),
 						eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
+                        any(SchedulerService.class),
 						eq(NODE_SET_3),
 						Matchers.<Interval>any()
 				)
@@ -271,13 +271,16 @@ public class ReservationManagerHistoryCacheTest {
 						Matchers.<List<ConfidentialReservationData>>any(),
 						eq(SRK_4.getKey()),
 						eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
+                        any(SchedulerService.class),
 						eq(NODE_SET_4),
 						Matchers.<Interval>any()
 				)
 		).thenReturn(reservation4);
 
 		reservationManager = new ReservationManagerImpl(
-				commonConfig, rsProvider, rsPersistenceProvider, deviceDBService, reservationFactory,
+				commonConfig, rsPersistenceProvider, deviceDBService, reservationFactory,
 				schedulerServiceFactory, portalEventBus
 		);
 	}
@@ -337,11 +340,11 @@ public class ReservationManagerHistoryCacheTest {
 	public void testIfCacheIsAutomaticallyPopulatedOnReservationMadeEvent() throws Exception {
 
 		when(rsPersistence.getReservation(SRK_1)).thenReturn(RESERVATION_DATA_1.get(0));
-		reservationManager.onReservationMadeEvent(ReservationMadeEvent.newBuilder().setSerializedKey(SSRK_1).build());
-		verify(rsPersistence, times(1)).getReservation(SRK_1);
+		reservationManager.rsPersistenceListener.onReservationMade(RESERVATION_DATA_1);
+		verify(rsPersistence, never()).getReservation(SRK_1);
 
 		reservationManager.getReservation(NODE_1, QUERY_TIMESTAMP_75);
-		verify(rsPersistence, times(1)).getReservation(SRK_1);
+		verify(rsPersistence, never()).getReservation(SRK_1);
 	}
 
 	@Test
