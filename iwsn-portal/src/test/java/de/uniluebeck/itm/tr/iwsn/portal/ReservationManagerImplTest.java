@@ -1,9 +1,10 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.inject.Provider;
+import de.uniluebeck.itm.tr.common.ReservationHelper;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.messages.*;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -29,6 +30,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -204,6 +206,27 @@ public class ReservationManagerImplTest {
         verify(reservation2).stopAndWait();
     }
 
+	@Test
+	public void testIfCacheIsCleanedWhenReservationStops() throws Exception {
+
+		setUpReservation1();
+
+		// verify that reservation is created when asking for it the first time
+		assertNotNull(reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1));
+		verify(rsPersistence).getReservation(eq(KNOWN_SECRET_RESERVATION_KEY_1));
+
+		// verify that reservation is returned from cache when asking for it the second time
+		assertNotNull(reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1));
+		verify(rsPersistence).getReservation(eq(KNOWN_SECRET_RESERVATION_KEY_1));
+
+		// trigger ending reservation and validate that it was removed from cache
+		reservationManager.on(ReservationClosedEvent.newBuilder()
+						.setSerializedKey(ReservationHelper.serialize(KNOWN_SECRET_RESERVATION_KEY_SET_1))
+						.build()
+		);
+		assertNotNull(reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1));
+		verify(rsPersistence, times(2)).getReservation(eq(KNOWN_SECRET_RESERVATION_KEY_1));
+	}
 
     private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
         when(rsPersistence.getReservation(KNOWN_SECRET_RESERVATION_KEY_1)).thenReturn(RESERVATION_DATA_1);
