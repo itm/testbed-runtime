@@ -233,6 +233,11 @@
 				<version>${itm-utils.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>de.uniluebeck.itm.util</groupId>
+				<artifactId>serialization</artifactId>
+				<version>${itm-utils.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>de.uniluebeck.itm.wsn-device-utils</groupId>
 				<artifactId>wsn-device-utils</artifactId>
 				<version>${wsn-device-utils.version}</version>
