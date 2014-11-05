@@ -15,13 +15,13 @@ public interface DeliveryManager extends Service {
 	void removeController(final String endpointUri);
 
 	/**
-	 * Asynchronously notifies all currently registered controllers that the experiment has <emph>started</emph>.
+	 * Asynchronously notifies all currently registered controllers that the experiment has started.
 	 */
 	void reservationStarted(DateTime timestamp);
 
 	/**
 	 * Asynchronously notifies the controller with the endpoint URL {@code controllerEndpointUrl} that the experiment has
-	 * <emph>started</emph>.
+	 * started.
 	 */
 	void reservationStarted(DateTime timestamp, String controllerEndpointUri);
 
@@ -32,7 +32,7 @@ public interface DeliveryManager extends Service {
 
 	/**
 	 * Asynchronously notifies the controller with the endpoint URL {@code controllerEndpointUrl} that the experiment has
-	 * <emph>ended</emph>.
+	 * ended.
 	 */
 	void reservationEnded(DateTime timestamp, String controllerEndpointUri);
 
