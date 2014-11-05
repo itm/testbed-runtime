@@ -69,6 +69,8 @@ public interface RSPersistence {
 	 * @param timestamp the point in time in which the reservation shall be active
 	 *
 	 * @return a reservation data if found or none if not
+	 *
+	 * @throws RSFault_Exception if some unexpected error occurred
 	 */
 	Optional<ConfidentialReservationData> getReservation(NodeUrn nodeUrn, DateTime timestamp) throws RSFault_Exception;
 

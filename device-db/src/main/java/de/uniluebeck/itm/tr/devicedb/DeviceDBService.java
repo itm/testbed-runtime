@@ -69,11 +69,11 @@ public interface DeviceDBService extends Service {
 	Iterable<DeviceConfig> getAll();
 
 	/**
-	 * Adds a configuration object to the database.
-	 * <p/>
-	 * Support for this operation is optional as it is only called if using a DeviceDB administration frontend with
+	 * <p>Adds a configuration object to the database.</p>
+	 * 
+	 * <p>Support for this operation is optional as it is only called if using a DeviceDB administration frontend with
 	 * e.g., a JPA based database as storage layer. Other storage layer may be used that have different means of
-	 * administration.
+	 * administration.</p>
 	 *
 	 * @param deviceConfig
 	 * 		the configuration object to be added
@@ -81,13 +81,13 @@ public interface DeviceDBService extends Service {
 	void add(DeviceConfig deviceConfig);
 
 	/**
-	 * Updates a configuration object in the database. The "primary key" is the node URN. Updates result in
+	 * <p>Updates a configuration object in the database. The "primary key" is the node URN. Updates result in
 	 * "overwriting" the old configuration object with the given, not merging of individual configuration properties is
-	 * done here.
-	 * <p/>
-	 * Support for this operation is optional as it is only called if using a DeviceDB administration frontend with
+	 * done here.</p>
+	 * 
+	 * <p>Support for this operation is optional as it is only called if using a DeviceDB administration frontend with
 	 * e.g., a JPA based database as storage layer. Other storage layer may be used that have different means of
-	 * administration.
+	 * administration.</p>
 	 *
 	 * @param deviceConfig
 	 * 		the configuration to be updated
@@ -95,25 +95,25 @@ public interface DeviceDBService extends Service {
 	void update(DeviceConfig deviceConfig);
 
 	/**
-	 * Removes a configuration object from the database.
-	 * <p/>
-	 * Support for this operation is optional as it is only called if using a DeviceDB administration frontend with
+	 * <p>Removes a configuration object from the database.</p>
+	 * 
+	 * <p>Support for this operation is optional as it is only called if using a DeviceDB administration frontend with
 	 * e.g., a JPA based database as storage layer. Other storage layer may be used that have different means of
-	 * administration.
+	 * administration.</p>
 	 *
 	 * @param nodeUrn
 	 * 		the node URN for which to remove the configuration
 	 *
-	 * @return {@link true} if the configuration could be removed, {@link false} otherwise
+	 * @return {@code true} if the configuration could be removed, {@code false} otherwise
 	 */
 	boolean removeByNodeUrn(NodeUrn nodeUrn);
 
 	/**
-	 * Removes all configuration objects from the database.
-	 * <p/>
-	 * Support for this operation is optional as it is only called if using a DeviceDB administration frontend with
+	 * <p>Removes all configuration objects from the database.</p>
+	 * 
+	 * <p>Support for this operation is optional as it is only called if using a DeviceDB administration frontend with
 	 * e.g., a JPA based database as storage layer. Other storage layer may be used that have different means of
-	 * administration.
+	 * administration.</p>
 	 */
 	void removeAll();
 }
