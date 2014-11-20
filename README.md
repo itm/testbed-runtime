@@ -33,14 +33,14 @@ Building
 Testbed Runtime is based on the [Apache Maven][maven] build system. Clone the project and
 simply run 'mvn install' (or 'mvn clean install' to be on the safe side) for building.
 
-Since the integrated graphical user interface [WiseGui][wisegui] is configured as submodule, make sure that it is up-to-date.
-Run ```git submodule init``` and ```git submodule update``` before building with Maven.
-Note that the first command has only to be run once after cloning the project.
+The modules ```iwsn-portal``` and ```iwsn-gateway``` will then contain the executable Portal and
+Gateway applications. ```iwsn-portal-deb``` and ```iwsn-gateway-deb``` contain a ```.deb``` file
+for easy installation on Debian-based Linux systems.
 
-When building with Maven, normally only the "standard modules" are built in order to keep build
-times low. If you want to build the distributables ("assemblies") please pass ```-P assemblies```
-to Maven when executing the build, e.g. ```mvn -P assemblies clean install```. The assemblies are
-automatically built when doing a release using ```mvn release:prepare && mvn release:perform```. 
+The Testbed Runtime Portal server application contains the graphical user interface
+[WiseGui][wisegui] in a stable version. However, you can configure TR to serve WiseGui from an
+external directory so that you can always keep up to date with WiseGui development. Please see
+the Wiki for more information on this.
 
 License
 -------

@@ -1,3 +1,0 @@
-[submodule "iwsn-portal/src/main/resources/de/uniluebeck/itm/tr/iwsn/portal/wisegui"]
-	path = iwsn-portal/src/main/resources/de/uniluebeck/itm/tr/iwsn/portal/wisegui
-	url = https://github.com/wisebed/wisegui.git

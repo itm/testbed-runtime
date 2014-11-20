@@ -43,7 +43,6 @@ import de.uniluebeck.itm.tr.snaa.shiro.entity.Role;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.UrnResourceGroup;
 import de.uniluebeck.itm.tr.snaa.shiro.entity.User;
 import de.uniluebeck.itm.tr.snaa.shiro.rest.ShiroSNAARestService;
-import de.uniluebeck.itm.tr.snaa.shiro.rest.UserResource;
 import de.uniluebeck.itm.util.TimedCache;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -72,7 +71,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -144,8 +142,6 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 
 	private final ShiroSNAARestService restService;
 
-	private final UserResource userResource;
-
 	private final Provider<EntityManager> emProvider;
 
 	private final String hashAlgorithmName;
@@ -162,7 +158,6 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 					 final SNAAServiceConfig snaaServiceConfig,
 					 final Provider<Subject> currentUserProvider,
 					 final ShiroSNAARestService restService,
-					 final UserResource userResource,
 					 @Named("shiro.hashAlgorithmName") final String hashAlgorithmName,
 					 @Named("shiro.hashIterations") final int hashIterations) {
 		this.emProvider = emProvider;
@@ -172,7 +167,6 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 		this.servedNodeUrnPrefixesProvider = servedNodeUrnPrefixesProvider;
 		this.snaaServiceConfig = snaaServiceConfig;
 		this.restService = restService;
-		this.userResource = userResource;
 		this.hashAlgorithmName = hashAlgorithmName;
 		this.hashIterations = hashIterations;
 

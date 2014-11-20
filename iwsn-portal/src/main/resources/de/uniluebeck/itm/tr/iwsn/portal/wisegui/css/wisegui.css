@@ -1,0 +1,304 @@
+body {
+	padding-top: 10px;
+}
+
+/* bootstrap2 vs google maps hacks */
+.gMap label { width: auto; display:inline; }
+.gMap img { max-width: none; }
+.gMap img { max-width: none; }
+
+.modal {
+	width: 800px;
+	margin: 0 0 0 -400px;
+	top: 50px;
+	position: absolute;
+}
+
+.reservation-body {
+	height: 655px;
+	max-height: 655px;
+	overflow: auto;
+}
+
+.topbar-wrapper {
+	position: relative;
+	height: 40px;
+	margin: 5px 0 15px;
+}
+
+.topbar-wrapper .topbar {
+	position: absolute;
+	margin: 0 -20px;
+}
+
+.topbar-wrapper .topbar .topbar-inner {
+	padding-left: 20px;
+	padding-right: 20px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+
+.WiseGuiTestbedTitle {
+	
+}
+
+.WiseGuiConsoleViewOutputs .dropdown-menu {
+	min-width: 0;
+}
+
+.WiseGuiConsoleViewOutputs #options-dropdown {
+	min-width: 170px;
+}
+
+.WiseGuiConsoleViewOutputs .dropdown-menu form {
+	margin: 0;
+}
+
+.WiseGuiConsoleViewOutputs .dropdown-menu li form {
+	padding: 3px 15px;
+}
+.WiseGuiConsoleViewOutputs .dropdown-menu label {
+	cursor: pointer;
+}
+.WiseGuiConsoleViewOutputs .dropdown-menu label.radio,
+.WiseGuiConsoleViewOutputs .dropdown-menu label.checkbox {
+	margin: 4px;
+}
+.WiseGuiConsoleViewOutputsDiv {
+	padding-bottom: 10px;
+}
+
+.WiseGuiConsoleViewOutputsDiv ul {
+	padding-top: 10px;
+}
+
+.WiseGuiReservationViewControls ul {
+	padding-top: 10px;
+}
+
+.WiseGuiNavigationContainer .dropdown-menu {
+	min-width: 600px;
+	max-width: none;
+}
+
+input.error {
+	border-color: #e9322d;
+	-webkit-box-shadow: 0 0 6px #f8b9b7;
+	-moz-box-shadow: 0 0 6px #f8b9b7;
+	box-shadow: 0 0 6px #f8b9b7;
+}
+
+input.warning {
+	border-color: #be9a3f;
+	-webkit-box-shadow: 0 0 6px #e5d6b1;
+	-moz-box-shadow: 0 0 6px #e5d6b1;
+	box-shadow: 0 0 6px #e5d6b1;
+}
+
+input.success {
+	border-color: #458845;
+	-webkit-box-shadow: 0 0 6px #9acc9a;
+	-moz-box-shadow: 0 0 6px #9acc9a;
+	box-shadow: 0 0 6px #9acc9a;
+}
+
+.WisebedTestbedDetailsOverviewMap {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+.WiseGuiNotificationsContainer table td {
+	border: 0;
+}
+
+.WiseGuiNotificationsContainer {
+	position: fixed;
+	bottom: 10px;	
+	z-index: 10;
+}
+
+#WiseGuiNotificationsHistory {
+	max-height: 500px;
+	overflow: auto;
+	background-color: #EEE;
+	padding: 8px;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 0px;
+	border-bottom-left-radius: 3px;
+}
+
+#WiseGuiNotificationsHistory .alert{
+	max-width: 893px;
+}
+
+#WiseGuiNotificationsRoster .btn-group {
+	padding: 9px;
+	z-index: 10;
+}
+
+#WiseGuiNotificationsButton {
+	width: 120px;
+	margin-left: 0;
+}
+
+#WiseGuiNotificationsButton.open {
+	background-color: #EEE;
+	border-bottom-right-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+#notification-flash {
+	height: 28px;
+}
+
+#notifications-counter {
+	padding: 0 9px 0;
+}
+
+#roster-dropdown {
+	min-width: 0;
+	padding: 0;
+	top: -20px;
+}
+
+#WisebedContainer {
+	padding-bottom: 150px;
+}
+
+.WiseGuiConsoleViewOutputsTable {
+	width: auto;
+}
+
+.WiseGuiConsoleViewOutputsWell {
+	padding: 10px;
+}
+
+.WiseGuiConsoleViewOutputsTable td {
+	line-height: 12px;
+	padding: 3px;
+	white-space: nowrap;
+	font-family: monospace;
+}
+
+.WiseGuiConsoleViewOutputsTable td:last-child {
+	width: 100%;
+}
+
+.WiseGuiNumber {
+	padding: 0 3px;
+	margin-right: 2px;
+}
+
+.dropdown-menu strong {
+	padding: 5px;
+}
+
+#column-dropdown {
+	width: 130px;
+}
+
+#view-dropdown {
+	width: 125px;
+}
+
+.CopyrightContainer, .CopyrightContainer > a {
+	color: #CCC;
+	margin-top: 20px;
+}
+
+.WiseGuiOperationProgressView {
+	max-height: 300px;
+	overflow: auto;
+}
+
+.WiseGuiConsoleViewStateLabel {
+	vertical-align: bottom;
+}
+
+pre.WiseGuiReservationViewWiseMLJSON, pre.WiseGuiReservationViewWiseMLXML {
+	height: 300px;
+	overflow: auto;
+}
+
+pre.WiseGuiTestbedDetailsWiseMLJSON, pre.WiseGuiTestbedDetailsWiseMLXML {
+	height: 500px;
+	overflow: auto;
+}
+
+div.WiseGuiScriptingViewEditor {
+	position: relative;
+	height: 400px;
+}
+
+div.WiseGuiTestbedDetailsNodesTable {
+	height: 500px;
+	overflow: auto;
+}
+
+table .headerSortUp, table .headerSortDown {
+  background-color: rgba(141, 192, 219, 0.25) !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+}
+
+table thead tr .headerSortUp {
+    background: url(../img/sort_desc.png) no-repeat center right;;
+}
+table thead tr .headerSortDown {
+    background: url(../img/sort_asc.png) no-repeat center right;;
+}
+
+/*
+	btn-toolbar2 source: http://stackoverflow.com/a/11091453/236351
+*/
+
+.btn-toolbar2 > .btn-group + .btn-group {
+	margin-left: -5px;
+}
+
+.btn-toolbar2 > .btn-group > .btn,
+.btn-toolbar2 > .btn-group > .dropdown-toggle {
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+    -moz-border-radius: 0px;
+}
+
+.btn-toolbar2 > .btn-group:first-child > .btn,
+.btn-toolbar2 > .btn-group:first-child > .dropdown-toggle {
+    -webkit-border-bottom-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    -webkit-border-top-left-radius: 4px;
+    border-top-left-radius: 4px;
+    -moz-border-radius-bottomleft: 4px;
+    -moz-border-radius-topleft: 4px;    
+}
+
+.btn-toolbar2 > .btn-group:last-child > .btn:last-child,
+.btn-toolbar2 > .btn-group:last-child > .dropdown-toggle:nth-last-child(2) {
+    -webkit-border-bottom-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    -webkit-border-top-right-radius: 4px;
+    border-top-right-radius: 4px;
+    -moz-border-radius-bottomright: 4px;
+    -moz-border-radius-topright: 4px;    
+}
+
+.popover-inner {
+	width: 400px;
+}
+
+.modalmodal {
+	z-index: 1000000;
+}
+
+div.wisegui-option-selection-dialog {
+	position: absolute;
+	top: 200px;
+	width: 400px;
+	margin: 0 0 0 -200px;
+}
+
+div.wisegui-option-selection-dialog select {
+	width: 350px;
+}
