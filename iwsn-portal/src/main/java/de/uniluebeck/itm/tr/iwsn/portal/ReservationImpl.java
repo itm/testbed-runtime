@@ -152,10 +152,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	}
 
 	private void scheduleFirstLifecycleCallable() {
-		if (isFinalized()) {
-			// Just starting the service and scheduling it for finalization
-			//scheduleEvent(new ReservationStartCallable(), now());
-		} else {
+		if (!isFinalized()) {
 			// the reservation isn't finalized yet. Replay all events that should have occurred in the past and schedule future events.
 			scheduleEvent(new ReservationMadeCallable(), now());
 		}
