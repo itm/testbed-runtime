@@ -148,10 +148,10 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
             public void onSuccess(final byte[] result) {
                 if (serializationHelper != null && channel != null) {
                     final Object message = serializationHelper.deserialize(result);
-                    log.trace("writing #{} to channel", message);
+                    log.trace("Writing message to channel: {}", message);
                     synchronized (channelLock) {
                         if (channel == null) {
-                            log.warn("Channel is disconnected, re-enqueuing the event " + message);
+                            log.warn("Channel is disconnected, re-enqueuing message: {}", message);
                             enqueue(result);
                         } else {
                             ChannelFuture future = Channels.write(channel, message);
@@ -163,7 +163,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
                                         dequeueFuture = queue.dequeueAsync();
                                         Futures.addCallback(dequeueFuture, buildFutureCallback());
                                     } else {
-                                        log.error("Failed to send message " + message + " to portal. Re-enqueuing it.");
+                                        log.error("Failed to send message to portal. Re-enqueuing it: {}", message);
                                         enqueue(result);
                                     }
                                 }
