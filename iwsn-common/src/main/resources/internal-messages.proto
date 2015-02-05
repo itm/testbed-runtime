@@ -31,13 +31,13 @@ option java_multiple_files = true;
 message ReservationEvent {
 
 	enum Type {
-		STARTED = 1;
-		ENDED   = 2;
-        MADE = 3;
+		STARTED   = 1;
+		ENDED     = 2;
+        MADE      = 3;
         CANCELLED = 4;
         FINALIZED = 5;
-        OPENED = 6;
-        CLOSED = 7;
+        OPENED    = 6;
+        CLOSED    = 7;
 	}
 
 	message SecretReservationKey {
@@ -46,13 +46,13 @@ message ReservationEvent {
 		required string key           = 3;
 	}
 
-	required Type   type                                = 1;
+	required Type                 type                  = 1;
 	repeated SecretReservationKey secretReservationKeys = 2;
-	repeated string nodeUrns                            = 3;
-	required string interval_start                      = 4;
-	required string interval_end                        = 5;
-    optional string cancelled                           = 6;
-    optional string finalized                           = 7;
+	repeated string               nodeUrns              = 3;
+	required string               interval_start        = 4;
+	required string               interval_end          = 5;
+    optional string               cancelled             = 6;
+    optional string               finalized             = 7;
 }
 
 message InternalMessage {
