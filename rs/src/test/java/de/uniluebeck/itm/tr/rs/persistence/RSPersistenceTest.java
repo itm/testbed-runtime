@@ -36,229 +36,234 @@ import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 
 public abstract class RSPersistenceTest {
 
-	static {
-		Logging.setLoggingDefaults(LogLevel.ERROR);
-	}
+    static {
+        Logging.setLoggingDefaults(LogLevel.ERROR);
+    }
 
-	protected RSPersistence persistence;
+    protected RSPersistence persistence;
 
-	protected Map<Integer, ConfidentialReservationData> reservationDataMap = newHashMap();
+    protected Map<Integer, ConfidentialReservationData> reservationDataMap = newHashMap();
 
-	protected Map<Integer, SecretReservationKey> reservationKeyMap = newHashMap();
+    protected Map<Integer, SecretReservationKey> reservationKeyMap = newHashMap();
 
-	/**
-	 * The point in time that all reservations of this unit test will start from.
-	 */
-	protected static final DateTime START = new DateTime().plusHours(1);
+    /**
+     * The point in time that all reservations of this unit test will start from.
+     */
+    protected static final DateTime START = new DateTime().plusHours(1);
 
-	/**
-	 * The point in time that all reservation of this unit test will end on.
-	 */
-	protected static final DateTime END = START.plusMinutes(30);
+    /**
+     * The point in time that all reservation of this unit test will end on.
+     */
+    protected static final DateTime END = START.plusMinutes(30);
 
-	protected static final NodeUrnPrefix NODE_URN_PREFIX = new NodeUrnPrefix("urn:wisebed:uzl1:");
+    protected static final NodeUrnPrefix NODE_URN_PREFIX = new NodeUrnPrefix("urn:wisebed:uzl1:");
 
-	protected static final int RESERVATION_COUNT = 5;
-
-
-	public void setPersistence(RSPersistence persistence) {
-		this.persistence = persistence;
-	}
-
-	@Test
-	public void testOverlapsFromExactStartToExactEnd() throws Exception {
-		final String description =
-				"query interval overlaps, ranging from the exact starting point until the exact ending point in time";
-		makeReservations();
-		int actual = persistence.getReservations(START, END, null, null, null).size();
-		assertSame(description, RESERVATION_COUNT, actual);
-	}
-
-	@Test
-	public void testNoOverlapBeforeStart() throws Exception {
-		final String description = "query interval does not overlap, since it lies before reservation interval";
-		makeReservations();
-		final int actual =
-				persistence.getReservations(START.minusMillis(20000), START.minusMillis(1), null, null, null).size();
-		assertSame(description, 0, actual);
-	}
-
-	@Test
-	public void testNoOverlapAfterEnd() throws Exception {
-		final String description = "query interval does not overlap, since it lies after reservation interval";
-		makeReservations();
-		final int actual = persistence.getReservations(END.plusMillis(1), END.plusMillis(20000), null, null, null).size();
-		assertSame(description, 0, actual);
-	}
-
-	@Test
-	public void testOverlapAtEnd() throws Exception {
-		final String description = "query interval overlaps on the end of the reservation interval";
-		makeReservations();
-		final int actual = persistence.getReservations(END.minusMillis(1), END.plusMillis(20000), null, null, null).size();
-		assertSame(description, RESERVATION_COUNT, actual);
-	}
-
-	@Test
-	public void testOverlapAtStart() throws Exception {
-		final String description = "query interval overlaps on the start of the reservation interval";
-		makeReservations();
-		final int actual =
-				persistence.getReservations(START.minusMillis(20000), START.plusMillis(1), null, null, null).size();
-		assertSame(description, RESERVATION_COUNT, actual);
-	}
-
-	@Test
-	public void testOverlapAtExactStart() throws Exception {
-		final String description = "query interval overlaps on the exact millisecond on reservation start";
-		makeReservations();
-		final int actual = persistence.getReservations(START.minusMillis(20000), START, null, null, null).size();
-		assertSame(description, 0, actual);
-	}
-
-	@Test
-	public void testOverlapAtExactEnd() throws Exception {
-		final String description = "query interval overlaps on the exact millisecond on reservation end";
-		makeReservations();
-		final int actual = persistence.getReservations(END, END.plusMillis(20000), null, null, null).size();
-		assertSame(description, 0, actual);
-	}
-
-	@Test
-	public void testOverlapIfQueryIntervalLiesWithinReservationInterval() throws Exception {
-		final String description =
-				"query interval fully overlaps, ranging from a point after reservation start until before reservation end";
-		makeReservations();
-		final int actual = persistence.getReservations(START.plusMillis(5), END.minusMillis(5), null, null, null).size();
-		assertSame(description, RESERVATION_COUNT, actual);
-	}
-
-	@Test
-	public void testOverlapIfQueryIntervalCompleteCoversReservationIntervals() throws Exception {
-		final String description =
-				"query interval fully overlaps, ranging from a point before reservation start until after reservation interval";
-		makeReservations();
-		final int actual = persistence.getReservations(START.minusMillis(5), END.plusMillis(5), null, null, null).size();
-		assertSame(description, RESERVATION_COUNT, actual);
-	}
-
-	@Before
-	public void setUp() throws RSFault_Exception {
-
-		for (int i = 0; i < RESERVATION_COUNT; i++) {
-
-			final ConfidentialReservationData crd = new ConfidentialReservationData();
-			crd.setFrom(START);
-			crd.setTo(END);
-			crd.setDescription("description_" + i);
-			crd.getNodeUrns().add(new NodeUrn(NODE_URN_PREFIX, Integer.toString(i)));
-
-			final SecretReservationKey srk = new SecretReservationKey();
-			srk.setKey("srk_" + Integer.toString(i));
-			srk.setUrnPrefix(NODE_URN_PREFIX);
-			crd.setSecretReservationKey(srk);
-
-			final KeyValuePair pair = new KeyValuePair();
-			pair.setKey("key_" + i);
-			pair.setValue("value_" + i);
-			crd.getOptions().add(pair);
-
-			reservationDataMap.put(i, crd);
-		}
+    protected static final int RESERVATION_COUNT = 5;
 
 
-	}
+    public void setPersistence(RSPersistence persistence) {
+        this.persistence = persistence;
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		for (int i = 0; i < reservationKeyMap.size(); i++) {
-			try {
-				persistence.cancelReservation(reservationKeyMap.get(i));
-			} catch (UnknownSecretReservationKeyFault ignored) {
-			}
-		}
-		reservationDataMap = null;
-	}
+    @Test
+    public void testIfReservationIsFoundByNodeUrnAndTime() throws Exception {
+        makeReservations();
+        ConfidentialReservationData crd = reservationDataMap.get(0);
+        assertTrue(persistence.getReservation(crd.getNodeUrns().get(0), crd.getFrom().plusMinutes(5)).isPresent());
+    }
 
-	/**
-	 * Makes {@link RSPersistenceTest#RESERVATION_COUNT}
-	 * reservations, each for different node URNs, starting at {@link RSPersistenceTest#START}
-	 * and stopping at {@link RSPersistenceTest#END}.
-	 *
-	 * @throws Exception
-	 */
-	protected void makeReservations() throws Exception {
-		for (int i = 0; i < reservationDataMap.size(); i++) {
-			final ConfidentialReservationData crd = reservationDataMap.get(i);
-			reservationKeyMap.put(
-					i,
-					persistence.addReservation(
-							crd.getNodeUrns(),
-							crd.getFrom(),
-							crd.getTo(),
-							crd.getUsername(),
-							crd.getSecretReservationKey().getUrnPrefix(),
-							crd.getDescription(),
-							crd.getOptions()
-					).getSecretReservationKey()
-			);
-		}
-	}
+    @Test
+    public void testOverlapsFromExactStartToExactEnd() throws Exception {
+        final String description =
+                "query interval overlaps, ranging from the exact starting point until the exact ending point in time";
+        makeReservations();
+        int actual = persistence.getReservations(START, END, null, null, null).size();
+        assertSame(description, RESERVATION_COUNT, actual);
+    }
 
-	@Test
-	public void testIfGetReservationReturnsCorrectData() throws Exception {
+    @Test
+    public void testNoOverlapBeforeStart() throws Exception {
+        final String description = "query interval does not overlap, since it lies before reservation interval";
+        makeReservations();
+        final int actual =
+                persistence.getReservations(START.minusMillis(20000), START.minusMillis(1), null, null, null).size();
+        assertSame(description, 0, actual);
+    }
 
-		makeReservations();
+    @Test
+    public void testNoOverlapAfterEnd() throws Exception {
+        final String description = "query interval does not overlap, since it lies after reservation interval";
+        makeReservations();
+        final int actual = persistence.getReservations(END.plusMillis(1), END.plusMillis(20000), null, null, null).size();
+        assertSame(description, 0, actual);
+    }
 
-		for (int i = 0; i < reservationDataMap.size(); i++) {
+    @Test
+    public void testOverlapAtEnd() throws Exception {
+        final String description = "query interval overlaps on the end of the reservation interval";
+        makeReservations();
+        final int actual = persistence.getReservations(END.minusMillis(1), END.plusMillis(20000), null, null, null).size();
+        assertSame(description, RESERVATION_COUNT, actual);
+    }
 
-			ConfidentialReservationData rememberedCRD = reservationDataMap.get(i);
-			ConfidentialReservationData receivedCRD = persistence.getReservation(reservationKeyMap.get(i));
+    @Test
+    public void testOverlapAtStart() throws Exception {
+        final String description = "query interval overlaps on the start of the reservation interval";
+        makeReservations();
+        final int actual =
+                persistence.getReservations(START.minusMillis(20000), START.plusMillis(1), null, null, null).size();
+        assertSame(description, RESERVATION_COUNT, actual);
+    }
 
-			assertEquals(rememberedCRD.getNodeUrns(), receivedCRD.getNodeUrns());
-			assertEquals(rememberedCRD.getFrom(), receivedCRD.getFrom());
-			assertEquals(rememberedCRD.getTo(), receivedCRD.getTo());
-			assertEquals(rememberedCRD.getDescription(), receivedCRD.getDescription());
-			assertEqualOptions(rememberedCRD, receivedCRD);
-		}
-	}
+    @Test
+    public void testOverlapAtExactStart() throws Exception {
+        final String description = "query interval overlaps on the exact millisecond on reservation start";
+        makeReservations();
+        final int actual = persistence.getReservations(START.minusMillis(20000), START, null, null, null).size();
+        assertSame(description, 0, actual);
+    }
 
-	@Test
-	public void testCancelReservation() throws Exception {
-		makeReservations();
-		for (int i = 0; i < reservationKeyMap.size(); i++) {
-			ConfidentialReservationData actual = persistence.cancelReservation(reservationKeyMap.get(i));
-			ConfidentialReservationData expected = reservationDataMap.get(i);
-			assertEquals(actual.getFrom(), expected.getFrom());
-			assertEquals(actual.getTo(), expected.getTo());
-			assertEquals(actual.getNodeUrns(), expected.getNodeUrns());
-			assertEquals(actual.getDescription(), expected.getDescription());
-			assertEqualOptions(actual, expected);
-			assertNotNull(actual.getCancelled());
-		}
-	}
+    @Test
+    public void testOverlapAtExactEnd() throws Exception {
+        final String description = "query interval overlaps on the exact millisecond on reservation end";
+        makeReservations();
+        final int actual = persistence.getReservations(END, END.plusMillis(20000), null, null, null).size();
+        assertSame(description, 0, actual);
+    }
 
-	private void assertEqualOptions(final ConfidentialReservationData actual,
-									final ConfidentialReservationData expected) {
-		for (KeyValuePair expectedPair : expected.getOptions()) {
-			boolean foundPair = false;
-			for (KeyValuePair actualPair : actual.getOptions()) {
-				if (expectedPair.getKey().equals(actualPair.getKey()) && expectedPair.getValue()
-						.equals(actualPair.getValue())) {
-					foundPair = true;
-				}
-			}
-			assertTrue(foundPair);
-		}
-	}
+    @Test
+    public void testOverlapIfQueryIntervalLiesWithinReservationInterval() throws Exception {
+        final String description =
+                "query interval fully overlaps, ranging from a point after reservation start until before reservation end";
+        makeReservations();
+        final int actual = persistence.getReservations(START.plusMillis(5), END.minusMillis(5), null, null, null).size();
+        assertSame(description, RESERVATION_COUNT, actual);
+    }
+
+    @Test
+    public void testOverlapIfQueryIntervalCompleteCoversReservationIntervals() throws Exception {
+        final String description =
+                "query interval fully overlaps, ranging from a point before reservation start until after reservation interval";
+        makeReservations();
+        final int actual = persistence.getReservations(START.minusMillis(5), END.plusMillis(5), null, null, null).size();
+        assertSame(description, RESERVATION_COUNT, actual);
+    }
+
+    @Before
+    public void setUp() throws RSFault_Exception {
+
+        for (int i = 0; i < RESERVATION_COUNT; i++) {
+
+            final ConfidentialReservationData crd = new ConfidentialReservationData();
+            crd.setFrom(START);
+            crd.setTo(END);
+            crd.setDescription("description_" + i);
+            crd.getNodeUrns().add(new NodeUrn(NODE_URN_PREFIX, Integer.toString(i)));
+
+            final SecretReservationKey srk = new SecretReservationKey();
+            srk.setKey("srk_" + Integer.toString(i));
+            srk.setUrnPrefix(NODE_URN_PREFIX);
+            crd.setSecretReservationKey(srk);
+
+            final KeyValuePair pair = new KeyValuePair();
+            pair.setKey("key_" + i);
+            pair.setValue("value_" + i);
+            crd.getOptions().add(pair);
+
+            reservationDataMap.put(i, crd);
+        }
+
+
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        for (int i = 0; i < reservationKeyMap.size(); i++) {
+            try {
+                persistence.cancelReservation(reservationKeyMap.get(i));
+            } catch (UnknownSecretReservationKeyFault ignored) {
+            }
+        }
+        reservationDataMap = null;
+    }
+
+    /**
+     * Makes {@link RSPersistenceTest#RESERVATION_COUNT}
+     * reservations, each for different node URNs, starting at {@link RSPersistenceTest#START}
+     * and stopping at {@link RSPersistenceTest#END}.
+     *
+     * @throws Exception
+     */
+    protected void makeReservations() throws Exception {
+        for (int i = 0; i < reservationDataMap.size(); i++) {
+            final ConfidentialReservationData crd = reservationDataMap.get(i);
+            reservationKeyMap.put(
+                    i,
+                    persistence.addReservation(
+                            crd.getNodeUrns(),
+                            crd.getFrom(),
+                            crd.getTo(),
+                            crd.getUsername(),
+                            crd.getSecretReservationKey().getUrnPrefix(),
+                            crd.getDescription(),
+                            crd.getOptions()
+                    ).getSecretReservationKey()
+            );
+        }
+    }
+
+    @Test
+    public void testIfGetReservationReturnsCorrectData() throws Exception {
+
+        makeReservations();
+
+        for (int i = 0; i < reservationDataMap.size(); i++) {
+
+            ConfidentialReservationData rememberedCRD = reservationDataMap.get(i);
+            ConfidentialReservationData receivedCRD = persistence.getReservation(reservationKeyMap.get(i));
+
+            assertEquals(rememberedCRD.getNodeUrns(), receivedCRD.getNodeUrns());
+            assertEquals(rememberedCRD.getFrom(), receivedCRD.getFrom());
+            assertEquals(rememberedCRD.getTo(), receivedCRD.getTo());
+            assertEquals(rememberedCRD.getDescription(), receivedCRD.getDescription());
+            assertEqualOptions(rememberedCRD, receivedCRD);
+        }
+    }
+
+    @Test
+    public void testCancelReservation() throws Exception {
+        makeReservations();
+        for (int i = 0; i < reservationKeyMap.size(); i++) {
+            ConfidentialReservationData actual = persistence.cancelReservation(reservationKeyMap.get(i));
+            ConfidentialReservationData expected = reservationDataMap.get(i);
+            assertEquals(actual.getFrom(), expected.getFrom());
+            assertEquals(actual.getTo(), expected.getTo());
+            assertEquals(actual.getNodeUrns(), expected.getNodeUrns());
+            assertEquals(actual.getDescription(), expected.getDescription());
+            assertEqualOptions(actual, expected);
+            assertNotNull(actual.getCancelled());
+        }
+    }
+
+    private void assertEqualOptions(final ConfidentialReservationData actual,
+                                    final ConfidentialReservationData expected) {
+        for (KeyValuePair expectedPair : expected.getOptions()) {
+            boolean foundPair = false;
+            for (KeyValuePair actualPair : actual.getOptions()) {
+                if (expectedPair.getKey().equals(actualPair.getKey()) && expectedPair.getValue()
+                        .equals(actualPair.getValue())) {
+                    foundPair = true;
+                }
+            }
+            assertTrue(foundPair);
+        }
+    }
 }

@@ -38,95 +38,96 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RSPersistenceJPATest extends RSPersistenceTest {
 
-	private static final Map<String, String> properties = new HashMap<String, String>() {{
+    private static final Map<String, String> properties = new HashMap<String, String>() {{
 
-		// configure derby as embedded db for unit test
-		put("hibernate.connection.url", "jdbc:derby:memory:DeviceConfigDB;create=true");
-		put("hibernate.connection.driver_class", "org.apache.derby.jdbc.EmbeddedDriver");
-		put("hibernate.dialect", "org.hibernate.dialect.DerbyTenSevenDialect");
+        // configure derby as embedded db for unit test
+        put("hibernate.connection.url", "jdbc:derby:memory:DeviceConfigDB;create=true");
+        put("hibernate.connection.driver_class", "org.apache.derby.jdbc.EmbeddedDriver");
+        put("hibernate.dialect", "org.hibernate.dialect.DerbyTenSevenDialect");
 
-		// configure hibernate ORM
-		put("hibernate.ddl-generation.output-mode", "database");
-		put("hibernate.hbm2ddl.auto", "create");
-		put("hibernate.archive.autodetection", "class, hbm");
+        // configure hibernate ORM
+        put("hibernate.ddl-generation.output-mode", "database");
+        put("hibernate.hbm2ddl.auto", "create");
+        put("hibernate.archive.autodetection", "class, hbm");
 
-		// configure time zone
-		put("timezone", "GMT");
-	}};
+        // view generated query statements
+        //put("hibernate.show_sql", "true");
+        //put("hibernate.format_sql", "true");
+        //put("hiberante.use_sql_comments", "true");
 
-	private static final DateTime CRD_FROM = DateTime.now();
+        // configure time zone
+        put("timezone", "GMT");
+    }};
 
-	private static final DateTime CRD_TO = CRD_FROM.plusMinutes(30);
+    private static final DateTime CRD_FROM = DateTime.now();
 
-	private static final String CRD_SRK_KEY = "SECRET12345";
+    private static final DateTime CRD_TO = CRD_FROM.plusMinutes(30);
 
-	private static final NodeUrnPrefix CRD_SRK_URN_PREFIX = new NodeUrnPrefix("urn:smartsantander:testbed:");
+    private static final String CRD_SRK_KEY = "SECRET12345";
 
-	private static final NodeUrn CRD_NODE_URN_1 = new NodeUrn(CRD_SRK_URN_PREFIX.toString() + "0x1234");
+    private static final NodeUrnPrefix CRD_SRK_URN_PREFIX = new NodeUrnPrefix("urn:smartsantander:testbed:");
 
-	private static final NodeUrn CRD_NODE_URN_2 = new NodeUrn(CRD_SRK_URN_PREFIX.toString() + "0x2345");
+    private static final NodeUrn CRD_NODE_URN_1 = new NodeUrn(CRD_SRK_URN_PREFIX.toString() + "0x1234");
 
-	private static final String CRD_USERNAME = "test-user";
+    private static final NodeUrn CRD_NODE_URN_2 = new NodeUrn(CRD_SRK_URN_PREFIX.toString() + "0x2345");
 
-	private static final String CRD_DESCRIPTION = "hello, world!";
+    private static final String CRD_USERNAME = "test-user";
 
-	private static final SecretReservationKey CRD_SRK;
+    private static final String CRD_DESCRIPTION = "hello, world!";
 
-	private static final ConfidentialReservationData CRD;
+    private static final SecretReservationKey CRD_SRK;
 
-
+    private static final ConfidentialReservationData CRD;
 
     @Mock
     private RSPersistenceListener persistenceListener;
 
-	static {
+    static {
 
-		CRD_SRK = new SecretReservationKey();
-		CRD_SRK.setKey(CRD_SRK_KEY);
-		CRD_SRK.setUrnPrefix(CRD_SRK_URN_PREFIX);
+        CRD_SRK = new SecretReservationKey();
+        CRD_SRK.setKey(CRD_SRK_KEY);
+        CRD_SRK.setUrnPrefix(CRD_SRK_URN_PREFIX);
 
-		CRD = new ConfidentialReservationData();
-		CRD.setFrom(CRD_FROM);
-		CRD.setTo(CRD_TO);
-		CRD.setSecretReservationKey(CRD_SRK);
-		CRD.setUsername(CRD_USERNAME);
-		CRD.setDescription(CRD_DESCRIPTION);
-		CRD.getNodeUrns().add(CRD_NODE_URN_1);
-		CRD.getNodeUrns().add(CRD_NODE_URN_2);
-	}
+        CRD = new ConfidentialReservationData();
+        CRD.setFrom(CRD_FROM);
+        CRD.setTo(CRD_TO);
+        CRD.setSecretReservationKey(CRD_SRK);
+        CRD.setUsername(CRD_USERNAME);
+        CRD.setDescription(CRD_DESCRIPTION);
+        CRD.getNodeUrns().add(CRD_NODE_URN_1);
+        CRD.getNodeUrns().add(CRD_NODE_URN_2);
+    }
 
-	@Before
-	public void setUp() throws RSFault_Exception {
-		super.setUp();
-		final RSPersistenceJPAModule module = new RSPersistenceJPAModule(TimeZone.getDefault(), mapToProperties());
-		final RSPersistence rsPersistence = Guice.createInjector(module).getInstance(RSPersistence.class);
-		super.setPersistence(rsPersistence);
+    @Before
+    public void setUp() throws RSFault_Exception {
+        super.setUp();
+        final RSPersistenceJPAModule module = new RSPersistenceJPAModule(TimeZone.getDefault(), mapToProperties());
+        final RSPersistence rsPersistence = Guice.createInjector(module).getInstance(RSPersistence.class);
+        super.setPersistence(rsPersistence);
         persistence.addListener(persistenceListener);
-	}
+    }
 
-	private Properties mapToProperties() {
-		final Properties props = new Properties();
-		for (Map.Entry<String, String> entry : properties.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		return props;
-	}
+    private Properties mapToProperties() {
+        final Properties props = new Properties();
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            props.put(entry.getKey(), entry.getValue());
+        }
+        return props;
+    }
 
-    private ConfidentialReservationData insertReservation() throws Exception{
+    private ConfidentialReservationData insertReservation() throws Exception {
         return persistence.addReservation(
                 CRD.getNodeUrns(),
                 CRD.getFrom(),
@@ -138,19 +139,19 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
         );
     }
 
-	@After
-	public void tearDown() throws Exception {
-		super.tearDown();
-	}
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
 
-	@Test
-	public void testGetReservations() throws Exception {
+    @Test
+    public void testGetReservations() throws Exception {
 
-		final ConfidentialReservationData inserted = insertReservation();
+        final ConfidentialReservationData inserted = insertReservation();
 
-		final ConfidentialReservationData retrieved = persistence.getReservation(inserted.getSecretReservationKey());
-		assertEquals(inserted, retrieved);
-	}
+        final ConfidentialReservationData retrieved = persistence.getReservation(inserted.getSecretReservationKey());
+        assertEquals(inserted, retrieved);
+    }
 
 
     @Test
@@ -176,7 +177,6 @@ public class RSPersistenceJPATest extends RSPersistenceTest {
         persistence.finalizeReservation(inserted.getSecretReservationKey());
         verify(persistenceListener).onReservationFinalized(anyList());
     }
-
 
 
 }
