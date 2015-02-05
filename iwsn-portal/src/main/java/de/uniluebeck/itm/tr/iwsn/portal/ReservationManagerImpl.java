@@ -2,15 +2,10 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
-import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import de.uniluebeck.itm.tr.common.ReservationHelper;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
-import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceListener;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -26,16 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.common.ReservationHelper.deserialize;
 import static de.uniluebeck.itm.tr.common.ReservationHelper.serialize;
@@ -45,8 +35,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     private static final Logger log = LoggerFactory.getLogger(ReservationManager.class);
 
     private final ReservationFactory reservationFactory;
-
-    private final SchedulerService schedulerService;
 
     private final CommonConfig commonConfig;
 
@@ -59,7 +47,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         @Override
         public void onReservationMade(final List<ConfidentialReservationData> crd) {
             log.trace("ReservationManagerImpl.onReservationMade({})", crd);
-            putInCache(initReservation(crd));
+            cache.put(initReservation(crd));
         }
 
         @Override
@@ -73,43 +61,33 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         }
     };
 
-    private final Lock reservationsCacheLock = new ReentrantLock();
+    private final SchedulerService schedulerService;
 
-    /**
-     * Caches a mapping from secret reservation keys to Reservation instances.
-     */
-    private final Map<Set<SecretReservationKey>, Reservation> reservationsBySrk = newHashMap();
-
-    /**
-     * Caches a mapping from node URNs to Reservation instances.
-     */
-    private final Map<NodeUrn, List<CacheItem<Reservation>>> reservationsByNodeUrn = newHashMap();
-
-    private ScheduledFuture<?> cacheCleanupSchedule;
+    private ReservationCache cache;
 
     @Inject
     public ReservationManagerImpl(final CommonConfig commonConfig,
                                   final Provider<RSPersistence> rsPersistence,
-                                  final DeviceDBService deviceDBService,
                                   final ReservationFactory reservationFactory,
                                   final SchedulerServiceFactory schedulerServiceFactory,
-                                  final PortalEventBus portalEventBus) {
+                                  final PortalEventBus portalEventBus,
+                                  final ReservationCache cache) {
         this.commonConfig = checkNotNull(commonConfig);
         this.rsPersistence = checkNotNull(rsPersistence);
         this.reservationFactory = checkNotNull(reservationFactory);
-        this.schedulerService = schedulerServiceFactory.create(-1, "ReservationManager");
         this.portalEventBus = checkNotNull(portalEventBus);
+        this.cache = cache;
+        this.schedulerService = schedulerServiceFactory.create(-1, "ReservationScheduler");
     }
 
     @Override
     protected void doStart() {
         log.trace("ReservationManagerImpl.doStart()");
         try {
+            schedulerService.startAndWait();
             portalEventBus.register(this);
             rsPersistence.get().addListener(rsPersistenceListener);
-            schedulerService.startAndWait();
             initializeNonFinalizedReservations();
-            cacheCleanupSchedule = schedulerService.scheduleAtFixedRate(cleanUpCacheRunnable, 1, 1, TimeUnit.MINUTES);
             notifyStarted();
         } catch (Exception e) {
             notifyFailed(e);
@@ -120,42 +98,20 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     protected void doStop() {
         log.trace("ReservationManagerImpl.doStop()");
         try {
-            cacheCleanupSchedule.cancel(false);
-            reservationsCacheLock.lock();
-            try {
-                for (Reservation reservation : reservationsBySrk.values()) {
-                    reservation.stopAndWait();
-                }
-            } finally {
-                reservationsCacheLock.unlock();
+
+            for (Reservation reservation : cache.getAll()) {
+                reservation.stopAndWait();
             }
-            clearCache();
+
+            cache.clear();
+
             portalEventBus.unregister(this);
             rsPersistence.get().removeListener(rsPersistenceListener);
             schedulerService.stopAndWait();
             notifyStopped();
+
         } catch (Exception e) {
             notifyFailed(e);
-        }
-    }
-
-    @Subscribe
-    public void on(final ReservationCancelledEvent event) {
-        removeFromCacheIfCancellationIsAfterNow(event.getSerializedKey());
-    }
-
-    @Subscribe
-    public void on(final ReservationClosedEvent event) {
-
-        Reservation reservation = reservationsBySrk.remove(deserialize(event.getSerializedKey()));
-        if (reservation != null) {
-            log.trace("ReservationManagerImpl.onReservationClosedEvent({}): Removing reservation from cache",
-                    event.getSerializedKey()
-            );
-        } else {
-            log.trace("ReservationManagerImpl.onReservationClosedEvent({}): No matching reservation in cache",
-                    event.getSerializedKey()
-            );
         }
     }
 
@@ -172,7 +128,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                 log.trace("Rebuilding state for {}", serializedKey);
 
                 // initReservation triggers scheduleLifecycleEvents (rebuilding events)
-                initReservation(newArrayList(crd));
+                cache.put(initReservation(newArrayList(crd)));
             }
         } catch (RSFault_Exception e) {
             throw propagate(e);
@@ -195,12 +151,12 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
         final Set<SecretReservationKey> srkSet = newHashSet(srks);
 
-        Optional<Reservation> res = lookup(srkSet);
+        Optional<Reservation> res = cache.lookup(srkSet);
         if (res.isPresent()) {
             return res.get();
         }
 
-        return putInCache(createAndInitReservation(srkSet));
+        return cache.put(createAndInitReservation(srkSet));
     }
 
     /**
@@ -250,6 +206,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                 new Interval(data.getFrom(), data.getTo())
         );
 
+        reservation.startAndWait();
+
         return reservation;
     }
 
@@ -267,7 +225,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
         try {
 
-            Optional<Reservation> reservation = lookup(nodeUrn, timestamp);
+            Optional<Reservation> reservation = cache.lookup(nodeUrn, timestamp);
 
             if (reservation.isPresent()) {
                 return reservation;
@@ -281,7 +239,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             }
 
             reservation = Optional.of(initReservation(newArrayList(reservationData.get())));
-            putInCache(reservation.get());
+            cache.put(reservation.get());
             return reservation;
 
         } catch (RSFault_Exception e) {
@@ -322,215 +280,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             return reservations;
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private Optional<Reservation> lookup(final Set<SecretReservationKey> srks) {
-        Reservation reservation = reservationsBySrk.get(srks);
-        if (reservation != null) {
-            reservation.touch();
-            return Optional.of(reservation);
-        }
-        return Optional.absent();
-    }
-
-    private Optional<Reservation> lookup(final NodeUrn nodeUrn, final DateTime timestamp) {
-
-        log.trace("ReservationManagerImpl.lookup({}, {})", nodeUrn, timestamp);
-
-        synchronized (reservationsByNodeUrn) {
-
-            final List<CacheItem<Reservation>> entry = reservationsByNodeUrn.get(nodeUrn);
-
-            if (entry == null) {
-                log.trace("ReservationManagerImpl.lookup() CACHE MISS");
-                return Optional.absent();
-            }
-
-            for (CacheItem<Reservation> item : entry) {
-
-                final Interval effectiveInterval;
-                final Reservation reservation = item.get();
-                final DateTime reservationStart = reservation.getInterval().getStart();
-                final DateTime reservationCancellation = reservation.getCancelled();
-
-                if (reservationCancellation != null) {
-                    if (reservationCancellation.isBefore(reservationStart)) {
-                        continue;
-                    } else {
-                        effectiveInterval = new Interval(reservationStart, reservationCancellation);
-                    }
-                } else {
-                    effectiveInterval = reservation.getInterval();
-                }
-
-                if (effectiveInterval.contains(timestamp)) {
-                    item.touch();
-                    log.trace("ReservationManagerImpl.lookup() CACHE HIT");
-                    return Optional.of(reservation);
-                }
-            }
-        }
-        return Optional.absent();
-    }
-
-    private Reservation putInCache(final Reservation reservation) {
-
-        log.trace("ReservationManagerImpl.putInCache({})", reservation);
-
-        reservationsCacheLock.lock();
-        try {
-
-            reservationsBySrk.put(reservation.getSecretReservationKeys(), reservation);
-
-            for (NodeUrn nodeUrn : reservation.getNodeUrns()) {
-                List<CacheItem<Reservation>> entry = reservationsByNodeUrn.get(nodeUrn);
-                if (entry == null) {
-                    entry = newArrayList();
-                    reservationsByNodeUrn.put(nodeUrn, entry);
-                }
-                entry.add(new CacheItem<Reservation>(reservation));
-            }
-
-        } finally {
-            reservationsCacheLock.unlock();
-        }
-
-        return reservation;
-    }
-
-    private final Runnable cleanUpCacheRunnable = new Runnable() {
-        @Override
-        public void run() {
-            cleanUpCache();
-        }
-    };
-
-    private void cleanUpCache() {
-        log.trace("ReservationManagerImpl.cleanUpCache() starting");
-
-        int removedNodeCacheEntries = 0;
-
-        reservationsCacheLock.lock();
-        try {
-
-            for (Iterator<Map.Entry<NodeUrn, List<CacheItem<Reservation>>>> cacheIterator =
-                         reservationsByNodeUrn.entrySet().iterator(); cacheIterator.hasNext(); ) {
-
-                final Map.Entry<NodeUrn, List<CacheItem<Reservation>>> entry = cacheIterator.next();
-
-                for (Iterator<CacheItem<Reservation>> itemIterator = entry.getValue().iterator();
-                     itemIterator.hasNext(); ) {
-                    final CacheItem<Reservation> item = itemIterator.next();
-                    if (item.isOutdated()) {
-                        itemIterator.remove();
-                        removedNodeCacheEntries++;
-                    }
-                }
-
-                if (entry.getValue().isEmpty()) {
-                    cacheIterator.remove();
-                }
-            }
-
-            int removedReservationMapEntries = 0;
-            for (Iterator<Map.Entry<Set<SecretReservationKey>, Reservation>> iterator =
-                         reservationsBySrk.entrySet().iterator(); iterator.hasNext(); ) {
-                final Map.Entry<Set<SecretReservationKey>, Reservation> entry = iterator.next();
-
-                if (entry.getValue().isOutdated()) {
-                    iterator.remove();
-                    removedReservationMapEntries++;
-                }
-            }
-
-            log.trace("ReservationManagerImpl.cleanUpCache() removed {} node cache entries AND {} reservation map entries",
-                    removedNodeCacheEntries, removedReservationMapEntries
-            );
-
-        } finally {
-            reservationsCacheLock.unlock();
-        }
-    }
-
-    private void removeFromCacheIfCancellationIsAfterNow(final String serializedKey) {
-
-        int removedNodeCacheEntries = 0;
-
-        reservationsCacheLock.lock();
-        try {
-
-            for (Iterator<Map.Entry<NodeUrn, List<CacheItem<Reservation>>>> cacheIterator =
-                         reservationsByNodeUrn.entrySet().iterator(); cacheIterator.hasNext(); ) {
-
-                final Map.Entry<NodeUrn, List<CacheItem<Reservation>>> entry = cacheIterator.next();
-
-                for (Iterator<CacheItem<Reservation>> itemIt = entry.getValue().iterator(); itemIt.hasNext(); ) {
-
-                    final CacheItem<Reservation> item = itemIt.next();
-                    final Reservation res = item.get();
-
-                    if (res.getSerializedKey().equals(serializedKey) && res.getCancelled() != null && res.getCancelled()
-                            .isBeforeNow()) {
-                        itemIt.remove();
-                        removedNodeCacheEntries++;
-                    }
-                }
-
-                if (entry.getValue().isEmpty()) {
-                    cacheIterator.remove();
-                }
-            }
-
-            Set<SecretReservationKey> srk = ReservationHelper.deserialize(serializedKey);
-            reservationsBySrk.remove(srk);
-
-            log.trace("ReservationManagerImpl.removeFromCacheIfCancellationIsAfterNow() removed {} node cache entries",
-                    removedNodeCacheEntries
-            );
-
-        } finally {
-            reservationsCacheLock.unlock();
-        }
-    }
-
-    /**
-     * only for testing
-     */
-    @VisibleForTesting
-    void clearCache() {
-        reservationsCacheLock.lock();
-        try {
-            reservationsByNodeUrn.clear();
-            reservationsBySrk.clear();
-        } finally {
-            reservationsCacheLock.unlock();
-        }
-    }
-
-    private static class CacheItem<T> {
-
-        private static final long CACHING_DURATION_MS = TimeUnit.MINUTES.toMillis(30);
-
-        private final T obj;
-
-        private long lastTouched;
-
-        public CacheItem(final T obj) {
-            this.obj = obj;
-            this.lastTouched = System.currentTimeMillis();
-        }
-
-        public boolean isOutdated() {
-            return System.currentTimeMillis() - lastTouched > CACHING_DURATION_MS;
-        }
-
-        public void touch() {
-            lastTouched = System.currentTimeMillis();
-        }
-
-        public T get() {
-            return obj;
         }
     }
 }

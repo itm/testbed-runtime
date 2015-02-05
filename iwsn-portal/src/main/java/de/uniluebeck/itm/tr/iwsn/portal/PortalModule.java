@@ -109,6 +109,7 @@ public class PortalModule extends AbstractModule {
 		bind(EventBusService.class).to(PortalEventBusImpl.class); // for use in RS, CachedDeviceDB
 
 		bind(ReservationManager.class).to(ReservationManagerImpl.class).in(Singleton.class);
+		bind(ReservationCache.class).to(ReservationCacheImpl.class).in(Singleton.class);
 		bind(UserRegistrationWebAppService.class).to(UserRegistrationWebAppServiceImpl.class).in(Singleton.class);
 		bind(NodeStatusTracker.class).to(NodeStatusTrackerImpl.class).in(Singleton.class);
 		bind(EndpointManager.class).to(EndpointManagerImpl.class).in(Singleton.class);

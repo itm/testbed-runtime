@@ -189,6 +189,9 @@ public class ReservationManagerHistoryCacheTest {
 	@Mock
 	private PortalEventBus portalEventBus;
 
+	@Mock
+	private ReservationCache reservationCache;
+
 	private ReservationManagerImpl reservationManager;
 
 	@Before
@@ -280,8 +283,12 @@ public class ReservationManagerHistoryCacheTest {
 		).thenReturn(reservation4);
 
 		reservationManager = new ReservationManagerImpl(
-				commonConfig, rsPersistenceProvider, deviceDBService, reservationFactory,
-				schedulerServiceFactory, portalEventBus
+				commonConfig,
+				rsPersistenceProvider,
+				reservationFactory,
+				schedulerServiceFactory,
+				portalEventBus,
+				reservationCache
 		);
 	}
 
@@ -371,7 +378,8 @@ public class ReservationManagerHistoryCacheTest {
 		assertEquals(queryNode2_1, queryNode2_2);
 
 		// verify if persistence layer is used again after cache was cleared
-		reservationManager.clearCache();
+		// reservationManager.clearCache();
+		fail("TODO update test");
 		reservationManager.getReservation(NODE_1, QUERY_TIMESTAMP_75);
 		reservationManager.getReservation(NODE_2, QUERY_TIMESTAMP_75);
 		verify(rsPersistence, times(2)).getReservation(NODE_1, QUERY_TIMESTAMP_75);

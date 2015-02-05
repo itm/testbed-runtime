@@ -37,104 +37,11 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReservationManagerImplTest {
+public class ReservationManagerImplTest extends ReservationTestBase {
 
 	static {
 		Logging.setLoggingDefaults();
 	}
-
-	private static final String USERNAME = "My Awesome Username";
-
-	private static final NodeUrnPrefix NODE_URN_PREFIX = new NodeUrnPrefix("urn:unit-test:");
-
-	private static final NodeUrn RESERVATION_1_NODE_URN = new NodeUrn(NODE_URN_PREFIX + "0x0001");
-
-	private static final Set<NodeUrn> RESERVATION_NODE_URNS_1 = newHashSet(RESERVATION_1_NODE_URN);
-
-	private static final NodeUrn RESERVATION_2_NODE_URN = new NodeUrn(NODE_URN_PREFIX + "0x0002");
-
-	private static final Set<NodeUrn> RESERVATION_NODE_URNS_2 = newHashSet(RESERVATION_2_NODE_URN);
-
-	private static final NodeUrn RESERVATION_3_NODE_URN = new NodeUrn(NODE_URN_PREFIX + "0x0003");
-
-	private static final Set<NodeUrn> RESERVATION_NODE_URNS_3 = newHashSet(RESERVATION_3_NODE_URN);
-
-
-	static {
-		KNOWN_SECRET_RESERVATION_KEY_1 = new SecretReservationKey()
-				.withKey("YOU_KNOWN_ME_ONE")
-				.withUrnPrefix(NODE_URN_PREFIX);
-
-		KNOWN_SECRET_RESERVATION_KEY_2 = new SecretReservationKey()
-				.withKey("YOU_KNOWN_ME_TWO")
-				.withUrnPrefix(NODE_URN_PREFIX);
-
-		KNOWN_SECRET_RESERVATION_KEY_3 = new SecretReservationKey()
-				.withKey("YOU_KNOWN_ME_THREE")
-				.withUrnPrefix(NODE_URN_PREFIX);
-
-		UNKNOWN_SECRET_RESERVATION_KEY_1 = new SecretReservationKey()
-				.withKey("YOU_KNOWN_ME_THREE")
-				.withUrnPrefix(NODE_URN_PREFIX);
-	}
-
-	private static final Interval RESERVATION_INTERVAL_1 = new Interval(
-			DateTime.now(),
-			DateTime.now().plusHours(1)
-	);
-
-	private static final Interval RESERVATION_INTERVAL_2 = new Interval(
-			DateTime.now().plusMinutes(1),
-			DateTime.now().plusHours(1)
-	);
-
-	private static final Interval RESERVATION_INTERVAL_3 = new Interval(
-			DateTime.now().minusHours(1),
-			DateTime.now().minusMinutes(1)
-	);
-
-
-	private static final SecretReservationKey KNOWN_SECRET_RESERVATION_KEY_1;
-
-	private static final Set<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_SET_1 =
-			newHashSet(KNOWN_SECRET_RESERVATION_KEY_1);
-
-	private static final ConfidentialReservationData RESERVATION_DATA_1 = new ConfidentialReservationData()
-			.withFrom(RESERVATION_INTERVAL_1.getStart())
-			.withTo(RESERVATION_INTERVAL_1.getEnd())
-			.withNodeUrns(RESERVATION_NODE_URNS_1)
-			.withUsername(USERNAME)
-			.withSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_1);
-
-	private static final SecretReservationKey KNOWN_SECRET_RESERVATION_KEY_2;
-
-	private static final Set<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_SET_2 =
-			newHashSet(KNOWN_SECRET_RESERVATION_KEY_2);
-
-	private static final ConfidentialReservationData RESERVATION_DATA_2 = new ConfidentialReservationData()
-			.withFrom(RESERVATION_INTERVAL_2.getStart())
-			.withTo(RESERVATION_INTERVAL_2.getEnd())
-			.withNodeUrns(RESERVATION_NODE_URNS_2)
-			.withUsername(USERNAME)
-			.withSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_2);
-
-	private static final SecretReservationKey KNOWN_SECRET_RESERVATION_KEY_3;
-
-	private static final Set<SecretReservationKey> KNOWN_SECRET_RESERVATION_KEY_SET_3 =
-			newHashSet(KNOWN_SECRET_RESERVATION_KEY_3);
-
-	private static final ConfidentialReservationData RESERVATION_DATA_3 = new ConfidentialReservationData()
-			.withFrom(RESERVATION_INTERVAL_3.getStart())
-			.withTo(RESERVATION_INTERVAL_3.getEnd())
-			.withNodeUrns(RESERVATION_NODE_URNS_3)
-			.withUsername(USERNAME)
-			.withSecretReservationKey(KNOWN_SECRET_RESERVATION_KEY_3);
-
-	private static final SecretReservationKey UNKNOWN_SECRET_RESERVATION_KEY_1;
-
-
-	private static final Set<SecretReservationKey> UNKNOWN_SECRET_RESERVATION_KEY_SET =
-			newHashSet(UNKNOWN_SECRET_RESERVATION_KEY_1);
 
 	@Mock
 	private Provider<RSPersistence> rsPersistenceProvider;
@@ -172,6 +79,9 @@ public class ReservationManagerImplTest {
 	@Mock
 	private ScheduledFuture scheduledFuture;
 
+	@Mock
+	private ReservationCache reservationCache;
+
 	private ReservationManagerImpl reservationManager;
 
 	@Before
@@ -188,10 +98,10 @@ public class ReservationManagerImplTest {
 		reservationManager = new ReservationManagerImpl(
 				commonConfig,
 				rsPersistenceProvider,
-				deviceDBService,
 				reservationFactory,
 				schedulerServiceFactory,
-				portalEventBus
+				portalEventBus,
+				reservationCache
 		);
 
 		reservationManager.startAndWait();
@@ -244,10 +154,15 @@ public class ReservationManagerImplTest {
 		verify(rsPersistence).getReservation(eq(KNOWN_SECRET_RESERVATION_KEY_1));
 
 		// trigger ending reservation and validate that it was removed from cache
+		/*
 		reservationManager.on(ReservationClosedEvent.newBuilder()
 						.setSerializedKey(serialize(KNOWN_SECRET_RESERVATION_KEY_SET_1))
 						.build()
-		);
+		);*/
+
+		// TODO update test
+		fail("TODO update test");
+
 		assertNotNull(reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1));
 		verify(rsPersistence, times(2)).getReservation(eq(KNOWN_SECRET_RESERVATION_KEY_1));
 	}
@@ -271,10 +186,15 @@ public class ReservationManagerImplTest {
 		when(rsPersistence.getReservation(RESERVATION_1_NODE_URN, reservationStart.plusSeconds(1)))
 				.thenReturn(Optional.<ConfidentialReservationData>absent());
 		when(reservation1.getCancelled()).thenReturn(cancellationTimestamp);
+		/*
 		reservationManager.on(ReservationCancelledEvent.newBuilder()
 						.setSerializedKey(serialize(KNOWN_SECRET_RESERVATION_KEY_1))
 						.setTimestamp(cancellationTimestamp.getMillis()).build()
 		);
+		*/
+
+		// TODO update test
+		fail("TODO update test");
 
 		assertFalse(
 				reservationManager.getReservation(RESERVATION_1_NODE_URN, reservationStart.plusSeconds(1)).isPresent()
@@ -299,10 +219,16 @@ public class ReservationManagerImplTest {
 		when(rsPersistence.getReservation(RESERVATION_1_NODE_URN, cancellationTimestamp.plusSeconds(1)))
 				.thenReturn(Optional.<ConfidentialReservationData>absent());
 		when(reservation1.getCancelled()).thenReturn(cancellationTimestamp);
+
+		/*
 		reservationManager.on(ReservationCancelledEvent.newBuilder()
 						.setSerializedKey(serialize(KNOWN_SECRET_RESERVATION_KEY_1))
 						.setTimestamp(cancellationTimestamp.getMillis()).build()
 		);
+		*/
+
+		// TODO update test
+		fail("TODO update test");
 
 		final Optional<Reservation> result =
 				reservationManager.getReservation(RESERVATION_1_NODE_URN, cancellationTimestamp.plusSeconds(1));
