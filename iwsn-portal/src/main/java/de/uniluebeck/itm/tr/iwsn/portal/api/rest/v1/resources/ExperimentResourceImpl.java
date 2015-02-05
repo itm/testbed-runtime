@@ -62,6 +62,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	private enum Operation {
 		RESET,
 		ALIVE,
+		CONNECTED,
 		FLASH,
 		SEND,
 		SET_CHANNEL_PIPELINE,
@@ -73,6 +74,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	static {
 		DEFAULT_TIMEOUTS_MS.put(Operation.RESET, Duration.standardSeconds(10));
 		DEFAULT_TIMEOUTS_MS.put(Operation.ALIVE, Duration.standardSeconds(10));
+		DEFAULT_TIMEOUTS_MS.put(Operation.CONNECTED, Duration.standardSeconds(3));
 		DEFAULT_TIMEOUTS_MS.put(Operation.FLASH, Duration.standardMinutes(3));
 		DEFAULT_TIMEOUTS_MS.put(Operation.NODE_API, Duration.standardSeconds(10));
 		DEFAULT_TIMEOUTS_MS.put(Operation.SEND, Duration.standardSeconds(10));
@@ -395,7 +397,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final Request request = newAreNodesConnectedRequest(null, requestIdProvider.get(), nodeUrns);
 
-		return sendRequestAndGetOperationStatusMap(request, retrieveTimeout(Operation.ALIVE, nodeUrns));
+		return sendRequestAndGetOperationStatusMap(request, retrieveTimeout(Operation.CONNECTED, nodeUrns));
 	}
 
 	@Override
@@ -698,6 +700,9 @@ public class ExperimentResourceImpl implements ExperimentResource {
 			long millis;
 			switch (op) {
 				case ALIVE:
+					millis = config.getTimeoutCheckAliveMillis();
+					break;
+				case CONNECTED:
 					millis = config.getTimeoutCheckAliveMillis();
 					break;
 				case FLASH:

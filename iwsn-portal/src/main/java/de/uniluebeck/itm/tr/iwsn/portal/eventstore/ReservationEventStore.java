@@ -7,7 +7,8 @@ import de.uniluebeck.itm.eventstore.EventStore;
 
 import java.io.IOException;
 
-public interface ReservationEventStore extends EventStore, Service {
+public interface
+        ReservationEventStore extends EventStore, Service {
 
     /**
      * Returns all events belonging to the associated reservation. If the operation has not yet started the iterator

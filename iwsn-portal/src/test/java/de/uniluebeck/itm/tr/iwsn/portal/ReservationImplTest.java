@@ -76,18 +76,22 @@ public class ReservationImplTest {
     @Mock
     private SchedulerService schedulerService;
 
+    @Mock
+    private PortalServerConfig portalServerConfig;
+
 	private ReservationImpl reservation;
 
-	@Before
+    @Before
 	public void setUp() throws Exception {
 		when(reservationEventBusFactory.create(Matchers.<Reservation>any())).thenReturn(reservationEventBus);
 		when(reservationEventStoreFactory.createOrLoad(Matchers.<Reservation>any())).thenReturn(reservationEventStore);
-
+        when(portalServerConfig.isReservationEventStoreEnabled()).thenReturn(true);
 	}
 
     private void setupReservationJustStarted() {
         reservation = new ReservationImpl(
                 commonConfig,
+                portalServerConfig,
                 rsPersistence,
                 reservationEventBusFactory,
                 responseTrackerTimedCache,
@@ -108,6 +112,7 @@ public class ReservationImplTest {
     private void setupReservationOngoing() {
         reservation = new ReservationImpl(
                 commonConfig,
+                portalServerConfig,
                 rsPersistence,
                 reservationEventBusFactory,
                 responseTrackerTimedCache,
@@ -127,6 +132,7 @@ public class ReservationImplTest {
     private void setupReservationEndedAndFinalized() {
         reservation = new ReservationImpl(
                 commonConfig,
+                portalServerConfig,
                 rsPersistence,
                 reservationEventBusFactory,
                 responseTrackerTimedCache,
@@ -147,6 +153,7 @@ public class ReservationImplTest {
     private void setupReservationEnded() {
         reservation = new ReservationImpl(
                 commonConfig,
+                portalServerConfig,
                 rsPersistence,
                 reservationEventBusFactory,
                 responseTrackerTimedCache,
@@ -167,6 +174,7 @@ public class ReservationImplTest {
     private void setupReservationNotYetStarted() {
         reservation = new ReservationImpl(
                 commonConfig,
+                portalServerConfig,
                 rsPersistence,
                 reservationEventBusFactory,
                 responseTrackerTimedCache,
@@ -187,6 +195,7 @@ public class ReservationImplTest {
     private void setupReservationCancelledBeforeStart() {
         reservation = new ReservationImpl(
                 commonConfig,
+                portalServerConfig,
                 rsPersistence,
                 reservationEventBusFactory,
                 responseTrackerTimedCache,
@@ -207,6 +216,7 @@ public class ReservationImplTest {
     private void setupReservationCancelledAfterStart() {
         reservation = new ReservationImpl(
                 commonConfig,
+                portalServerConfig,
                 rsPersistence,
                 reservationEventBusFactory,
                 responseTrackerTimedCache,
@@ -227,6 +237,7 @@ public class ReservationImplTest {
     private void setupReservationCancelledAfterEnd() {
         reservation = new ReservationImpl(
                 commonConfig,
+                portalServerConfig,
                 rsPersistence,
                 reservationEventBusFactory,
                 responseTrackerTimedCache,

@@ -65,6 +65,8 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	private final CommonConfig commonConfig;
 
+	private final PortalServerConfig portalServerConfig;
+
 	private final ReservationEventStore reservationEventStore;
 
 	private final RSPersistence rsPersistence;
@@ -118,6 +120,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 	@Inject
 	public ReservationImpl(final CommonConfig commonConfig,
+						   final PortalServerConfig portalServerConfig,
 						   final RSPersistence rsPersistence,
 						   final ReservationEventBusFactory reservationEventBusFactory,
 						   final ResponseTrackerCache responseTrackerCache,
@@ -135,6 +138,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.rsPersistence = checkNotNull(rsPersistence);
 		this.commonConfig = checkNotNull(commonConfig);
+		this.portalServerConfig = checkNotNull(portalServerConfig);
 		this.responseTrackerCache = checkNotNull(responseTrackerCache);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.confidentialReservationData = newHashSet(checkNotNull(confidentialReservationDataList));
@@ -170,10 +174,11 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	protected void doStart() {
 		log.trace("ReservationImpl.doStart()");
 		try {
-			reservationEventStore.startAndWait();
+			if (portalServerConfig.isReservationEventStoreEnabled()) {
+				reservationEventStore.startAndWait();
+			}
 			reservationEventBus.startAndWait();
 			rsPersistence.addListener(rsPersistenceListener);
-			portalEventBus.post(ReservationOpenedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -184,7 +189,6 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	protected void doStop() {
 		log.trace("ReservationImpl.doStop()");
 		try {
-			portalEventBus.post(ReservationClosedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
 			rsPersistence.removeListener(rsPersistenceListener);
 			reservationEventBus.stopAndWait();
 			reservationEventStore.stopAndWait();
@@ -298,6 +302,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 		if (isFinalized()) {
 
+			assert getFinalized() != null;
 			final ReservationFinalizedEvent event = ReservationFinalizedEvent.newBuilder()
 					.setSerializedKey(getSerializedKey())
 					.setTimestamp(getFinalized().getMillis())

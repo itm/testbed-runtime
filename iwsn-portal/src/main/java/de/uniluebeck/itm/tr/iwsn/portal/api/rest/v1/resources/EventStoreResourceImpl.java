@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
 import de.uniluebeck.itm.eventstore.EventContainer;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
@@ -38,6 +39,8 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
     private final ReservationManager reservationManager;
 
+    private final PortalServerConfig portalServerConfig;
+
     @Context
     private ServletContext ctx;
 
@@ -45,8 +48,9 @@ public class EventStoreResourceImpl implements EventStoreResource {
     private HttpServletResponse response;
 
     @Inject
-    public EventStoreResourceImpl(final ReservationManager reservationManager) {
+    public EventStoreResourceImpl(final ReservationManager reservationManager, final PortalServerConfig portalServerConfig) {
         this.reservationManager = reservationManager;
+        this.portalServerConfig = portalServerConfig;
     }
 
     @Override
@@ -57,12 +61,19 @@ public class EventStoreResourceImpl implements EventStoreResource {
                               @DefaultValue("-1") @QueryParam("from") long fromTimestamp,
                               @DefaultValue("-1") @QueryParam("to") long toTimestamp) {
 
+        if (!portalServerConfig.isReservationEventStoreEnabled()) {
+            return Response
+                    .status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity("Reservation event storage has been disabled")
+                    .build();
+        }
+
         log.trace("EventStoreResource.getEvents(key = {}, from = {}, to = {})", secretReservationKeyBase64, fromTimestamp, toTimestamp);
         // check if reservation is (still) known to RS (could have been deleted in the meantime, or given key is invalid)
         try {
             final Reservation reservation = reservationManager.getReservation(secretReservationKeyBase64);
             if (reservation.touch()) {
-                 log.trace("EventStoreResource: Got reservation {} from RM", reservation);
+                log.trace("EventStoreResource: Got reservation {} from RM", reservation);
 
             } else {
                 log.warn("Failed to touch reservation {}.", reservation);
