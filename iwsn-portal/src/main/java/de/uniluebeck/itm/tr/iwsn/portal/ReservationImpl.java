@@ -557,9 +557,13 @@ public class ReservationImpl extends AbstractService implements Reservation {
                         rsPersistence.finalizeReservation(current);
                     }
                 }
-                @SuppressWarnings("ConstantConditions") final ReservationFinalizedEvent event =
-                        ReservationFinalizedEvent.newBuilder().setSerializedKey(reservation.getSerializedKey())
-                                .setTimestamp(reservation.getFinalized().getMillis()).build();
+
+                assert reservation.getFinalized() != null;
+                final ReservationFinalizedEvent event = ReservationFinalizedEvent
+                        .newBuilder()
+                        .setSerializedKey(reservation.getSerializedKey())
+                        .setTimestamp(reservation.getFinalized().getMillis())
+                        .build();
                 portalEventBus.post(event);
             }
             if (reservation.isRunning()) {
