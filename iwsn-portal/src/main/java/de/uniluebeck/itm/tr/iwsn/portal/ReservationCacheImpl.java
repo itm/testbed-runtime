@@ -1,10 +1,13 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -14,10 +17,7 @@ import org.joda.time.Interval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -27,23 +27,47 @@ import static com.google.common.collect.Sets.newHashSet;
 
 public class ReservationCacheImpl extends AbstractService implements ReservationCache {
 
-    private static final Logger log = LoggerFactory.getLogger(ReservationCacheImpl.class);
+    private Provider<Stopwatch> stopwatchProvider;
 
-    private final SchedulerService schedulerService;
+    @VisibleForTesting
+    protected static final long CACHING_DURATION_MS = TimeUnit.MINUTES.toMillis(30);
+
+    protected static class CacheItem<T> {
+
+        private final Stopwatch stopwatch;
+
+        private final T obj;
+
+        public CacheItem(final Stopwatch stopwatch, final T obj) {
+            this.stopwatch = stopwatch;
+            this.obj = obj;
+        }
+
+        public boolean isOutdated() {
+            return stopwatch.elapsed(TimeUnit.MILLISECONDS) > CACHING_DURATION_MS;
+        }
+
+        public void touch() {
+            stopwatch.reset();
+        }
+
+        public T get() {
+            return obj;
+        }
+
+    }
+
+    private static final Logger log = LoggerFactory.getLogger(ReservationCacheImpl.class);
 
     /**
      * Caches a mapping from secret reservation keys to Reservation instances.
      */
-    private final Map<Set<SecretReservationKey>, Reservation> reservationsBySrk = Maps.newHashMap();
+    protected final Map<Set<SecretReservationKey>, CacheItem<Reservation>> reservationsBySrk = Maps.newHashMap();
 
     /**
      * Caches a mapping from node URNs to Reservation instances.
      */
-    private final Map<NodeUrn, List<CacheItem<Reservation>>> reservationsByNodeUrn = Maps.newHashMap();
-
-    private final Lock reservationsCacheLock = new ReentrantLock();
-
-    private ScheduledFuture<?> cacheCleanupSchedule;
+    protected final Map<NodeUrn, List<CacheItem<Reservation>>> reservationsByNodeUrn = Maps.newHashMap();
 
     private final Runnable cleanUpCacheRunnable = new Runnable() {
         @Override
@@ -52,13 +76,22 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
         }
     };
 
+    protected final Lock reservationsCacheLock = new ReentrantLock();
+
+    protected final SchedulerService schedulerService;
+
+    protected ScheduledFuture<?> cacheCleanupSchedule;
+
     @Inject
-    public ReservationCacheImpl(SchedulerServiceFactory schedulerServiceFactory) {
+    public ReservationCacheImpl(final SchedulerServiceFactory schedulerServiceFactory,
+                                final Provider<Stopwatch> stopwatchProvider) {
         this.schedulerService = schedulerServiceFactory.create(-1, "ReservationCache");
+        this.stopwatchProvider = stopwatchProvider;
     }
 
     @Override
     protected void doStart() {
+        log.trace("ReservationCacheImpl.doStart()");
         try {
             schedulerService.startAndWait();
             cacheCleanupSchedule = schedulerService.scheduleAtFixedRate(cleanUpCacheRunnable, 1, 1, TimeUnit.MINUTES);
@@ -70,6 +103,7 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
 
     @Override
     protected void doStop() {
+        log.trace("ReservationCacheImpl.doStop()");
         try {
             cacheCleanupSchedule.cancel(true);
             cacheCleanupSchedule = null;
@@ -82,13 +116,28 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
 
     @Override
     public Set<Reservation> getAll() {
-        return newHashSet(reservationsBySrk.values());
+        log.trace("ReservationCacheImpl.getAll()");
+        checkRunning();
+        Set<Reservation> reservations = newHashSet();
+        for (CacheItem<Reservation> item : reservationsBySrk.values()) {
+            if (!item.isOutdated()) {
+                reservations.add(item.get());
+                item.touch();
+            }
+        }
+        return reservations;
     }
 
     @Override
     public Optional<Reservation> lookup(final Set<SecretReservationKey> srks) {
-        Reservation reservation = reservationsBySrk.get(srks);
-        if (reservation != null) {
+        log.trace("ReservationCacheImpl.lookup({})", srks);
+        checkRunning();
+        CacheItem<Reservation> item = reservationsBySrk.get(srks);
+        if (item != null) {
+            if (item.isOutdated()) {
+                return Optional.absent();
+            }
+            Reservation reservation = item.get();
             reservation.touch();
             return Optional.of(reservation);
         }
@@ -99,6 +148,7 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
     public Optional<Reservation> lookup(final NodeUrn nodeUrn, final DateTime timestamp) {
 
         log.trace("ReservationCacheImpl.lookup({}, {})", nodeUrn, timestamp);
+        checkRunning();
 
         synchronized (reservationsByNodeUrn) {
 
@@ -127,9 +177,11 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
                 }
 
                 if (effectiveInterval.contains(timestamp)) {
-                    item.touch();
-                    log.trace("ReservationManagerImpl.lookup() CACHE HIT");
-                    return Optional.of(reservation);
+                    if (!item.isOutdated()) {
+                        item.touch();
+                        log.trace("ReservationManagerImpl.lookup() CACHE HIT");
+                        return Optional.of(reservation);
+                    }
                 }
             }
         }
@@ -137,14 +189,17 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
     }
 
     @Override
-    public Reservation put(final Reservation reservation) {
+    public void put(final Reservation reservation) {
 
         log.trace("ReservationManagerImpl.put({})", reservation);
+        checkRunning();
 
         reservationsCacheLock.lock();
         try {
 
-            reservationsBySrk.put(reservation.getSecretReservationKeys(), reservation);
+            CacheItem<Reservation> item = new CacheItem<Reservation>(stopwatchProvider.get(), reservation);
+
+            reservationsBySrk.put(reservation.getSecretReservationKeys(), item);
 
             for (NodeUrn nodeUrn : reservation.getNodeUrns()) {
                 List<CacheItem<Reservation>> entry = reservationsByNodeUrn.get(nodeUrn);
@@ -152,58 +207,8 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
                     entry = Lists.newArrayList();
                     reservationsByNodeUrn.put(nodeUrn, entry);
                 }
-                entry.add(new CacheItem<Reservation>(reservation));
+                entry.add(item);
             }
-
-        } finally {
-            reservationsCacheLock.unlock();
-        }
-
-        return reservation;
-    }
-
-    private void cleanUpCache() {
-
-        log.trace("ReservationManagerImpl.cleanUpCache() starting");
-
-        int removedNodeCacheEntries = 0;
-
-        reservationsCacheLock.lock();
-        try {
-
-            for (Iterator<Map.Entry<NodeUrn, List<CacheItem<Reservation>>>> cacheIterator =
-                         reservationsByNodeUrn.entrySet().iterator(); cacheIterator.hasNext(); ) {
-
-                final Map.Entry<NodeUrn, List<CacheItem<Reservation>>> entry = cacheIterator.next();
-
-                for (Iterator<CacheItem<Reservation>> itemIterator = entry.getValue().iterator();
-                     itemIterator.hasNext(); ) {
-                    final CacheItem<Reservation> item = itemIterator.next();
-                    if (item.isOutdated()) {
-                        itemIterator.remove();
-                        removedNodeCacheEntries++;
-                    }
-                }
-
-                if (entry.getValue().isEmpty()) {
-                    cacheIterator.remove();
-                }
-            }
-
-            int removedReservationMapEntries = 0;
-            for (Iterator<Map.Entry<Set<SecretReservationKey>, Reservation>> iterator =
-                         reservationsBySrk.entrySet().iterator(); iterator.hasNext(); ) {
-                final Map.Entry<Set<SecretReservationKey>, Reservation> entry = iterator.next();
-
-                if (entry.getValue().isOutdated()) {
-                    iterator.remove();
-                    removedReservationMapEntries++;
-                }
-            }
-
-            log.trace("ReservationManagerImpl.cleanUpCache() removed {} node cache entries AND {} reservation map entries",
-                    removedNodeCacheEntries, removedReservationMapEntries
-            );
 
         } finally {
             reservationsCacheLock.unlock();
@@ -212,6 +217,8 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
 
     @Override
     public void clear() {
+        checkRunning();
+        log.trace("ReservationCacheImpl.clear()");
         reservationsCacheLock.lock();
         try {
             reservationsByNodeUrn.clear();
@@ -223,6 +230,8 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
 
     @Override
     public void remove(Reservation reservation) {
+        log.trace("ReservationCacheImpl.remove({})", reservation);
+        checkRunning();
         reservationsCacheLock.lock();
         try {
 
@@ -261,29 +270,64 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
         }
     }
 
-    private static class CacheItem<T> {
-
-        private static final long CACHING_DURATION_MS = TimeUnit.MINUTES.toMillis(30);
-
-        private final T obj;
-
-        private long lastTouched;
-
-        public CacheItem(final T obj) {
-            this.obj = obj;
-            this.lastTouched = System.currentTimeMillis();
+    private void checkRunning() {
+        if (!isRunning()) {
+            throw new IllegalStateException("ReservationCache is not running! Did you forget to call start()?");
         }
+    }
 
-        public boolean isOutdated() {
-            return System.currentTimeMillis() - lastTouched > CACHING_DURATION_MS;
-        }
+    /**
+     * Cleans up the cache. All outdated items will be removed from both maps.
+     *
+     * @return the set of reservations that was removed from the two caches
+     */
+    @VisibleForTesting
+    protected Set<Reservation> cleanUpCache() {
 
-        public void touch() {
-            lastTouched = System.currentTimeMillis();
-        }
+        log.trace("ReservationManagerImpl.cleanUpCache()");
 
-        public T get() {
-            return obj;
+        final Set<Reservation> removed = newHashSet();
+
+        reservationsCacheLock.lock();
+        try {
+
+            for (Iterator<Map.Entry<NodeUrn, List<CacheItem<Reservation>>>> cacheIterator =
+                         reservationsByNodeUrn.entrySet().iterator(); cacheIterator.hasNext(); ) {
+
+                final Map.Entry<NodeUrn, List<CacheItem<Reservation>>> entry = cacheIterator.next();
+
+                for (Iterator<CacheItem<Reservation>> itemIterator = entry.getValue().iterator();
+                     itemIterator.hasNext(); ) {
+                    final CacheItem<Reservation> item = itemIterator.next();
+                    if (item.isOutdated()) {
+                        removed.add(item.get());
+                        itemIterator.remove();
+                    }
+                }
+
+                if (entry.getValue().isEmpty()) {
+                    cacheIterator.remove();
+                }
+            }
+
+            for (Iterator<Map.Entry<Set<SecretReservationKey>, CacheItem<Reservation>>> iterator =
+                         reservationsBySrk.entrySet().iterator(); iterator.hasNext(); ) {
+
+                final Map.Entry<Set<SecretReservationKey>, CacheItem<Reservation>> entry = iterator.next();
+                final CacheItem<Reservation> item = entry.getValue();
+
+                if (item.isOutdated()) {
+                    iterator.remove();
+                    removed.add(item.get());
+                }
+            }
+
+            log.trace("ReservationManagerImpl.cleanUpCache() removed {} entries: {}", removed.size(), removed);
+
+            return removed;
+
+        } finally {
+            reservationsCacheLock.unlock();
         }
     }
 }

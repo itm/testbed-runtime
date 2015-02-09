@@ -118,6 +118,19 @@ public class ReservationImpl extends AbstractService implements Reservation {
         }
     };
 
+    @VisibleForTesting
+    Runnable startRunnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                portalEventBus.post(ReservationOpenedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
+                scheduleFirstLifecycleCallable();
+            } catch (Exception e) {
+                log.error("Exception while posting ReservationOpenedEvent before scheduling lifecycle events: ", e);
+            }
+        }
+    };
+
     @Inject
     public ReservationImpl(final CommonConfig commonConfig,
                            final PortalServerConfig portalServerConfig,
@@ -178,17 +191,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
             }
             reservationEventBus.startAndWait();
             rsPersistence.addListener(rsPersistenceListener);
-            schedulerService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        portalEventBus.post(ReservationOpenedEvent.newBuilder().setSerializedKey(getSerializedKey()).build());
-                        scheduleFirstLifecycleCallable();
-                    } catch (Exception e) {
-                        log.error("Exception while posting ReservationOpenedEvent before scheduling lifecycle events: ", e);
-                    }
-                }
-            });
+            schedulerService.execute(startRunnable);
             notifyStarted();
         } catch (Exception e) {
             notifyFailed(e);

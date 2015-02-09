@@ -4,20 +4,14 @@ import com.google.common.base.Optional;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.util.logging.Logging;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.NodeUrnPrefix;
-import eu.wisebed.api.v3.common.SecretReservationKey;
 import eu.wisebed.api.v3.rs.ConfidentialReservationData;
 import eu.wisebed.api.v3.rs.RSFault_Exception;
 import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,274 +20,259 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Optional.of;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.common.ReservationHelper.serialize;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationManagerImplTest extends ReservationTestBase {
 
-	static {
-		Logging.setLoggingDefaults();
-	}
+    static {
+        Logging.setLoggingDefaults();
+    }
 
-	@Mock
-	private Provider<RSPersistence> rsPersistenceProvider;
+    @Mock
+    private Provider<RSPersistence> rsPersistenceProvider;
 
-	@Mock
-	private RSPersistence rsPersistence;
+    @Mock
+    private RSPersistence rsPersistence;
 
-	@Mock
-	private DeviceDBService deviceDBService;
+    @Mock
+    private DeviceDBService deviceDBService;
 
-	@Mock
-	private ReservationFactory reservationFactory;
+    @Mock
+    private ReservationFactory reservationFactory;
 
-	@Mock
-	private Reservation reservation1;
+    @Mock
+    private Reservation reservation1;
 
-	@Mock
-	private Reservation reservation2;
+    @Mock
+    private Reservation reservation2;
 
-	@Mock
-	private Reservation reservation3;
+    @Mock
+    private Reservation reservation3;
 
-	@Mock
-	private SchedulerServiceFactory schedulerServiceFactory;
+    @Mock
+    private SchedulerServiceFactory schedulerServiceFactory;
 
-	@Mock
-	private SchedulerService schedulerService;
+    @Mock
+    private SchedulerService schedulerService;
 
-	@Mock
-	private CommonConfig commonConfig;
+    @Mock
+    private CommonConfig commonConfig;
 
-	@Mock
-	private PortalEventBus portalEventBus;
+    @Mock
+    private ScheduledFuture scheduledFuture;
 
-	@Mock
-	private ScheduledFuture scheduledFuture;
+    @Mock
+    private ReservationCache cache;
 
-	@Mock
-	private ReservationCache reservationCache;
+    private ReservationManagerImpl reservationManager;
 
-	private ReservationManagerImpl reservationManager;
+    @Before
+    @SuppressWarnings("unchecked")
+    public void setUp() throws Exception {
 
-	@Before
-	@SuppressWarnings("unchecked")
-	public void setUp() throws Exception {
+        when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX);
+        when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
+        when(rsPersistenceProvider.get()).thenReturn(rsPersistence);
+        when(schedulerService
+                        .scheduleAtFixedRate(Matchers.<Runnable>any(), anyLong(), anyLong(), Matchers.<TimeUnit>any())
+        ).thenReturn(scheduledFuture);
 
-		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX);
-		when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
-		when(rsPersistenceProvider.get()).thenReturn(rsPersistence);
-		when(schedulerService
-						.scheduleAtFixedRate(Matchers.<Runnable>any(), anyLong(), anyLong(), Matchers.<TimeUnit>any())
-		).thenReturn(scheduledFuture);
+        reservationManager = new ReservationManagerImpl(
+                commonConfig,
+                rsPersistenceProvider,
+                reservationFactory,
+                schedulerServiceFactory,
+                cache
+        );
+    }
 
-		reservationManager = new ReservationManagerImpl(
-				commonConfig,
-				rsPersistenceProvider,
-				reservationFactory,
-				schedulerServiceFactory,
-				portalEventBus,
-				reservationCache
-		);
+    @After
+    public void tearDown() throws Exception {
+        reservationManager.stopAndWait();
+    }
 
-		reservationManager.startAndWait();
-	}
+    @Test
+    public void testIfNonFinalizedReservationsAreStartedUponStartup() throws Exception {
 
-	@After
-	public void tearDown() throws Exception {
-		reservationManager.stopAndWait();
-	}
+        setUpReservation1();
+        setUpReservation2();
 
-	@Test
-	public void testThatNullIsReturnedAndNoReservationIsCreatedIfReservationIsUnknown() throws Exception {
+        when(rsPersistence.getNonFinalizedReservations()).thenReturn(newArrayList(RESERVATION_1_DATA, RESERVATION_2_DATA));
 
-		setUpUnknownReservation();
+        reservationManager.startAndWait();
 
-		try {
-			reservationManager.getReservation(UNKNOWN_SECRET_RESERVATION_KEY_SET);
-		} catch (ReservationUnknownException e) {
-			verifyZeroInteractions(deviceDBService);
-			verifyZeroInteractions(reservationFactory);
-		}
-	}
+        verify(reservation1).startAndWait();
+        verify(reservation2).startAndWait();
+    }
 
-	@Test
-	public void testThatAllRunningReservationsAreShutDownWhenReservationManagerIsShutDown() throws Exception {
+    @Test
+    public void testIfReservationIsInstantiatedStartedAndCachedWhenCreatedInDB() throws Exception {
 
-		setUpReservation1();
-		setUpReservation2();
+        setUpReservation1();
 
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1);
-		reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_2);
+        reservationManager.rsPersistenceListener.onReservationMade(newArrayList(RESERVATION_1_DATA));
 
-		reservationManager.stopAndWait();
+        //noinspection unchecked
+        verify(reservationFactory).create(
+                anyListOf(ConfidentialReservationData.class),
+                anyString(),
+                anyString(),
+                isNull(DateTime.class),
+                isNull(DateTime.class),
+                any(SchedulerService.class),
+                eq(RESERVATION_1_NODE_URN_SET),
+                eq(RESERVATION_1_INTERVAL)
+        );
+        verify(reservation1).startAndWait();
+        verify(cache).put(eq(reservation1));
+    }
 
-		verify(reservation1).stopAndWait();
-		verify(reservation2).stopAndWait();
-	}
+    @Test
+    public void testIfReservationIsReturnedOnCacheHitForSrkSet() throws Exception {
+        when(cache.lookup(RESERVATION_1_SRK_SET)).thenReturn(of(reservation1));
+        assertSame(reservation1, reservationManager.getReservation(RESERVATION_1_SRK_SET));
+    }
 
-	@Test
-	public void testIfCacheIsCleanedWhenReservationStops() throws Exception {
+    @Test
+    public void testIfReservationIsReturnedOnCacheHitForNodeUrnAndDateTime() throws Exception {
+        when(cache.lookup(RESERVATION_1_NODE_URN, RESERVATION_1_INTERVAL.getStart())).thenReturn(of(reservation1));
 
-		setUpReservation1();
+        Reservation actual = reservationManager.getReservation(
+                RESERVATION_1_NODE_URN,
+                RESERVATION_1_INTERVAL.getStart()
+        ).get();
 
-		// verify that reservation is created when asking for it the first time
-		assertNotNull(reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1));
-		verify(rsPersistence).getReservation(eq(KNOWN_SECRET_RESERVATION_KEY_1));
+        assertSame(reservation1, actual);
+    }
 
-		// verify that reservation is returned from cache when asking for it the second time
-		assertNotNull(reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1));
-		verify(rsPersistence).getReservation(eq(KNOWN_SECRET_RESERVATION_KEY_1));
+    @Test
+    public void testIfReservationIsInstantiatedStartedCachedAndReturnedOnCacheMiss() throws Exception {
 
-		// trigger ending reservation and validate that it was removed from cache
-		/*
-		reservationManager.on(ReservationClosedEvent.newBuilder()
-						.setSerializedKey(serialize(KNOWN_SECRET_RESERVATION_KEY_SET_1))
-						.build()
-		);*/
+        setUpReservation1();
+        when(cache.lookup(RESERVATION_1_SRK_SET)).thenReturn(Optional.<Reservation>absent());
 
-		// TODO update test
-		fail("TODO update test");
+        Reservation actual = reservationManager.getReservation(RESERVATION_1_SRK_SET);
 
-		assertNotNull(reservationManager.getReservation(KNOWN_SECRET_RESERVATION_KEY_SET_1));
-		verify(rsPersistence, times(2)).getReservation(eq(KNOWN_SECRET_RESERVATION_KEY_1));
-	}
+        //noinspection unchecked
+        verify(reservationFactory).create(
+                anyListOf(ConfidentialReservationData.class),
+                anyString(),
+                anyString(),
+                isNull(DateTime.class),
+                isNull(DateTime.class),
+                any(SchedulerService.class),
+                eq(RESERVATION_1_NODE_URN_SET),
+                eq(RESERVATION_1_INTERVAL)
+        );
+        verify(reservation1).startAndWait();
+        verify(cache).put(eq(reservation1));
+        assertSame(reservation1, actual);
+    }
 
-	@Test
-	public void testIfNodeToReservationCacheIsCleanedIfReservationIsCancelledBeforeStart() throws Exception {
+    @Test
+    public void testThatNoReservationIsCreatedIfReservationIsUnknown() throws Exception {
 
-		// set up reservation and check if it is correctly returned before cancelling it
-		setUpReservation1();
+        setUpUnknownReservation();
+        reservationManager.startAndWait();
 
-		final DateTime cancellationTimestamp = DateTime.now();
-		final DateTime reservationStart = cancellationTimestamp.plusMinutes(1);
-		when(reservation1.getInterval()).thenReturn(new Interval(reservationStart, RESERVATION_INTERVAL_1.getEnd()));
-		final DateTime res1Start = reservation1.getInterval().getStart();
-		when(rsPersistence.getReservation(RESERVATION_1_NODE_URN, res1Start))
-				.thenReturn(Optional.of(RESERVATION_DATA_1));
-		assertSame(reservation1, reservationManager.getReservation(RESERVATION_1_NODE_URN, res1Start).get());
+        try {
+            reservationManager.getReservation(UNKNOWN_SRK_SET);
+        } catch (ReservationUnknownException e) {
+            verifyZeroInteractions(deviceDBService);
+            verifyZeroInteractions(reservationFactory);
+        }
+    }
 
-		// cancel the reservation, inform RM by having him catch the corresponding event and check if it is not
-		// returned from the cache afterwards
-		when(rsPersistence.getReservation(RESERVATION_1_NODE_URN, reservationStart.plusSeconds(1)))
-				.thenReturn(Optional.<ConfidentialReservationData>absent());
-		when(reservation1.getCancelled()).thenReturn(cancellationTimestamp);
-		/*
-		reservationManager.on(ReservationCancelledEvent.newBuilder()
-						.setSerializedKey(serialize(KNOWN_SECRET_RESERVATION_KEY_1))
-						.setTimestamp(cancellationTimestamp.getMillis()).build()
-		);
-		*/
+    @Test
+    public void testThatAllReservationsAreClosedOnShutdown() throws Exception {
 
-		// TODO update test
-		fail("TODO update test");
+        setUpReservation1();
+        setUpReservation2();
+        when(cache.lookup(eq(RESERVATION_1_SRK_SET))).thenReturn(Optional.of(reservation1));
+        when(cache.lookup(eq(RESERVATION_2_SRK_SET))).thenReturn(Optional.of(reservation2));
+        when(cache.getAll()).thenReturn(newHashSet(reservation1, reservation2));
 
-		assertFalse(
-				reservationManager.getReservation(RESERVATION_1_NODE_URN, reservationStart.plusSeconds(1)).isPresent()
-		);
-	}
+        reservationManager.startAndWait();
 
-	@Test
-	public void testIfNodeToReservationCacheIsCleanedIfReservationIsCancelledDuringReservationInterval()
-			throws Exception {
+        reservationManager.getReservation(RESERVATION_1_SRK_SET);
+        reservationManager.getReservation(RESERVATION_2_SRK_SET);
 
-		// set up reservation and check if it is correctly returned before cancelling it
-		setUpReservation1();
+        reservationManager.stopAndWait();
 
-		final DateTime res1Start = reservation1.getInterval().getStart();
-		when(rsPersistence.getReservation(RESERVATION_1_NODE_URN, res1Start))
-				.thenReturn(Optional.of(RESERVATION_DATA_1));
-		assertSame(reservation1, reservationManager.getReservation(RESERVATION_1_NODE_URN, res1Start).get());
+        verify(reservation1).stopAndWait();
+        verify(reservation2).stopAndWait();
+    }
 
-		// cancel the reservation, inform RM by having him catch the corresponding event and check if it is not
-		// returned from the cache afterwards
-		final DateTime cancellationTimestamp = DateTime.now();
-		when(rsPersistence.getReservation(RESERVATION_1_NODE_URN, cancellationTimestamp.plusSeconds(1)))
-				.thenReturn(Optional.<ConfidentialReservationData>absent());
-		when(reservation1.getCancelled()).thenReturn(cancellationTimestamp);
+    private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
+        when(rsPersistence.getReservation(RESERVATION_1_SRK)).thenReturn(RESERVATION_1_DATA);
+        when(reservationFactory.create(
+                        anyListOf(ConfidentialReservationData.class),
+                        eq(RESERVATION_1_SRK.getKey()),
+                        eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
+                        any(SchedulerService.class),
+                        eq(RESERVATION_1_NODE_URN_SET),
+                        eq(RESERVATION_1_INTERVAL)
+                )
+        ).thenReturn(reservation1);
+        when(reservation1.getInterval()).thenReturn(RESERVATION_1_INTERVAL);
+        when(reservation1.getSerializedKey()).thenReturn(serialize(RESERVATION_1_SRK));
+    }
 
-		/*
-		reservationManager.on(ReservationCancelledEvent.newBuilder()
-						.setSerializedKey(serialize(KNOWN_SECRET_RESERVATION_KEY_1))
-						.setTimestamp(cancellationTimestamp.getMillis()).build()
-		);
-		*/
+    private void setUpReservation2() throws RSFault_Exception, UnknownSecretReservationKeyFault {
+        when(rsPersistence.getReservation(RESERVATION_2_SRK)).thenReturn(RESERVATION_2_DATA);
+        when(reservationFactory.create(
+                        anyListOf(ConfidentialReservationData.class),
+                        eq(RESERVATION_2_SRK.getKey()),
+                        eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
+                        any(SchedulerService.class),
+                        eq(RESERVATION_2_NODE_URN_SET),
+                        eq(RESERVATION_2_INTERVAL)
+                )
+        ).thenReturn(reservation2);
+        when(reservation2.getInterval()).thenReturn(RESERVATION_2_INTERVAL);
+        when(reservation2.getSerializedKey()).thenReturn(serialize(RESERVATION_2_SRK));
+    }
 
-		// TODO update test
-		fail("TODO update test");
+    private void setUpReservation3() throws RSFault_Exception, UnknownSecretReservationKeyFault {
+        when(rsPersistence.getReservation(RESERVATION_3_SRK)).thenReturn(RESERVATION_3_DATA);
+        when(reservationFactory.create(
+                        anyListOf(ConfidentialReservationData.class),
+                        eq(RESERVATION_3_SRK.getKey()),
+                        eq(USERNAME),
+                        any(DateTime.class),
+                        any(DateTime.class),
+                        any(SchedulerService.class),
+                        eq(RESERVATION_3_NODE_URN_SET),
+                        eq(RESERVATION_3_INTERVAL)
+                )
+        ).thenReturn(reservation3);
+        when(reservation3.getInterval()).thenReturn(RESERVATION_3_INTERVAL);
+        when(reservation3.getSerializedKey()).thenReturn(serialize(RESERVATION_3_SRK));
+    }
 
-		final Optional<Reservation> result =
-				reservationManager.getReservation(RESERVATION_1_NODE_URN, cancellationTimestamp.plusSeconds(1));
-		assertFalse(result.isPresent());
-	}
-
-	private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		when(rsPersistence.getReservation(KNOWN_SECRET_RESERVATION_KEY_1)).thenReturn(RESERVATION_DATA_1);
-		when(reservationFactory.create(
-						anyListOf(ConfidentialReservationData.class),
-						eq(KNOWN_SECRET_RESERVATION_KEY_1.getKey()),
-						eq(USERNAME),
-						any(DateTime.class),
-						any(DateTime.class),
-						any(SchedulerService.class),
-						eq(RESERVATION_NODE_URNS_1),
-						eq(RESERVATION_INTERVAL_1)
-				)
-		).thenReturn(reservation1);
-		when(reservation1.getInterval()).thenReturn(RESERVATION_INTERVAL_1);
-		when(reservation1.getSerializedKey()).thenReturn(serialize(KNOWN_SECRET_RESERVATION_KEY_1));
-	}
-
-	private void setUpReservation2() throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		when(rsPersistence.getReservation(KNOWN_SECRET_RESERVATION_KEY_2)).thenReturn(RESERVATION_DATA_2);
-		when(reservationFactory.create(
-						anyListOf(ConfidentialReservationData.class),
-						eq(KNOWN_SECRET_RESERVATION_KEY_2.getKey()),
-						eq(USERNAME),
-						any(DateTime.class),
-						any(DateTime.class),
-						any(SchedulerService.class),
-						eq(RESERVATION_NODE_URNS_2),
-						eq(RESERVATION_INTERVAL_2)
-				)
-		).thenReturn(reservation2);
-		when(reservation2.getInterval()).thenReturn(RESERVATION_INTERVAL_2);
-		when(reservation2.getSerializedKey()).thenReturn(serialize(KNOWN_SECRET_RESERVATION_KEY_2));
-	}
-
-	private void setUpReservation3() throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		when(rsPersistence.getReservation(KNOWN_SECRET_RESERVATION_KEY_3)).thenReturn(RESERVATION_DATA_3);
-		when(reservationFactory.create(
-						anyListOf(ConfidentialReservationData.class),
-						eq(KNOWN_SECRET_RESERVATION_KEY_3.getKey()),
-						eq(USERNAME),
-						any(DateTime.class),
-						any(DateTime.class),
-						any(SchedulerService.class),
-						eq(RESERVATION_NODE_URNS_3),
-						eq(RESERVATION_INTERVAL_3)
-				)
-		).thenReturn(reservation3);
-		when(reservation3.getInterval()).thenReturn(RESERVATION_INTERVAL_3);
-		when(reservation3.getSerializedKey()).thenReturn(serialize(KNOWN_SECRET_RESERVATION_KEY_3));
-	}
-
-	private void setUpUnknownReservation() throws RSFault_Exception, UnknownSecretReservationKeyFault {
-		when(rsPersistence.getReservation(eq(UNKNOWN_SECRET_RESERVATION_KEY_1))).thenThrow(
-				new UnknownSecretReservationKeyFault(
-						"not found",
-						new eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault()
-				)
-		);
-	}
-
-
+    private void setUpUnknownReservation() throws RSFault_Exception, UnknownSecretReservationKeyFault {
+        when(cache.lookup(eq(UNKNOWN_SRK_SET))).thenReturn(Optional.<Reservation>absent());
+        when(rsPersistence.getReservation(eq(UNKNOWN_SRK))).thenThrow(
+                new UnknownSecretReservationKeyFault(
+                        "not found",
+                        new eu.wisebed.api.v3.common.UnknownSecretReservationKeyFault()
+                )
+        );
+    }
 }

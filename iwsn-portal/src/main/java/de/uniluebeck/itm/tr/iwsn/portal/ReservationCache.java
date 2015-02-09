@@ -16,7 +16,7 @@ public interface ReservationCache extends Service {
 
     Optional<Reservation> lookup(NodeUrn nodeUrn, DateTime timestamp);
 
-    Reservation put(Reservation reservation);
+    void put(Reservation reservation);
 
     void clear();
 

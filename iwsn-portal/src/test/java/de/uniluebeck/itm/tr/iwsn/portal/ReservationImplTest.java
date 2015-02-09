@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
@@ -287,10 +288,29 @@ public class ReservationImplTest {
 
 
     @Test
-    public void testThatOngoingReservationIsStartedImmedeatly() throws Exception {
+    public void testThatOngoingReservationIsStartedImmediately() throws Exception {
         setupReservationOngoing();
+        reservation.startAndWait();
+        verify(schedulerService).execute(refEq(reservation.startRunnable));
+        reservation.startRunnable.run();
         verify(schedulerService).schedule(isA(ReservationImpl.ReservationMadeCallable.class), eq(0l), any(TimeUnit.class));
+    }
 
+    @Test
+    public void testIfOpenedEventIsPostedOnStartAsynchronously() throws Exception {
+        setupReservationOngoing();
+        reservation.startAndWait();
+        verify(schedulerService).execute(refEq(reservation.startRunnable));
+        reservation.startRunnable.run();
+        verify(portalEventBus).post(isA(ReservationOpenedEvent.class));
+    }
+
+    @Test
+    public void testIfClosedEventIsPostedOnStop() throws Exception {
+        setupReservationOngoing();
+        reservation.startAndWait();
+        reservation.stopAndWait();
+        verify(portalEventBus).post(isA(ReservationClosedEvent.class));
     }
 
     @Test

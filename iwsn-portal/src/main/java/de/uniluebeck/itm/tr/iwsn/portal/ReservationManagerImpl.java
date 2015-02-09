@@ -40,8 +40,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
     private final Provider<RSPersistence> rsPersistence;
 
-    private final PortalEventBus portalEventBus;
-
     @VisibleForTesting
     final RSPersistenceListener rsPersistenceListener = new RSPersistenceListener() {
         @Override
@@ -70,12 +68,10 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                                   final Provider<RSPersistence> rsPersistence,
                                   final ReservationFactory reservationFactory,
                                   final SchedulerServiceFactory schedulerServiceFactory,
-                                  final PortalEventBus portalEventBus,
                                   final ReservationCache cache) {
         this.commonConfig = checkNotNull(commonConfig);
         this.rsPersistence = checkNotNull(rsPersistence);
         this.reservationFactory = checkNotNull(reservationFactory);
-        this.portalEventBus = checkNotNull(portalEventBus);
         this.cache = cache;
         this.schedulerService = schedulerServiceFactory.create(-1, "ReservationScheduler");
     }
@@ -85,7 +81,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         log.trace("ReservationManagerImpl.doStart()");
         try {
             schedulerService.startAndWait();
-            portalEventBus.register(this);
             rsPersistence.get().addListener(rsPersistenceListener);
             initializeNonFinalizedReservations();
             notifyStarted();
@@ -105,7 +100,6 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
 
             cache.clear();
 
-            portalEventBus.unregister(this);
             rsPersistence.get().removeListener(rsPersistenceListener);
             schedulerService.stopAndWait();
             notifyStopped();
@@ -116,7 +110,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     }
 
     /**
-     * Creates instances for all reservations which are not finalized at the moment and need to be restarted
+     * Creates instances for all reservations which are not finalized at the moment and need to be reopened
      */
     private void initializeNonFinalizedReservations() {
 
@@ -156,7 +150,9 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             return res.get();
         }
 
-        return cache.put(createAndInitReservation(srkSet));
+        Reservation reservation = createAndInitReservation(srkSet);
+        cache.put(reservation);
+        return reservation;
     }
 
     /**

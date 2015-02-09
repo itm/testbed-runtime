@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.SimpleTimeLimiter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.common.util.concurrent.TimeLimiter;
@@ -173,5 +174,10 @@ public class PortalModule extends AbstractModule {
 		return new SimpleTimeLimiter(
 				getExitingExecutorService((ThreadPoolExecutor) newCachedThreadPool(threadFactory))
 		);
+	}
+
+	@Provides
+	Stopwatch provideStopwatch() {
+		return new Stopwatch();
 	}
 }
