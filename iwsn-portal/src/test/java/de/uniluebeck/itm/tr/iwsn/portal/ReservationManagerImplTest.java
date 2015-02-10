@@ -215,6 +215,19 @@ public class ReservationManagerImplTest extends ReservationTestBase {
         verify(reservation2).stopAndWait();
     }
 
+    @Test
+    public void testIfCacheIsStartedOnStartup() throws Exception {
+        reservationManager.startAndWait();
+        verify(cache).startAndWait();
+    }
+
+    @Test
+    public void testIfCacheIsStoppedOnShutdown() throws Exception {
+        reservationManager.startAndWait();
+        reservationManager.stopAndWait();
+        verify(cache).stopAndWait();
+    }
+
     private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
         when(rsPersistence.getReservation(RESERVATION_1_SRK)).thenReturn(RESERVATION_1_DATA);
         when(reservationFactory.create(

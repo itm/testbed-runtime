@@ -81,6 +81,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         log.trace("ReservationManagerImpl.doStart()");
         try {
             schedulerService.startAndWait();
+            cache.startAndWait();
             rsPersistence.get().addListener(rsPersistenceListener);
             initializeNonFinalizedReservations();
             notifyStarted();
@@ -99,6 +100,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             }
 
             cache.clear();
+            cache.stopAndWait();
 
             rsPersistence.get().removeListener(rsPersistenceListener);
             schedulerService.stopAndWait();
