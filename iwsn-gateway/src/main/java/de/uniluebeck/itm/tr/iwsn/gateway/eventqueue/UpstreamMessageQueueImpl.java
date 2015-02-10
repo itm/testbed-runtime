@@ -13,6 +13,7 @@ import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesDisconnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.GatewayFailureEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
+import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -43,24 +44,30 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
     private final UpstreamMessageQueueHelper queueHelper;
     private final GatewayEventBus gatewayEventBus;
     private final IdProvider idProvider;
+    private final SchedulerService schedulerService;
+
     private Channel channel;
     private IBigQueue queue;
     private MultiClassSerializationHelper<MessageLite> serializationHelper;
 
     @Inject
-    public UpstreamMessageQueueImpl(final UpstreamMessageQueueHelper queueHelper, final GatewayEventBus gatewayEventBus, final IdProvider idProvider) {
+    public UpstreamMessageQueueImpl(final UpstreamMessageQueueHelper queueHelper, final GatewayEventBus gatewayEventBus,
+                                    final IdProvider idProvider, final SchedulerService schedulerService) {
         this.queueHelper = queueHelper;
         this.gatewayEventBus = gatewayEventBus;
         this.idProvider = idProvider;
+        this.schedulerService = schedulerService;
     }
 
     @Override
     protected void doStart() {
-        log.trace("GatewayEventQueueImpl.doStart()");
+
+        log.trace("UpstreamMessageQueueImpl.doStart()");
+
         try {
             queue = queueHelper.createAndConfigureQueue();
         } catch (IOException e) {
-            log.error("Failed to create event queue! Event persistence not available!", e);
+            log.error("Failed to create event queue!", e);
             notifyFailed(e);
             return;
         }
@@ -68,12 +75,10 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
         try {
             serializationHelper = queueHelper.configureEventSerializationHelper();
         } catch (Exception e) {
-            log.error("Failed to configure serialization helper! Event persistence not available!", e);
+            log.error("Failed to configure serialization helper!", e);
             notifyFailed(e);
             return;
         }
-        log.trace("GatewayEventQueueImpl configured successfully");
-
 
         gatewayEventBus.register(this);
         notifyStarted();
@@ -81,18 +86,19 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 
     @Override
     protected void doStop() {
-        log.trace("GatewayEventQueueImpl.doStop()");
+        log.trace("UpstreamMessageQueueImpl.doStop()");
         gatewayEventBus.unregister(this);
         notifyStopped();
     }
 
     @Override
     public void channelConnected(final Channel channel) {
+        log.trace("UpstreamMessageQueueImpl.channelConnected()");
         synchronized (channelLock) {
             this.channel = channel;
-            addCallback(queue.dequeueAsync(), dequeueCallback);
+            addCallback(queue.dequeueAsync(), dequeueCallback, schedulerService);
         }
-        log.trace("GatewayEventQueueImpl.channelConnected(): dequeue future callback added");
+        log.trace("UpstreamMessageQueueImpl.channelConnected(): dequeue future callback added");
     }
 
     @Override
@@ -105,23 +111,34 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 
     @Override
     public void enqueue(Message message) {
+
         if (isPersistenceAvailable()) {
+
             try {
-                byte[] serialization = serializationHelper.serialize(message);
-                enqueue(serialization);
-                log.trace("queue.enqueue");
+                byte[] serializedBytes = serializationHelper.serialize(message);
+                enqueue(serializedBytes);
             } catch (NotSerializableException e) {
+                log.error("NotSerializableException while trying to serialize. Exception: {}", e);
                 sendFailureEvent("The message " + message + " is not serializable. An appropriate serializer is missing!", e);
             }
+
         } else {
+
             sendFailureEvent("EventQueue was neither able to enqueue nor to send the message [" + message + "] - Queue: [" + queue + "], Helper: [" + serializationHelper + "]");
         }
     }
 
     private void enqueue(byte[] serializedMessage) {
+
         try {
+
+            log.trace("UpstreamMessageQueueImpl.enqueue(byte[]): enqueuing {} bytes", serializedMessage.length);
             queue.enqueue(serializedMessage);
+            log.trace("UpstreamMessageQueueImpl.enqueue(byte[]): successfully enqueued {} bytes", serializedMessage.length);
+
         } catch (IOException e) {
+
+            log.error("UpstreamMessageQueueImpl.enqueue(byte[]): IOException while enqueuing: ", e);
             sendFailureEvent("Failed to enqueue message in upstream message queue.", e);
         }
     }
@@ -163,7 +180,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
                             if (future.isSuccess()) {
 
                                 log.trace("Successfully forwarded message to portal, asynchronously dequeuing next message.");
-                                addCallback(queue.dequeueAsync(), dequeueCallback);
+                                addCallback(queue.dequeueAsync(), dequeueCallback, schedulerService);
 
                             } else {
 
