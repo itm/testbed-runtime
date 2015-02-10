@@ -23,157 +23,164 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class KeepAliveHandler extends SimpleChannelUpstreamHandler {
 
-	private static final Logger log = LoggerFactory.getLogger(KeepAliveHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(KeepAliveHandler.class);
 
-	private static final int KEEP_ALIVE_INTERVAL_MS = 5000;
+    private static final int KEEP_ALIVE_INTERVAL_MS = 5000;
 
-	private static final int KEEP_ALIVE_TOLERANCE_MS = 2500;
+    private static final int KEEP_ALIVE_TOLERANCE_MS = 2500;
 
-	private final SchedulerService schedulerService;
+    private final SchedulerService schedulerService;
 
-	// lock for thread-shared vars
-	private final Lock lock = new ReentrantLock();
+    // lock for thread-shared vars
+    private final Lock lock = new ReentrantLock();
 
-	// thread-shared var
-	private ChannelHandlerContext chc;
+    // thread-shared var
+    private ChannelHandlerContext chc;
 
-	// thread-shared var
-	private Stopwatch stopwatch = new Stopwatch();
+    // thread-shared var
+    private Stopwatch stopwatch = new Stopwatch();
 
-	private Runnable checkLivelinessRunnable = new Runnable() {
-		@Override
-		public void run() {
+    private Runnable checkLivelinessRunnable = new Runnable() {
+        @Override
+        public void run() {
 
-			final long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+            final long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-			try {
+            try {
 
-				if (elapsed > (KEEP_ALIVE_INTERVAL_MS + KEEP_ALIVE_TOLERANCE_MS)) {
+                if (elapsed > (KEEP_ALIVE_INTERVAL_MS + KEEP_ALIVE_TOLERANCE_MS)) {
 
-					log.warn(
-							"KeepAliveHandler[remote={},msElapsed={}] detected dead TCP channel. Closing it...",
-							chc.getChannel().getRemoteAddress(),
-							elapsed
-					);
+                    if (chc.getChannel() == null) {
+                        log.trace("KeepAliveHandler.checkLivelinessRunnable detected dead TCP channel (already null). Stopping work.");
+                        stopSchedule();
+                        return;
+                    }
 
-					lock.lock();
-					try {
-						chc.getChannel().close();
-					} finally {
-						lock.unlock();
-					}
+                    log.warn(
+                            "KeepAliveHandler[remote={},msElapsed={}] detected dead TCP channel. Closing it...",
+                            chc.getChannel().getRemoteAddress(),
+                            elapsed
+                    );
 
-				} else {
-					sendKeepAlive();
-				}
+                    lock.lock();
+                    try {
+                        chc.getChannel().close();
+                        stopSchedule();
+                    } finally {
+                        lock.unlock();
+                    }
 
-			} catch (Exception e) {
+                } else {
+                    sendKeepAlive();
+                }
 
-				log.warn(
-						"KeepAliveHandler[remote={},msElapsed={}]: Exception during execution of checkLivelinessRunnable: {}, StackTrace: {}",
-						chc.getChannel().getRemoteAddress(),
-						elapsed,
-						e.getMessage(),
-						Throwables.getStackTraceAsString(e)
-				);
-			}
-		}
-	};
+            } catch (Exception e) {
 
-	private ScheduledFuture<?> schedule;
+                log.warn(
+                        "KeepAliveHandler[remote={},msElapsed={}]: Exception during execution of checkLivelinessRunnable: {}, StackTrace: {}",
+                        chc == null ? "unknown" : chc.getChannel() == null ? "unknown" : chc.getChannel().getRemoteAddress(),
+                        elapsed,
+                        e.getMessage(),
+                        Throwables.getStackTraceAsString(e)
+                );
+            }
+        }
+    };
 
-	public KeepAliveHandler(final SchedulerService schedulerService) {
-		this.schedulerService = schedulerService;
-	}
+    private ScheduledFuture<?> schedule;
 
-	@Override
-	public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+    public KeepAliveHandler(final SchedulerService schedulerService) {
+        this.schedulerService = schedulerService;
+    }
 
-		lock.lock();
-		try {
+    @Override
+    public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 
-			chc = ctx;
-			stopwatch.reset();
-			stopwatch.start();
+        lock.lock();
+        try {
 
-			log.trace(
-					"KeepAliveHandler[remote={},msElapsed={}] received connection event. Starting work.",
-					ctx.getChannel().getRemoteAddress(),
-					stopwatch.elapsed(TimeUnit.MILLISECONDS)
-			);
+            chc = ctx;
+            stopwatch.reset();
+            stopwatch.start();
 
-			sendKeepAlive();
+            log.trace(
+                    "KeepAliveHandler[remote={},msElapsed={}] received connection event. Starting work.",
+                    ctx.getChannel().getRemoteAddress(),
+                    stopwatch.elapsed(TimeUnit.MILLISECONDS)
+            );
 
-			schedule = schedulerService.scheduleAtFixedRate(
-					checkLivelinessRunnable,
-					KEEP_ALIVE_TOLERANCE_MS, KEEP_ALIVE_INTERVAL_MS, TimeUnit.MILLISECONDS
-			);
+            sendKeepAlive();
 
-		} catch (Exception e1) {
-			log.error("Exception in KeepAliveHandler.channelConnected: ", e1);
-		} finally {
-			lock.unlock();
-		}
+            schedule = schedulerService.scheduleAtFixedRate(
+                    checkLivelinessRunnable,
+                    KEEP_ALIVE_TOLERANCE_MS, KEEP_ALIVE_INTERVAL_MS, TimeUnit.MILLISECONDS
+            );
 
-		super.channelConnected(ctx, e);
-	}
+        } catch (Exception e1) {
+            log.error("Exception in KeepAliveHandler.channelConnected: ", e1);
+        } finally {
+            lock.unlock();
+        }
 
-	@Override
-	public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+        super.channelConnected(ctx, e);
+    }
 
-		lock.lock();
-		try {
+    @Override
+    public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+
+        lock.lock();
+        try {
 
 			/*
-			log.trace(
+            log.trace(
 					"KeepAliveHandler[remote={},msElapsed={}] received disconnection event. Stopping work.",
 					ctx.getChannel().getRemoteAddress(),
 					stopwatch.elapsed(TimeUnit.MILLISECONDS)
 			);
 			*/
 
-			stopSchedule();
-			stopwatch.reset();
-			chc = null;
+            stopSchedule();
+            stopwatch.reset();
+            chc = null;
 
-		} catch (Exception e1) {
-			log.error("Exception in KeepAliveHandler.channelDisconnected: ", e1);
-		} finally {
-			lock.unlock();
-		}
+        } catch (Exception e1) {
+            log.error("Exception in KeepAliveHandler.channelDisconnected: ", e1);
+        } finally {
+            lock.unlock();
+        }
 
-		super.channelDisconnected(ctx, e);
-	}
+        super.channelDisconnected(ctx, e);
+    }
 
-	private void stopSchedule() {
-		lock.lock();
-		try {
-			if (schedule != null) {
-				log.trace(
-						"KeepAliveHandler[remote={},msElapsed={}] cancelling schedule",
-						chc.getChannel().getRemoteAddress(),
-						stopwatch.elapsed(TimeUnit.MILLISECONDS)
-				);
-				schedule.cancel(true);
-				schedule = null;
-			} else if (log.isWarnEnabled()) {
-				log.warn(
-						"KeepAliveHandler[remote={},msElapsed={}] schedule already null",
-						chc.getChannel().getRemoteAddress(),
-						stopwatch.elapsed(TimeUnit.MILLISECONDS)
-				);
-			}
-		} finally {
-			lock.unlock();
-		}
-	}
+    private void stopSchedule() {
+        lock.lock();
+        try {
+            if (schedule != null) {
+                log.trace(
+                        "KeepAliveHandler[remote={},msElapsed={}] cancelling schedule",
+                        chc.getChannel().getRemoteAddress(),
+                        stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                );
+                schedule.cancel(true);
+                schedule = null;
+            } else if (log.isWarnEnabled()) {
+                log.warn(
+                        "KeepAliveHandler[remote={},msElapsed={}] schedule already null",
+                        chc.getChannel().getRemoteAddress(),
+                        stopwatch.elapsed(TimeUnit.MILLISECONDS)
+                );
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
 
-	@Override
-	public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
+    @Override
+    public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
 
-		lock.lock();
+        lock.lock();
 
-		try {
+        try {
 
 			/*
 			// should receive one KEEP_ALIVE every 5 seconds from remote (and send an KEEP_ALIVE_ACK back) as well as
@@ -186,26 +193,26 @@ public class KeepAliveHandler extends SimpleChannelUpstreamHandler {
 			);
 			*/
 
-			stopwatch.reset();
-			stopwatch.start();
+            stopwatch.reset();
+            stopwatch.start();
 
-			if (e.getMessage() instanceof Message && ((Message) e.getMessage()).getType() == Message.Type.KEEP_ALIVE) {
-				sendKeepAliveAck();
-			}
+            if (e.getMessage() instanceof Message && ((Message) e.getMessage()).getType() == Message.Type.KEEP_ALIVE) {
+                sendKeepAliveAck();
+            }
 
-		} catch (Exception e1) {
-			log.error("Exception in KeepAliveHandler.messageReceived: ", e1);
-		} finally {
-			lock.unlock();
-		}
+        } catch (Exception e1) {
+            log.error("Exception in KeepAliveHandler.messageReceived: ", e1);
+        } finally {
+            lock.unlock();
+        }
 
-		super.messageReceived(ctx, e);
-	}
+        super.messageReceived(ctx, e);
+    }
 
-	private void sendKeepAliveAck() {
+    private void sendKeepAliveAck() {
 
-		lock.lock();
-		try {
+        lock.lock();
+        try {
 
 			/*
 			if (log.isTraceEnabled()) {
@@ -217,17 +224,27 @@ public class KeepAliveHandler extends SimpleChannelUpstreamHandler {
 			}
 			*/
 
-			Channels.write(chc.getChannel(), Message.newBuilder().setType(Message.Type.KEEP_ALIVE_ACK).build());
+            final Channel channel = chc.getChannel();
 
-		} finally {
-			lock.unlock();
-		}
-	}
+            if (channel == null) {
+                log.warn("Channel is null, stopping work");
+                stopSchedule();
+                return;
+            }
 
-	private void sendKeepAlive() {
+            final Message message = Message.newBuilder().setType(Message.Type.KEEP_ALIVE_ACK).build();
 
-		lock.lock();
-		try {
+            Channels.write(channel, message);
+
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private void sendKeepAlive() {
+
+        lock.lock();
+        try {
 
 			/*
 			if (log.isTraceEnabled()) {
@@ -239,30 +256,40 @@ public class KeepAliveHandler extends SimpleChannelUpstreamHandler {
 			}
 			*/
 
-			try {
-				final ChannelFuture future =
-						Channels.write(chc.getChannel(), Message.newBuilder().setType(Message.Type.KEEP_ALIVE).build());
-				future.addListener(new ChannelFutureListener() {
-									   @Override
-									   public void operationComplete(final ChannelFuture future) throws Exception {
-										   @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-										   final boolean channelClosed = !future.isSuccess() &&
-												   future.getCause() instanceof ClosedChannelException;
-										   if (channelClosed) {
-											   log.trace("KeepAliveHandler.operationComplete(success={},cause={})",
-													   future.isSuccess(), future.getCause()
-											   );
-											   future.getChannel().close();
-										   }
-									   }
-								   }
-				);
-			} catch (Exception e) {
-				log.warn("Exception while sending keep alive: ", e);
-			}
+            try {
 
-		} finally {
-			lock.unlock();
-		}
-	}
+                final Channel channel = chc.getChannel();
+
+                if (channel == null) {
+                    log.warn("Channel is null, stopping work");
+                    stopSchedule();
+                    return;
+                }
+
+                final Message message = Message.newBuilder().setType(Message.Type.KEEP_ALIVE).build();
+                final ChannelFutureListener listener = new ChannelFutureListener() {
+                    @Override
+                    public void operationComplete(final ChannelFuture future) throws Exception {
+                        @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+                        final boolean channelClosed = !future.isSuccess() &&
+                                future.getCause() instanceof ClosedChannelException;
+                        if (channelClosed) {
+                            log.trace("KeepAliveHandler.operationComplete(success={},cause={})",
+                                    future.isSuccess(), future.getCause()
+                            );
+                            future.getChannel().close();
+                        }
+                    }
+                };
+
+                Channels.write(channel, message).addListener(listener);
+
+            } catch (Exception e) {
+                log.warn("Exception while sending keep alive: ", e);
+            }
+
+        } finally {
+            lock.unlock();
+        }
+    }
 }

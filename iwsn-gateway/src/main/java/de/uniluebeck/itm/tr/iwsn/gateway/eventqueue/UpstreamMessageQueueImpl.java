@@ -139,6 +139,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
     }
 
     private FutureCallback<byte[]> dequeueCallback = new FutureCallback<byte[]>() {
+        @SuppressWarnings("ConstantConditions")
         @Override
         public void onSuccess(final byte[] dequeuedBytes) {
 
@@ -160,13 +161,18 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
                         @Override
                         public void operationComplete(ChannelFuture future) throws Exception {
                             if (future.isSuccess()) {
+
                                 log.trace("Successfully forwarded message to portal, asynchronously dequeuing next message.");
                                 addCallback(queue.dequeueAsync(), dequeueCallback);
+
                             } else {
+
                                 log.error("Error forwarding message, re-enqueuing it and closing channel. Cause: {}", future.getCause());
+
                                 if (future.getChannel() != null) {
                                     future.getChannel().close();
                                 }
+
                                 enqueue(dequeuedBytes);
                             }
                         }
@@ -177,14 +183,20 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
                         Channels.write(channel, message).addListener(listener);
 
                     } catch (Exception e) {
-                        if (e instanceof ClosedChannelException) {
+
+                        if (e.getCause() instanceof ClosedChannelException) {
+
                             log.trace("ClosedChannelException while trying to forward message to portal server. Re-enqueuing message. Reason: {}", e.getMessage());
                             channelDisconnected();
                         }
-                        log.error("Exception forwarding message to portal server. Closing channel. Cause: {}", e);
+
                         try {
+
+                            log.error("Exception forwarding message to portal server. Closing channel. Cause: {}", e.getMessage());
                             Channels.close(channel);
+
                         } catch (Exception e1) {
+
                             log.error("Exception closing channel, faking close event. Cause: {}", e);
                             channelDisconnected();
                         }

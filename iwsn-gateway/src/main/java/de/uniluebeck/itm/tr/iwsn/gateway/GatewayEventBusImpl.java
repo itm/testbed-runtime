@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
+import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -72,7 +73,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 				@Override
 				public ChannelPipeline getPipeline() throws Exception {
 					return Channels.pipeline(
-							new ExceptionChannelHandler(ConnectException.class),
+							new ExceptionChannelHandler(ConnectException.class, ClosedChannelException.class),
 							channelObserver,
 							new ProtobufVarint32FrameDecoder(),
 							new ProtobufDecoder(Message.getDefaultInstance()),
