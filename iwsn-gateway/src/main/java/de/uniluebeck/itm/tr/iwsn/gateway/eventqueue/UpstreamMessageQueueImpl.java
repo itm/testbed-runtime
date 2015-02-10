@@ -4,8 +4,6 @@ package de.uniluebeck.itm.tr.iwsn.gateway.eventqueue;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
 import com.leansoft.bigqueue.IBigQueue;
@@ -27,17 +25,20 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.NotSerializableException;
+import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.CancellationException;
 
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.collect.Iterables.transform;
+import static com.google.common.util.concurrent.Futures.addCallback;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newEvent;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newMessage;
 
 @SuppressWarnings("NullableProblems")
 public class UpstreamMessageQueueImpl extends AbstractService implements UpstreamMessageQueue {
-    private static Logger log = LoggerFactory.
-            getLogger(UpstreamMessageQueueImpl.class);
+
+    private static Logger log = LoggerFactory.getLogger(UpstreamMessageQueueImpl.class);
+
     private final Object channelLock = new Object();
     private final UpstreamMessageQueueHelper queueHelper;
     private final GatewayEventBus gatewayEventBus;
@@ -45,7 +46,6 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
     private Channel channel;
     private IBigQueue queue;
     private MultiClassSerializationHelper<MessageLite> serializationHelper;
-    private ListenableFuture<byte[]> dequeueFuture;
 
     @Inject
     public UpstreamMessageQueueImpl(final UpstreamMessageQueueHelper queueHelper, final GatewayEventBus gatewayEventBus, final IdProvider idProvider) {
@@ -90,20 +90,17 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
     public void channelConnected(final Channel channel) {
         synchronized (channelLock) {
             this.channel = channel;
-            dequeueFuture = queue.dequeueAsync();
-            Futures.addCallback(dequeueFuture, buildFutureCallback());
+            addCallback(queue.dequeueAsync(), dequeueCallback);
         }
         log.trace("GatewayEventQueueImpl.channelConnected(): dequeue future callback added");
     }
 
     @Override
     public void channelDisconnected() {
+        log.trace("UpstreamMessageQueueImpl.channelDisconnected()");
         synchronized (channelLock) {
-            dequeueFuture.cancel(false);
             this.channel = null;
-            dequeueFuture = null;
         }
-        log.trace("GatewayEventQueueImpl.channelDisconnected(): dequeue future canceled");
     }
 
     @Override
@@ -141,52 +138,74 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
         return queue != null && serializationHelper != null;
     }
 
+    private FutureCallback<byte[]> dequeueCallback = new FutureCallback<byte[]>() {
+        @Override
+        public void onSuccess(final byte[] dequeuedBytes) {
 
-    private FutureCallback<byte[]> buildFutureCallback() {
-        return new FutureCallback<byte[]>() {
-            @Override
-            public void onSuccess(final byte[] result) {
-                if (serializationHelper != null && channel != null) {
-                    final Object message = serializationHelper.deserialize(result);
-                    log.trace("Writing message to channel: {}", message);
-                    synchronized (channelLock) {
-                        if (channel == null) {
-                            log.warn("Channel is disconnected, re-enqueuing message: {}", message);
-                            enqueue(result);
-                        } else {
-                            ChannelFuture future = Channels.write(channel, message);
-                            future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-                            future.addListener(new ChannelFutureListener() {
-                                @Override
-                                public void operationComplete(ChannelFuture future) throws Exception {
-                                    if (future.isSuccess()) {
-                                        dequeueFuture = queue.dequeueAsync();
-                                        Futures.addCallback(dequeueFuture, buildFutureCallback());
-                                    } else {
-                                        log.error("Failed to send message to portal. Re-enqueuing it: {}", message);
-                                        enqueue(result);
-                                    }
+            assert serializationHelper != null; // otherwise this service should not be running
+
+            synchronized (channelLock) {
+
+                if (!isConnected()) {
+
+                    log.trace("UpstreamMessageQueueImpl.dequeueCallback.onSuccess(): currently not connected; re-enqueuing.");
+                    enqueue(dequeuedBytes);
+
+                } else {
+
+                    final Object message = serializationHelper.deserialize(dequeuedBytes);
+                    log.trace("Forwarding message to portal server: {}", message);
+
+                    ChannelFutureListener listener = new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            if (future.isSuccess()) {
+                                log.trace("Successfully forwarded message to portal, asynchronously dequeuing next message.");
+                                addCallback(queue.dequeueAsync(), dequeueCallback);
+                            } else {
+                                log.error("Error forwarding message, re-enqueuing it and closing channel. Cause: {}", future.getCause());
+                                if (future.getChannel() != null) {
+                                    future.getChannel().close();
                                 }
-                            });
+                                enqueue(dequeuedBytes);
+                            }
+                        }
+                    };
+
+                    try {
+
+                        Channels.write(channel, message).addListener(listener);
+
+                    } catch (Exception e) {
+                        if (e instanceof ClosedChannelException) {
+                            log.trace("ClosedChannelException while trying to forward message to portal server. Re-enqueuing message. Reason: {}", e.getMessage());
+                            channelDisconnected();
+                        }
+                        log.error("Exception forwarding message to portal server. Closing channel. Cause: {}", e);
+                        try {
+                            Channels.close(channel);
+                        } catch (Exception e1) {
+                            log.error("Exception closing channel, faking close event. Cause: {}", e);
+                            channelDisconnected();
                         }
                     }
-
-                } else {
-                    log.error("Failed to deserialize and send the message. Channel or serialization helper may be NULL");
-                    sendFailureEvent("Failed to deserialize and send the message.");
                 }
-            }
 
-            @Override
-            public void onFailure(Throwable t) {
-                if (!(t instanceof CancellationException)) {
-                    log.error("Dequeue future failed with throwable", t);
-                } else {
-                    log.info("Dequeue future was canceled");
-                }
             }
-        };
+        }
 
+        @Override
+        public void onFailure(Throwable t) {
+            if (!(t instanceof CancellationException)) {
+                log.error("Dequeue future failed with throwable", t);
+            } else {
+                log.info("Dequeue future was canceled");
+            }
+        }
+    };
+
+    private boolean isConnected() {
+        return channel != null;
     }
 
     @Subscribe

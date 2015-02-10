@@ -17,6 +17,7 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepend
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -71,7 +72,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 				@Override
 				public ChannelPipeline getPipeline() throws Exception {
 					return Channels.pipeline(
-							new ExceptionChannelHandler(),
+							new ExceptionChannelHandler(ConnectException.class),
 							channelObserver,
 							new ProtobufVarint32FrameDecoder(),
 							new ProtobufDecoder(Message.getDefaultInstance()),
@@ -89,10 +90,14 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 				nettyClient.start().get(5, TimeUnit.SECONDS);
 
 			} catch (Exception e) {
+				if (e.getCause() instanceof ConnectException) {
+					log.info("Failed to connect to portal server, trying again in {} seconds. Reason: {}", RECONNECT_DELAY_SECONDS, e.getCause().getMessage());
+				}
 				nettyClient = null;
 			}
 		}
 	};
+	private int RECONNECT_DELAY_SECONDS;
 
 	@Inject
 	GatewayEventBusImpl(final GatewayConfig config,
@@ -130,9 +135,10 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 		try {
 			lock.lock();
 			try {
+				RECONNECT_DELAY_SECONDS = 30;
 				connectSchedule = schedulerService.scheduleWithFixedDelay(
 						connectToPortalRunnable,
-						1, 30, TimeUnit.SECONDS
+						1, RECONNECT_DELAY_SECONDS, TimeUnit.SECONDS
 				);
 			} finally {
 				lock.unlock();

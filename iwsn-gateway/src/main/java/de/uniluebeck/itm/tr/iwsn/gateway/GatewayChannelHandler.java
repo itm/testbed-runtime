@@ -25,10 +25,10 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
     private final IdProvider idProvider;
 
     private final DeviceManager deviceManager;
+
     private final UpstreamMessageQueue eventQueue;
 
     private Channel channel;
-
 
     @Inject
     public GatewayChannelHandler(final GatewayEventBus gatewayEventBus,
