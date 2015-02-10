@@ -38,11 +38,7 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
         try {
             // if service is restarted while a reservation is running (or after the store has been created but the
             // reservation didn't start yet we might have to load an existing instead of creating a new store...
-            if (helper.eventStoreExistsForReservation(reservation.getSerializedKey())) {
-                eventStore = helper.loadEventStore(reservation.getSerializedKey(), false);
-            } else {
-                eventStore = helper.createAndConfigureEventStore(reservation.getSerializedKey());
-            }
+            openEventStore();
             reservation.getEventBus().register(this);
             notifyStarted();
         } catch (Exception e) {
@@ -50,16 +46,28 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
         }
     }
 
+    private void openEventStore() throws IOException, ClassNotFoundException {
+        if (helper.eventStoreExistsForReservation(reservation.getSerializedKey())) {
+            eventStore = helper.loadEventStore(reservation.getSerializedKey(), false);
+        } else {
+            eventStore = helper.createAndConfigureEventStore(reservation.getSerializedKey());
+        }
+    }
+
     @Override
     protected void doStop() {
         log.trace("ReservationEventStoreImpl.doStop()");
         reservation.getEventBus().unregister(this);
+        closeEventStore();
+        notifyStopped();
+    }
+
+    private void closeEventStore() {
         try {
             eventStore.close();
         } catch (IOException e) {
             log.warn("Exception on closing event store.", e);
         }
-        notifyStopped();
     }
 
 
@@ -193,13 +201,32 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
     @Override
     public long size() {
-        checkState(isRunning(), "Reservation Event Store is not running");
-        return eventStore.size();
+        if (!isRunning()) {
+            try {
+                openEventStore();
+                return eventStore.size();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                closeEventStore();
+            }
+        } else {
+            return eventStore.size();
+        }
     }
 
     @Override
     public boolean isEmpty() {
-        checkState(isRunning(), "Reservation Event Store is not running");
+        if (!isRunning()) {
+            try {
+                openEventStore();
+                return eventStore.isEmpty();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                closeEventStore();
+            }
+        }
         return eventStore.isEmpty();
     }
 
@@ -216,14 +243,34 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
     @Override
     public CloseableIterator<EventContainer> getEvents() throws IOException {
-        checkState(isRunning(), "Reservation Event Store is not running");
+        if (!isRunning()) {
+            try {
+                openEventStore();
+                //noinspection unchecked
+                return eventStore.getAllEvents();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                closeEventStore();
+            }
+        }
         //noinspection unchecked
         return eventStore.getAllEvents();
     }
 
     @Override
     public CloseableIterator<EventContainer> getEventsBetween(long startTime, long endTime) throws IOException {
-        checkState(isRunning(), "Reservation Event Store is not running");
+        if (!isRunning()) {
+            try {
+                openEventStore();
+                //noinspection unchecked
+                return eventStore.getEventsBetweenTimestamps(startTime, endTime);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                closeEventStore();
+            }
+        }
         //noinspection unchecked
         return eventStore.getEventsBetweenTimestamps(startTime, endTime);
     }
