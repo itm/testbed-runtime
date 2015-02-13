@@ -177,7 +177,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 					}
 
 					try {
-						deviceAdapter.startAndWait();
+						deviceAdapter.startAsync().awaitRunning();
 					} catch (Exception e) {
 						if (e instanceof UncheckedExecutionException &&
 								e.getCause() instanceof IOException &&
@@ -237,7 +237,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 		}
 	}
 
-	private class DeviceAdapterServiceListener implements Listener {
+	private class DeviceAdapterServiceListener extends Listener {
 
 		private final DeviceAdapter deviceAdapter;
 
@@ -353,7 +353,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 			}
 
 			for (DeviceAdapter deviceAdapter : adapters) {
-				deviceAdapter.stopAndWait();
+				deviceAdapter.stopAsync().awaitTerminated();
 			}
 
 			gatewayEventBus.unregister(this);
@@ -387,7 +387,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 			if (deviceAdapter.getNodeUrns().contains(nodeUrn)) {
 
 				// if no configuration exists we can't stay connected
-				deviceAdapter.stopAndWait();
+				deviceAdapter.stopAsync().awaitTerminated();
 
 				// assuming that devices are still attached there should be events leading to an eventual reconnect in
 				// the future, therefore fake these events
@@ -473,7 +473,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 		for (DeviceAdapter deviceAdapter : copy) {
 			if (deviceAdapter.getDevicePort().equals(deviceLostEvent.getDevicePort())) {
-				deviceAdapter.stopAndWait();
+				deviceAdapter.stopAsync().awaitTerminated();
 			}
 		}
 	}
@@ -509,7 +509,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 								deviceAdapter.getDevicePort()
 						);
 
-						deviceAdapter.stopAndWait();
+						deviceAdapter.stopAsync().awaitTerminated();
 
 						synchronized (deviceFoundEvents) {
 
@@ -551,7 +551,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 				final Map<NodeUrn, DeviceConfig> deviceConfigs = deviceAdapter.getDeviceConfigs();
 
-				deviceAdapter.stop();
+				deviceAdapter.stopAsync().awaitTerminated();
 
 				if (deviceConfigs != null) {
 

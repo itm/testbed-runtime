@@ -199,6 +199,8 @@ public class ReservationCacheImplIntervalTest {
                 anyInt(),
                 any(TimeUnit.class)
         )).thenReturn(scheduledFuture);
+        when(schedulerService.startAsync()).thenReturn(schedulerService);
+        when(schedulerService.stopAsync()).thenReturn(schedulerService);
 
         when(reservation1.getNodeUrnPrefixes()).thenReturn(newHashSet(NODE_URN_PREFIX));
         when(reservation2.getNodeUrnPrefixes()).thenReturn(newHashSet(NODE_URN_PREFIX));
@@ -225,9 +227,9 @@ public class ReservationCacheImplIntervalTest {
         when(reservation3.getSerializedKey()).thenReturn(SSRK_3);
         when(reservation4.getSerializedKey()).thenReturn(SSRK_4);
 
-        cache = new ReservationCacheImpl(schedulerServiceFactory, Providers.of(new Stopwatch(ticker)));
+        cache = new ReservationCacheImpl(schedulerServiceFactory, Providers.of(Stopwatch.createUnstarted(ticker)));
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);
@@ -237,7 +239,7 @@ public class ReservationCacheImplIntervalTest {
 
     @After
     public void tearDown() throws Exception {
-        cache.stopAndWait();
+        cache.stopAsync().awaitTerminated();
     }
 
     @Test

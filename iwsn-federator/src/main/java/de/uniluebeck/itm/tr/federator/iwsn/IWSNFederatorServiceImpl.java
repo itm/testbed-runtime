@@ -35,13 +35,13 @@ public class IWSNFederatorServiceImpl extends AbstractService implements IWSNFed
 	@Override
 	protected void doStart() {
 		try {
-			schedulerService.startAndWait();
-			portalEventBus.startAndWait();
-			federatorPortalEventBusAdapter.startAndWait();
-			federatedReservationManager.startAndWait();
-			sessionManagementFederatorService.startAndWait();
-			notifyStarted();
-		} catch (Exception e) {
+            schedulerService.startAsync().awaitRunning();
+            portalEventBus.startAsync().awaitRunning();
+            federatorPortalEventBusAdapter.startAsync().awaitRunning();
+            federatedReservationManager.startAsync().awaitRunning();
+            sessionManagementFederatorService.startAsync().awaitRunning();
+            notifyStarted();
+        } catch (Exception e) {
 			notifyFailed(e);
 		}
 	}
@@ -51,23 +51,23 @@ public class IWSNFederatorServiceImpl extends AbstractService implements IWSNFed
 		try {
 
 			if (sessionManagementFederatorService.isRunning()) {
-				sessionManagementFederatorService.stopAndWait();
+				sessionManagementFederatorService.stopAsync().awaitTerminated();
 			}
 
 			if (federatedReservationManager.isRunning()) {
-				federatedReservationManager.stopAndWait();
+				federatedReservationManager.stopAsync().awaitTerminated();
 			}
 
 			if (federatorPortalEventBusAdapter.isRunning()) {
-				federatorPortalEventBusAdapter.stopAndWait();
+				federatorPortalEventBusAdapter.stopAsync().awaitTerminated();
 			}
 
 			if (portalEventBus.isRunning()) {
-				portalEventBus.stopAndWait();
+				portalEventBus.stopAsync().awaitTerminated();
 			}
 
 			if (schedulerService.isRunning()) {
-				schedulerService.stopAndWait();
+				schedulerService.stopAsync().awaitTerminated();
 			}
 
 			notifyStopped();

@@ -274,11 +274,11 @@ public class SessionManagementImpl implements SessionManagement {
 		}
 
 		if (deliveryManager.state() == Service.State.NEW) {
-			deliveryManager.startAndWait();
+			deliveryManager.startAsync().awaitRunning();
 		}
 
 		if (wsnService.state() == Service.State.NEW) {
-			wsnService.startAndWait();
+			wsnService.startAsync().awaitRunning();
 		}
 
 		return wsnService;
@@ -292,12 +292,12 @@ public class SessionManagementImpl implements SessionManagement {
 
 				final WSNService wsnService = wsnInstances.get(event.getSerializedKey());
 				if (wsnService != null && !wsnService.isRunning()) {
-					wsnService.startAndWait();
+					wsnService.startAsync().awaitRunning();
 				}
 
 				final DeliveryManager deliveryManager = deliveryManagers.get(event.getSerializedKey());
 				if (deliveryManager != null && !deliveryManager.isRunning()) {
-					deliveryManager.startAndWait();
+					deliveryManager.startAsync().awaitRunning();
 				}
 			}
 		}
@@ -311,12 +311,12 @@ public class SessionManagementImpl implements SessionManagement {
 
 				final WSNService wsnService = wsnInstances.get(event.getSerializedKey());
 				if (wsnService != null && wsnService.isRunning()) {
-					wsnService.stopAndWait();
+					wsnService.stopAsync().awaitTerminated();
 				}
 
 				final DeliveryManager deliveryManager = deliveryManagers.get(event.getSerializedKey());
 				if (deliveryManager != null && deliveryManager.isRunning()) {
-					deliveryManager.stopAndWait();
+					deliveryManager.stopAsync().awaitTerminated();
 				}
 			}
 		}

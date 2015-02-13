@@ -77,7 +77,7 @@ public class RSFederatorServiceImplTest {
 	private ServicePublisher servicePublisher;
 
 	@Mock
-	private ServicePublisherService servicePublisherService;
+	private ServicePublisherService jaxWsService;
 
 	@Mock
 	private EndpointManager endpointManager;
@@ -93,20 +93,22 @@ public class RSFederatorServiceImplTest {
 	public void setUp() throws Exception {
 		when(endpointManager.getRsEndpointUri()).thenReturn(URI.create("http://localhost/soap/v3/rs"));
 		when(servicePublisher.createJaxWsService(anyString(), anyObject(), any(Ini.class)))
-				.thenReturn(servicePublisherService);
-		federatorRSExecutorService = Executors.newSingleThreadExecutor();
+				.thenReturn(jaxWsService);
+        when(jaxWsService.startAsync()).thenReturn(jaxWsService);
+        when(jaxWsService.stopAsync()).thenReturn(jaxWsService);
+        federatorRSExecutorService = Executors.newSingleThreadExecutor();
 		federatorRS = new RSFederatorServiceImpl(
 				federatorRSExecutorService,
 				endpointManager,
 				servicePublisher,
 				federatorRSFederatedEndpoints
 		);
-		federatorRS.startAndWait();
+		federatorRS.startAsync().awaitRunning();
 	}
 
 	@After
 	public void tearDown() {
-		federatorRS.stopAndWait();
+		federatorRS.stopAsync().awaitTerminated();
 		ExecutorUtils.shutdown(federatorRSExecutorService, 0, TimeUnit.SECONDS);
 	}
 

@@ -66,7 +66,7 @@ class ExternalPluginServiceImpl extends AbstractService implements ExternalPlugi
 				final InetSocketAddress address = new InetSocketAddress(config.getExternalPluginServicePort());
 
 				nettyServer = nettyServerFactory.create(address, pipelineFactory);
-				nettyServer.startAndWait();
+				nettyServer.startAsync().awaitRunning();
 			}
 
 			portalEventBus.register(this);
@@ -85,7 +85,7 @@ class ExternalPluginServiceImpl extends AbstractService implements ExternalPlugi
 			portalEventBus.unregister(this);
 
 			if (nettyServer != null && nettyServer.isRunning()) {
-				nettyServer.stopAndWait();
+				nettyServer.stopAsync().awaitTerminated();
 			}
 
 			notifyStopped();

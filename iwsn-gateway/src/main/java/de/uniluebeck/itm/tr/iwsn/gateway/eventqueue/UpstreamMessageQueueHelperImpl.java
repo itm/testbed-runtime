@@ -17,12 +17,14 @@ import java.util.Map;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Maps.newHashMap;
+import static de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper.loadOrCreateClassByteMap;
 
 public class UpstreamMessageQueueHelperImpl implements UpstreamMessageQueueHelper {
-    private static final Function<MessageLite, byte[]> PROTOBUF_MESSAGE_SERIALIZER =
-            new Function<MessageLite, byte[]>() {
+
+    private static final Function<Message, byte[]> PROTOBUF_MESSAGE_SERIALIZER =
+            new Function<Message, byte[]>() {
                 @Override
-                public byte[] apply(final MessageLite input) {
+                public byte[] apply(final Message input) {
                     return input.toByteArray();
                 }
             };
@@ -35,9 +37,9 @@ public class UpstreamMessageQueueHelperImpl implements UpstreamMessageQueueHelpe
     }
 
     @Override
-    public MultiClassSerializationHelper<MessageLite> configureEventSerializationHelper() throws IOException, ClassNotFoundException {
-        Map<Class<? extends MessageLite>, Function<? extends MessageLite, byte[]>> serializers = newHashMap();
-        Map<Class<? extends MessageLite>, Function<byte[], ? extends MessageLite>> deserializers = newHashMap();
+    public MultiClassSerializationHelper<Message> configureEventSerializationHelper() throws IOException, ClassNotFoundException {
+        Map<Class<? extends Message>, Function<? extends Message, byte[]>> serializers = newHashMap();
+        Map<Class<? extends Message>, Function<byte[], ? extends Message>> deserializers = newHashMap();
 
         ///////////////////////// SERIALIZERS //////////////////////
 
@@ -56,10 +58,9 @@ public class UpstreamMessageQueueHelperImpl implements UpstreamMessageQueueHelpe
         String basePath = gatewayConfig.getEventQueuePath() + "/serializers";
         File mappingFile = new File(basePath + ".mapping");
 
-        BiMap<Class<? extends MessageLite>, Byte> mapping = MultiClassSerializationHelper.loadOrCreateClassByteMap(
-				serializers, deserializers, mappingFile
-		);
-        return new MultiClassSerializationHelper<MessageLite>(serializers, deserializers, mapping);
+        BiMap<Class<? extends Message>, Byte> mapping = loadOrCreateClassByteMap(serializers, deserializers, mappingFile);
+        MultiClassSerializationHelper<Message> helper = new MultiClassSerializationHelper<Message>(serializers, deserializers, mapping);
+        return helper;
 
     }
 
@@ -68,16 +69,16 @@ public class UpstreamMessageQueueHelperImpl implements UpstreamMessageQueueHelpe
         return new BigQueueImpl(gatewayConfig.getEventQueuePath(), "event-queue");
     }
 
-    private class Deserializer implements Function<byte[], MessageLite> {
+    private class Deserializer implements Function<byte[], Message> {
 
-        private final MessageLite defaultInstance;
+        private final Message defaultInstance;
 
-        public Deserializer(final MessageLite defaultInstance) {
+        public Deserializer(final Message defaultInstance) {
             this.defaultInstance = defaultInstance;
         }
 
         @Override
-        public MessageLite apply(final byte[] input) {
+        public Message apply(final byte[] input) {
             try {
                 return defaultInstance.newBuilderForType().mergeFrom(input).build();
             } catch (InvalidProtocolBufferException e) {

@@ -5,7 +5,6 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.inject.Inject;
-import com.google.protobuf.MessageLite;
 import com.leansoft.bigqueue.IBigQueue;
 import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
@@ -48,7 +47,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 
     private Channel channel;
     private IBigQueue queue;
-    private MultiClassSerializationHelper<MessageLite> serializationHelper;
+    private MultiClassSerializationHelper<Message> serializationHelper;
 
     @Inject
     public UpstreamMessageQueueImpl(final UpstreamMessageQueueHelper queueHelper, final GatewayEventBus gatewayEventBus,
@@ -96,7 +95,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
         log.trace("UpstreamMessageQueueImpl.channelConnected()");
         synchronized (channelLock) {
             this.channel = channel;
-            addCallback(queue.dequeueAsync(), dequeueCallback, schedulerService);
+            addCallback(queue.dequeueAsync(), new DequeueCallback(), schedulerService);
         }
         log.trace("UpstreamMessageQueueImpl.channelConnected(): dequeue future callback added");
     }
@@ -111,20 +110,13 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 
     @Override
     public void enqueue(Message message) {
+        try {
 
-        if (isPersistenceAvailable()) {
+            enqueue(serializationHelper.serialize(message));
 
-            try {
-                byte[] serializedBytes = serializationHelper.serialize(message);
-                enqueue(serializedBytes);
-            } catch (NotSerializableException e) {
-                log.error("NotSerializableException while trying to serialize. Exception: {}", e);
-                sendFailureEvent("The message " + message + " is not serializable. An appropriate serializer is missing!", e);
-            }
-
-        } else {
-
-            sendFailureEvent("EventQueue was neither able to enqueue nor to send the message [" + message + "] - Queue: [" + queue + "], Helper: [" + serializationHelper + "]");
+        } catch (NotSerializableException e) {
+            log.error("NotSerializableException while trying to serialize. Exception: {}", e);
+            sendFailureEvent("The message " + message + " is not serializable. An appropriate serializer is missing!", e);
         }
     }
 
@@ -147,15 +139,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
         gatewayEventBus.post(new GatewayFailureEvent(message, cause));
     }
 
-    private void sendFailureEvent(String message) {
-        sendFailureEvent(message, null);
-    }
-
-    private boolean isPersistenceAvailable() {
-        return queue != null && serializationHelper != null;
-    }
-
-    private FutureCallback<byte[]> dequeueCallback = new FutureCallback<byte[]>() {
+    private class DequeueCallback implements FutureCallback<byte[]> {
         @SuppressWarnings("ConstantConditions")
         @Override
         public void onSuccess(final byte[] dequeuedBytes) {
@@ -171,8 +155,17 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 
                 } else {
 
-                    final Object message = serializationHelper.deserialize(dequeuedBytes);
-                    log.trace("Forwarding message to portal server: {}", message);
+                    final Message message = serializationHelper.deserialize(dequeuedBytes);
+
+                    boolean isEvent = message.getType() == Message.Type.EVENT;
+                    boolean isAttach = isEvent && message.getEvent().getType().equals(Event.Type.DEVICES_ATTACHED);
+                    boolean isDetached = isEvent && message.getEvent().getType().equals(Event.Type.DEVICES_DETACHED);
+
+                    if (isAttach || isDetached) {
+                        log.info("Forwarding event to portal server: {}", message);
+                    } else {
+                        log.trace("Forwarding message to portal server: {}", message);
+                    }
 
                     ChannelFutureListener listener = new ChannelFutureListener() {
                         @Override
@@ -180,11 +173,16 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
                             if (future.isSuccess()) {
 
                                 log.trace("Successfully forwarded message to portal, asynchronously dequeuing next message.");
-                                addCallback(queue.dequeueAsync(), dequeueCallback, schedulerService);
+                                addCallback(queue.dequeueAsync(), new DequeueCallback(), schedulerService);
+
+                            } else if (!UpstreamMessageQueueImpl.this.isRunning()) {
+
+                                log.trace("UpstreamMessageQueueImpl.dequeueCallback: service is shutting down, ignoring failed deque operation and re-enqueuing it.");
+                                enqueue(dequeuedBytes);
 
                             } else {
 
-                                log.error("Error forwarding message, re-enqueuing it and closing channel. Cause: {}", future.getCause());
+                                log.error("UpstreamMessageQueueImpl.dequeueCallback: error forwarding message, re-enqueuing it and closing channel. Cause: ", future.getCause());
 
                                 if (future.getChannel() != null) {
                                     future.getChannel().close();
@@ -231,7 +229,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
                 log.info("Dequeue future was canceled");
             }
         }
-    };
+    }
 
     private boolean isConnected() {
         return channel != null;
@@ -257,6 +255,7 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
                         .setTimestamp(now())
                         .build();
 
+        log.info("Enqueuing DevicesAttachedEvent for {}", event.getNodeUrns());
         enqueue(newMessage(newEvent(idProvider.get(), dae)));
     }
 
@@ -270,22 +269,25 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
                         .setTimestamp(now())
                         .build();
 
+        log.info("Enqueuing DevicesDetachedEvent for {}", event.getNodeUrns());
         enqueue(newMessage(newEvent(idProvider.get(), dde)));
     }
 
     @Subscribe
     public void onDevicesAttachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent devicesAttachedEvent) {
+        log.error("============================ UpstreamMessageQueueImpl.onDevicesAttachedEvent()");
         enqueue(newMessage(newEvent(idProvider.get(), devicesAttachedEvent)));
     }
 
     @Subscribe
     public void onDevicesDetachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent devicesDetachedEvent) {
+        log.error("============================ UpstreamMessageQueueImpl.onDevicesDetachedEvent()");
         enqueue(newMessage(newEvent(idProvider.get(), devicesDetachedEvent)));
     }
 
     @Subscribe
     public void onEvent(Event event) {
-
+        log.error("============================ UpstreamMessageQueueImpl.onEvent()");
         switch (event.getType()) {
 
             // forward upstream events
@@ -295,7 +297,6 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
             case UPSTREAM_MESSAGE:
                 enqueue(newMessage(event));
                 break;
-
         }
     }
 

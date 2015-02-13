@@ -50,7 +50,7 @@ public class RemoteSNAA extends AbstractService implements SNAAService {
 	protected void doStart() {
 		try {
 			jaxWsService = servicePublisher.createJaxWsService(Constants.SOAP_API_V3.SNAA_CONTEXT_PATH, this, null);
-			jaxWsService.startAndWait();
+			jaxWsService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -61,7 +61,7 @@ public class RemoteSNAA extends AbstractService implements SNAAService {
 	protected void doStop() {
 		try {
 			if (jaxWsService != null && jaxWsService.isRunning()) {
-				jaxWsService.stopAndWait();
+				jaxWsService.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {

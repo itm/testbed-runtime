@@ -129,7 +129,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 		try {
 			jaxWsService =
 					servicePublisher.createJaxWsService(endpointManager.getRsEndpointUri().getPath(), this, null);
-			jaxWsService.startAndWait();
+			jaxWsService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -140,7 +140,7 @@ public class RSFederatorServiceImpl extends AbstractService implements RSFederat
 	protected void doStop() {
 		try {
 			if (jaxWsService != null) {
-				jaxWsService.stopAndWait();
+				jaxWsService.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {

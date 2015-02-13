@@ -53,7 +53,7 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 					application,
 					shiroIni
 			);
-			jaxRsService.startAndWait();
+			jaxRsService.startAsync().awaitRunning();
 
 			String webAppResourceBase =
 					this.getClass().getResource("/de/uniluebeck/itm/tr/snaa/shiro/webapp").toString();
@@ -81,7 +81,7 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 					webAppInitParams,
 					shiroIni
 			);
-			webApp.startAndWait();
+			webApp.startAsync().awaitRunning();
 
 			notifyStarted();
 		} catch (Exception e) {
@@ -94,10 +94,10 @@ public class ShiroSNAARestServiceImpl extends AbstractService implements ShiroSN
 		log.debug("ShiroSNAARestServiceImpl.doStop()");
 		try {
 			if (webApp != null && webApp.isRunning()) {
-				webApp.stopAndWait();
+				webApp.stopAsync().awaitTerminated();
 			}
 			if (jaxRsService != null && jaxRsService.isRunning()) {
-				jaxRsService.stopAndWait();
+				jaxRsService.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {

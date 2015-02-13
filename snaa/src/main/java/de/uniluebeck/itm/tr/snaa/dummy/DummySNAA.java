@@ -112,7 +112,7 @@ public class DummySNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	protected void doStart() {
 		try {
 			jaxWsService = servicePublisher.createJaxWsService(Constants.SOAP_API_V3.SNAA_CONTEXT_PATH, this, null);
-			jaxWsService.startAndWait();
+			jaxWsService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -122,7 +122,7 @@ public class DummySNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	@Override
 	protected void doStop() {
 		try {
-			jaxWsService.stopAndWait();
+			jaxWsService.stopAsync().awaitTerminated();
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);

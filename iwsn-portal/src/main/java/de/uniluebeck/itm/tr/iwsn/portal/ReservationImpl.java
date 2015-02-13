@@ -187,9 +187,9 @@ public class ReservationImpl extends AbstractService implements Reservation {
         log.trace("ReservationImpl.doStart()");
         try {
             if (portalServerConfig.isReservationEventStoreEnabled()) {
-                reservationEventStore.startAndWait();
+                reservationEventStore.startAsync().awaitRunning();
             }
-            reservationEventBus.startAndWait();
+            reservationEventBus.startAsync().awaitRunning();
             rsPersistence.addListener(rsPersistenceListener);
             schedulerService.execute(startRunnable);
             notifyStarted();
@@ -208,8 +208,8 @@ public class ReservationImpl extends AbstractService implements Reservation {
         }
         try {
             rsPersistence.removeListener(rsPersistenceListener);
-            reservationEventBus.stopAndWait();
-            reservationEventStore.stopAndWait();
+            reservationEventBus.stopAsync().awaitTerminated();
+            reservationEventStore.stopAsync().awaitTerminated();
             notifyStopped();
         } catch (Exception e) {
             notifyFailed(e);
@@ -385,7 +385,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
     @Override
     public boolean touch() {
         if (isFinalized() && !isRunning()) {
-            startAndWait();
+            startAsync().awaitRunning();
             rescheduleFinalization();
             lastTouched = now();
             return true;
@@ -475,7 +475,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
         public Void call() throws Exception {
             log.trace("ReservationStartCallable.call({})", key);
             final Reservation reservation = ReservationImpl.this;
-            reservation.startAndWait();
+            reservation.startAsync().awaitRunning();
             if (reservation.isFinalized()) {
                 rescheduleFinalization();
                 return null;
@@ -567,7 +567,7 @@ public class ReservationImpl extends AbstractService implements Reservation {
                 portalEventBus.post(event);
             }
             if (reservation.isRunning()) {
-                reservation.stopAndWait();
+                reservation.stopAsync().awaitTerminated();
             }
 
 

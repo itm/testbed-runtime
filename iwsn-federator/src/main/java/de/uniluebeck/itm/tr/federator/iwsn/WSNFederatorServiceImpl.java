@@ -136,7 +136,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 		log.trace("WSNFederatorServiceImpl.doStart()");
 		try {
 			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this, null);
-			jaxWsService.startAndWait();
+			jaxWsService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -148,7 +148,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 		log.trace("WSNFederatorServiceImpl.doStop()");
 		try {
 			if (jaxWsService.isRunning()) {
-				jaxWsService.stopAndWait();
+				jaxWsService.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {

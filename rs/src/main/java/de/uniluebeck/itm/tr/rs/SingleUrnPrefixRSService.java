@@ -130,7 +130,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	protected void doStart() {
 		try {
 			jaxWsService = servicePublisher.createJaxWsService(Constants.SOAP_API_V3.RS_CONTEXT_PATH, this, null);
-			jaxWsService.startAndWait();
+			jaxWsService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -141,7 +141,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	protected void doStop() {
 		try {
 			if (jaxWsService != null) {
-				jaxWsService.stopAndWait();
+				jaxWsService.startAsync().awaitRunning();
 			}
 			notifyStopped();
 		} catch (Exception e) {

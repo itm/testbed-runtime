@@ -98,11 +98,11 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 
 		try {
 
-			deliveryManager.startAndWait();
-			reservationEventBus.startAndWait();
-			reservationEventBusAdapter.startAndWait();
-			wsnFederatorService.startAndWait();
-			federatorController.startAndWait();
+			deliveryManager.startAsync().awaitRunning();
+			reservationEventBus.startAsync().awaitRunning();
+			reservationEventBusAdapter.startAsync().awaitRunning();
+			wsnFederatorService.startAsync().awaitRunning();
+			federatorController.startAsync().awaitRunning();
 
 			notifyStarted();
 
@@ -122,11 +122,11 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 
 		try {
 
-			federatorController.stopAndWait();
-			reservationEventBusAdapter.stopAndWait();
-			reservationEventBus.stopAndWait();
-			wsnFederatorService.stopAndWait();
-			deliveryManager.stopAndWait();
+			federatorController.stopAsync().awaitTerminated();
+			reservationEventBusAdapter.stopAsync().awaitTerminated();
+			reservationEventBus.stopAsync().awaitTerminated();
+			wsnFederatorService.stopAsync().awaitTerminated();
+			deliveryManager.stopAsync().awaitTerminated();
 
 			notifyStopped();
 

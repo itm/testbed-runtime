@@ -84,9 +84,16 @@ public class ReservationImplTest {
 
     @Before
 	public void setUp() throws Exception {
+
 		when(reservationEventBusFactory.create(Matchers.<Reservation>any())).thenReturn(reservationEventBus);
 		when(reservationEventStoreFactory.createOrLoad(Matchers.<Reservation>any())).thenReturn(reservationEventStore);
         when(portalServerConfig.isReservationEventStoreEnabled()).thenReturn(true);
+
+        when(reservationEventStore.startAsync()).thenReturn(reservationEventStore);
+        when(reservationEventStore.stopAsync()).thenReturn(reservationEventStore);
+
+        when(reservationEventBus.startAsync()).thenReturn(reservationEventBus);
+        when(reservationEventBus.stopAsync()).thenReturn(reservationEventBus);
 	}
 
     private void setupReservationJustStarted() {
@@ -259,38 +266,42 @@ public class ReservationImplTest {
 	@Test
 	public void testThatReservationEventBusIsCreatedAndStartedWhenStartingReservation() throws Exception {
         setupReservationJustStarted();
-		reservation.startAndWait();
-		verify(reservationEventBus).startAndWait();
+		reservation.startAsync().awaitRunning();
+        verify(reservationEventBus).startAsync();
+        verify(reservationEventBus).awaitRunning();
 	}
 
 	@Test
 	public void testThatReservationEventBusIsStoppedWhenStoppingReservation() throws Exception {
         setupReservationJustStarted();
-		reservation.startAndWait();
-		reservation.stopAndWait();
-		verify(reservationEventBus).stopAndWait();
+		reservation.startAsync().awaitRunning();
+		reservation.stopAsync().awaitTerminated();
+        verify(reservationEventBus).stopAsync();
+        verify(reservationEventBus).awaitTerminated();
 	}
 
 	@Test
 	public void testThatEventStoreIsStartedWhenStartingReservation() throws Exception {
         setupReservationJustStarted();
-		reservation.startAndWait();
-		verify(reservationEventStore).startAndWait();
+		reservation.startAsync().awaitRunning();
+        verify(reservationEventStore).startAsync();
+        verify(reservationEventStore).awaitRunning();
 	}
 
 	@Test
 	public void testThatEventStoreIsStoppedWhenStoppingReservation() throws Exception {
         setupReservationJustStarted();
-		reservation.startAndWait();
-		reservation.stopAndWait();
-		verify(reservationEventStore).stopAndWait();
+        reservation.startAsync().awaitRunning();
+        reservation.stopAsync().awaitTerminated();
+        verify(reservationEventStore).stopAsync();
+        verify(reservationEventStore).awaitTerminated();
 	}
 
 
     @Test
     public void testThatOngoingReservationIsStartedImmediately() throws Exception {
         setupReservationOngoing();
-        reservation.startAndWait();
+        reservation.startAsync().awaitRunning();
         verify(schedulerService).execute(refEq(reservation.startRunnable));
         reservation.startRunnable.run();
         verify(schedulerService).schedule(isA(ReservationImpl.ReservationMadeCallable.class), eq(0l), any(TimeUnit.class));
@@ -299,7 +310,7 @@ public class ReservationImplTest {
     @Test
     public void testIfOpenedEventIsPostedOnStartAsynchronously() throws Exception {
         setupReservationOngoing();
-        reservation.startAndWait();
+        reservation.startAsync().awaitRunning();
         verify(schedulerService).execute(refEq(reservation.startRunnable));
         reservation.startRunnable.run();
         verify(portalEventBus).post(isA(ReservationOpenedEvent.class));
@@ -308,8 +319,8 @@ public class ReservationImplTest {
     @Test
     public void testIfClosedEventIsPostedOnStop() throws Exception {
         setupReservationOngoing();
-        reservation.startAndWait();
-        reservation.stopAndWait();
+        reservation.startAsync().awaitRunning();
+        reservation.stopAsync().awaitTerminated();
         verify(portalEventBus).post(isA(ReservationClosedEvent.class));
     }
 

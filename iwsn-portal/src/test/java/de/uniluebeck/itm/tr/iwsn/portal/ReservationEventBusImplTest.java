@@ -91,12 +91,12 @@ public class ReservationEventBusImplTest {
         when(reservation.getSerializedKey()).thenReturn(RESERVATION_ID);
         when(eventBusFactory.create(anyString())).thenReturn(eventBus);
         reservationEventBus = new ReservationEventBusImpl(portalEventBus, eventBusFactory, reservation);
-        reservationEventBus.startAndWait();
+        reservationEventBus.startAsync().awaitRunning();
     }
 
     @After
     public void tearDown() throws Exception {
-        reservationEventBus.stopAndWait();
+        reservationEventBus.stopAsync().awaitTerminated();
         reservationEventBus = null;
     }
 

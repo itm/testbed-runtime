@@ -151,12 +151,12 @@ public abstract class DeviceDBTestBase {
 				null
 		);
 
-		db.startAndWait();
+		db.startAsync().awaitRunning();
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		db.stopAndWait();
+		db.stopAsync().awaitTerminated();
 	}
 
 	@Test

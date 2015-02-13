@@ -68,7 +68,7 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 		final Injector injector = Guice.createInjector(mockEventBusModule, module);
 
 		deviceDBServer = injector.getInstance(DeviceDBServer.class);
-		deviceDBServer.startAndWait();
+		deviceDBServer.startAsync().awaitRunning();
 		deviceDBService = injector.getInstance(DeviceDBService.class);
 	}
 
@@ -98,7 +98,7 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 
 	@AfterClass
 	public static void stopServer() {
-		deviceDBServer.stopAndWait();
+		deviceDBServer.stopAsync().awaitTerminated();
 	}
 
 	@Test(expected = Exception.class)
@@ -113,7 +113,7 @@ public class RemoteDeviceDBTest extends DeviceDBTestBase {
 				)
 		).getInstance(DeviceDBService.class);
 
-		db.startAndWait();
+		db.startAsync().awaitRunning();
 
 		assertNull(db.getConfigByMacAddress(0x1234L));
 	}

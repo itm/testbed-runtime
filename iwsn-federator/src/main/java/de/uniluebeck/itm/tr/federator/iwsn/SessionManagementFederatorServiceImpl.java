@@ -142,9 +142,9 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 		log.trace("SessionManagementFederatorServiceImpl.doStart()");
 		try {
 
-			jaxWsService =
-					servicePublisher.createJaxWsService(endpointManager.getSmEndpointUri().getPath(), this, null);
-			jaxWsService.startAndWait();
+            String endpointPath = endpointManager.getSmEndpointUri().getPath();
+            jaxWsService = servicePublisher.createJaxWsService(endpointPath, this, null);
+			jaxWsService.startAsync().awaitRunning();
 
 			notifyStarted();
 
@@ -159,7 +159,7 @@ public class SessionManagementFederatorServiceImpl extends AbstractService
 		try {
 
 			if (jaxWsService != null && jaxWsService.isRunning()) {
-				jaxWsService.stopAndWait();
+				jaxWsService.stopAsync().awaitTerminated();
 			}
 
 			notifyStopped();

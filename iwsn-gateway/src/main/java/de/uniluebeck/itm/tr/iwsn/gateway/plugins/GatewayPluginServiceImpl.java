@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.gateway.plugins;
 
+import com.google.common.io.FileWriteMode;
 import com.google.common.io.Files;
+import com.google.common.io.Resources;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.plugins.PluginContainer;
@@ -18,102 +20,100 @@ import java.io.IOException;
 import java.net.URL;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.io.Files.copy;
-import static com.google.common.io.Resources.newInputStreamSupplier;
 
 class GatewayPluginServiceImpl extends AbstractService implements GatewayPluginService {
 
-	private static final Logger log = LoggerFactory.getLogger(GatewayPluginServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(GatewayPluginServiceImpl.class);
 
-	private final PluginContainerFactory pluginContainerFactory;
+    private final PluginContainerFactory pluginContainerFactory;
 
-	private final GatewayConfig gatewayConfig;
+    private final GatewayConfig gatewayConfig;
 
-	private final GatewayEventBus gatewayEventBus;
+    private final GatewayEventBus gatewayEventBus;
 
-	private final DeviceDBService deviceDBService;
+    private final DeviceDBService deviceDBService;
 
-	private final DeviceAdapterRegistry deviceAdapterRegistry;
+    private final DeviceAdapterRegistry deviceAdapterRegistry;
 
-	private final SchedulerService schedulerService;
+    private final SchedulerService schedulerService;
 
-	private PluginContainer pluginContainer;
+    private PluginContainer pluginContainer;
 
-	@Inject
-	public GatewayPluginServiceImpl(final PluginContainerFactory pluginContainerFactory,
-									final GatewayConfig gatewayConfig,
-									final DeviceDBService deviceDBService,
-									final GatewayEventBus gatewayEventBus,
-									final DeviceAdapterRegistry deviceAdapterRegistry,
-									final SchedulerService schedulerService) {
+    @Inject
+    public GatewayPluginServiceImpl(final PluginContainerFactory pluginContainerFactory,
+                                    final GatewayConfig gatewayConfig,
+                                    final DeviceDBService deviceDBService,
+                                    final GatewayEventBus gatewayEventBus,
+                                    final DeviceAdapterRegistry deviceAdapterRegistry,
+                                    final SchedulerService schedulerService) {
 
-		this.pluginContainerFactory = checkNotNull(pluginContainerFactory);
-		this.gatewayConfig = checkNotNull(gatewayConfig);
+        this.pluginContainerFactory = checkNotNull(pluginContainerFactory);
+        this.gatewayConfig = checkNotNull(gatewayConfig);
 
-		this.deviceDBService = checkNotNull(deviceDBService);
-		this.gatewayEventBus = checkNotNull(gatewayEventBus);
-		this.deviceAdapterRegistry = checkNotNull(deviceAdapterRegistry);
-		this.schedulerService = checkNotNull(schedulerService);
-	}
+        this.deviceDBService = checkNotNull(deviceDBService);
+        this.gatewayEventBus = checkNotNull(gatewayEventBus);
+        this.deviceAdapterRegistry = checkNotNull(deviceAdapterRegistry);
+        this.schedulerService = checkNotNull(schedulerService);
+    }
 
-	@Override
-	protected void doStart() {
-		try {
+    @Override
+    protected void doStart() {
+        try {
 
-			log.trace("GatewayPluginServiceImpl.doStart()");
+            log.trace("GatewayPluginServiceImpl.doStart()");
 
-			if (gatewayConfig.getPluginDirectory() != null && !"".equals(gatewayConfig.getPluginDirectory())) {
+            if (gatewayConfig.getPluginDirectory() != null && !"".equals(gatewayConfig.getPluginDirectory())) {
 
-				final File pluginDirectory = new File(gatewayConfig.getPluginDirectory());
+                final File pluginDirectory = new File(gatewayConfig.getPluginDirectory());
 
-				if (!pluginDirectory.isDirectory()) {
-					throw new IllegalArgumentException(pluginDirectory.getAbsolutePath() + " is not a directory!");
-				}
+                if (!pluginDirectory.isDirectory()) {
+                    throw new IllegalArgumentException(pluginDirectory.getAbsolutePath() + " is not a directory!");
+                }
 
-				if (!pluginDirectory.canRead()) {
-					throw new IllegalArgumentException(pluginDirectory.getAbsolutePath() + " is not readable!");
-				}
+                if (!pluginDirectory.canRead()) {
+                    throw new IllegalArgumentException(pluginDirectory.getAbsolutePath() + " is not readable!");
+                }
 
-				final String extenderBundle = copyBundleToTmpFile(
-						"tr.plugins.framework-extender-gateway-0.9-SNAPSHOT.jar"
-				);
+                final String extenderBundle = copyBundleToTmpFile(
+                        "tr.plugins.framework-extender-gateway-0.9-SNAPSHOT.jar"
+                );
 
-				pluginContainer = pluginContainerFactory.create(pluginDirectory.getAbsolutePath(), extenderBundle);
+                pluginContainer = pluginContainerFactory.create(pluginDirectory.getAbsolutePath(), extenderBundle);
 
-				pluginContainer.startAndWait();
+                pluginContainer.startAsync().awaitRunning();
 
-				pluginContainer.registerService(PluginContainer.class, pluginContainer);
-				pluginContainer.registerService(GatewayEventBus.class, gatewayEventBus);
-				pluginContainer.registerService(DeviceDBService.class, deviceDBService);
-				pluginContainer.registerService(DeviceAdapterRegistry.class, deviceAdapterRegistry);
-				pluginContainer.registerService(SchedulerService.class, schedulerService);
-			}
+                pluginContainer.registerService(PluginContainer.class, pluginContainer);
+                pluginContainer.registerService(GatewayEventBus.class, gatewayEventBus);
+                pluginContainer.registerService(DeviceDBService.class, deviceDBService);
+                pluginContainer.registerService(DeviceAdapterRegistry.class, deviceAdapterRegistry);
+                pluginContainer.registerService(SchedulerService.class, schedulerService);
+            }
 
-			notifyStarted();
+            notifyStarted();
 
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
+    }
 
-	@Override
-	protected void doStop() {
-		try {
-			log.trace("GatewayPluginServiceImpl.doStop()");
-			if (pluginContainer != null && pluginContainer.isRunning()) {
-				pluginContainer.stopAndWait();
-			}
-			notifyStopped();
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
+    @Override
+    protected void doStop() {
+        try {
+            log.trace("GatewayPluginServiceImpl.doStop()");
+            if (pluginContainer != null && pluginContainer.isRunning()) {
+                pluginContainer.stopAsync().awaitTerminated();
+            }
+            notifyStopped();
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
+    }
 
-	private String copyBundleToTmpFile(final String fileName) throws IOException {
-		final URL resource = GatewayPluginServiceImpl.class.getResource(fileName);
-		final File tempDir = Files.createTempDir();
-		final File tempFile = new File(tempDir, fileName);
-		copy(newInputStreamSupplier(resource), tempFile);
-		return tempFile.getAbsolutePath();
-	}
+    private String copyBundleToTmpFile(final String fileName) throws IOException {
+        final URL resource = GatewayPluginServiceImpl.class.getResource(fileName);
+        final File tempDir = Files.createTempDir();
+        final File tempFile = new File(tempDir, fileName);
+        Resources.asByteSource(resource).copyTo(Files.asByteSink(tempFile, FileWriteMode.APPEND));
+        return tempFile.getAbsolutePath();
+    }
 }

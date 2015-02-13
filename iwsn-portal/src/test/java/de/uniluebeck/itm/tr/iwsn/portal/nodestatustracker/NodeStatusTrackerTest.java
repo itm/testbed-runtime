@@ -83,7 +83,7 @@ public class NodeStatusTrackerTest {
 		when(servedNodeUrnsProvider.get()).thenReturn(NODE_URNS);
 
 		portalEventBus = new MyPortalEventBus();
-		portalEventBus.startAndWait();
+		portalEventBus.startAsync().awaitRunning();
 
 		nodeStatusTracker = new NodeStatusTrackerImpl(
 				rsHelper,
@@ -92,7 +92,7 @@ public class NodeStatusTrackerTest {
 				reservationManager
 		);
 
-		nodeStatusTracker.startAndWait();
+		nodeStatusTracker.startAsync().awaitRunning();
 	}
 
 	@Test

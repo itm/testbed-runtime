@@ -71,7 +71,7 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 				return;
 			}
 
-			eventBrokerClient.startAndWait();
+			eventBrokerClient.startAsync().awaitRunning();
 		}
 	};
 
@@ -139,8 +139,8 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 
 		try {
 
-			schedulerService.startAndWait();
-			deviceDBService.startAndWait();
+			schedulerService.startAsync().awaitRunning();
+			deviceDBService.startAsync().awaitRunning();
 			schedulerService.execute(bootstrapRunnable);
 			notifyStarted();
 
@@ -164,9 +164,9 @@ public class DeviceDBRD extends AbstractService implements DeviceDBService {
 				bootstrapScheduleLock.unlock();
 			}
 
-			eventBrokerClient.stopAndWait();
-			deviceDBService.stopAndWait();
-			schedulerService.stopAndWait();
+			eventBrokerClient.stopAsync().awaitTerminated();
+			deviceDBService.stopAsync().awaitTerminated();
+			schedulerService.stopAsync().awaitTerminated();
 			notifyStopped();
 
 		} catch (Exception e) {

@@ -188,7 +188,7 @@ public class PortalServer extends AbstractService {
         final PortalServer portalServer = portalInjector.getInstance(PortalServer.class);
 
         try {
-            portalServer.start().get();
+            portalServer.startAsync().awaitRunning();
             portalServer.printEndpointInfo();
         } catch (Exception e) {
             log.error("Could not start iWSN portal: {}", e.getMessage(), e);
@@ -199,7 +199,7 @@ public class PortalServer extends AbstractService {
                                                  @Override
                                                  public void run() {
                                                      log.info("Received KILL signal. Shutting down iWSN Portal...");
-                                                     portalServer.stopAndWait();
+                                                     portalServer.stopAsync().awaitTerminated();
                                                      log.info("Over and out.");
                                                  }
                                              }
@@ -212,33 +212,33 @@ public class PortalServer extends AbstractService {
     protected void doStart() {
         try {
 
-            schedulerService.startAndWait();
+            schedulerService.startAsync().awaitRunning();
 
             // the web server
-            servicePublisher.startAndWait();
+            servicePublisher.startAsync().awaitRunning();
 
             // services that the portal depends on (either embedded or remote, depends on binding)
-            rsService.startAndWait();
-            snaaService.startAndWait();
-            deviceDBService.startAndWait();
+            rsService.startAsync().awaitRunning();
+            snaaService.startAsync().awaitRunning();
+            deviceDBService.startAsync().awaitRunning();
 
             // internal components of the portal server
-            portalEventBus.startAndWait();
+            portalEventBus.startAsync().awaitRunning();
             if (portalServerConfig.isPortalEventStoreEnabled()) {
-                portalEventStoreService.startAndWait();
+                portalEventStoreService.startAsync().awaitRunning();
             }
-            portalEventDispatcher.startAndWait();
-            reservationManager.startAndWait();
-            nodeStatusTracker.startAndWait();
+            portalEventDispatcher.startAsync().awaitRunning();
+            reservationManager.startAsync().awaitRunning();
+            nodeStatusTracker.startAsync().awaitRunning();
 
             // services that the portal exposes to clients
-            deviceDBRestService.startAndWait();
-            soapApiService.startAndWait();
-            restApiService.startAndWait();
-            wiseGuiService.startAndWait();
-            userRegistrationWebAppService.startAndWait();
+            deviceDBRestService.startAsync().awaitRunning();
+            soapApiService.startAsync().awaitRunning();
+            restApiService.startAsync().awaitRunning();
+            wiseGuiService.startAsync().awaitRunning();
+            userRegistrationWebAppService.startAsync().awaitRunning();
 
-            portalPluginService.startAndWait();
+            portalPluginService.startAsync().awaitRunning();
 
             notifyStarted();
 
@@ -251,33 +251,33 @@ public class PortalServer extends AbstractService {
     protected void doStop() {
         try {
 
-            portalPluginService.stopAndWait();
+            portalPluginService.stopAsync().awaitTerminated();
 
             // services that the portal server exposes to clients
-            userRegistrationWebAppService.stopAndWait();
-            wiseGuiService.stopAndWait();
-            restApiService.stopAndWait();
-            soapApiService.stopAndWait();
-            deviceDBRestService.stopAndWait();
+            userRegistrationWebAppService.stopAsync().awaitTerminated();
+            wiseGuiService.stopAsync().awaitTerminated();
+            restApiService.stopAsync().awaitTerminated();
+            soapApiService.stopAsync().awaitTerminated();
+            deviceDBRestService.stopAsync().awaitTerminated();
 
             // internal components
-            nodeStatusTracker.stopAndWait();
-            reservationManager.stopAndWait();
-            portalEventDispatcher.stopAndWait();
+            nodeStatusTracker.stopAsync().awaitTerminated();
+            reservationManager.stopAsync().awaitTerminated();
+            portalEventDispatcher.stopAsync().awaitTerminated();
             if (portalServerConfig.isPortalEventStoreEnabled()) {
-                portalEventStoreService.stopAndWait();
+                portalEventStoreService.stopAsync().awaitTerminated();
             }
-            portalEventBus.stopAndWait();
+            portalEventBus.stopAsync().awaitTerminated();
 
             // services that the portal depends on (either embedded or remote, depends on binding)
-            deviceDBService.stopAndWait();
-            rsService.stopAndWait();
-            snaaService.stopAndWait();
+            deviceDBService.stopAsync().awaitTerminated();
+            rsService.stopAsync().awaitTerminated();
+            snaaService.stopAsync().awaitTerminated();
 
             // the web server
-            servicePublisher.stopAndWait();
+            servicePublisher.stopAsync().awaitTerminated();
 
-            schedulerService.stopAndWait();
+            schedulerService.stopAsync().awaitTerminated();
 
             notifyStopped();
 

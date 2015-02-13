@@ -93,7 +93,7 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
     protected void doStart() {
         log.trace("ReservationCacheImpl.doStart()");
         try {
-            schedulerService.startAndWait();
+            schedulerService.startAsync().awaitRunning();
             cacheCleanupSchedule = schedulerService.scheduleAtFixedRate(cleanUpCacheRunnable, 1, 1, TimeUnit.MINUTES);
             notifyStarted();
         } catch (Exception e) {
@@ -107,7 +107,7 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
         try {
             cacheCleanupSchedule.cancel(true);
             cacheCleanupSchedule = null;
-            schedulerService.stopAndWait();
+            schedulerService.stopAsync().awaitTerminated();
             notifyStopped();
         } catch (Exception e) {
             notifyFailed(e);

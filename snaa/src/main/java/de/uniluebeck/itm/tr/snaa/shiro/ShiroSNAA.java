@@ -180,8 +180,8 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 		try {
 			SecurityUtils.setSecurityManager(securityManager);
 			jaxWsService = servicePublisher.createJaxWsService(Constants.SOAP_API_V3.SNAA_CONTEXT_PATH, this, null);
-			jaxWsService.startAndWait();
-			restService.startAndWait();
+			jaxWsService.startAsync().awaitRunning();
+			restService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -192,10 +192,10 @@ public class ShiroSNAA extends AbstractService implements de.uniluebeck.itm.tr.s
 	protected void doStop() {
 		try {
 			if (restService != null && restService.isRunning()) {
-				restService.stopAndWait();
+				restService.stopAsync().awaitTerminated();
 			}
 			if (jaxWsService != null && jaxWsService.isRunning()) {
-				jaxWsService.stopAndWait();
+				jaxWsService.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {

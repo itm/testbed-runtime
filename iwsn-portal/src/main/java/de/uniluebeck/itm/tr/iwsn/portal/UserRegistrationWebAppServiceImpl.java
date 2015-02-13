@@ -36,7 +36,7 @@ public class UserRegistrationWebAppServiceImpl extends AbstractService implement
 			params.put(Constants.REST_API_V1.REST_API_CONTEXT_PATH_KEY, Constants.REST_API_V1.REST_API_CONTEXT_PATH_VALUE);
 
 			webapp = servicePublisher.createServletService(Constants.USER_REG.WEB_APP_CONTEXT_PATH, resourceBase, params, null);
-			webapp.startAndWait();
+			webapp.startAsync().awaitRunning();
 
 			notifyStarted();
 
@@ -50,7 +50,7 @@ public class UserRegistrationWebAppServiceImpl extends AbstractService implement
 		log.trace("UserRegistrationWebAppServiceImpl.doStop()");
 		try {
 
-			webapp.stopAndWait();
+			webapp.stopAsync().awaitTerminated();
 			notifyStopped();
 
 		} catch (Exception e) {

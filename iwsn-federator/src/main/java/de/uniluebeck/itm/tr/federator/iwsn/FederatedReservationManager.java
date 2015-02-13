@@ -95,7 +95,7 @@ public class FederatedReservationManager extends AbstractService implements Rese
 
 		if (reservation == null) {
 			reservation = createReservation(srkSet);
-			reservation.startAndWait();
+			reservation.startAsync().awaitRunning();
 			cache(srkSet, reservation);
 		}
 

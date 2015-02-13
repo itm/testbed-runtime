@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.annotation.Nullable;
+import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.List;
@@ -136,10 +137,19 @@ public class PortalChannelHandlerTest {
 	@Mock
 	private ChannelHandlerContext portalContext;
 
+    @Mock
+    private java.net.SocketAddress gateway1Address;
+
+    @Mock
+    private java.net.SocketAddress gateway2Address;
+
+    @Mock
+    private java.net.SocketAddress gateway3Address;
+
 	@Mock
 	private ExternalPluginService externalPluginService;
 
-	@Before
+    @Before
 	public void setUp() throws Exception {
 
 		setUpGatewayAndChannelMockBehavior();
@@ -163,22 +173,36 @@ public class PortalChannelHandlerTest {
 				new UpstreamChannelStateEvent(gateway3Channel, ChannelState.CONNECTED, true)
 		);
 
-		portalChannelHandler.messageReceived(gateway1Context, new UpstreamMessageEvent(
-						gateway1Channel,
-						Message.newBuilder()
-								.setType(Message.Type.EVENT)
-								.setEvent(Event.newBuilder()
-												.setType(Event.Type.DEVICES_ATTACHED)
-												.setEventId(RANDOM.nextLong())
-												.setDevicesAttachedEvent(
-														DevicesAttachedEvent.newBuilder()
-																.addNodeUrns(GATEWAY1_NODE1.toString())
-																.setTimestamp(new DateTime().getMillis())
-												)
-								).build(),
-						null
-				)
-		);
+        final Channel channel1 = mock(Channel.class);
+        final SocketAddress socketAddress1 = mock(SocketAddress.class);
+
+        when(gateway1Context.getChannel()).thenReturn(channel1);
+        when(channel1.getRemoteAddress()).thenReturn(socketAddress1);
+        when(socketAddress1.toString()).thenReturn("192.168.0.1");
+
+        portalChannelHandler.messageReceived(gateway1Context, new UpstreamMessageEvent(
+                        gateway1Channel,
+                        Message.newBuilder()
+                                .setType(Message.Type.EVENT)
+                                .setEvent(Event.newBuilder()
+                                                .setType(Event.Type.DEVICES_ATTACHED)
+                                                .setEventId(RANDOM.nextLong())
+                                                .setDevicesAttachedEvent(
+                                                        DevicesAttachedEvent.newBuilder()
+                                                                .addNodeUrns(GATEWAY1_NODE1.toString())
+                                                                .setTimestamp(new DateTime().getMillis())
+                                                )
+                                ).build(),
+                        null
+                )
+        );
+
+        final Channel channel2 = mock(Channel.class);
+        final SocketAddress socketAddress2 = mock(SocketAddress.class);
+
+        when(gateway2Context.getChannel()).thenReturn(channel2);
+        when(channel2.getRemoteAddress()).thenReturn(socketAddress2);
+        when(socketAddress2.toString()).thenReturn("192.168.0.2");
 
 		portalChannelHandler.messageReceived(gateway2Context, new UpstreamMessageEvent(
 						gateway2Channel,
@@ -558,7 +582,6 @@ public class PortalChannelHandlerTest {
 		ArgumentCaptor<DownstreamMessageEvent> captor = ArgumentCaptor.forClass(DownstreamMessageEvent.class);
 		verify(context).sendDownstream(captor.capture());
 		assertSame(channel, captor.getValue().getChannel());
-		assertSame(null, captor.getValue().getRemoteAddress());
 
 		return (Message) captor.getValue().getMessage();
 	}
@@ -576,5 +599,13 @@ public class PortalChannelHandlerTest {
 		when(gateway1Context.getChannel()).thenReturn(gateway1Channel);
 		when(gateway2Context.getChannel()).thenReturn(gateway2Channel);
 		when(gateway3Context.getChannel()).thenReturn(gateway3Channel);
-	}
+
+        when(gateway1Channel.getRemoteAddress()).thenReturn(gateway1Address);
+        when(gateway2Channel.getRemoteAddress()).thenReturn(gateway2Address);
+        when(gateway3Channel.getRemoteAddress()).thenReturn(gateway3Address);
+
+        when(gateway1Address.toString()).thenReturn("192.168.0.1");
+        when(gateway2Address.toString()).thenReturn("192.168.0.2");
+        when(gateway3Address.toString()).thenReturn("192.168.0.3");
+    }
 }

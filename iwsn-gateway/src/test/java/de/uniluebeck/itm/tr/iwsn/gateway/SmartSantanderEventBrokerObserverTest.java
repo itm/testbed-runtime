@@ -110,7 +110,7 @@ public class SmartSantanderEventBrokerObserverTest {
 				conversionFunction
 		);
 
-		smartSantanderEventBrokerObserver.startAndWait();
+		smartSantanderEventBrokerObserver.startAsync().awaitRunning();
 	}
 
 	@Test

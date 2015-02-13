@@ -28,7 +28,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     private final Provider<Stopwatch> stopwatchProvider = new Provider<Stopwatch>() {
         @Override
         public Stopwatch get() {
-            return new Stopwatch(ticker).start();
+            return Stopwatch.createStarted(ticker);
         }
     };
 
@@ -68,6 +68,8 @@ public class ReservationCacheImplTest extends ReservationTestBase {
                 anyInt(),
                 any(TimeUnit.class)
         )).thenReturn(scheduledFuture);
+        when(schedulerService.startAsync()).thenReturn(schedulerService);
+        when(schedulerService.stopAsync()).thenReturn(schedulerService);
 
         when(reservation1.getCancelled()).thenReturn(null);
         when(reservation1.getFinalized()).thenReturn(null);
@@ -102,14 +104,14 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @After
     public void tearDown() throws Exception {
         if (cache.isRunning()) {
-            cache.stopAndWait();
+            cache.stopAsync().awaitTerminated();
         }
     }
 
     @Test
     public void testLookupByKeyForKnownReservation() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         assertSame(reservation1, cache.lookup(RESERVATION_1_SRK_SET).get());
@@ -124,7 +126,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testLookupByKeyForUnknownReservation() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         assertFalse(cache.lookup(UNKNOWN_SRK_SET).isPresent());
@@ -139,7 +141,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testLookupByNodeUrnsAndTimestampForKnownReservation() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         assertSame(reservation1, cache.lookup(RESERVATION_1_NODE_URN, RESERVATION_1_INTERVAL.getStart()).get());
@@ -154,7 +156,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testLookupByNodeUrnAndTimestampForUnknownReservation() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);
@@ -173,7 +175,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testIfLookupFailsAfterRemovingReservation() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);
@@ -191,7 +193,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testIfLookupStillWorksForOtherAfterRemovingOneReservation() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);
@@ -207,7 +209,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testIfLookupFailsAfterClearingCache() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);
@@ -223,7 +225,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testIfAllCachedReservationsAreReturnedByGetAll() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);
@@ -277,7 +279,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testIfEntriesAreNotReturnedWhenOutdated() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);
@@ -300,7 +302,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testIfCleanUpEvictsEntriesWhenOutdated() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);
@@ -316,7 +318,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testThatCleanUpDoesNotRemoveRecentlyTouchedEntries() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);
@@ -336,7 +338,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testIfAccessingCachedItemsRefreshesValidity() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);
@@ -374,7 +376,7 @@ public class ReservationCacheImplTest extends ReservationTestBase {
     @Test
     public void testIfOtherEntriesStayInCacheWhenOneGetsEvicted() throws Exception {
 
-        cache.startAndWait();
+        cache.startAsync().awaitRunning();
 
         cache.put(reservation1);
         cache.put(reservation2);

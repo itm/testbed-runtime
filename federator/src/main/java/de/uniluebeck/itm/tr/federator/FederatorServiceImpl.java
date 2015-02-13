@@ -32,10 +32,10 @@ public class FederatorServiceImpl extends AbstractService implements FederatorSe
 	protected void doStart() {
 		try {
 
-			snaaFederatorService.startAndWait();
-			rsFederatorService.startAndWait();
-			iwsnFederatorService.startAndWait();
-			restApiService.startAndWait();
+			snaaFederatorService.startAsync().awaitRunning();
+			rsFederatorService.startAsync().awaitRunning();
+			iwsnFederatorService.startAsync().awaitRunning();
+			restApiService.startAsync().awaitRunning();;
 
 			notifyStarted();
 
@@ -48,16 +48,16 @@ public class FederatorServiceImpl extends AbstractService implements FederatorSe
 	protected void doStop() {
 		try {
 			if (restApiService.isRunning()) {
-				restApiService.stopAndWait();
+				restApiService.stopAsync().awaitTerminated();
 			}
 			if (iwsnFederatorService.isRunning()) {
-				iwsnFederatorService.stopAndWait();
+				iwsnFederatorService.stopAsync().awaitTerminated();
 			}
 			if (rsFederatorService.isRunning()) {
-				rsFederatorService.stopAndWait();
+				rsFederatorService.stopAsync().awaitTerminated();
 			}
 			if (snaaFederatorService.isRunning()) {
-				snaaFederatorService.stopAndWait();
+				snaaFederatorService.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {

@@ -69,21 +69,19 @@ public class ReservationEventStoreImplTest {
         when(storeIterator.hasNext()).thenReturn(false);
 
         reservationEventStore = new ReservationEventStoreImpl(helper, reservation);
-        reservationEventStore.startAndWait();
     }
 
     @After
     public void tearDown() throws Exception {
-        reservationEventStore.stopAndWait();
     }
 
     @Test
     public void testIfBusObserversAreRegistered() throws Exception {
 
-        reservationEventStore.startAndWait();
+        reservationEventStore.startAsync().awaitRunning();
         verify(reservationEventBus).register(reservationEventStore);
 
-        reservationEventStore.stopAndWait();
+        reservationEventStore.stopAsync().awaitTerminated();
         verify(reservationEventBus).unregister(reservationEventStore);
 
         verify(eventStore).close();

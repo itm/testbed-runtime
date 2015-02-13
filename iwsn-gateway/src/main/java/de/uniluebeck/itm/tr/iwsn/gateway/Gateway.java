@@ -104,28 +104,28 @@ public class Gateway extends AbstractService {
 
 		try {
 
-			schedulerService.startAndWait();
-			deviceDBService.startAndWait();
-			gatewayEventBus.startAndWait();
+			schedulerService.startAsync().awaitRunning();
+			deviceDBService.startAsync().awaitRunning();
+			gatewayEventBus.startAsync().awaitRunning();
             gatewayEventBus.register(this);
-            upstreamMessageQueue.startAndWait();
-			requestHandler.startAndWait();
-			deviceManager.startAndWait();
-			gatewayPluginService.startAndWait();
+            upstreamMessageQueue.startAsync().awaitRunning();
+			requestHandler.startAsync().awaitRunning();
+			deviceManager.startAsync().awaitRunning();
+			gatewayPluginService.startAsync().awaitRunning();
 
 			if (gatewayConfig.isScanDevices()) {
-				deviceObserverWrapper.startAndWait();
+				deviceObserverWrapper.startAsync().awaitRunning();
 			}
 
 			if (gatewayConfig.isRestAPI()) {
 
 				servicePublisher = servicePublisherFactory.create(servicePublisherConfig);
 				servicePublisher.createJaxRsService("/devices", restApplication, null);
-				servicePublisher.startAndWait();
+				servicePublisher.startAsync().awaitRunning();
 			}
 
 			if (smartSantanderEventBrokerObserver != null) {
-				smartSantanderEventBrokerObserver.startAndWait();
+				smartSantanderEventBrokerObserver.startAsync().awaitRunning();
 			}
 
 			notifyStarted();
@@ -142,27 +142,27 @@ public class Gateway extends AbstractService {
 
 		try {
 
-			gatewayPluginService.stopAndWait();
+			gatewayPluginService.stopAsync().awaitTerminated();
 
 			if (smartSantanderEventBrokerObserver != null && smartSantanderEventBrokerObserver.isRunning()) {
-				smartSantanderEventBrokerObserver.stopAndWait();
+				smartSantanderEventBrokerObserver.stopAsync().awaitTerminated();
 			}
 
 			if (gatewayConfig.isRestAPI() && servicePublisher != null) {
-				servicePublisher.stopAndWait();
+				servicePublisher.stopAsync().awaitTerminated();
 			}
 
 			if (gatewayConfig.isScanDevices() && deviceObserverWrapper.isRunning()) {
-				deviceObserverWrapper.stopAndWait();
+				deviceObserverWrapper.stopAsync().awaitTerminated();
 			}
 
             gatewayEventBus.unregister(this);
-			deviceManager.stopAndWait();
-			requestHandler.stopAndWait();
-            upstreamMessageQueue.stopAndWait();
-			gatewayEventBus.stopAndWait();
-			deviceDBService.stopAndWait();
-			schedulerService.stopAndWait();
+			deviceManager.stopAsync().awaitTerminated();
+			requestHandler.stopAsync().awaitTerminated();
+            upstreamMessageQueue.stopAsync().awaitTerminated();
+			gatewayEventBus.stopAsync().awaitTerminated();
+			deviceDBService.stopAsync().awaitTerminated();
+			schedulerService.stopAsync().awaitTerminated();
 
 			notifyStopped();
 
@@ -214,7 +214,7 @@ public class Gateway extends AbstractService {
 		final Injector injector = Guice.createInjector(gatewayModule);
 		final Gateway gateway = injector.getInstance(Gateway.class);
 
-		gateway.startAndWait();
+		gateway.startAsync().awaitRunning();
 
 		log.info("Gateway started!");
 
@@ -222,7 +222,7 @@ public class Gateway extends AbstractService {
 			@Override
 			public void run() {
 				log.info("Received KILL signal. Shutting down iWSN Gateway...");
-				gateway.stopAndWait();
+				gateway.stopAsync().awaitTerminated();
 				log.info("Over and out.");
 			}
 		}

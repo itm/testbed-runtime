@@ -4,7 +4,6 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.common.netty.ExceptionChannelHandler;
-import de.uniluebeck.itm.tr.iwsn.common.netty.KeepAliveHandler;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClient;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
@@ -27,196 +26,196 @@ import java.util.concurrent.locks.ReentrantLock;
 
 class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
-	private static final Logger log = LoggerFactory.getLogger(GatewayEventBus.class);
+    private static final Logger log = LoggerFactory.getLogger(GatewayEventBus.class);
 
-	private final GatewayConfig config;
+    private final GatewayConfig config;
 
-	private final SchedulerService schedulerService;
+    private final SchedulerService schedulerService;
 
-	private final EventBus eventBus;
+    private final EventBus eventBus;
 
-	private final NettyClientFactory nettyClientFactory;
+    private final NettyClientFactory nettyClientFactory;
 
-	private final GatewayChannelHandler gatewayChannelHandler;
+    private final GatewayChannelHandler gatewayChannelHandler;
 
-	private final Lock lock = new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
 
-	private boolean connected = false;
+    private boolean connected = false;
 
-	private boolean shuttingDown = false;
+    private boolean shuttingDown = false;
 
-	private NettyClient nettyClient;
+    private NettyClient nettyClient;
 
-	private ScheduledFuture<?> connectSchedule;
+    private ScheduledFuture<?> connectSchedule;
 
-	private final Runnable connectToPortalRunnable = new Runnable() {
-		@Override
-		public void run() {
+    private final Runnable connectToPortalRunnable = new Runnable() {
+        @Override
+        public void run() {
 
-			lock.lock();
-			try {
-				if (connected) {
-					return;
-				}
-			} finally {
-				lock.unlock();
-			}
+            lock.lock();
+            try {
+                if (connected) {
+                    return;
+                }
+            } finally {
+                lock.unlock();
+            }
 
-			log.info("Trying to connect to portal server...");
+            log.info("Trying to connect to portal server...");
 
-			final InetSocketAddress portalAddress = new InetSocketAddress(
-					config.getPortalAddress().getHostText(),
-					config.getPortalAddress().getPort()
-			);
+            final InetSocketAddress portalAddress = new InetSocketAddress(
+                    config.getPortalAddress().getHostText(),
+                    config.getPortalAddress().getPort()
+            );
 
-			final ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
-				@Override
-				public ChannelPipeline getPipeline() throws Exception {
-					return Channels.pipeline(
-							new ExceptionChannelHandler(ConnectException.class, ClosedChannelException.class),
-							channelObserver,
-							new ProtobufVarint32FrameDecoder(),
-							new ProtobufDecoder(Message.getDefaultInstance()),
-							new ProtobufVarint32LengthFieldPrepender(),
-							new ProtobufEncoder(),
-							new KeepAliveHandler(schedulerService),
-							gatewayChannelHandler
-					);
-				}
-			};
+            final ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
+                @Override
+                public ChannelPipeline getPipeline() throws Exception {
+                    return Channels.pipeline(
+                            new ExceptionChannelHandler(ConnectException.class, ClosedChannelException.class),
+                            channelObserver,
+                            new ProtobufVarint32FrameDecoder(),
+                            new ProtobufDecoder(Message.getDefaultInstance()),
+                            new ProtobufVarint32LengthFieldPrepender(),
+                            new ProtobufEncoder(),
+                            //new KeepAliveHandler(schedulerService),
+                            gatewayChannelHandler
+                    );
+                }
+            };
 
-			try {
+            try {
 
-				nettyClient = nettyClientFactory.create(portalAddress, pipelineFactory);
-				nettyClient.start().get(5, TimeUnit.SECONDS);
+                nettyClient = nettyClientFactory.create(portalAddress, pipelineFactory);
+                nettyClient.startAsync().awaitRunning(5, TimeUnit.SECONDS);
 
-			} catch (Exception e) {
-				if (e.getCause() instanceof ConnectException) {
-					log.info("Failed to connect to portal server, trying again in {} seconds. Reason: {}", RECONNECT_DELAY_SECONDS, e.getCause().getMessage());
-				}
-				nettyClient = null;
-			}
-		}
-	};
-	private int RECONNECT_DELAY_SECONDS;
+            } catch (Exception e) {
+                if (e.getCause() instanceof ConnectException) {
+                    log.info("Failed to connect to portal server, trying again in {} seconds. Reason: {}", RECONNECT_DELAY_SECONDS, e.getCause().getMessage());
+                }
+                nettyClient = null;
+            }
+        }
+    };
+    private int RECONNECT_DELAY_SECONDS;
 
-	@Inject
-	GatewayEventBusImpl(final GatewayConfig config,
-						final SchedulerService schedulerService,
-						final EventBus eventBus,
-						final NettyClientFactory nettyClientFactory,
-						final GatewayChannelHandler gatewayChannelHandler) {
-		this.config = config;
-		this.schedulerService = schedulerService;
-		this.eventBus = eventBus;
-		this.nettyClientFactory = nettyClientFactory;
-		this.gatewayChannelHandler = gatewayChannelHandler;
-	}
+    @Inject
+    GatewayEventBusImpl(final GatewayConfig config,
+                        final SchedulerService schedulerService,
+                        final EventBus eventBus,
+                        final NettyClientFactory nettyClientFactory,
+                        final GatewayChannelHandler gatewayChannelHandler) {
+        this.config = config;
+        this.schedulerService = schedulerService;
+        this.eventBus = eventBus;
+        this.nettyClientFactory = nettyClientFactory;
+        this.gatewayChannelHandler = gatewayChannelHandler;
+    }
 
-	@Override
-	public void register(final Object object) {
-		eventBus.register(object);
-	}
+    @Override
+    public void register(final Object object) {
+        eventBus.register(object);
+    }
 
-	@Override
-	public void unregister(final Object object) {
-		eventBus.unregister(object);
-	}
+    @Override
+    public void unregister(final Object object) {
+        eventBus.unregister(object);
+    }
 
-	@Override
-	public void post(final Object event) {
-		eventBus.post(event);
-	}
+    @Override
+    public void post(final Object event) {
+        eventBus.post(event);
+    }
 
-	@Override
-	protected void doStart() {
+    @Override
+    protected void doStart() {
 
-		log.trace("GatewayEventBusImpl.doStart()");
+        log.trace("GatewayEventBusImpl.doStart()");
 
-		try {
-			lock.lock();
-			try {
-				RECONNECT_DELAY_SECONDS = 30;
-				connectSchedule = schedulerService.scheduleWithFixedDelay(
-						connectToPortalRunnable,
-						1, RECONNECT_DELAY_SECONDS, TimeUnit.SECONDS
-				);
-			} finally {
-				lock.unlock();
-			}
-			notifyStarted();
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
+        try {
+            lock.lock();
+            try {
+                RECONNECT_DELAY_SECONDS = 30;
+                connectSchedule = schedulerService.scheduleWithFixedDelay(
+                        connectToPortalRunnable,
+                        1, RECONNECT_DELAY_SECONDS, TimeUnit.SECONDS
+                );
+            } finally {
+                lock.unlock();
+            }
+            notifyStarted();
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
+    }
 
-	private ChannelHandler channelObserver = new SimpleChannelUpstreamHandler() {
+    private ChannelHandler channelObserver = new SimpleChannelUpstreamHandler() {
 
-		@Override
-		public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+        @Override
+        public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 
-			log.trace("GatewayEventBusImpl.channelConnected()");
+            log.trace("GatewayEventBusImpl.channelConnected()");
 
-			lock.lock();
-			try {
-				connected = true;
-			} finally {
-				lock.unlock();
-			}
+            lock.lock();
+            try {
+                connected = true;
+            } finally {
+                lock.unlock();
+            }
 
-			log.info("Successfully connected to portal server");
+            log.info("Successfully connected to portal server");
 
-			super.channelConnected(ctx, e);
-		}
+            super.channelConnected(ctx, e);
+        }
 
-		@Override
-		public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
+        @Override
+        public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 
-			log.info("Lost connection to portal server");
-			lock.lock();
-			try {
+            log.info("Lost connection to portal server");
+            lock.lock();
+            try {
 
-				connected = false;
-				if (!shuttingDown) {
-					schedulerService.execute(connectToPortalRunnable);
-				}
+                connected = false;
+                if (!shuttingDown) {
+                    schedulerService.execute(connectToPortalRunnable);
+                }
 
-			} finally {
-				lock.unlock();
-			}
+            } finally {
+                lock.unlock();
+            }
 
-			super.channelDisconnected(ctx, e);
-		}
-	};
+            super.channelDisconnected(ctx, e);
+        }
+    };
 
-	@Override
-	protected void doStop() {
+    @Override
+    protected void doStop() {
 
-		log.trace("GatewayEventBusImpl.doStop()");
+        log.trace("GatewayEventBusImpl.doStop()");
 
-		lock.lock();
-		try {
+        lock.lock();
+        try {
 
-			shuttingDown = true;
+            shuttingDown = true;
 
-			if (connectSchedule != null) {
-				connectSchedule.cancel(true);
-				connectSchedule = null;
-			}
+            if (connectSchedule != null) {
+                connectSchedule.cancel(true);
+                connectSchedule = null;
+            }
 
-		} finally {
-			lock.unlock();
-		}
+        } finally {
+            lock.unlock();
+        }
 
-		try {
+        try {
 
-			if (nettyClient != null && nettyClient.isRunning()) {
-				nettyClient.stopAndWait();
-			}
-			notifyStopped();
+            if (nettyClient != null && nettyClient.isRunning()) {
+                nettyClient.stopAsync().awaitTerminated();
+            }
+            notifyStopped();
 
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
+    }
 }

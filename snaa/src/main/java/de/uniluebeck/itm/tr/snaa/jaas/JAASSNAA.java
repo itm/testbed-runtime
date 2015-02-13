@@ -95,7 +95,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 		try {
 			System.setProperty("java.security.auth.login.config", snaaServiceConfig.getJaasConfigFile());
 			jaxWsService = servicePublisher.createJaxWsService(Constants.SOAP_API_V3.SNAA_CONTEXT_PATH, this, null);
-			jaxWsService.startAndWait();
+			jaxWsService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -106,7 +106,7 @@ public class JAASSNAA extends AbstractService implements de.uniluebeck.itm.tr.sn
 	protected void doStop() {
 		try {
 			if (jaxWsService != null) {
-				jaxWsService.stopAndWait();
+				jaxWsService.stopAsync().awaitTerminated();
 			}
 			System.setProperty("java.security.auth.login.config", "");
 			notifyStopped();

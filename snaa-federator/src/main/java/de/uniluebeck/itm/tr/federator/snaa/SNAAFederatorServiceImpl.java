@@ -72,7 +72,7 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 		try {
 			jaxWsService =
 					servicePublisher.createJaxWsService(endpointManager.getSnaaEndpointUri().getPath(), this, null);
-			jaxWsService.startAndWait();
+			jaxWsService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -83,7 +83,7 @@ public class SNAAFederatorServiceImpl extends AbstractService implements SNAAFed
 	protected void doStop() {
 		try {
 			if (jaxWsService != null) {
-				jaxWsService.stopAndWait();
+				jaxWsService.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {

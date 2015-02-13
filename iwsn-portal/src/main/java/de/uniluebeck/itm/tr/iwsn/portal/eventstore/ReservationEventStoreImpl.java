@@ -233,7 +233,7 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
     @Override
     public void close() throws IOException {
         checkState(isRunning(), "Reservation Event Store is not running");
-        stop();
+        stopAsync().awaitTerminated();
     }
 
     @Override

@@ -36,7 +36,7 @@ public class WiseMLToDeviceDBConverter {
 		final Injector injector = Guice.createInjector(new RemoteDeviceDBModule(URI.create(args[1])));
 		final DeviceDBService deviceDBService = injector.getInstance(DeviceDBService.class);
 
-		deviceDBService.startAndWait();
+		deviceDBService.stopAsync().awaitTerminated();
 
 		for (Setup.Node node : wiseml.getSetup().getNode()) {
 			final DeviceConfig deviceConfig = new DeviceConfig(
@@ -61,7 +61,7 @@ public class WiseMLToDeviceDBConverter {
 			deviceDBService.add(deviceConfig);
 		}
 
-		deviceDBService.stopAndWait();
+		deviceDBService.stopAsync().awaitTerminated();
 	}
 
 }

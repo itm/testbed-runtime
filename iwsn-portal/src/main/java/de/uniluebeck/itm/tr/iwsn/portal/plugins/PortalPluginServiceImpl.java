@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.portal.plugins;
 
+import com.google.common.io.FileWriteMode;
 import com.google.common.io.Files;
+import com.google.common.io.Resources;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
@@ -25,136 +27,134 @@ import java.io.IOException;
 import java.net.URL;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.io.Files.copy;
-import static com.google.common.io.Resources.newInputStreamSupplier;
 
 class PortalPluginServiceImpl extends AbstractService implements PortalPluginService {
 
-	private static final Logger log = LoggerFactory.getLogger(PortalPluginServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(PortalPluginServiceImpl.class);
 
-	private final PluginContainerFactory pluginContainerFactory;
+    private final PluginContainerFactory pluginContainerFactory;
 
-	private final PortalServerConfig portalServerConfig;
+    private final PortalServerConfig portalServerConfig;
 
-	private final RS rs;
+    private final RS rs;
 
-	private final SNAA snaa;
+    private final SNAA snaa;
 
-	private final SessionManagement sessionManagement;
+    private final SessionManagement sessionManagement;
 
-	private final PortalEventBus portalEventBus;
+    private final PortalEventBus portalEventBus;
 
-	private final ReservationManager reservationManager;
+    private final ReservationManager reservationManager;
 
-	private final DeviceDBService deviceDBService;
+    private final DeviceDBService deviceDBService;
 
-	private final ResponseTrackerFactory responseTrackerFactory;
+    private final ResponseTrackerFactory responseTrackerFactory;
 
-	private final ServicePublisher servicePublisher;
+    private final ServicePublisher servicePublisher;
 
-	private final ServedNodeUrnsProvider servedNodeUrnsProvider;
+    private final ServedNodeUrnsProvider servedNodeUrnsProvider;
 
-	private final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
+    private final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider;
 
-	private final NodeStatusTracker nodeStatusTracker;
+    private final NodeStatusTracker nodeStatusTracker;
 
-	private PluginContainer pluginContainer;
+    private PluginContainer pluginContainer;
 
-	@Inject
-	public PortalPluginServiceImpl(final PluginContainerFactory pluginContainerFactory,
-								   final PortalServerConfig portalServerConfig,
-								   final RS rs,
-								   final SNAA snaa,
-								   final SessionManagement sessionManagement,
-								   final PortalEventBus portalEventBus,
-								   final ReservationManager reservationManager,
-								   final DeviceDBService deviceDBService,
-								   final ResponseTrackerFactory responseTrackerFactory,
-								   final ServicePublisher servicePublisher,
-								   final ServedNodeUrnsProvider servedNodeUrnsProvider,
-								   final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
-								   final NodeStatusTracker nodeStatusTracker) {
-		this.portalEventBus = checkNotNull(portalEventBus);
-		this.reservationManager = checkNotNull(reservationManager);
-		this.rs = checkNotNull(rs);
-		this.snaa = checkNotNull(snaa);
-		this.sessionManagement = checkNotNull(sessionManagement);
-		this.pluginContainerFactory = checkNotNull(pluginContainerFactory);
-		this.portalServerConfig = checkNotNull(portalServerConfig);
-		this.deviceDBService = checkNotNull(deviceDBService);
-		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
-		this.servicePublisher = checkNotNull(servicePublisher);
-		this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
-		this.servedNodeUrnPrefixesProvider = checkNotNull(servedNodeUrnPrefixesProvider);
-		this.nodeStatusTracker = checkNotNull(nodeStatusTracker);
-	}
+    @Inject
+    public PortalPluginServiceImpl(final PluginContainerFactory pluginContainerFactory,
+                                   final PortalServerConfig portalServerConfig,
+                                   final RS rs,
+                                   final SNAA snaa,
+                                   final SessionManagement sessionManagement,
+                                   final PortalEventBus portalEventBus,
+                                   final ReservationManager reservationManager,
+                                   final DeviceDBService deviceDBService,
+                                   final ResponseTrackerFactory responseTrackerFactory,
+                                   final ServicePublisher servicePublisher,
+                                   final ServedNodeUrnsProvider servedNodeUrnsProvider,
+                                   final ServedNodeUrnPrefixesProvider servedNodeUrnPrefixesProvider,
+                                   final NodeStatusTracker nodeStatusTracker) {
+        this.portalEventBus = checkNotNull(portalEventBus);
+        this.reservationManager = checkNotNull(reservationManager);
+        this.rs = checkNotNull(rs);
+        this.snaa = checkNotNull(snaa);
+        this.sessionManagement = checkNotNull(sessionManagement);
+        this.pluginContainerFactory = checkNotNull(pluginContainerFactory);
+        this.portalServerConfig = checkNotNull(portalServerConfig);
+        this.deviceDBService = checkNotNull(deviceDBService);
+        this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
+        this.servicePublisher = checkNotNull(servicePublisher);
+        this.servedNodeUrnsProvider = checkNotNull(servedNodeUrnsProvider);
+        this.servedNodeUrnPrefixesProvider = checkNotNull(servedNodeUrnPrefixesProvider);
+        this.nodeStatusTracker = checkNotNull(nodeStatusTracker);
+    }
 
-	@Override
-	protected void doStart() {
-		try {
+    @Override
+    protected void doStart() {
+        try {
 
-			log.trace("PortalPluginServiceImpl.doStart()");
+            log.trace("PortalPluginServiceImpl.doStart()");
 
-			if (portalServerConfig.getPluginDirectory() != null && !""
-					.equals(portalServerConfig.getPluginDirectory())) {
+            if (portalServerConfig.getPluginDirectory() != null && !""
+                    .equals(portalServerConfig.getPluginDirectory())) {
 
-				final File pluginDirectory = new File(portalServerConfig.getPluginDirectory());
+                final File pluginDirectory = new File(portalServerConfig.getPluginDirectory());
 
-				if (!pluginDirectory.isDirectory()) {
-					throw new IllegalArgumentException(pluginDirectory.getAbsolutePath() + " is not a directory!");
-				}
+                if (!pluginDirectory.isDirectory()) {
+                    throw new IllegalArgumentException(pluginDirectory.getAbsolutePath() + " is not a directory!");
+                }
 
-				if (!pluginDirectory.canRead()) {
-					throw new IllegalArgumentException(pluginDirectory.getAbsolutePath() + " is not readable!");
-				}
+                if (!pluginDirectory.canRead()) {
+                    throw new IllegalArgumentException(pluginDirectory.getAbsolutePath() + " is not readable!");
+                }
 
-				final String extenderBundle = copyBundleToTmpFile(
-						"tr.plugins.framework-extender-portal-0.9-SNAPSHOT.jar"
-				);
+                final String extenderBundle = copyBundleToTmpFile(
+                        "tr.plugins.framework-extender-portal-0.9-SNAPSHOT.jar"
+                );
 
-				pluginContainer = pluginContainerFactory.create(pluginDirectory.getAbsolutePath(), extenderBundle);
+                pluginContainer = pluginContainerFactory.create(pluginDirectory.getAbsolutePath(), extenderBundle);
 
-				pluginContainer.startAndWait();
+                pluginContainer.startAsync().awaitRunning();
 
-				pluginContainer.registerService(PluginContainer.class, pluginContainer);
-				pluginContainer.registerService(RS.class, rs);
-				pluginContainer.registerService(SNAA.class, snaa);
-				pluginContainer.registerService(SessionManagement.class, sessionManagement);
-				pluginContainer.registerService(PortalEventBus.class, portalEventBus);
-				pluginContainer.registerService(ReservationManager.class, reservationManager);
-				pluginContainer.registerService(DeviceDBService.class, deviceDBService);
-				pluginContainer.registerService(ResponseTrackerFactory.class, responseTrackerFactory);
-				pluginContainer.registerService(ServicePublisher.class, servicePublisher);
-				pluginContainer.registerService(ServedNodeUrnsProvider.class, servedNodeUrnsProvider);
-				pluginContainer.registerService(ServedNodeUrnPrefixesProvider.class, servedNodeUrnPrefixesProvider);
-				pluginContainer.registerService(NodeStatusTracker.class, nodeStatusTracker);
-			}
+                pluginContainer.registerService(PluginContainer.class, pluginContainer);
+                pluginContainer.registerService(RS.class, rs);
+                pluginContainer.registerService(SNAA.class, snaa);
+                pluginContainer.registerService(SessionManagement.class, sessionManagement);
+                pluginContainer.registerService(PortalEventBus.class, portalEventBus);
+                pluginContainer.registerService(ReservationManager.class, reservationManager);
+                pluginContainer.registerService(DeviceDBService.class, deviceDBService);
+                pluginContainer.registerService(ResponseTrackerFactory.class, responseTrackerFactory);
+                pluginContainer.registerService(ServicePublisher.class, servicePublisher);
+                pluginContainer.registerService(ServedNodeUrnsProvider.class, servedNodeUrnsProvider);
+                pluginContainer.registerService(ServedNodeUrnPrefixesProvider.class, servedNodeUrnPrefixesProvider);
+                pluginContainer.registerService(NodeStatusTracker.class, nodeStatusTracker);
+            }
 
-			notifyStarted();
+            notifyStarted();
 
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
+    }
 
-	@Override
-	protected void doStop() {
-		try {
-			log.trace("PortalPluginServiceImpl.doStop()");
-			if (pluginContainer != null && pluginContainer.isRunning()) {
-				pluginContainer.stopAndWait();
-			}
-			notifyStopped();
-		} catch (Exception e) {
-			notifyFailed(e);
-		}
-	}
+    @Override
+    protected void doStop() {
+        try {
+            log.trace("PortalPluginServiceImpl.doStop()");
+            if (pluginContainer != null && pluginContainer.isRunning()) {
+                pluginContainer.stopAsync().awaitTerminated();
+            }
+            notifyStopped();
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
+    }
 
-	private String copyBundleToTmpFile(final String fileName) throws IOException {
-		final URL resource = PortalPluginServiceImpl.class.getResource(fileName);
-		final File tempDir = Files.createTempDir();
-		final File tempFile = new File(tempDir, fileName);
-		copy(newInputStreamSupplier(resource), tempFile);
-		return tempFile.getAbsolutePath();
-	}
+    private String copyBundleToTmpFile(final String fileName) throws IOException {
+        final URL resource = PortalPluginServiceImpl.class.getResource(fileName);
+        final File tempDir = Files.createTempDir();
+        final File tempFile = new File(tempDir, fileName);
+        Resources.asByteSource(resource).copyTo(Files.asByteSink(tempFile, FileWriteMode.APPEND));
+        return tempFile.getAbsolutePath();
+    }
 }

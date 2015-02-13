@@ -66,16 +66,16 @@ public class NodeApiImplTest {
 		workingNodeApi = new NodeApiImpl("testNode", workingDeviceAdapter, 1000, TimeUnit.MILLISECONDS);
 		timeoutNodeApi = new NodeApiImpl("testNode", timeoutDeviceAdapter, 5, TimeUnit.MILLISECONDS);
 
-		workingNodeApi.start();
-		timeoutNodeApi.start();
+		workingNodeApi.startAsync().awaitRunning();
+		timeoutNodeApi.startAsync().awaitRunning();
 
 	}
 
 	@After
 	public void tearDown() {
 
-		workingNodeApi.stop();
-		timeoutNodeApi.stop();
+		workingNodeApi.stopAsync().awaitTerminated();
+		timeoutNodeApi.stopAsync().awaitTerminated();
 
 		workingNodeApi = null;
 		timeoutNodeApi = null;

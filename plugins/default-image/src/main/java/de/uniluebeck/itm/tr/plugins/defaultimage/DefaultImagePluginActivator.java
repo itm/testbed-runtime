@@ -11,7 +11,7 @@ public class DefaultImagePluginActivator extends PortalPluginBundleActivator {
 	protected void doStart() throws Exception {
 
 		defaultImagePlugin = createInjector(new DefaultImagePluginModule()).getInstance(DefaultImagePlugin.class);
-		defaultImagePlugin.startAndWait();
+		defaultImagePlugin.startAsync().awaitRunning();
 
 		getService(PluginContainer.class).registerService(DefaultImagePlugin.class, defaultImagePlugin);
 	}
@@ -21,6 +21,6 @@ public class DefaultImagePluginActivator extends PortalPluginBundleActivator {
 
 		getService(PluginContainer.class).unregisterService(DefaultImagePlugin.class);
 
-		defaultImagePlugin.stopAndWait();
+		defaultImagePlugin.stopAsync().awaitTerminated();
 	}
 }

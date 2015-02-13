@@ -44,9 +44,9 @@ public class DeviceDBServer extends AbstractService {
 	@Override
 	protected void doStart() {
 		try {
-			servicePublisher.startAndWait();
-			deviceDBService.startAndWait();
-			deviceDBRestService.startAndWait();
+			servicePublisher.startAsync().awaitRunning();
+			deviceDBService.startAsync().awaitRunning();
+			deviceDBRestService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -58,15 +58,15 @@ public class DeviceDBServer extends AbstractService {
 		try {
 
 			if (deviceDBRestService.isRunning()) {
-				deviceDBRestService.stopAndWait();
+				deviceDBRestService.stopAsync().awaitTerminated();
 			}
 
 			if (deviceDBService.isRunning()) {
-				deviceDBService.stopAndWait();
+				deviceDBService.stopAsync().awaitTerminated();
 			}
 
 			if (servicePublisher.isRunning()) {
-				servicePublisher.stopAndWait();
+				servicePublisher.stopAsync().awaitTerminated();
 			}
 
 			notifyStopped();
@@ -109,14 +109,14 @@ public class DeviceDBServer extends AbstractService {
 												 @Override
 												 public void run() {
 													 if (deviceDBServer.isRunning()) {
-														 deviceDBServer.stopAndWait();
+														 deviceDBServer.stopAsync().awaitTerminated();
 													 }
 												 }
 											 }
 		);
 
 		try {
-			deviceDBServer.start().get();
+			deviceDBServer.startAsync().awaitRunning();
 		} catch (Exception e) {
 			log.error("Could not start DeviceDB: {}", e);
 			System.exit(1);

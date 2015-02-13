@@ -38,7 +38,7 @@ public class KeepAliveHandler extends SimpleChannelUpstreamHandler {
     private ChannelHandlerContext chc;
 
     // thread-shared var
-    private Stopwatch stopwatch = new Stopwatch();
+    private Stopwatch stopwatch = Stopwatch.createUnstarted();
 
     private Runnable checkLivelinessRunnable = new Runnable() {
         @Override

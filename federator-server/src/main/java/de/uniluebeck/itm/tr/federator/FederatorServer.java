@@ -51,10 +51,10 @@ public class FederatorServer extends AbstractService {
 	@Override
 	protected void doStart() {
 		try {
-			servicePublisher.startAndWait();
-			federatorService.startAndWait();
-			restApiService.startAndWait();
-			wiseGuiService.startAndWait();
+			servicePublisher.startAsync().awaitRunning();
+			federatorService.startAsync().awaitRunning();
+			restApiService.startAsync().awaitRunning();
+			wiseGuiService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -65,16 +65,16 @@ public class FederatorServer extends AbstractService {
 	protected void doStop() {
 		try {
 			if (wiseGuiService.isRunning()) {
-				wiseGuiService.stopAndWait();
+				wiseGuiService.stopAsync().awaitTerminated();
 			}
 			if (restApiService.isRunning()) {
-				restApiService.stopAndWait();
+				restApiService.stopAsync().awaitTerminated();
 			}
 			if (federatorService.isRunning()) {
-				federatorService.stopAndWait();
+				federatorService.stopAsync().awaitTerminated();
 			}
 			if (servicePublisher.isRunning()) {
-				servicePublisher.stopAndWait();
+				servicePublisher.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {
@@ -131,7 +131,7 @@ public class FederatorServer extends AbstractService {
 		final FederatorServer federatorServer = createInjector(serverModule).getInstance(FederatorServer.class);
 
 		try {
-			federatorServer.start().get();
+			federatorServer.startAsync().awaitRunning();
 		} catch (Exception e) {
 			log.error("Could not start Federator: {}", e.getMessage());
 			System.exit(1);
@@ -141,7 +141,7 @@ public class FederatorServer extends AbstractService {
 			@Override
 			public void run() {
 				log.info("Received KILL signal. Shutting down Federator...");
-				federatorServer.stopAndWait();
+				federatorServer.stopAsync().awaitTerminated();
 				log.info("Over and out.");
 			}
 		}

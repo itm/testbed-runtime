@@ -83,11 +83,16 @@ public class ReservationManagerImplTest extends ReservationTestBase {
     public void setUp() throws Exception {
 
         when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX);
-        when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
         when(rsPersistenceProvider.get()).thenReturn(rsPersistence);
-        when(schedulerService
-                        .scheduleAtFixedRate(Matchers.<Runnable>any(), anyLong(), anyLong(), Matchers.<TimeUnit>any())
-        ).thenReturn(scheduledFuture);
+
+        when(schedulerServiceFactory.create(anyInt(), anyString())).thenReturn(schedulerService);
+        when(schedulerService.scheduleAtFixedRate(Matchers.<Runnable>any(), anyLong(), anyLong(), Matchers.<TimeUnit>any()))
+                .thenReturn(scheduledFuture);
+        when(schedulerService.startAsync()).thenReturn(schedulerService);
+        when(schedulerService.stopAsync()).thenReturn(schedulerService);
+
+        when(cache.startAsync()).thenReturn(cache);
+        when(cache.stopAsync()).thenReturn(cache);
 
         reservationManager = new ReservationManagerImpl(
                 commonConfig,
@@ -100,7 +105,7 @@ public class ReservationManagerImplTest extends ReservationTestBase {
 
     @After
     public void tearDown() throws Exception {
-        reservationManager.stopAndWait();
+        reservationManager.stopAsync().awaitTerminated();
     }
 
     @Test
@@ -111,10 +116,12 @@ public class ReservationManagerImplTest extends ReservationTestBase {
 
         when(rsPersistence.getNonFinalizedReservations()).thenReturn(newArrayList(RESERVATION_1_DATA, RESERVATION_2_DATA));
 
-        reservationManager.startAndWait();
+        reservationManager.startAsync().awaitRunning();
 
-        verify(reservation1).startAndWait();
-        verify(reservation2).startAndWait();
+        verify(reservation1).startAsync();
+        verify(reservation1).awaitRunning();
+        verify(reservation2).startAsync();
+        verify(reservation2).awaitRunning();
     }
 
     @Test
@@ -135,7 +142,8 @@ public class ReservationManagerImplTest extends ReservationTestBase {
                 eq(RESERVATION_1_NODE_URN_SET),
                 eq(RESERVATION_1_INTERVAL)
         );
-        verify(reservation1).startAndWait();
+        verify(reservation1).startAsync();
+        verify(reservation1).awaitRunning();
         verify(cache).put(eq(reservation1));
     }
 
@@ -176,7 +184,8 @@ public class ReservationManagerImplTest extends ReservationTestBase {
                 eq(RESERVATION_1_NODE_URN_SET),
                 eq(RESERVATION_1_INTERVAL)
         );
-        verify(reservation1).startAndWait();
+        verify(reservation1).startAsync();
+        verify(reservation1).awaitRunning();
         verify(cache).put(eq(reservation1));
         assertSame(reservation1, actual);
     }
@@ -185,7 +194,7 @@ public class ReservationManagerImplTest extends ReservationTestBase {
     public void testThatNoReservationIsCreatedIfReservationIsUnknown() throws Exception {
 
         setUpUnknownReservation();
-        reservationManager.startAndWait();
+        reservationManager.startAsync().awaitRunning();
 
         try {
             reservationManager.getReservation(UNKNOWN_SRK_SET);
@@ -204,28 +213,32 @@ public class ReservationManagerImplTest extends ReservationTestBase {
         when(cache.lookup(eq(RESERVATION_2_SRK_SET))).thenReturn(Optional.of(reservation2));
         when(cache.getAll()).thenReturn(newHashSet(reservation1, reservation2));
 
-        reservationManager.startAndWait();
+        reservationManager.startAsync().awaitRunning();
 
         reservationManager.getReservation(RESERVATION_1_SRK_SET);
         reservationManager.getReservation(RESERVATION_2_SRK_SET);
 
-        reservationManager.stopAndWait();
+        reservationManager.stopAsync().awaitTerminated();
 
-        verify(reservation1).stopAndWait();
-        verify(reservation2).stopAndWait();
+        verify(reservation1).stopAsync();
+        verify(reservation1).awaitTerminated();
+        verify(reservation2).stopAsync();
+        verify(reservation2).awaitTerminated();
     }
 
     @Test
     public void testIfCacheIsStartedOnStartup() throws Exception {
-        reservationManager.startAndWait();
-        verify(cache).startAndWait();
+        reservationManager.startAsync().awaitRunning();
+        verify(cache).startAsync();
+        verify(cache).awaitRunning();
     }
 
     @Test
     public void testIfCacheIsStoppedOnShutdown() throws Exception {
-        reservationManager.startAndWait();
-        reservationManager.stopAndWait();
-        verify(cache).stopAndWait();
+        reservationManager.startAsync().awaitRunning();
+        reservationManager.stopAsync().awaitTerminated();
+        verify(cache).stopAsync();
+        verify(cache).awaitTerminated();
     }
 
     private void setUpReservation1() throws RSFault_Exception, UnknownSecretReservationKeyFault {
@@ -241,6 +254,8 @@ public class ReservationManagerImplTest extends ReservationTestBase {
                         eq(RESERVATION_1_INTERVAL)
                 )
         ).thenReturn(reservation1);
+        when(reservation1.startAsync()).thenReturn(reservation1);
+        when(reservation1.stopAsync()).thenReturn(reservation1);
         when(reservation1.getInterval()).thenReturn(RESERVATION_1_INTERVAL);
         when(reservation1.getSerializedKey()).thenReturn(serialize(RESERVATION_1_SRK));
     }
@@ -258,6 +273,8 @@ public class ReservationManagerImplTest extends ReservationTestBase {
                         eq(RESERVATION_2_INTERVAL)
                 )
         ).thenReturn(reservation2);
+        when(reservation2.startAsync()).thenReturn(reservation2);
+        when(reservation2.stopAsync()).thenReturn(reservation2);
         when(reservation2.getInterval()).thenReturn(RESERVATION_2_INTERVAL);
         when(reservation2.getSerializedKey()).thenReturn(serialize(RESERVATION_2_SRK));
     }
@@ -275,6 +292,8 @@ public class ReservationManagerImplTest extends ReservationTestBase {
                         eq(RESERVATION_3_INTERVAL)
                 )
         ).thenReturn(reservation3);
+        when(reservation3.startAsync()).thenReturn(reservation3);
+        when(reservation3.stopAsync()).thenReturn(reservation3);
         when(reservation3.getInterval()).thenReturn(RESERVATION_3_INTERVAL);
         when(reservation3.getSerializedKey()).thenReturn(serialize(RESERVATION_3_SRK));
     }

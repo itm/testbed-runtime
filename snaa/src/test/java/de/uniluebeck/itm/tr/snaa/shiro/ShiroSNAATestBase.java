@@ -115,6 +115,9 @@ public abstract class ShiroSNAATestBase {
 		when(servicePublisher.createJaxRsService(anyString(), any(Application.class), any(Ini.class))).thenReturn(jaxRsService);
 		when(servicePublisher.createServletService(anyString(), anyString(), anyMapOf(String.class, String.class), any(Ini.class)))
 				.thenReturn(servletService);
+        when(jaxWsService.startAsync()).thenReturn(jaxWsService);
+        when(jaxRsService.startAsync()).thenReturn(jaxRsService);
+        when(servletService.startAsync()).thenReturn(servletService);
 
 		when(commonConfig.getUrnPrefix()).thenReturn(NODE_URN_PREFIX_1);
 
@@ -138,7 +141,7 @@ public abstract class ShiroSNAATestBase {
 		Injector injector = Guice.createInjector(jpaModule, mocksModule, shiroSNAAModule);
 
 		shiroSNAA = injector.getInstance(ShiroSNAA.class);
-		shiroSNAA.startAndWait();
+		shiroSNAA.startAsync().awaitRunning();
 	}
 
 	@Test

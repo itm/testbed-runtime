@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.*;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 import static org.junit.Assert.assertTrue;
@@ -32,24 +33,20 @@ import static org.mockito.Mockito.*;
 public class PortalEventDispatcherImplTest {
 
     private static final NodeUrn GW1_N1 = new NodeUrn("urn:unit-test:gw1:0x0001");
-
     private static final NodeUrn GW1_N2 = new NodeUrn("urn:unit-test:gw1:0x0002");
-
     private static final NodeUrn GW1_N3 = new NodeUrn("urn:unit-test:gw1:0x0003");
-    private static final Set<NodeUrn> GW1_NODES = newHashSet(GW1_N1, GW1_N2, GW1_N3);
+
     private static final NodeUrn GW2_N1 = new NodeUrn("urn:unit-test:gw2:0x0001");
     private static final NodeUrn GW2_N2 = new NodeUrn("urn:unit-test:gw2:0x0002");
     private static final NodeUrn GW2_N3 = new NodeUrn("urn:unit-test:gw2:0x0003");
+
+    private static final Set<NodeUrn> GW1_NODES = newHashSet(GW1_N1, GW1_N2, GW1_N3);
     private static final Set<NodeUrn> GW2_NODES = newHashSet(GW2_N1, GW2_N2, GW2_N3);
-
     private static final Set<NodeUrn> ALL_NODES = union(GW1_NODES, GW2_NODES);
-
     private static final Set<NodeUrn> RESERVED_NODES = newHashSet(GW1_N1, GW1_N2, GW2_N1, GW2_N3);
-
     private static final Set<NodeUrn> UNRESERVED_NODES = difference(ALL_NODES, RESERVED_NODES);
 
     private static final Multimap<NodeUrn, NodeUrn> LINKS_RESERVED = HashMultimap.create();
-
     private static final Multimap<NodeUrn, NodeUrn> LINKS_UNRESERVED = HashMultimap.create();
 
     static {
@@ -63,11 +60,14 @@ public class PortalEventDispatcherImplTest {
     private static final Random RANDOM = new Random();
 
     private static final String RESERVATION_ID = "" + RANDOM.nextLong();
+
     private static final Set<Reservation.Entry> ENTRIES = newHashSet(
             new Reservation.Entry(GW1_N1.getPrefix(), null, RESERVATION_ID, GW1_NODES, new Interval(0, 1), null),
             new Reservation.Entry(GW2_N1.getPrefix(), null, RESERVATION_ID, GW1_NODES, new Interval(0, 1), null)
     );
+
     private static final String OTHER_RESERVATION_ID = "" + RANDOM.nextLong();
+
     @Mock
     private PortalEventBus portalEventBus;
 
@@ -79,31 +79,33 @@ public class PortalEventDispatcherImplTest {
 
     @Mock
     private Reservation reservation;
+
     @Mock
     private ReservationManager reservationManager;
+
     @Mock
     private PortalEventStore portalEventStore;
 
     private PortalEventDispatcherImpl portalEventDispatcher;
 
-
     @Before
     public void setUp() throws Exception {
+
         when(reservation.getNodeUrns()).thenReturn(RESERVED_NODES);
         when(reservation.getSerializedKey()).thenReturn(RESERVATION_ID);
         when(reservation.getEventBus()).thenReturn(eventBus);
+
         when(reservationManager.getReservation(any(NodeUrn.class), any(DateTime.class))).thenReturn(Optional.<Reservation>absent());
         for (NodeUrn node : RESERVED_NODES) {
             when(reservationManager.getReservation(eq(node), any(DateTime.class))).thenReturn(Optional.of(reservation));
         }
+
         //noinspection unchecked
         when(reservationManager.getReservation(any(Set.class))).thenReturn(reservation);
         when(reservationManager.getReservation(RESERVATION_ID)).thenReturn(reservation);
-        List<Reservation> reservationList = new ArrayList<Reservation>();
-        reservationList.add(reservation);
-        when(reservationManager.getReservations(any(DateTime.class))).thenReturn(reservationList);
+        when(reservationManager.getReservations(any(DateTime.class))).thenReturn(newArrayList(reservation));
+
         portalEventDispatcher = new PortalEventDispatcherImpl(portalEventBus, reservationManager, portalEventStore);
-        portalEventBus.startAndWait();
     }
 
     @Test
@@ -311,7 +313,7 @@ public class PortalEventDispatcherImplTest {
 
     @After
     public void tearDown() throws Exception {
-        portalEventDispatcher.stopAndWait();
+        portalEventDispatcher.stopAsync().awaitTerminated();
         portalEventDispatcher = null;
     }
 

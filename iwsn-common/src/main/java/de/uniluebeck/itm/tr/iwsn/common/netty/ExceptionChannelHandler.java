@@ -26,8 +26,8 @@ public class ExceptionChannelHandler extends SimpleChannelHandler {
 		Throwable cause = e.getCause();
 		assert cause != null;
 		if (!exceptionsIgnored.contains(cause.getClass())) {
-			log.error("Uncaught exception: ", cause);
-			super.exceptionCaught(ctx, e);
-		}
-	}
+            log.error("Uncaught exception for remote address {}: ", ctx.getChannel().getRemoteAddress().toString(), cause);
+            super.exceptionCaught(ctx, e);
+        }
+    }
 }

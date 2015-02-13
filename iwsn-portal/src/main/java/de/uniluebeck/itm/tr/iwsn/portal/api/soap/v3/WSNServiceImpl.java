@@ -51,7 +51,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Override
 	protected void doStart() {
 		try {
-			jaxWsService.startAndWait();
+			jaxWsService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -61,7 +61,7 @@ public class WSNServiceImpl extends AbstractService implements WSNService {
 	@Override
 	protected void doStop() {
 		try {
-			jaxWsService.stopAndWait();
+			jaxWsService.stopAsync().awaitTerminated();
 			notifyStopped();
 		} catch (Exception e) {
 			notifyFailed(e);

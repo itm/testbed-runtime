@@ -240,7 +240,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			}
 
 			setDefaultChannelPipeline();
-			nodeApi.start();
+			nodeApi.startAsync().awaitRunning();
 
 			fireDevicesConnected(deviceConfig.getNodeUrn());
 
@@ -318,7 +318,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 
 			shutdownDeviceChannel();
 			device.close();
-			nodeApi.stop();
+            nodeApi.stopAsync().awaitTerminated();
 
 			shutdown(deviceExecutor, 1, TimeUnit.SECONDS);
 

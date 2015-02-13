@@ -56,7 +56,7 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 					restApplication,
 					shiroRestIni
 			);
-			restService.startAndWait();
+			restService.startAsync().awaitRunning();
 
 			String webAppResourceBase = this.getClass().getResource("/de/uniluebeck/itm/tr/devicedb/webapp").toString();
 
@@ -75,7 +75,7 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 					webAppInitParams,
 					shiroWebappIni
 			);
-			webApp.startAndWait();
+			webApp.startAsync().awaitRunning();
 
 			notifyStarted();
 
@@ -93,11 +93,11 @@ public class DeviceDBRestServiceImpl extends AbstractService implements DeviceDB
 		try {
 
 			if (webApp != null && webApp.isRunning()) {
-				webApp.stopAndWait();
+				webApp.stopAsync().awaitTerminated();
 			}
 
 			if (restService != null && restService.isRunning()) {
-				restService.stopAndWait();
+				restService.stopAsync().awaitTerminated();
 			}
 
 			notifyStopped();

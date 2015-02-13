@@ -87,7 +87,7 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 					new CrossOriginFilter()
 			);
 
-			webapp.startAndWait();
+			webapp.startAsync().awaitRunning();
 
 			notifyStarted();
 
@@ -100,7 +100,7 @@ public class WiseGuiServiceImpl extends AbstractService implements WiseGuiServic
 	protected void doStop() {
 		try {
 			if (webapp != null && webapp.isRunning()) {
-				webapp.stopAndWait();
+				webapp.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {

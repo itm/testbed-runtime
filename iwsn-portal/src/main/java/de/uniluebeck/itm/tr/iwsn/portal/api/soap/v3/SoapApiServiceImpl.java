@@ -36,7 +36,7 @@ class SoapApiServiceImpl extends AbstractService implements SoapApiService {
 					sessionManagement,
 					null
 			);
-			sessionManagementService.startAndWait();
+			sessionManagementService.startAsync().awaitRunning();
 			notifyStarted();
 		} catch (Exception e) {
 			notifyFailed(e);
@@ -47,7 +47,7 @@ class SoapApiServiceImpl extends AbstractService implements SoapApiService {
 	protected void doStop() {
 		try {
 			if (sessionManagementService != null && sessionManagementService.isRunning()) {
-				sessionManagementService.stopAndWait();
+				sessionManagementService.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {

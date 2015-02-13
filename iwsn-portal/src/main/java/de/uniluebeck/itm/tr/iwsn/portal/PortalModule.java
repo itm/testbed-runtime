@@ -178,6 +178,6 @@ public class PortalModule extends AbstractModule {
 
 	@Provides
 	Stopwatch provideStopwatch() {
-		return new Stopwatch();
+		return Stopwatch.createUnstarted();
 	}
 }

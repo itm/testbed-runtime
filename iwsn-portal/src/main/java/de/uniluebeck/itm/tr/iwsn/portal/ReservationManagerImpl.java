@@ -80,8 +80,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     protected void doStart() {
         log.trace("ReservationManagerImpl.doStart()");
         try {
-            schedulerService.startAndWait();
-            cache.startAndWait();
+            schedulerService.startAsync().awaitRunning();
+            cache.startAsync().awaitRunning();
             rsPersistence.get().addListener(rsPersistenceListener);
             initializeNonFinalizedReservations();
             notifyStarted();
@@ -96,14 +96,14 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         try {
 
             for (Reservation reservation : cache.getAll()) {
-                reservation.stopAndWait();
+                reservation.stopAsync().awaitTerminated();
             }
 
             cache.clear();
-            cache.stopAndWait();
+            cache.stopAsync().awaitTerminated();
 
             rsPersistence.get().removeListener(rsPersistenceListener);
-            schedulerService.stopAndWait();
+            schedulerService.stopAsync().awaitTerminated();
             notifyStopped();
 
         } catch (Exception e) {
@@ -204,7 +204,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                 new Interval(data.getFrom(), data.getTo())
         );
 
-        reservation.startAndWait();
+        reservation.startAsync().awaitRunning();
 
         return reservation;
     }

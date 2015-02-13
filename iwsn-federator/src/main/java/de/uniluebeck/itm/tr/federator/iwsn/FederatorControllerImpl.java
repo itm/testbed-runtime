@@ -115,7 +115,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 			log.debug("Starting federator controller using endpoint URI {}", endpointUri);
 
 			jaxWsService = servicePublisher.createJaxWsService(endpointUri.getPath(), this, null);
-			jaxWsService.startAndWait();
+			jaxWsService.startAsync().awaitRunning();
 
 			log.debug("Adding federator controller endpoint to federated reservations");
 
@@ -140,7 +140,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 			log.error("Error while starting federator controller endpoint: ", e);
 
 			if (jaxWsService != null && jaxWsService.isRunning()) {
-				jaxWsService.stopAndWait();
+				jaxWsService.stopAsync().awaitTerminated();
 			}
 
 			notifyFailed(e);
@@ -164,7 +164,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 			if (jaxWsService.isRunning()) {
 				log.info("Stopping federator controller at {}...", endpointUri);
-				jaxWsService.stopAndWait();
+				jaxWsService.stopAsync().awaitTerminated();
 			}
 
 			notifyStopped();

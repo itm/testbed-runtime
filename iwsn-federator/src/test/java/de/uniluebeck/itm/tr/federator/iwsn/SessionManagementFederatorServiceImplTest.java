@@ -97,10 +97,15 @@ public class SessionManagementFederatorServiceImplTest {
 
 	@Before
 	public void setUp() throws Exception {
+
 		when(endpointManager.getSmEndpointUri()).thenReturn(URI.create("http://localhost/"));
+
 		when(servicePublisher.createJaxWsService(anyString(), anyObject(), any(Ini.class)))
 				.thenReturn(servicePublisherService);
-		federatorSM = new SessionManagementFederatorServiceImpl(
+        when(servicePublisherService.startAsync()).thenReturn(servicePublisherService);
+        when(servicePublisherService.stopAsync()).thenReturn(servicePublisherService);
+
+        federatorSM = new SessionManagementFederatorServiceImpl(
 				endpointManager,
 				federatedEndpoints,
 				preconditionsFactory,
@@ -112,12 +117,12 @@ public class SessionManagementFederatorServiceImplTest {
 				servedNodeUrnsProvider,
 				wisemlProvider
 		);
-		federatorSM.startAndWait();
+		federatorSM.startAsync().awaitRunning();
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		federatorSM.stopAndWait();
+		federatorSM.stopAsync().awaitTerminated();
 	}
 
 	/**

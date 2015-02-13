@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
 
@@ -26,19 +27,19 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 
     private final DeviceManager deviceManager;
 
-    private final UpstreamMessageQueue eventQueue;
+    private final UpstreamMessageQueue upstreamMessageQueue;
 
     private Channel channel;
 
     @Inject
     public GatewayChannelHandler(final GatewayEventBus gatewayEventBus,
                                  final IdProvider idProvider,
-                                 final DeviceManager deviceManager, final UpstreamMessageQueue eventQueue) {
-
+                                 final DeviceManager deviceManager,
+                                 final UpstreamMessageQueue upstreamMessageQueue) {
         this.gatewayEventBus = gatewayEventBus;
         this.idProvider = idProvider;
         this.deviceManager = deviceManager;
-        this.eventQueue = eventQueue;
+        this.upstreamMessageQueue = upstreamMessageQueue;
     }
 
     @Override
@@ -71,17 +72,25 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 
         log.trace("GatewayChannelHandler.channelConnected(ctx={}, event={})", ctx, e);
 
-        channel = e.getChannel();
-        eventQueue.channelConnected(channel);
+        if (!upstreamMessageQueue.isRunning()) {
+            upstreamMessageQueue.awaitRunning(5, TimeUnit.SECONDS);
+            if (!upstreamMessageQueue.isRunning()) {
+                throw new RuntimeException("GatewayChannelHandler.channelConnected(): UpstreamMessageQueue should be running. Timed out waiting for it!");
+            }
+        }
+
         gatewayEventBus.register(this);
 
-		final String hostname = InetAddress.getLocalHost().getCanonicalHostName();
-		eventQueue.enqueue(newMessage(newEvent(idProvider.get(), newGatewayConnectedEvent(hostname))));
+        channel = e.getChannel();
+        upstreamMessageQueue.channelConnected(channel);
+
+        final String hostname = InetAddress.getLocalHost().getHostAddress();
+		upstreamMessageQueue.enqueue(newMessage(newEvent(idProvider.get(), newGatewayConnectedEvent(hostname))));
 
 		final Set<NodeUrn> connectedNodeUrns = deviceManager.getConnectedNodeUrns();
 
         if (!connectedNodeUrns.isEmpty()) {
-            eventQueue.enqueue(newMessage(newEvent(idProvider.get(), newDevicesAttachedEvent(connectedNodeUrns))));
+            upstreamMessageQueue.enqueue(newMessage(newEvent(idProvider.get(), newDevicesAttachedEvent(connectedNodeUrns))));
         }
 
         super.channelConnected(ctx, e);
@@ -91,7 +100,7 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
     public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         log.trace("GatewayChannelHandler.channelDisconnected(ctx={}, event={}", ctx, e);
         gatewayEventBus.unregister(this);
-        eventQueue.channelDisconnected();
+        upstreamMessageQueue.channelDisconnected();
         channel = null;
         super.channelDisconnected(ctx, e);
     }
