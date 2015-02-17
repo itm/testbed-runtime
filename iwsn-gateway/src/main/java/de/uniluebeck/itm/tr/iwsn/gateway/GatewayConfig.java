@@ -86,18 +86,29 @@ public class GatewayConfig {
 	@Named(SMARTSANTANDER_GATEWAY_ID)
 	private String smartSantanderGatewayId;
 
-	@PropConf(
-			usage = "Scan for devices supported by the built-in drivers (iSense, TelosB and Pacemate, default: true)."
-					+ " Set to false e.g., if you attach devices using your own (plugin-based) device drivers.",
-			defaultValue = "true"
-	)
-	public static final String SCAN_DEVICES = "gateway.scan_devices";
+    @PropConf(
+            usage = "Scan for devices supported by the built-in drivers (iSense, TelosB and Pacemate, default: true)."
+                    + " Set to false e.g., if you attach devices using your own (plugin-based) device drivers.",
+            defaultValue = "true"
+    )
+    public static final String SCAN_DEVICES = "gateway.scan_devices";
 
-	@Inject(optional = true)
-	@Named(SCAN_DEVICES)
-	protected boolean scanDevices;
+    @Inject(optional = true)
+    @Named(SCAN_DEVICES)
+    protected boolean scanDevices;
 
-	public HostAndPort getPortalAddress() {
+    @PropConf(
+            usage = "A list of node URNs that are attached to this gateway (to be used when device auto-detection does" +
+                    " not work). The configuration (including it's serial port) will be looked up in the Device DB.",
+            defaultValue = ""
+    )
+    public static final String STATIC_DEVICES = "gateway.static_devices";
+
+    @Inject(optional = true)
+    @Named(STATIC_DEVICES)
+    protected String staticDevices;
+
+    public HostAndPort getPortalAddress() {
 		return portalAddress;
 	}
 
@@ -127,4 +138,8 @@ public class GatewayConfig {
 	public boolean isScanDevices() {
 		return scanDevices;
 	}
+
+    public String getStaticDevices() {
+        return staticDevices;
+    }
 }

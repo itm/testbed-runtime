@@ -214,9 +214,14 @@ public class Gateway extends AbstractService {
 		final Injector injector = Guice.createInjector(gatewayModule);
 		final Gateway gateway = injector.getInstance(Gateway.class);
 
-		gateway.startAsync().awaitRunning();
+        try {
+            gateway.startAsync().awaitRunning();
+        } catch (Exception e) {
+            log.error("Failed to start, reason: ", e);
+            System.exit(1);
+        }
 
-		log.info("Gateway started!");
+        log.info("Gateway started!");
 
 		Runtime.getRuntime().addShutdownHook(new Thread("Gateway-Shutdown") {
 			@Override

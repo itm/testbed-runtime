@@ -17,6 +17,7 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.*;
 import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.UpstreamMessageQueueHelperImpl;
 import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.UpstreamMessageQueueHelper;
+import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.plugins.GatewayPluginModule;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiModule;
@@ -27,7 +28,9 @@ import de.uniluebeck.itm.wsn.drivers.factories.DeviceFactoryModule;
 
 import javax.inject.Singleton;
 import java.net.URI;
+import java.util.Deque;
 
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.inject.util.Providers.of;
 
 public class GatewayModule extends AbstractModule {
@@ -105,4 +108,9 @@ public class GatewayModule extends AbstractModule {
 	ServicePublisherConfig provideServicePublisherConfig(final GatewayConfig config) {
 		return new ServicePublisherConfig(config.getRestAPIPort());
 	}
+
+    @Provides
+    Deque<DeviceFoundEvent> provideDeviceFoundEventQueue() {
+        return newLinkedList();
+    }
 }

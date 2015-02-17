@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.gateway.events;
 
+import com.google.common.base.Objects;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 
@@ -102,4 +103,26 @@ public abstract class DeviceEvent {
 	public void setReference(@Nullable final String reference) {
 		this.reference = reference;
 	}
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(deviceType, devicePort, deviceConfiguration, reference, macAddress, deviceConfig);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final DeviceEvent other = (DeviceEvent) obj;
+        return Objects.equal(this.deviceType, other.deviceType)
+                && Objects.equal(this.devicePort, other.devicePort)
+                && Objects.equal(this.deviceConfiguration, other.deviceConfiguration)
+                && Objects.equal(this.reference, other.reference)
+                && Objects.equal(this.macAddress, other.macAddress)
+                && Objects.equal(this.deviceConfig, other.deviceConfig);
+    }
 }
