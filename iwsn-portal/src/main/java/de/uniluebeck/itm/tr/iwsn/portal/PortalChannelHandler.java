@@ -12,6 +12,8 @@ import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.group.ChannelGroup;
+import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +42,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
     private final ExternalPluginService externalPluginService;
 
     private final Multimap<ChannelHandlerContext, NodeUrn> contextToNodeUrnsMap = HashMultimap.create();
+
+    private final ChannelGroup allChannels = new DefaultChannelGroup();
 
     @Inject
     public PortalChannelHandler(final PortalEventBus portalEventBus,
@@ -507,6 +511,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
     @Override
     public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
         log.info("PortalChannelHandler.channelConnected(ctx={}, event={}): {}", ctx, e, ctx.getChannel().getRemoteAddress().toString());
+        allChannels.add(ctx.getChannel());
         super.channelConnected(ctx, e);
     }
 
@@ -514,6 +519,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
     public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 
         log.info("PortalChannelHandler.channelDisconnected(ctx={}, event={}): {}", ctx, e, ctx.getChannel().getRemoteAddress().toString());
+
+        allChannels.remove(ctx.getChannel());
 
         synchronized (contextToNodeUrnsMap) {
 
@@ -546,9 +553,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
     }
 
     private void sendToGateways(final Event event) {
-        for (ChannelHandlerContext channelHandlerContext : contextToNodeUrnsMap.keySet()) {
-            Channels.write(channelHandlerContext.getChannel(), newMessage(event));
-        }
+        allChannels.write(newMessage(event));
     }
 
     @Override
