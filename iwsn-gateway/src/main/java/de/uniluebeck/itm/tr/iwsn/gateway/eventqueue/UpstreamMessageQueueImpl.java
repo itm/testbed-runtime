@@ -155,7 +155,16 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 
                 } else {
 
-                    final Message message = serializationHelper.deserialize(dequeuedBytes);
+                    final Message message;
+                    try {
+                        message = serializationHelper.deserialize(dequeuedBytes);
+                    } catch (IllegalArgumentException e) {
+                        log.error("IllegalArgumentException while trying to deserialize message. Exception: {}", e);
+                        sendFailureEvent("A message is not deserializable. An appropriate deserializer is missing", e);
+                        // Ignore this message and continue with other messages in order to prevent the communication chain from blocking.
+                        addCallback(queue.dequeueAsync(), new DequeueCallback(), schedulerService);
+                        return;
+                    }
 
                     boolean isEvent = message.getType() == Message.Type.EVENT;
                     boolean isAttach = isEvent && message.getEvent().getType().equals(Event.Type.DEVICES_ATTACHED);
