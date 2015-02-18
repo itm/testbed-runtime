@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
@@ -31,10 +32,7 @@ import javax.annotation.Nullable;
 import javax.ws.rs.client.ClientException;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -75,47 +73,62 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
     protected final GatewayConfig gatewayConfig;
 
+    protected final Stopwatch lastConnectionAttempt;
+
     protected Runnable tryToConnectToUnconnectedDevicesRunnable = new Runnable() {
         @Override
         public void run() {
 
-            if (log.isTraceEnabled()) {
-                synchronized (deviceFoundEvents) {
-                    log.trace("Before retrying to connect: deviceFoundEvents: {}", deviceFoundEvents);
-                }
+            synchronized (lastConnectionAttempt) {
+                lastConnectionAttempt.reset();
             }
 
-            generateDeviceFoundEventsForUnconnectedStaticDevices();
+            try {
 
-            final List<DeviceFoundEvent> deviceFoundEventsTried = newArrayList();
+                if (log.isTraceEnabled()) {
+                    synchronized (deviceFoundEvents) {
+                        log.trace("Before retrying to connect: deviceFoundEvents: {}", deviceFoundEvents);
+                    }
+                }
 
-            // try to retrieve missing configs
-            while (!deviceFoundEvents.isEmpty()) {
+                generateDeviceFoundEventsForUnconnectedStaticDevices();
 
-                DeviceFoundEvent event;
+                final List<DeviceFoundEvent> deviceFoundEventsTried = newArrayList();
+
+                // try to retrieve missing configs
+                while (!deviceFoundEvents.isEmpty()) {
+
+                    DeviceFoundEvent event;
+                    synchronized (deviceFoundEvents) {
+                        event = deviceFoundEvents.removeFirst();
+                    }
+
+                    if (event.getDeviceConfig() == null) {
+                        event.setDeviceConfig(getDeviceConfigFromDeviceDB(event));
+                    }
+
+                    if (tryToConnect(event)) {
+                        log.trace("Successfully connected to {}", event);
+                    } else {
+                        log.trace("Failed to connect, putting back in queue: {},", event);
+                        deviceFoundEventsTried.add(event);
+                    }
+                }
+
                 synchronized (deviceFoundEvents) {
-                    event = deviceFoundEvents.removeFirst();
+                    deviceFoundEvents.addAll(deviceFoundEventsTried);
                 }
 
-                if (event.getDeviceConfig() == null) {
-                    event.setDeviceConfig(getDeviceConfigFromDeviceDB(event));
+                if (log.isTraceEnabled()) {
+                    synchronized (deviceFoundEvents) {
+                        log.trace("After  retrying to connect: deviceFoundEvents: {}", deviceFoundEvents);
+                    }
                 }
-
-                if (tryToConnect(event)) {
-                    log.trace("Successfully connected to {}", event);
-                } else {
-                    log.trace("Failed to connect, putting back in queue: {},", event);
-                    deviceFoundEventsTried.add(event);
-                }
-            }
-
-            synchronized (deviceFoundEvents) {
-                deviceFoundEvents.addAll(deviceFoundEventsTried);
-            }
-
-            if (log.isTraceEnabled()) {
-                synchronized (deviceFoundEvents) {
-                    log.trace("After  retrying to connect: deviceFoundEvents: {}", deviceFoundEvents);
+            } catch (Exception e) {
+                log.error("Uncaught exception occurred while trying to connect to unconnected devices: ", e);
+            } finally {
+                synchronized (lastConnectionAttempt) {
+                    lastConnectionAttempt.start();
                 }
             }
         }
@@ -197,7 +210,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
                             );
                             return false;
                         } else {
-                            log.error("Could not connect to {}: {}", deviceFoundEvent, getStackTraceAsString(e));
+                            log.error("Could not connect to {}:\n{}", deviceFoundEvent, getStackTraceAsString(e));
                             return false;
                         }
                     }
@@ -321,6 +334,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
         } else {
             this.deviceFoundEvents = deviceFoundEvents;
         }
+        this.lastConnectionAttempt = Stopwatch.createStarted();
     }
 
     @Override
@@ -334,14 +348,23 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
             tryToConnectToDetectedButUnconnectedDevicesSchedule = schedulerService.scheduleWithFixedDelay(
                     tryToConnectToUnconnectedDevicesRunnable,
-                    30, 30, TimeUnit.SECONDS
+                    10, 30, TimeUnit.SECONDS
             );
 
             generateDeviceFoundEventsForUnconnectedStaticDevices();
+            runTryToConnectIfLastAttemptLongerAgoThan(2, TimeUnit.SECONDS);
             notifyStarted();
 
         } catch (Exception e) {
             notifyFailed(e);
+        }
+    }
+
+    private void runTryToConnectIfLastAttemptLongerAgoThan(int time, TimeUnit timeUnit) {
+        synchronized (lastConnectionAttempt) {
+            if (lastConnectionAttempt.elapsed(timeUnit) > time) {
+                schedulerService.execute(tryToConnectToUnconnectedDevicesRunnable);
+            }
         }
     }
 
@@ -391,7 +414,25 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
     @Subscribe
     public void onDeviceConfigUpdatedEvent(final DeviceConfigUpdatedEvent updatedEvent) {
         log.trace("DeviceManagerImpl.onDeviceConfigUpdatedEvent({})", updatedEvent);
-        disconnectAndScheduleReconnect(new NodeUrn(updatedEvent.getNodeUrn()), true);
+        NodeUrn nodeUrn = new NodeUrn(updatedEvent.getNodeUrn());
+        disconnectAndScheduleReconnect(nodeUrn, true);
+        updateDeviceFoundEventForStaticDevicesIfEnqueued(nodeUrn);
+    }
+
+    private void updateDeviceFoundEventForStaticDevicesIfEnqueued(NodeUrn nodeUrn) {
+        if (staticDevices.contains(nodeUrn)) {
+
+            synchronized (deviceFoundEvents) {
+                Iterator<DeviceFoundEvent> iterator = deviceFoundEvents.iterator();
+                while (iterator.hasNext()) {
+                    DeviceFoundEvent e = iterator.next();
+                    if (e.getDeviceConfig() != null && nodeUrn.equals(e.getDeviceConfig().getNodeUrn())) {
+                        iterator.remove();
+                        tryToGenerateDeviceFoundEventForStaticNode(nodeUrn);
+                    }
+                }
+            }
+        }
     }
 
     private void disconnectAndScheduleReconnect(final NodeUrn nodeUrn, final boolean immediateReconnect) {
@@ -472,20 +513,22 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
             log.info("Found currently unconnected statically configured devices: {}", unconnectedStaticDevices);
         }
 
-        for (NodeUrn unconnectedStaticDevice : unconnectedStaticDevices) {
-            boolean deviceFoundEventExisting = false;
-            for (DeviceFoundEvent deviceFoundEvent : deviceFoundEvents) {
-                if (deviceFoundEvent.getDeviceConfig() != null &&
-                        deviceFoundEvent.getDeviceConfig().getNodeUrn() != null &&
-                        unconnectedStaticDevice.equals(deviceFoundEvent.getDeviceConfig().getNodeUrn())) {
-                    deviceFoundEventExisting = true;
-                    log.trace("DeviceManagerImpl.generateDeviceFoundEventsForUnconnectedStaticDevices(): DeviceFoundEvent for {} already existing", unconnectedStaticDevice);
-                    break;
+        synchronized (deviceFoundEvents) {
+            for (NodeUrn unconnectedStaticDevice : unconnectedStaticDevices) {
+                boolean deviceFoundEventExisting = false;
+                for (DeviceFoundEvent deviceFoundEvent : deviceFoundEvents) {
+                    if (deviceFoundEvent.getDeviceConfig() != null &&
+                            deviceFoundEvent.getDeviceConfig().getNodeUrn() != null &&
+                            unconnectedStaticDevice.equals(deviceFoundEvent.getDeviceConfig().getNodeUrn())) {
+                        deviceFoundEventExisting = true;
+                        log.trace("DeviceManagerImpl.generateDeviceFoundEventsForUnconnectedStaticDevices(): DeviceFoundEvent for {} already existing", unconnectedStaticDevice);
+                        break;
+                    }
                 }
-            }
-            if (!deviceFoundEventExisting) {
-                log.trace("DeviceManagerImpl.generateDeviceFoundEventsForUnconnectedStaticDevices(): no DeviceFoundEvent for {} found, creating one", unconnectedStaticDevice);
-                tryToGenerateDeviceFoundEventForStaticNode(unconnectedStaticDevice);
+                if (!deviceFoundEventExisting) {
+                    log.trace("DeviceManagerImpl.generateDeviceFoundEventsForUnconnectedStaticDevices(): no DeviceFoundEvent for {} found, creating one", unconnectedStaticDevice);
+                    tryToGenerateDeviceFoundEventForStaticNode(unconnectedStaticDevice);
+                }
             }
         }
     }
@@ -522,7 +565,9 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
             log.trace("DeviceManagerImpl.tryToGenerateDeviceFoundEventForStaticNode(): adding DeviceFoundEvent for {}", nodeUrn);
 
-            deviceFoundEvents.add(e);
+            synchronized (deviceFoundEvents) {
+                deviceFoundEvents.add(e);
+            }
         }
     }
 
@@ -553,7 +598,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
             deviceFoundEvents.add(deviceFoundEvent);
         }
 
-        schedulerService.execute(tryToConnectToUnconnectedDevicesRunnable);
+        runTryToConnectIfLastAttemptLongerAgoThan(2, TimeUnit.SECONDS);
     }
 
     /**
@@ -637,7 +682,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
             }
         }
 
-        schedulerService.execute(tryToConnectToUnconnectedDevicesRunnable);
+        runTryToConnectIfLastAttemptLongerAgoThan(2, TimeUnit.SECONDS);
     }
 
     @Subscribe
