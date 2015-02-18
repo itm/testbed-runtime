@@ -97,10 +97,13 @@ public class ChannelHandlerConfigEntity {
 	public ChannelHandlerConfig toChannelHandlerConfig() {
 
 		Multimap<String, String> multiMap = ArrayListMultimap.create();
-		
-		for ( KeyValueEntity entry : properties) {
-			multiMap.put(entry.getKey(), entry.getValue());
-		}
-		return new ChannelHandlerConfig(handlerName, instanceName, multiMap);
+
+        if (properties != null) {
+
+            for (KeyValueEntity entry : properties) {
+                multiMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return new ChannelHandlerConfig(handlerName, instanceName, multiMap);
 	}
 }
