@@ -57,8 +57,6 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
     private final String key;
 
-    private DateTime lastTouched;
-
     private final ResponseTrackerCache responseTrackerCache;
 
     private final ResponseTrackerFactory responseTrackerFactory;
@@ -164,14 +162,10 @@ public class ReservationImpl extends AbstractService implements Reservation {
         this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));
         this.reservationEventStore = reservationEventStoreFactory.createOrLoad(this);
         this.schedulerService = checkNotNull(schedulerService);
-        this.lastTouched = now();
     }
 
     private void scheduleFirstLifecycleCallable() {
-        if (isFinalized()) {
-            // Just starting the service and scheduling it for finalization
-            //scheduleEvent(new ReservationStartCallable(), now());
-        } else {
+        if (!isFinalized()) {
             // the reservation isn't finalized yet. Replay all events that should have occurred in the past and schedule future events.
             scheduleEvent(new ReservationMadeCallable(), now());
         }
@@ -387,23 +381,16 @@ public class ReservationImpl extends AbstractService implements Reservation {
         if (isFinalized() && !isRunning()) {
             startAsync().awaitRunning();
             rescheduleFinalization();
-            lastTouched = now();
             return true;
         }
         if (nextScheduledEvent instanceof ReservationFinalizeCallable) {
             rescheduleFinalization();
             boolean touched = !nextScheduledEventFuture.isDone() && !nextScheduledEventFuture.isCancelled();
             if (touched) {
-                lastTouched = now();
                 return true;
             }
         }
         return false;
-    }
-
-    @Override
-    public boolean isOutdated() {
-        return lastTouched.plus(KEEP_ALIVE_TIME).isBeforeNow() && isFinalized() && !isRunning();
     }
 
     @Override

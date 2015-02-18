@@ -86,13 +86,6 @@ public interface Reservation extends Service {
      */
     boolean touch();
 
-
-    /**
-     * This method returns <code>true</code> for reservations which have finished their lifecycle and where not requested for a specific time. Outdated reservations are supposed to be removed from the ReservationManager cache.
-     * @return <code>true</code> if the reservation is finalized, not running and not requested for a specific time, <code>false</code> otherwise.
-     */
-    boolean isOutdated();
-
     public static class Entry {
 
         private NodeUrnPrefix nodeUrnPrefix;
