@@ -805,7 +805,8 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 			//noinspection ThrowableResultOfMethodCallIgnored
 			if (e.getCause() instanceof IOException && "Pipe broken".equals(e.getCause().getMessage())) {
 
-				log.trace("{} => Expected exception in pipeline: {}", deviceConfig.getNodeUrn(), e);
+                stopAsync();
+                log.trace("{} => Pipe broken, disconnecting: {}", deviceConfig.getNodeUrn(), e);
 
 			} else {
 
