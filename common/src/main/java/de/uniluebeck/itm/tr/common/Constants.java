@@ -71,4 +71,9 @@ public abstract class Constants {
 
 		public static final String WEB_APP_CONTEXT_PATH = "/user_registration";
 	}
+
+    public static abstract class EVENTSTORE {
+
+        public static final String ADMIN_WEB_APP_CONTEXT_PATH = "/admin/eventstore";
+    }
 }

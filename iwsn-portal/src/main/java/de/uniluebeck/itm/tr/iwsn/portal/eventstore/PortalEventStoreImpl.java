@@ -6,6 +6,7 @@ import de.uniluebeck.itm.eventstore.CloseableIterator;
 import de.uniluebeck.itm.eventstore.EventContainer;
 import de.uniluebeck.itm.eventstore.EventStore;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.adminui.EventStoreAdminService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,13 +18,17 @@ class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
     private static final Logger log = LoggerFactory.getLogger(PortalEventStoreImpl.class);
     private final PortalEventStoreHelper portalEventStoreHelper;
     private final PortalServerConfig portalServerConfig;
+    private final EventStoreAdminService eventStoreAdminService;
     private EventStore eventStore;
 
 
     @Inject
-    public PortalEventStoreImpl(final PortalEventStoreHelper portalEventStoreHelper, final PortalServerConfig portalServerConfig) {
+    public PortalEventStoreImpl(final PortalEventStoreHelper portalEventStoreHelper,
+                                final PortalServerConfig portalServerConfig,
+                                final EventStoreAdminService eventStoreAdminService) {
         this.portalEventStoreHelper = portalEventStoreHelper;
         this.portalServerConfig = portalServerConfig;
+        this.eventStoreAdminService = eventStoreAdminService;
     }
 
     @Override
@@ -35,6 +40,7 @@ class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
             } else {
                 eventStore = portalEventStoreHelper.createAndConfigureEventStore(portalServerConfig.getPortalEventstoreName());
             }
+            eventStoreAdminService.startAsync().awaitRunning();
             notifyStarted();
         } catch (Exception e) {
             notifyFailed(e);
@@ -44,6 +50,11 @@ class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
     @Override
     protected void doStop() {
         log.trace("PortalEventStoreServiceImpl.doStop()");
+        try {
+            eventStoreAdminService.stopAsync().awaitTerminated();
+        } catch (Exception e) {
+            notifyFailed(e);
+        }
         try {
             close();
         } catch (IOException e) {

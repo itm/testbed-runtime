@@ -20,8 +20,13 @@
             <groupId>es.unican.tlmat.smartsantander</groupId>
             <artifactId>sms.waspmote-driver-mobile</artifactId>
             <version>1.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
 		<dependency>
 			<groupId>de.uniluebeck.itm</groupId>
 			<artifactId>tr.iwsn-common</artifactId>

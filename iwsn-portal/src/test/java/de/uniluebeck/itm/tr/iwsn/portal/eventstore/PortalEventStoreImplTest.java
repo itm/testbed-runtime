@@ -6,6 +6,7 @@ import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
+import de.uniluebeck.itm.tr.iwsn.portal.eventstore.adminui.EventStoreAdminService;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,16 +55,20 @@ public class PortalEventStoreImplTest {
     @Mock
     private EventStore eventStore;
 
+    @Mock
+    private EventStoreAdminService eventStoreAdminService;
+
     private PortalEventStoreImpl store;
 
 
     @Before
     public void setUp() throws Exception {
 
+        when(eventStoreAdminService.startAsync()).thenReturn(eventStoreAdminService);
         when(portalServerConfig.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
         when(reservationEventStoreFactory.createOrLoad(reservation)).thenReturn(reservationEventStore);
 
-        store = new PortalEventStoreImpl(portalEventStoreHelper, portalServerConfig);
+        store = new PortalEventStoreImpl(portalEventStoreHelper, portalServerConfig, eventStoreAdminService);
     }
 
     @Test
