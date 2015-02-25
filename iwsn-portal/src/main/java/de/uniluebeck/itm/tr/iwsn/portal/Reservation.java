@@ -80,7 +80,8 @@ public interface Reservation extends Service {
     ReservationEventStore getEventStore();
 
     /**
-     * If the reservation is scheduled for finalization, calling this method delays the finalization and keeps the reservation service running. If the reservation isn't running, it will be started.
+     * If the reservation is scheduled for finalization, calling this method delays the finalization and keeps the
+     * reservation service running. If the reservation isn't running, it will be started.
      *
      * @return <code>true</code> if this method has had an effect, <code>false</code> otherwise.
      */

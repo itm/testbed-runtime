@@ -204,8 +204,6 @@ public class PortalServer extends AbstractService {
                                                  }
                                              }
         );
-
-        log.info("iWSN Portal started!");
     }
 
     @Override
