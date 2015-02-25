@@ -61,7 +61,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
     }
 
     public void doStop() {
-        externalPluginService.startAsync().awaitRunning();
+        externalPluginService.stopAsync().awaitTerminated();
         log.debug("Unsubscribing from the event bus.");
         portalEventBus.unregister(this);
     }
@@ -510,7 +510,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
     @Override
     public void channelConnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
-        log.info("PortalChannelHandler.channelConnected(ctx={}, event={}): {}", ctx, e, ctx.getChannel().getRemoteAddress().toString());
+        log.debug("PortalChannelHandler.channelConnected(ctx={}, event={}): {}", ctx, e, ctx.getChannel().getRemoteAddress().toString());
         allChannels.add(ctx.getChannel());
         super.channelConnected(ctx, e);
     }
@@ -518,7 +518,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
     @Override
     public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 
-        log.info("PortalChannelHandler.channelDisconnected(ctx={}, event={}): {}", ctx, e, ctx.getChannel().getRemoteAddress().toString());
+        log.debug("PortalChannelHandler.channelDisconnected(ctx={}, event={}): {}", ctx, e, ctx.getChannel().getRemoteAddress().toString());
 
         allChannels.remove(ctx.getChannel());
 
