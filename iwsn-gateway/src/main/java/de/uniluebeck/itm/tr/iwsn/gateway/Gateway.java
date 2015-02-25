@@ -173,8 +173,7 @@ public class Gateway extends AbstractService {
 
     @Subscribe
     public void onFailureEvent(GatewayFailureEvent event) {
-        log.error("Fatal Error Occurred, terminating gateway! Reason:"+event.getMessage(), event.getCause());
-        System.exit(1);
+        log.error("Fatal Error Occurred: " + event.getMessage(), event.getCause());
     }
 
 	public static void main(String[] args) {
