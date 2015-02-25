@@ -141,7 +141,7 @@ public class SingleUrnPrefixRSService extends AbstractService implements de.unil
 	protected void doStop() {
 		try {
 			if (jaxWsService != null) {
-				jaxWsService.startAsync().awaitRunning();
+				jaxWsService.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
 		} catch (Exception e) {
