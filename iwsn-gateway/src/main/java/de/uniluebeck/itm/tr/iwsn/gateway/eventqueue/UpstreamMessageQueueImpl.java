@@ -284,19 +284,19 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 
     @Subscribe
     public void onDevicesAttachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent devicesAttachedEvent) {
-        log.error("============================ UpstreamMessageQueueImpl.onDevicesAttachedEvent()");
+        log.trace("UpstreamMessageQueueImpl.onDevicesAttachedEvent(): {}", devicesAttachedEvent);
         enqueue(newMessage(newEvent(idProvider.get(), devicesAttachedEvent)));
     }
 
     @Subscribe
     public void onDevicesDetachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent devicesDetachedEvent) {
-        log.error("============================ UpstreamMessageQueueImpl.onDevicesDetachedEvent()");
+        log.trace("UpstreamMessageQueueImpl.onDevicesDetachedEvent(): {}", devicesDetachedEvent);
         enqueue(newMessage(newEvent(idProvider.get(), devicesDetachedEvent)));
     }
 
     @Subscribe
     public void onEvent(Event event) {
-        log.error("============================ UpstreamMessageQueueImpl.onEvent()");
+        log.trace("UpstreamMessageQueueImpl.onEvent(): {}", event);
         switch (event.getType()) {
 
             // forward upstream events
