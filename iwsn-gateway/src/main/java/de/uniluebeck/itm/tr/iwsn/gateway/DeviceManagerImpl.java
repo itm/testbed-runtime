@@ -546,7 +546,11 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
         try {
             config = deviceDBService.getConfigByNodeUrn(nodeUrn);
         } catch (Exception e) {
-            log.info("Failed to get configuration for node URN \"{}\" from DeviceDB. Trying again later. Reason: {}", nodeUrn, e.getMessage());
+            if (e.getCause() instanceof Fault && e.getCause().getCause() instanceof ConnectException) {
+                log.info("The DeviceDB seems not to be running, will try again later.");
+            } else {
+                log.info("Failed to get configuration for node URN \"{}\" from DeviceDB. Trying again later. Reason: {}", nodeUrn, e.getMessage());
+            }
         }
 
         boolean hasType = config != null && config.getNodeType() != null && !"".equals(config.getNodeType());
