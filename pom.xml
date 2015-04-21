@@ -29,7 +29,7 @@
     <groupId>de.uniluebeck.itm</groupId>
     <artifactId>tr</artifactId>
     <packaging>pom</packaging>
-    <version>0.9.1</version>
+    <version>0.9.2-SNAPSHOT</version>
 
     <name>TR :: Testbed Runtime</name>
 
@@ -787,7 +787,7 @@
 
     <scm>
         <connection>scm:git:git@github.com:itm/testbed-runtime.git</connection>
-      <tag>v0.9.1</tag>
+      <tag>HEAD</tag>
   </scm>
 
 </project>
