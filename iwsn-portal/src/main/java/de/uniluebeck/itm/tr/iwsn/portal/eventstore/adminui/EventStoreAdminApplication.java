@@ -38,7 +38,6 @@ public class EventStoreAdminApplication extends Application {
                 new RSAuthorizationFaultExceptionMapper(),
                 new ReservationConflictFaultExceptionMapper(),
                 new RSUnknownSecretReservationKeyFaultExceptionMapper(),
-                new RuntimeExceptionMapper(),
                 new SMUnknownSecretReservationKeyFaultExceptionMapper(),
                 new WebServiceExceptionMapper(),
                 new UserAlreadyExistsExceptionMapper(),
