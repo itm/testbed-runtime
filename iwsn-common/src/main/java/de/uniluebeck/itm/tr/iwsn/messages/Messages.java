@@ -218,223 +218,230 @@ public final class Messages {
   static {
     java.lang.String[] descriptorData = {
       "\n&src/main/resources/iwsn-messages.proto" +
-      "\022\"de.uniluebeck.itm.tr.iwsn.messages\"f\n\025" +
-      "RequestResponseHeader\022\025\n\rreservationId\030\001" +
-      " \001(\t\022\021\n\trequestId\030\002 \002(\003\022\021\n\ttimestamp\030\003 \002" +
-      "(\004\022\020\n\010nodeUrns\030\004 \003(\t\"4\n\004Link\022\025\n\rsourceNo" +
-      "deUrn\030\001 \002(\t\022\025\n\rtargetNodeUrn\030\002 \002(\t\"a\n\024Ar" +
-      "eNodesAliveRequest\022I\n\006header\030\001 \002(\01329.de." +
-      "uniluebeck.itm.tr.iwsn.messages.RequestR" +
-      "esponseHeader\"e\n\030AreNodesConnectedReques" +
-      "t\022I\n\006header\030\001 \002(\01329.de.uniluebeck.itm.tr",
-      ".iwsn.messages.RequestResponseHeader\"n\n\022" +
-      "FlashImagesRequest\022I\n\006header\030\001 \002(\01329.de." +
-      "uniluebeck.itm.tr.iwsn.messages.RequestR" +
-      "esponseHeader\022\r\n\005image\030\003 \002(\014\"^\n\021ResetNod" +
-      "esRequest\022I\n\006header\030\001 \002(\01329.de.uniluebec" +
+      "\022\"de.uniluebeck.itm.tr.iwsn.messages\"\231\001\n" +
+      "\025RequestResponseHeader\022\025\n\rreservationId\030" +
+      "\001 \001(\t\022\021\n\trequestId\030\002 \002(\003\022\021\n\ttimestamp\030\003 " +
+      "\002(\004\022\020\n\010nodeUrns\030\004 \003(\t\022\030\n\ndownstream\030\005 \001(" +
+      "\010:\004true\022\027\n\010upstream\030\006 \001(\010:\005false\"4\n\004Link" +
+      "\022\025\n\rsourceNodeUrn\030\001 \002(\t\022\025\n\rtargetNodeUrn" +
+      "\030\002 \002(\t\"a\n\024AreNodesAliveRequest\022I\n\006header" +
+      "\030\001 \002(\01329.de.uniluebeck.itm.tr.iwsn.messa" +
+      "ges.RequestResponseHeader\"e\n\030AreNodesCon",
+      "nectedRequest\022I\n\006header\030\001 \002(\01329.de.unilu" +
+      "ebeck.itm.tr.iwsn.messages.RequestRespon" +
+      "seHeader\"n\n\022FlashImagesRequest\022I\n\006header" +
+      "\030\001 \002(\01329.de.uniluebeck.itm.tr.iwsn.messa" +
+      "ges.RequestResponseHeader\022\r\n\005image\030\003 \002(\014" +
+      "\"^\n\021ResetNodesRequest\022I\n\006header\030\001 \002(\01329." +
+      "de.uniluebeck.itm.tr.iwsn.messages.Reque" +
+      "stResponseHeader\"\237\001\n\031EnableVirtualLinksR" +
+      "equest\022I\n\006header\030\001 \002(\01329.de.uniluebeck.i" +
+      "tm.tr.iwsn.messages.RequestResponseHeade",
+      "r\0227\n\005links\030\002 \003(\0132(.de.uniluebeck.itm.tr." +
+      "iwsn.messages.Link\"\240\001\n\032DisableVirtualLin" +
+      "ksRequest\022I\n\006header\030\001 \002(\01329.de.uniluebec" +
       "k.itm.tr.iwsn.messages.RequestResponseHe" +
-      "ader\"\237\001\n\031EnableVirtualLinksRequest\022I\n\006he" +
-      "ader\030\001 \002(\01329.de.uniluebeck.itm.tr.iwsn.m" +
-      "essages.RequestResponseHeader\0227\n\005links\030\002" +
-      " \003(\0132(.de.uniluebeck.itm.tr.iwsn.message",
-      "s.Link\"\240\001\n\032DisableVirtualLinksRequest\022I\n" +
+      "ader\0227\n\005links\030\002 \003(\0132(.de.uniluebeck.itm." +
+      "tr.iwsn.messages.Link\"`\n\023DisableNodesReq" +
+      "uest\022I\n\006header\030\001 \002(\01329.de.uniluebeck.itm" +
+      ".tr.iwsn.messages.RequestResponseHeader\"" +
+      "_\n\022EnableNodesRequest\022I\n\006header\030\001 \002(\01329." +
+      "de.uniluebeck.itm.tr.iwsn.messages.Reque",
+      "stResponseHeader\"\241\001\n\033DisablePhysicalLink" +
+      "sRequest\022I\n\006header\030\001 \002(\01329.de.uniluebeck" +
+      ".itm.tr.iwsn.messages.RequestResponseHea" +
+      "der\0227\n\005links\030\002 \003(\0132(.de.uniluebeck.itm.t" +
+      "r.iwsn.messages.Link\"\240\001\n\032EnablePhysicalL" +
+      "inksRequest\022I\n\006header\030\001 \002(\01329.de.unilueb" +
+      "eck.itm.tr.iwsn.messages.RequestResponse" +
+      "Header\0227\n\005links\030\002 \003(\0132(.de.uniluebeck.it" +
+      "m.tr.iwsn.messages.Link\"\200\001\n\035SendDownstre" +
+      "amMessagesRequest\022I\n\006header\030\001 \002(\01329.de.u",
+      "niluebeck.itm.tr.iwsn.messages.RequestRe" +
+      "sponseHeader\022\024\n\014messageBytes\030\003 \002(\014\"g\n\032Ge" +
+      "tChannelPipelinesRequest\022I\n\006header\030\001 \002(\013" +
+      "29.de.uniluebeck.itm.tr.iwsn.messages.Re" +
+      "questResponseHeader\"\274\001\n\033ChannelHandlerCo" +
+      "nfiguration\022\014\n\004name\030\001 \002(\t\022c\n\rconfigurati" +
+      "on\030\002 \003(\0132L.de.uniluebeck.itm.tr.iwsn.mes" +
+      "sages.ChannelHandlerConfiguration.KeyVal" +
+      "uePair\032*\n\014KeyValuePair\022\013\n\003key\030\001 \002(\t\022\r\n\005v" +
+      "alue\030\002 \002(\t\"\316\001\n\032SetChannelPipelinesReques",
+      "t\022I\n\006header\030\001 \002(\01329.de.uniluebeck.itm.tr" +
+      ".iwsn.messages.RequestResponseHeader\022e\n\034" +
+      "channelHandlerConfigurations\030\003 \003(\0132?.de." +
+      "uniluebeck.itm.tr.iwsn.messages.ChannelH" +
+      "andlerConfiguration\"\300\001\n\022SingleNodeProgre" +
+      "ss\022I\n\006header\030\001 \002(\01329.de.uniluebeck.itm.t" +
+      "r.iwsn.messages.RequestResponseHeader\022D\n" +
+      "\013requestType\030\002 \002(\0162/.de.uniluebeck.itm.t" +
+      "r.iwsn.messages.MessageType\022\031\n\021progressI" +
+      "nPercent\030\003 \002(\r\"\341\001\n\022SingleNodeResponse\022I\n",
       "\006header\030\001 \002(\01329.de.uniluebeck.itm.tr.iws" +
-      "n.messages.RequestResponseHeader\0227\n\005link" +
-      "s\030\002 \003(\0132(.de.uniluebeck.itm.tr.iwsn.mess" +
-      "ages.Link\"`\n\023DisableNodesRequest\022I\n\006head" +
-      "er\030\001 \002(\01329.de.uniluebeck.itm.tr.iwsn.mes" +
-      "sages.RequestResponseHeader\"_\n\022EnableNod" +
-      "esRequest\022I\n\006header\030\001 \002(\01329.de.uniluebec" +
-      "k.itm.tr.iwsn.messages.RequestResponseHe" +
-      "ader\"\241\001\n\033DisablePhysicalLinksRequest\022I\n\006",
-      "header\030\001 \002(\01329.de.uniluebeck.itm.tr.iwsn" +
-      ".messages.RequestResponseHeader\0227\n\005links" +
-      "\030\002 \003(\0132(.de.uniluebeck.itm.tr.iwsn.messa" +
-      "ges.Link\"\240\001\n\032EnablePhysicalLinksRequest\022" +
-      "I\n\006header\030\001 \002(\01329.de.uniluebeck.itm.tr.i" +
-      "wsn.messages.RequestResponseHeader\0227\n\005li" +
-      "nks\030\002 \003(\0132(.de.uniluebeck.itm.tr.iwsn.me" +
-      "ssages.Link\"\200\001\n\035SendDownstreamMessagesRe" +
-      "quest\022I\n\006header\030\001 \002(\01329.de.uniluebeck.it" +
-      "m.tr.iwsn.messages.RequestResponseHeader",
-      "\022\024\n\014messageBytes\030\003 \002(\014\"g\n\032GetChannelPipe" +
-      "linesRequest\022I\n\006header\030\001 \002(\01329.de.unilue" +
-      "beck.itm.tr.iwsn.messages.RequestRespons" +
-      "eHeader\"\274\001\n\033ChannelHandlerConfiguration\022" +
-      "\014\n\004name\030\001 \002(\t\022c\n\rconfiguration\030\002 \003(\0132L.d" +
-      "e.uniluebeck.itm.tr.iwsn.messages.Channe" +
-      "lHandlerConfiguration.KeyValuePair\032*\n\014Ke" +
-      "yValuePair\022\013\n\003key\030\001 \002(\t\022\r\n\005value\030\002 \002(\t\"\316" +
-      "\001\n\032SetChannelPipelinesRequest\022I\n\006header\030" +
-      "\001 \002(\01329.de.uniluebeck.itm.tr.iwsn.messag",
-      "es.RequestResponseHeader\022e\n\034channelHandl" +
-      "erConfigurations\030\003 \003(\0132?.de.uniluebeck.i" +
-      "tm.tr.iwsn.messages.ChannelHandlerConfig" +
-      "uration\"z\n\022SingleNodeProgress\022I\n\006header\030" +
-      "\001 \002(\01329.de.uniluebeck.itm.tr.iwsn.messag" +
-      "es.RequestResponseHeader\022\031\n\021progressInPe" +
-      "rcent\030\003 \002(\r\"\233\001\n\022SingleNodeResponse\022I\n\006he" +
+      "n.messages.RequestResponseHeader\022D\n\013requ" +
+      "estType\030\002 \002(\0162/.de.uniluebeck.itm.tr.iws" +
+      "n.messages.MessageType\022\020\n\010response\030\003 \001(\014" +
+      "\022\022\n\nstatusCode\030\004 \001(\005\022\024\n\014errorMessage\030\005 \001" +
+      "(\t\"\347\002\n\033GetChannelPipelinesResponse\022I\n\006he" +
       "ader\030\001 \002(\01329.de.uniluebeck.itm.tr.iwsn.m" +
-      "essages.RequestResponseHeader\022\020\n\010respons" +
-      "e\030\003 \001(\014\022\022\n\nstatusCode\030\004 \001(\005\022\024\n\014errorMess",
-      "age\030\005 \001(\t\"\347\002\n\033GetChannelPipelinesRespons" +
-      "e\022I\n\006header\030\001 \002(\01329.de.uniluebeck.itm.tr" +
-      ".iwsn.messages.RequestResponseHeader\022m\n\t" +
-      "pipelines\030\002 \003(\0132Z.de.uniluebeck.itm.tr.i" +
-      "wsn.messages.GetChannelPipelinesResponse" +
-      ".GetChannelPipelineResponse\032\215\001\n\032GetChann" +
-      "elPipelineResponse\022\017\n\007nodeUrn\030\001 \002(\t\022^\n\025h" +
-      "andlerConfigurations\030\002 \003(\0132?.de.uniluebe" +
-      "ck.itm.tr.iwsn.messages.ChannelHandlerCo" +
-      "nfiguration\"m\n\024UpstreamMessageEvent\022?\n\006h",
-      "eader\030\001 \002(\0132/.de.uniluebeck.itm.tr.iwsn." +
-      "messages.EventHeader\022\024\n\014messageBytes\030\003 \002" +
-      "(\014\"W\n\024DevicesAttachedEvent\022?\n\006header\030\001 \002" +
-      "(\0132/.de.uniluebeck.itm.tr.iwsn.messages." +
-      "EventHeader\"W\n\024DevicesDetachedEvent\022?\n\006h" +
-      "eader\030\001 \002(\0132/.de.uniluebeck.itm.tr.iwsn." +
-      "messages.EventHeader\"j\n\025GatewayConnected" +
-      "Event\022?\n\006header\030\001 \002(\0132/.de.uniluebeck.it" +
-      "m.tr.iwsn.messages.EventHeader\022\020\n\010hostna" +
-      "me\030\002 \002(\t\"m\n\030GatewayDisconnectedEvent\022?\n\006",
-      "header\030\001 \002(\0132/.de.uniluebeck.itm.tr.iwsn" +
-      ".messages.EventHeader\022\020\n\010hostname\030\002 \002(\t\"" +
-      "e\n\021NotificationEvent\022?\n\006header\030\001 \002(\0132/.d" +
-      "e.uniluebeck.itm.tr.iwsn.messages.EventH" +
-      "eader\022\017\n\007message\030\004 \002(\t\"q\n\027ReservationSta" +
-      "rtedEvent\022?\n\006header\030\001 \002(\0132/.de.uniluebec" +
-      "k.itm.tr.iwsn.messages.EventHeader\022\025\n\rse" +
-      "rializedKey\030\002 \002(\t\"o\n\025ReservationEndedEve" +
-      "nt\022?\n\006header\030\001 \002(\0132/.de.uniluebeck.itm.t" +
-      "r.iwsn.messages.EventHeader\022\025\n\rserialize",
-      "dKey\030\002 \002(\t\"n\n\024ReservationMadeEvent\022?\n\006he" +
-      "ader\030\001 \002(\0132/.de.uniluebeck.itm.tr.iwsn.m" +
-      "essages.EventHeader\022\025\n\rserializedKey\030\002 \002" +
-      "(\t\"s\n\031ReservationCancelledEvent\022?\n\006heade" +
-      "r\030\001 \002(\0132/.de.uniluebeck.itm.tr.iwsn.mess" +
-      "ages.EventHeader\022\025\n\rserializedKey\030\002 \002(\t\"" +
-      "s\n\031ReservationFinalizedEvent\022?\n\006header\030\001" +
+      "essages.RequestResponseHeader\022m\n\tpipelin" +
+      "es\030\002 \003(\0132Z.de.uniluebeck.itm.tr.iwsn.mes" +
+      "sages.GetChannelPipelinesResponse.GetCha",
+      "nnelPipelineResponse\032\215\001\n\032GetChannelPipel" +
+      "ineResponse\022\017\n\007nodeUrn\030\001 \002(\t\022^\n\025handlerC" +
+      "onfigurations\030\002 \003(\0132?.de.uniluebeck.itm." +
+      "tr.iwsn.messages.ChannelHandlerConfigura" +
+      "tion\"m\n\024UpstreamMessageEvent\022?\n\006header\030\001" +
       " \002(\0132/.de.uniluebeck.itm.tr.iwsn.message" +
-      "s.EventHeader\022\025\n\rserializedKey\030\002 \002(\t\"p\n\026" +
-      "ReservationOpenedEvent\022?\n\006header\030\001 \002(\0132/",
-      ".de.uniluebeck.itm.tr.iwsn.messages.Even" +
-      "tHeader\022\025\n\rserializedKey\030\002 \002(\t\"p\n\026Reserv" +
-      "ationClosedEvent\022?\n\006header\030\001 \002(\0132/.de.un" +
-      "iluebeck.itm.tr.iwsn.messages.EventHeade" +
-      "r\022\025\n\rserializedKey\030\002 \002(\t\"[\n\030DeviceConfig" +
-      "CreatedEvent\022?\n\006header\030\001 \002(\0132/.de.unilue" +
-      "beck.itm.tr.iwsn.messages.EventHeader\"[\n" +
-      "\030DeviceConfigUpdatedEvent\022?\n\006header\030\001 \002(" +
-      "\0132/.de.uniluebeck.itm.tr.iwsn.messages.E" +
-      "ventHeader\"[\n\030DeviceConfigDeletedEvent\022?",
+      "s.EventHeader\022\024\n\014messageBytes\030\003 \002(\014\"W\n\024D" +
+      "evicesAttachedEvent\022?\n\006header\030\001 \002(\0132/.de" +
+      ".uniluebeck.itm.tr.iwsn.messages.EventHe" +
+      "ader\"W\n\024DevicesDetachedEvent\022?\n\006header\030\001",
+      " \002(\0132/.de.uniluebeck.itm.tr.iwsn.message" +
+      "s.EventHeader\"j\n\025GatewayConnectedEvent\022?" +
       "\n\006header\030\001 \002(\0132/.de.uniluebeck.itm.tr.iw" +
-      "sn.messages.EventHeader\"C\n\013EventHeader\022\017" +
-      "\n\007eventId\030\001 \002(\003\022\021\n\ttimestamp\030\002 \002(\004\022\020\n\010no" +
-      "deUrns\030\003 \003(\t\"\033\n\010EventAck\022\017\n\007eventId\030\001 \002(" +
-      "\003\"\234 \n\007Message\022>\n\004type\030\001 \002(\01620.de.unilueb" +
-      "eck.itm.tr.iwsn.messages.Message.Type\022V\n" +
-      "\024areNodesAliveRequest\030o \001(\01328.de.unilueb" +
-      "eck.itm.tr.iwsn.messages.AreNodesAliveRe" +
-      "quest\022^\n\030areNodesConnectedRequest\030p \001(\0132" +
-      "<.de.uniluebeck.itm.tr.iwsn.messages.Are",
-      "NodesConnectedRequest\022T\n\023disableNodesReq" +
-      "uest\030q \001(\01327.de.uniluebeck.itm.tr.iwsn.m" +
-      "essages.DisableNodesRequest\022b\n\032disableVi" +
-      "rtualLinksRequest\030r \001(\0132>.de.uniluebeck." +
-      "itm.tr.iwsn.messages.DisableVirtualLinks" +
-      "Request\022d\n\033disablePhysicalLinksRequest\030s" +
-      " \001(\0132?.de.uniluebeck.itm.tr.iwsn.message" +
-      "s.DisablePhysicalLinksRequest\022R\n\022enableN" +
-      "odesRequest\030t \001(\01326.de.uniluebeck.itm.tr" +
-      ".iwsn.messages.EnableNodesRequest\022b\n\032ena",
-      "blePhysicalLinksRequest\030u \001(\0132>.de.unilu" +
-      "ebeck.itm.tr.iwsn.messages.EnablePhysica" +
-      "lLinksRequest\022`\n\031enableVirtualLinksReque" +
-      "st\030v \001(\0132=.de.uniluebeck.itm.tr.iwsn.mes" +
-      "sages.EnableVirtualLinksRequest\022R\n\022flash" +
-      "ImagesRequest\030w \001(\01326.de.uniluebeck.itm." +
-      "tr.iwsn.messages.FlashImagesRequest\022b\n\032g" +
-      "etChannelPipelinesRequest\030x \001(\0132>.de.uni" +
-      "luebeck.itm.tr.iwsn.messages.GetChannelP" +
-      "ipelinesRequest\022P\n\021resetNodesRequest\030y \001",
-      "(\01325.de.uniluebeck.itm.tr.iwsn.messages." +
-      "ResetNodesRequest\022h\n\035sendDownstreamMessa" +
-      "gesRequest\030z \001(\0132A.de.uniluebeck.itm.tr." +
-      "iwsn.messages.SendDownstreamMessagesRequ" +
-      "est\022b\n\032setChannelPipelinesRequest\030{ \001(\0132" +
-      ">.de.uniluebeck.itm.tr.iwsn.messages.Set" +
-      "ChannelPipelinesRequest\022I\n\010progress\030\202\001 \001" +
-      "(\01326.de.uniluebeck.itm.tr.iwsn.messages." +
-      "SingleNodeProgress\022I\n\010response\030\203\001 \001(\01326." +
-      "de.uniluebeck.itm.tr.iwsn.messages.Singl",
-      "eNodeResponse\022e\n\033getChannelPipelinesResp" +
-      "onse\030\204\001 \001(\0132?.de.uniluebeck.itm.tr.iwsn." +
-      "messages.GetChannelPipelinesResponse\022W\n\024" +
-      "upstreamMessageEvent\030\214\001 \001(\01328.de.unilueb" +
-      "eck.itm.tr.iwsn.messages.UpstreamMessage" +
-      "Event\022W\n\024devicesAttachedEvent\030\226\001 \001(\01328.d" +
-      "e.uniluebeck.itm.tr.iwsn.messages.Device" +
-      "sAttachedEvent\022W\n\024devicesDetachedEvent\030\227" +
-      "\001 \001(\01328.de.uniluebeck.itm.tr.iwsn.messag" +
-      "es.DevicesDetachedEvent\022Y\n\025gatewayConnec",
-      "tedEvent\030\230\001 \001(\01329.de.uniluebeck.itm.tr.i" +
-      "wsn.messages.GatewayConnectedEvent\022_\n\030ga" +
-      "tewayDisconnectedEvent\030\231\001 \001(\0132<.de.unilu" +
-      "ebeck.itm.tr.iwsn.messages.GatewayDiscon" +
-      "nectedEvent\022Q\n\021notificationEvent\030\240\001 \001(\0132" +
-      "5.de.uniluebeck.itm.tr.iwsn.messages.Not" +
-      "ificationEvent\022]\n\027reservationStartedEven" +
-      "t\030\252\001 \001(\0132;.de.uniluebeck.itm.tr.iwsn.mes" +
-      "sages.ReservationStartedEvent\022Y\n\025reserva" +
-      "tionEndedEvent\030\253\001 \001(\01329.de.uniluebeck.it",
-      "m.tr.iwsn.messages.ReservationEndedEvent" +
-      "\022W\n\024reservationMadeEvent\030\254\001 \001(\01328.de.uni" +
-      "luebeck.itm.tr.iwsn.messages.Reservation" +
-      "MadeEvent\022a\n\031reservationCancelledEvent\030\255" +
-      "\001 \001(\0132=.de.uniluebeck.itm.tr.iwsn.messag" +
-      "es.ReservationCancelledEvent\022[\n\026reservat" +
-      "ionOpenedEvent\030\256\001 \001(\0132:.de.uniluebeck.it" +
-      "m.tr.iwsn.messages.ReservationOpenedEven" +
-      "t\022[\n\026reservationClosedEvent\030\257\001 \001(\0132:.de." +
-      "uniluebeck.itm.tr.iwsn.messages.Reservat",
-      "ionClosedEvent\022a\n\031reservationFinalizedEv" +
-      "ent\030\260\001 \001(\0132=.de.uniluebeck.itm.tr.iwsn.m" +
-      "essages.ReservationFinalizedEvent\022_\n\030dev" +
-      "iceConfigCreatedEvent\030\264\001 \001(\0132<.de.unilue" +
-      "beck.itm.tr.iwsn.messages.DeviceConfigCr" +
-      "eatedEvent\022_\n\030deviceConfigUpdatedEvent\030\265" +
-      "\001 \001(\0132<.de.uniluebeck.itm.tr.iwsn.messag" +
-      "es.DeviceConfigUpdatedEvent\022_\n\030deviceCon" +
-      "figDeletedEvent\030\266\001 \001(\0132<.de.uniluebeck.i" +
-      "tm.tr.iwsn.messages.DeviceConfigDeletedE",
-      "vent\022?\n\010eventAck\030\276\001 \001(\0132,.de.uniluebeck." +
-      "itm.tr.iwsn.messages.EventAck\"\370\007\n\004Type\022\016" +
-      "\n\nKEEP_ALIVE\020\001\022\022\n\016KEEP_ALIVE_ACK\020\002\022\033\n\027RE" +
-      "QUEST_ARE_NODES_ALIVE\020\013\022\037\n\033REQUEST_ARE_N" +
-      "ODES_CONNECTED\020\014\022\031\n\025REQUEST_DISABLE_NODE" +
-      "S\020\r\022!\n\035REQUEST_DISABLE_VIRTUAL_LINKS\020\016\022\"" +
-      "\n\036REQUEST_DISABLE_PHYSICAL_LINKS\020\017\022\030\n\024RE" +
-      "QUEST_ENABLE_NODES\020\020\022!\n\035REQUEST_ENABLE_P" +
-      "HYSICAL_LINKS\020\021\022 \n\034REQUEST_ENABLE_VIRTUA" +
-      "L_LINKS\020\022\022\030\n\024REQUEST_FLASH_IMAGES\020\023\022!\n\035R",
-      "EQUEST_GET_CHANNEL_PIPELINES\020\024\022\027\n\023REQUES" +
-      "T_RESET_NODES\020\025\022$\n REQUEST_SEND_DOWNSTRE" +
-      "AM_MESSAGES\020\026\022!\n\035REQUEST_SET_CHANNEL_PIP" +
-      "ELINES\020\027\022\014\n\010PROGRESS\020\036\022\014\n\010RESPONSE\020\037\022!\n\035" +
-      "GET_CHANNELPIPELINES_RESPONSE\020 \022\032\n\026EVENT" +
-      "_UPSTREAM_MESSAGE\020(\022\032\n\026EVENT_DEVICES_ATT" +
-      "ACHED\0202\022\032\n\026EVENT_DEVICES_DETACHED\0203\022\033\n\027E" +
-      "VENT_GATEWAY_CONNECTED\0204\022\036\n\032EVENT_GATEWA" +
-      "Y_DISCONNECTED\0205\022\026\n\022EVENT_NOTIFICATION\020<" +
-      "\022\035\n\031EVENT_RESERVATION_STARTED\020F\022\033\n\027EVENT",
-      "_RESERVATION_ENDED\020G\022\032\n\026EVENT_RESERVATIO" +
-      "N_MADE\020H\022\037\n\033EVENT_RESERVATION_CANCELLED\020" +
-      "I\022\034\n\030EVENT_RESERVATION_OPENED\020J\022\034\n\030EVENT" +
-      "_RESERVATION_CLOSED\020K\022\037\n\033EVENT_RESERVATI" +
-      "ON_FINALIZED\020L\022\037\n\033EVENT_DEVICE_CONFIG_CR" +
-      "EATED\020P\022\037\n\033EVENT_DEVICE_CONFIG_UPDATED\020Q" +
-      "\022\037\n\033EVENT_DEVICE_CONFIG_DELETED\020R\022\r\n\tEVE" +
-      "NT_ACK\020ZB\014B\010MessagesP\001"
+      "sn.messages.EventHeader\022\020\n\010hostname\030\002 \002(" +
+      "\t\"m\n\030GatewayDisconnectedEvent\022?\n\006header\030" +
+      "\001 \002(\0132/.de.uniluebeck.itm.tr.iwsn.messag" +
+      "es.EventHeader\022\020\n\010hostname\030\002 \002(\t\"e\n\021Noti" +
+      "ficationEvent\022?\n\006header\030\001 \002(\0132/.de.unilu" +
+      "ebeck.itm.tr.iwsn.messages.EventHeader\022\017" +
+      "\n\007message\030\004 \002(\t\"q\n\027ReservationStartedEve",
+      "nt\022?\n\006header\030\001 \002(\0132/.de.uniluebeck.itm.t" +
+      "r.iwsn.messages.EventHeader\022\025\n\rserialize" +
+      "dKey\030\002 \002(\t\"o\n\025ReservationEndedEvent\022?\n\006h" +
+      "eader\030\001 \002(\0132/.de.uniluebeck.itm.tr.iwsn." +
+      "messages.EventHeader\022\025\n\rserializedKey\030\002 " +
+      "\002(\t\"n\n\024ReservationMadeEvent\022?\n\006header\030\001 " +
+      "\002(\0132/.de.uniluebeck.itm.tr.iwsn.messages" +
+      ".EventHeader\022\025\n\rserializedKey\030\002 \002(\t\"s\n\031R" +
+      "eservationCancelledEvent\022?\n\006header\030\001 \002(\013" +
+      "2/.de.uniluebeck.itm.tr.iwsn.messages.Ev",
+      "entHeader\022\025\n\rserializedKey\030\002 \002(\t\"s\n\031Rese" +
+      "rvationFinalizedEvent\022?\n\006header\030\001 \002(\0132/." +
+      "de.uniluebeck.itm.tr.iwsn.messages.Event" +
+      "Header\022\025\n\rserializedKey\030\002 \002(\t\"p\n\026Reserva" +
+      "tionOpenedEvent\022?\n\006header\030\001 \002(\0132/.de.uni" +
+      "luebeck.itm.tr.iwsn.messages.EventHeader" +
+      "\022\025\n\rserializedKey\030\002 \002(\t\"p\n\026ReservationCl" +
+      "osedEvent\022?\n\006header\030\001 \002(\0132/.de.uniluebec" +
+      "k.itm.tr.iwsn.messages.EventHeader\022\025\n\rse" +
+      "rializedKey\030\002 \002(\t\"[\n\030DeviceConfigCreated",
+      "Event\022?\n\006header\030\001 \002(\0132/.de.uniluebeck.it" +
+      "m.tr.iwsn.messages.EventHeader\"[\n\030Device" +
+      "ConfigUpdatedEvent\022?\n\006header\030\001 \002(\0132/.de." +
+      "uniluebeck.itm.tr.iwsn.messages.EventHea" +
+      "der\"[\n\030DeviceConfigDeletedEvent\022?\n\006heade" +
+      "r\030\001 \002(\0132/.de.uniluebeck.itm.tr.iwsn.mess" +
+      "ages.EventHeader\"v\n\013EventHeader\022\017\n\007event" +
+      "Id\030\001 \002(\003\022\021\n\ttimestamp\030\002 \002(\004\022\020\n\010nodeUrns\030" +
+      "\003 \003(\t\022\031\n\ndownstream\030\005 \001(\010:\005false\022\026\n\010upst" +
+      "ream\030\006 \001(\010:\004true\"K\n\010EventAck\022?\n\006header\030\001",
+      " \002(\0132/.de.uniluebeck.itm.tr.iwsn.message" +
+      "s.EventHeader\"\240\030\n\007Message\022=\n\004type\030\001 \002(\0162" +
+      "/.de.uniluebeck.itm.tr.iwsn.messages.Mes" +
+      "sageType\022V\n\024areNodesAliveRequest\030o \001(\01328" +
+      ".de.uniluebeck.itm.tr.iwsn.messages.AreN" +
+      "odesAliveRequest\022^\n\030areNodesConnectedReq" +
+      "uest\030p \001(\0132<.de.uniluebeck.itm.tr.iwsn.m" +
+      "essages.AreNodesConnectedRequest\022T\n\023disa" +
+      "bleNodesRequest\030q \001(\01327.de.uniluebeck.it" +
+      "m.tr.iwsn.messages.DisableNodesRequest\022b",
+      "\n\032disableVirtualLinksRequest\030r \001(\0132>.de." +
+      "uniluebeck.itm.tr.iwsn.messages.DisableV" +
+      "irtualLinksRequest\022d\n\033disablePhysicalLin" +
+      "ksRequest\030s \001(\0132?.de.uniluebeck.itm.tr.i" +
+      "wsn.messages.DisablePhysicalLinksRequest" +
+      "\022R\n\022enableNodesRequest\030t \001(\01326.de.unilue" +
+      "beck.itm.tr.iwsn.messages.EnableNodesReq" +
+      "uest\022b\n\032enablePhysicalLinksRequest\030u \001(\013" +
+      "2>.de.uniluebeck.itm.tr.iwsn.messages.En" +
+      "ablePhysicalLinksRequest\022`\n\031enableVirtua",
+      "lLinksRequest\030v \001(\0132=.de.uniluebeck.itm." +
+      "tr.iwsn.messages.EnableVirtualLinksReque" +
+      "st\022R\n\022flashImagesRequest\030w \001(\01326.de.unil" +
+      "uebeck.itm.tr.iwsn.messages.FlashImagesR" +
+      "equest\022b\n\032getChannelPipelinesRequest\030x \001" +
+      "(\0132>.de.uniluebeck.itm.tr.iwsn.messages." +
+      "GetChannelPipelinesRequest\022P\n\021resetNodes" +
+      "Request\030y \001(\01325.de.uniluebeck.itm.tr.iws" +
+      "n.messages.ResetNodesRequest\022h\n\035sendDown" +
+      "streamMessagesRequest\030z \001(\0132A.de.unilueb",
+      "eck.itm.tr.iwsn.messages.SendDownstreamM" +
+      "essagesRequest\022b\n\032setChannelPipelinesReq" +
+      "uest\030{ \001(\0132>.de.uniluebeck.itm.tr.iwsn.m" +
+      "essages.SetChannelPipelinesRequest\022I\n\010pr" +
+      "ogress\030\202\001 \001(\01326.de.uniluebeck.itm.tr.iws" +
+      "n.messages.SingleNodeProgress\022I\n\010respons" +
+      "e\030\203\001 \001(\01326.de.uniluebeck.itm.tr.iwsn.mes" +
+      "sages.SingleNodeResponse\022e\n\033getChannelPi" +
+      "pelinesResponse\030\204\001 \001(\0132?.de.uniluebeck.i" +
+      "tm.tr.iwsn.messages.GetChannelPipelinesR",
+      "esponse\022W\n\024upstreamMessageEvent\030\214\001 \001(\01328" +
+      ".de.uniluebeck.itm.tr.iwsn.messages.Upst" +
+      "reamMessageEvent\022W\n\024devicesAttachedEvent" +
+      "\030\226\001 \001(\01328.de.uniluebeck.itm.tr.iwsn.mess" +
+      "ages.DevicesAttachedEvent\022W\n\024devicesDeta" +
+      "chedEvent\030\227\001 \001(\01328.de.uniluebeck.itm.tr." +
+      "iwsn.messages.DevicesDetachedEvent\022Y\n\025ga" +
+      "tewayConnectedEvent\030\230\001 \001(\01329.de.uniluebe" +
+      "ck.itm.tr.iwsn.messages.GatewayConnected" +
+      "Event\022_\n\030gatewayDisconnectedEvent\030\231\001 \001(\013",
+      "2<.de.uniluebeck.itm.tr.iwsn.messages.Ga" +
+      "tewayDisconnectedEvent\022Q\n\021notificationEv" +
+      "ent\030\240\001 \001(\01325.de.uniluebeck.itm.tr.iwsn.m" +
+      "essages.NotificationEvent\022]\n\027reservation" +
+      "StartedEvent\030\252\001 \001(\0132;.de.uniluebeck.itm." +
+      "tr.iwsn.messages.ReservationStartedEvent" +
+      "\022Y\n\025reservationEndedEvent\030\253\001 \001(\01329.de.un" +
+      "iluebeck.itm.tr.iwsn.messages.Reservatio" +
+      "nEndedEvent\022W\n\024reservationMadeEvent\030\254\001 \001" +
+      "(\01328.de.uniluebeck.itm.tr.iwsn.messages.",
+      "ReservationMadeEvent\022a\n\031reservationCance" +
+      "lledEvent\030\255\001 \001(\0132=.de.uniluebeck.itm.tr." +
+      "iwsn.messages.ReservationCancelledEvent\022" +
+      "[\n\026reservationOpenedEvent\030\256\001 \001(\0132:.de.un" +
+      "iluebeck.itm.tr.iwsn.messages.Reservatio" +
+      "nOpenedEvent\022[\n\026reservationClosedEvent\030\257" +
+      "\001 \001(\0132:.de.uniluebeck.itm.tr.iwsn.messag" +
+      "es.ReservationClosedEvent\022a\n\031reservation" +
+      "FinalizedEvent\030\260\001 \001(\0132=.de.uniluebeck.it" +
+      "m.tr.iwsn.messages.ReservationFinalizedE",
+      "vent\022_\n\030deviceConfigCreatedEvent\030\264\001 \001(\0132" +
+      "<.de.uniluebeck.itm.tr.iwsn.messages.Dev" +
+      "iceConfigCreatedEvent\022_\n\030deviceConfigUpd" +
+      "atedEvent\030\265\001 \001(\0132<.de.uniluebeck.itm.tr." +
+      "iwsn.messages.DeviceConfigUpdatedEvent\022_" +
+      "\n\030deviceConfigDeletedEvent\030\266\001 \001(\0132<.de.u" +
+      "niluebeck.itm.tr.iwsn.messages.DeviceCon" +
+      "figDeletedEvent\022?\n\010eventAck\030\276\001 \001(\0132,.de." +
+      "uniluebeck.itm.tr.iwsn.messages.EventAck" +
+      "*\377\007\n\013MessageType\022\016\n\nKEEP_ALIVE\020\001\022\022\n\016KEEP",
+      "_ALIVE_ACK\020\002\022\033\n\027REQUEST_ARE_NODES_ALIVE\020" +
+      "\013\022\037\n\033REQUEST_ARE_NODES_CONNECTED\020\014\022\031\n\025RE" +
+      "QUEST_DISABLE_NODES\020\r\022!\n\035REQUEST_DISABLE" +
+      "_VIRTUAL_LINKS\020\016\022\"\n\036REQUEST_DISABLE_PHYS" +
+      "ICAL_LINKS\020\017\022\030\n\024REQUEST_ENABLE_NODES\020\020\022!" +
+      "\n\035REQUEST_ENABLE_PHYSICAL_LINKS\020\021\022 \n\034REQ" +
+      "UEST_ENABLE_VIRTUAL_LINKS\020\022\022\030\n\024REQUEST_F" +
+      "LASH_IMAGES\020\023\022!\n\035REQUEST_GET_CHANNEL_PIP" +
+      "ELINES\020\024\022\027\n\023REQUEST_RESET_NODES\020\025\022$\n REQ" +
+      "UEST_SEND_DOWNSTREAM_MESSAGES\020\026\022!\n\035REQUE",
+      "ST_SET_CHANNEL_PIPELINES\020\027\022\014\n\010PROGRESS\020\036" +
+      "\022\014\n\010RESPONSE\020\037\022!\n\035GET_CHANNELPIPELINES_R" +
+      "ESPONSE\020 \022\032\n\026EVENT_UPSTREAM_MESSAGE\020(\022\032\n" +
+      "\026EVENT_DEVICES_ATTACHED\0202\022\032\n\026EVENT_DEVIC" +
+      "ES_DETACHED\0203\022\033\n\027EVENT_GATEWAY_CONNECTED" +
+      "\0204\022\036\n\032EVENT_GATEWAY_DISCONNECTED\0205\022\026\n\022EV" +
+      "ENT_NOTIFICATION\020<\022\035\n\031EVENT_RESERVATION_" +
+      "STARTED\020F\022\033\n\027EVENT_RESERVATION_ENDED\020G\022\032" +
+      "\n\026EVENT_RESERVATION_MADE\020H\022\037\n\033EVENT_RESE" +
+      "RVATION_CANCELLED\020I\022\034\n\030EVENT_RESERVATION",
+      "_OPENED\020J\022\034\n\030EVENT_RESERVATION_CLOSED\020K\022" +
+      "\037\n\033EVENT_RESERVATION_FINALIZED\020L\022\037\n\033EVEN" +
+      "T_DEVICE_CONFIG_CREATED\020P\022\037\n\033EVENT_DEVIC" +
+      "E_CONFIG_UPDATED\020Q\022\037\n\033EVENT_DEVICE_CONFI" +
+      "G_DELETED\020R\022\r\n\tEVENT_ACK\020ZB\014B\010MessagesP\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -446,7 +453,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_RequestResponseHeader_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_RequestResponseHeader_descriptor,
-              new java.lang.String[] { "ReservationId", "RequestId", "Timestamp", "NodeUrns", },
+              new java.lang.String[] { "ReservationId", "RequestId", "Timestamp", "NodeUrns", "Downstream", "Upstream", },
               de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.class,
               de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_Link_descriptor =
@@ -582,7 +589,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeProgress_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeProgress_descriptor,
-              new java.lang.String[] { "Header", "ProgressInPercent", },
+              new java.lang.String[] { "Header", "RequestType", "ProgressInPercent", },
               de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.class,
               de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeResponse_descriptor =
@@ -590,7 +597,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeResponse_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_SingleNodeResponse_descriptor,
-              new java.lang.String[] { "Header", "Response", "StatusCode", "ErrorMessage", },
+              new java.lang.String[] { "Header", "RequestType", "Response", "StatusCode", "ErrorMessage", },
               de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.class,
               de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_GetChannelPipelinesResponse_descriptor =
@@ -742,7 +749,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_EventHeader_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_EventHeader_descriptor,
-              new java.lang.String[] { "EventId", "Timestamp", "NodeUrns", },
+              new java.lang.String[] { "EventId", "Timestamp", "NodeUrns", "Downstream", "Upstream", },
               de.uniluebeck.itm.tr.iwsn.messages.EventHeader.class,
               de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_EventAck_descriptor =
@@ -750,7 +757,7 @@ public final class Messages {
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_EventAck_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_uniluebeck_itm_tr_iwsn_messages_EventAck_descriptor,
-              new java.lang.String[] { "EventId", },
+              new java.lang.String[] { "Header", },
               de.uniluebeck.itm.tr.iwsn.messages.EventAck.class,
               de.uniluebeck.itm.tr.iwsn.messages.EventAck.Builder.class);
           internal_static_de_uniluebeck_itm_tr_iwsn_messages_Message_descriptor =

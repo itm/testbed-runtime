@@ -1,17 +1,18 @@
-/**********************************************************************************************************************
+/**
+ * *******************************************************************************************************************
  * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                  *
  * All rights reserved.                                                                                               *
- *                                                                                                                    *
+ * *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
  * following conditions are met:                                                                                      *
- *                                                                                                                    *
+ * *
  * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following *
- *   disclaimer.                                                                                                      *
+ * disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
- *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
+ * following disclaimer in the documentation and/or other materials provided with the distribution.                 *
  * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote *
- *   products derived from this software without specific prior written permission.                                   *
- *                                                                                                                    *
+ * products derived from this software without specific prior written permission.                                   *
+ * *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
  * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         *
@@ -19,7 +20,8 @@
  * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    *
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
- **********************************************************************************************************************/
+ * ********************************************************************************************************************
+ */
 
 package de.uniluebeck.itm.tr.federator.iwsn;
 
@@ -41,6 +43,8 @@ import de.uniluebeck.itm.tr.common.WSNPreconditions;
 import de.uniluebeck.itm.tr.federator.iwsn.async.*;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageType;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import eu.wisebed.api.v3.WisebedServiceHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -57,17 +61,13 @@ import javax.jws.WebService;
 import javax.xml.ws.RequestWrapper;
 import javax.xml.ws.ResponseWrapper;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.util.concurrent.Futures.addCallback;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newSingleNodeResponse;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 
 
@@ -92,30 +92,31 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 	private final URI endpointUri;
 
-	private final EndpointManager endpointManager;
-
 	private final FederatedReservation reservation;
 
 	private final DeliveryManager deliveryManager;
 
 	private final PortalEventBus portalEventBus;
 
+	private final MessageFactory messageFactory;
+
 	private ServicePublisherService jaxWsService;
 
 	@Inject
 	public WSNFederatorServiceImpl(final ServicePublisher servicePublisher,
-								   final IWSNFederatorServiceConfig config,
 								   final ListeningExecutorService executorService,
 								   final PreconditionsFactory preconditionsFactory,
 								   final PortalEventBus portalEventBus,
 								   final EndpointManager endpointManager,
+								   final MessageFactory messageFactory,
 								   @Assisted final FederatedReservation reservation,
 								   @Assisted final DeliveryManager deliveryManager,
 								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints,
 								   @Assisted final Set<NodeUrnPrefix> nodeUrnPrefixes,
 								   @Assisted final Set<NodeUrn> nodeUrns) {
+
 		this.portalEventBus = portalEventBus;
-		this.endpointManager = endpointManager;
+		this.messageFactory = messageFactory;
 		this.reservation = reservation;
 		this.deliveryManager = deliveryManager;
 		this.servicePublisher = servicePublisher;
@@ -223,7 +224,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			final SendCallable callable = new SendCallable(endpoint, federatorRequestId, nodeIdSubset, messageBytes);
 			final ListenableFuture<Void> listenableFuture = executorService.submit(callable);
 
-			addErrorHandling(listenableFuture, federatorRequestId, nodeIdSubset);
+			addErrorHandling(listenableFuture, federatorRequestId, MessageType.REQUEST_SEND_DOWNSTREAM_MESSAGES, nodeIdSubset);
 
 		}
 
@@ -257,7 +258,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			final WSNAreNodesAliveCallable callable = new WSNAreNodesAliveCallable(endpoint, requestId, nodeUrnSubset);
 			final ListenableFuture<Void> listenableFuture = executorService.submit(callable);
 
-			addErrorHandling(listenableFuture, requestId, nodeUrnSubset);
+			addErrorHandling(listenableFuture, requestId, MessageType.REQUEST_ARE_NODES_ALIVE, nodeUrnSubset);
 		}
 	}
 
@@ -331,7 +332,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			final ResetNodesCallable callable = new ResetNodesCallable(endpoint, requestId, nodeIdSubset);
 			final ListenableFuture<Void> listenableFuture = executorService.submit(callable);
 
-			addErrorHandling(listenableFuture, requestId, nodeIdSubset);
+			addErrorHandling(listenableFuture, requestId, MessageType.REQUEST_RESET_NODES, nodeIdSubset);
 		}
 	}
 
@@ -377,7 +378,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 			final ListenableFuture<Void> listenableFuture = executorService.submit(callable);
 
-			addErrorHandling(listenableFuture, requestId, newArrayList(sourceNodeUrn));
+			addErrorHandling(listenableFuture, requestId, MessageType.REQUEST_ENABLE_VIRTUAL_LINKS, newArrayList(sourceNodeUrn));
 
 
 		}
@@ -418,7 +419,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 			final ListenableFuture<Void> listenableFuture = executorService.submit(callable);
 
-			addErrorHandling(listenableFuture, requestId, newArrayList(sourceNodeUrn));
+			addErrorHandling(listenableFuture, requestId, MessageType.REQUEST_DISABLE_VIRTUAL_LINKS, newArrayList(sourceNodeUrn));
 		}
 	}
 
@@ -447,7 +448,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			final DisableNodeCallable callable = new DisableNodeCallable(endpoint, requestId, nodeUrn);
 			final ListenableFuture<Void> listenableFuture = executorService.submit(callable);
 
-			addErrorHandling(listenableFuture, requestId, newArrayList(nodeUrn));
+			addErrorHandling(listenableFuture, requestId, MessageType.REQUEST_DISABLE_NODES, newArrayList(nodeUrn));
 		}
 	}
 
@@ -486,7 +487,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 
 			final ListenableFuture<Void> listenableFuture = executorService.submit(callable);
 
-			addErrorHandling(listenableFuture, requestId, newArrayList(targetNodeUrn));
+			addErrorHandling(listenableFuture, requestId, MessageType.REQUEST_DISABLE_PHYSICAL_LINKS, newArrayList(targetNodeUrn));
 		}
 	}
 
@@ -539,7 +540,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			final EnableNodeCallable callable = new EnableNodeCallable(endpoint, requestId, nodeUrn);
 			final ListenableFuture<Void> listenableFuture = executorService.submit(callable);
 
-			addErrorHandling(listenableFuture, requestId, newArrayList(nodeUrn));
+			addErrorHandling(listenableFuture, requestId, MessageType.REQUEST_ENABLE_NODES, newArrayList(nodeUrn));
 		}
 	}
 
@@ -576,7 +577,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			);
 			final ListenableFuture<Void> listenableFuture = executorService.submit(callable);
 
-			addErrorHandling(listenableFuture, requestId, newArrayList(targetNodeUrn));
+			addErrorHandling(listenableFuture, requestId, MessageType.REQUEST_ENABLE_PHYSICAL_LINKS, newArrayList(targetNodeUrn));
 		}
 	}
 
@@ -628,7 +629,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 				nodeUrnCollection.addAll(flashProgramsConfiguration.getNodeUrns());
 			}
 
-			addErrorHandling(listenableFuture, requestId, nodeUrnCollection);
+			addErrorHandling(listenableFuture, requestId, MessageType.REQUEST_FLASH_IMAGES, nodeUrnCollection);
 		}
 	}
 
@@ -663,7 +664,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 			);
 			final ListenableFuture<Void> listenableFuture = executorService.submit(callable);
 
-			addErrorHandling(listenableFuture, requestId, nodeUrnsForWsnEndpoint);
+			addErrorHandling(listenableFuture, requestId, MessageType.REQUEST_SET_CHANNEL_PIPELINES, nodeUrnsForWsnEndpoint);
 
 		}
 	}
@@ -707,14 +708,13 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 	 * Adds a listener to the provided ListenableFuture which will create and forward a status request to the
 	 * federation controller if the future cannot complete due to an Exception.
 	 *
-	 * @param listenableFuture
-	 * 		The future which Exceptions are to be caught.
-	 * @param requestId
-	 * 		The request identifier provided by a client
-	 * @param nodeUrns
-	 * 		a list of node urns
+	 * @param listenableFuture The future which Exceptions are to be caught.
+	 * @param requestId        The request identifier provided by a client
+	 * @param nodeUrns         a list of node urns
 	 */
-	private void addErrorHandling(final ListenableFuture<Void> listenableFuture, final long requestId,
+	private void addErrorHandling(final ListenableFuture<Void> listenableFuture,
+								  final long requestId,
+								  final MessageType requestType,
 								  final List<NodeUrn> nodeUrns) {
 		addCallback(listenableFuture, new FutureCallback<Void>() {
 					@Override
@@ -736,12 +736,14 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 								.append(getStackTraceAsString(t));
 
 						for (NodeUrn nodeUrn : nodeUrns) {
-							portalEventBus.post(newSingleNodeResponse(
-											reservation.getSerializedKey(),
+							portalEventBus.post(messageFactory.singleNodeResponse(
+											Optional.of(reservation.getSerializedKey()),
+											Optional.empty(),
+											requestType,
 											requestId,
 											nodeUrn,
 											-1,
-											sb.toString()
+											Optional.of(sb.toString())
 									)
 							);
 						}

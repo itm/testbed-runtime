@@ -2,6 +2,7 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Scopes;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.tr.common.*;
@@ -45,6 +46,7 @@ public class SoapApiModule extends AbstractModule {
 		bind(SoapApiService.class).to(SoapApiServiceImpl.class).in(Singleton.class);
 		bind(SessionManagement.class).to(SessionManagementImpl.class).in(Singleton.class);
 		bind(IdProvider.class).to(IncrementalIdProvider.class).in(Singleton.class);
+		bind(TimestampProvider.class).to(UnixTimestampProvider.class).in(Scopes.SINGLETON);
 	}
 
 	@Provides

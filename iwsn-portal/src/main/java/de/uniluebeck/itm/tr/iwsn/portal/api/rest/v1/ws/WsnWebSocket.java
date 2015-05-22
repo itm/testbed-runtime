@@ -23,7 +23,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.common.Base64Helper.decodeBytes;
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.fromJSON;
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newSendDownstreamMessageRequest;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newSendDownstreamMessageRequest;
 
 public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 

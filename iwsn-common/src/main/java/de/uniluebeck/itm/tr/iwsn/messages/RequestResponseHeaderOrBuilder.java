@@ -21,4 +21,12 @@ public interface RequestResponseHeaderOrBuilder
   java.util.List<String> getNodeUrnsList();
   int getNodeUrnsCount();
   String getNodeUrns(int index);
+  
+  // optional bool downstream = 5 [default = true];
+  boolean hasDownstream();
+  boolean getDownstream();
+  
+  // optional bool upstream = 6 [default = false];
+  boolean hasUpstream();
+  boolean getUpstream();
 }

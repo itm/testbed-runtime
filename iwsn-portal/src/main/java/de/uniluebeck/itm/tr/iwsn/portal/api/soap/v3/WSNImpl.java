@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.*;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters.*;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 

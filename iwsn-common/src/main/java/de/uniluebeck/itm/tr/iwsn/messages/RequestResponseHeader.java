@@ -97,11 +97,33 @@ public  final class RequestResponseHeader extends
     return nodeUrns_.get(index);
   }
   
+  // optional bool downstream = 5 [default = true];
+  public static final int DOWNSTREAM_FIELD_NUMBER = 5;
+  private boolean downstream_;
+  public boolean hasDownstream() {
+    return ((bitField0_ & 0x00000008) == 0x00000008);
+  }
+  public boolean getDownstream() {
+    return downstream_;
+  }
+  
+  // optional bool upstream = 6 [default = false];
+  public static final int UPSTREAM_FIELD_NUMBER = 6;
+  private boolean upstream_;
+  public boolean hasUpstream() {
+    return ((bitField0_ & 0x00000010) == 0x00000010);
+  }
+  public boolean getUpstream() {
+    return upstream_;
+  }
+  
   private void initFields() {
     reservationId_ = "";
     requestId_ = 0L;
     timestamp_ = 0L;
     nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+    downstream_ = true;
+    upstream_ = false;
   }
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
@@ -135,6 +157,12 @@ public  final class RequestResponseHeader extends
     for (int i = 0; i < nodeUrns_.size(); i++) {
       output.writeBytes(4, nodeUrns_.getByteString(i));
     }
+    if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      output.writeBool(5, downstream_);
+    }
+    if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      output.writeBool(6, upstream_);
+    }
     getUnknownFields().writeTo(output);
   }
   
@@ -164,6 +192,14 @@ public  final class RequestResponseHeader extends
       }
       size += dataSize;
       size += 1 * getNodeUrnsList().size();
+    }
+    if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(5, downstream_);
+    }
+    if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(6, upstream_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -297,6 +333,10 @@ public  final class RequestResponseHeader extends
       bitField0_ = (bitField0_ & ~0x00000004);
       nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       bitField0_ = (bitField0_ & ~0x00000008);
+      downstream_ = true;
+      bitField0_ = (bitField0_ & ~0x00000010);
+      upstream_ = false;
+      bitField0_ = (bitField0_ & ~0x00000020);
       return this;
     }
     
@@ -353,6 +393,14 @@ public  final class RequestResponseHeader extends
         bitField0_ = (bitField0_ & ~0x00000008);
       }
       result.nodeUrns_ = nodeUrns_;
+      if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+        to_bitField0_ |= 0x00000008;
+      }
+      result.downstream_ = downstream_;
+      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        to_bitField0_ |= 0x00000010;
+      }
+      result.upstream_ = upstream_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -387,6 +435,12 @@ public  final class RequestResponseHeader extends
           nodeUrns_.addAll(other.nodeUrns_);
         }
         onChanged();
+      }
+      if (other.hasDownstream()) {
+        setDownstream(other.getDownstream());
+      }
+      if (other.hasUpstream()) {
+        setUpstream(other.getUpstream());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
@@ -445,6 +499,16 @@ public  final class RequestResponseHeader extends
           case 34: {
             ensureNodeUrnsIsMutable();
             nodeUrns_.add(input.readBytes());
+            break;
+          }
+          case 40: {
+            bitField0_ |= 0x00000010;
+            downstream_ = input.readBool();
+            break;
+          }
+          case 48: {
+            bitField0_ |= 0x00000020;
+            upstream_ = input.readBool();
             break;
           }
         }
@@ -585,6 +649,48 @@ public  final class RequestResponseHeader extends
       ensureNodeUrnsIsMutable();
       nodeUrns_.add(value);
       onChanged();
+    }
+    
+    // optional bool downstream = 5 [default = true];
+    private boolean downstream_ = true;
+    public boolean hasDownstream() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    public boolean getDownstream() {
+      return downstream_;
+    }
+    public Builder setDownstream(boolean value) {
+      bitField0_ |= 0x00000010;
+      downstream_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearDownstream() {
+      bitField0_ = (bitField0_ & ~0x00000010);
+      downstream_ = true;
+      onChanged();
+      return this;
+    }
+    
+    // optional bool upstream = 6 [default = false];
+    private boolean upstream_ ;
+    public boolean hasUpstream() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    public boolean getUpstream() {
+      return upstream_;
+    }
+    public Builder setUpstream(boolean value) {
+      bitField0_ |= 0x00000020;
+      upstream_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearUpstream() {
+      bitField0_ = (bitField0_ & ~0x00000020);
+      upstream_ = false;
+      onChanged();
+      return this;
     }
     
     // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader)

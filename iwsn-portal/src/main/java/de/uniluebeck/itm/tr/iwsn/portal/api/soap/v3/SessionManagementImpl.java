@@ -51,7 +51,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newAreNodesConnectedRequest;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newAreNodesConnectedRequest;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createSMUnknownSecretReservationKeyFault;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 

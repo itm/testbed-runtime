@@ -28,7 +28,6 @@ import java.util.Random;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.*;

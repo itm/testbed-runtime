@@ -17,4 +17,12 @@ public interface EventHeaderOrBuilder
   java.util.List<String> getNodeUrnsList();
   int getNodeUrnsCount();
   String getNodeUrns(int index);
+  
+  // optional bool downstream = 5 [default = false];
+  boolean hasDownstream();
+  boolean getDownstream();
+  
+  // optional bool upstream = 6 [default = true];
+  boolean hasUpstream();
+  boolean getUpstream();
 }

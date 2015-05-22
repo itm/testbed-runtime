@@ -159,7 +159,7 @@ public class WSNFederatorServiceImplTest {
 				preconditionsFactory,
 				portalEventBus,
 				endpointManager,
-				federatedReservation,
+				messageFactory, federatedReservation,
 				deliveryManager,
 				federatedEndpoints,
 				SERVED_NODE_URN_PREFIXES,

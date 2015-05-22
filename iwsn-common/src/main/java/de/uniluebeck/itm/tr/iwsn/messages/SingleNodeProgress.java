@@ -44,11 +44,21 @@ public  final class SingleNodeProgress extends
     return header_;
   }
   
+  // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType = 2;
+  public static final int REQUESTTYPE_FIELD_NUMBER = 2;
+  private de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType_;
+  public boolean hasRequestType() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.MessageType getRequestType() {
+    return requestType_;
+  }
+  
   // required uint32 progressInPercent = 3;
   public static final int PROGRESSINPERCENT_FIELD_NUMBER = 3;
   private int progressInPercent_;
   public boolean hasProgressInPercent() {
-    return ((bitField0_ & 0x00000002) == 0x00000002);
+    return ((bitField0_ & 0x00000004) == 0x00000004);
   }
   public int getProgressInPercent() {
     return progressInPercent_;
@@ -56,6 +66,7 @@ public  final class SingleNodeProgress extends
   
   private void initFields() {
     header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+    requestType_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
     progressInPercent_ = 0;
   }
   private byte memoizedIsInitialized = -1;
@@ -64,6 +75,10 @@ public  final class SingleNodeProgress extends
     if (isInitialized != -1) return isInitialized == 1;
     
     if (!hasHeader()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasRequestType()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -86,6 +101,9 @@ public  final class SingleNodeProgress extends
       output.writeMessage(1, header_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeEnum(2, requestType_.getNumber());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
       output.writeUInt32(3, progressInPercent_);
     }
     getUnknownFields().writeTo(output);
@@ -102,6 +120,10 @@ public  final class SingleNodeProgress extends
         .computeMessageSize(1, header_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeEnumSize(2, requestType_.getNumber());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
         .computeUInt32Size(3, progressInPercent_);
     }
@@ -236,8 +258,10 @@ public  final class SingleNodeProgress extends
         headerBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000001);
-      progressInPercent_ = 0;
+      requestType_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
       bitField0_ = (bitField0_ & ~0x00000002);
+      progressInPercent_ = 0;
+      bitField0_ = (bitField0_ & ~0x00000004);
       return this;
     }
     
@@ -287,6 +311,10 @@ public  final class SingleNodeProgress extends
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000002;
       }
+      result.requestType_ = requestType_;
+      if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        to_bitField0_ |= 0x00000004;
+      }
       result.progressInPercent_ = progressInPercent_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
@@ -307,6 +335,9 @@ public  final class SingleNodeProgress extends
       if (other.hasHeader()) {
         mergeHeader(other.getHeader());
       }
+      if (other.hasRequestType()) {
+        setRequestType(other.getRequestType());
+      }
       if (other.hasProgressInPercent()) {
         setProgressInPercent(other.getProgressInPercent());
       }
@@ -316,6 +347,10 @@ public  final class SingleNodeProgress extends
     
     public final boolean isInitialized() {
       if (!hasHeader()) {
+        
+        return false;
+      }
+      if (!hasRequestType()) {
         
         return false;
       }
@@ -362,8 +397,19 @@ public  final class SingleNodeProgress extends
             setHeader(subBuilder.buildPartial());
             break;
           }
+          case 16: {
+            int rawValue = input.readEnum();
+            de.uniluebeck.itm.tr.iwsn.messages.MessageType value = de.uniluebeck.itm.tr.iwsn.messages.MessageType.valueOf(rawValue);
+            if (value == null) {
+              unknownFields.mergeVarintField(2, rawValue);
+            } else {
+              bitField0_ |= 0x00000002;
+              requestType_ = value;
+            }
+            break;
+          }
           case 24: {
-            bitField0_ |= 0x00000002;
+            bitField0_ |= 0x00000004;
             progressInPercent_ = input.readUInt32();
             break;
           }
@@ -463,22 +509,46 @@ public  final class SingleNodeProgress extends
       return headerBuilder_;
     }
     
+    // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType = 2;
+    private de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
+    public boolean hasRequestType() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.MessageType getRequestType() {
+      return requestType_;
+    }
+    public Builder setRequestType(de.uniluebeck.itm.tr.iwsn.messages.MessageType value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      bitField0_ |= 0x00000002;
+      requestType_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearRequestType() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      requestType_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
+      onChanged();
+      return this;
+    }
+    
     // required uint32 progressInPercent = 3;
     private int progressInPercent_ ;
     public boolean hasProgressInPercent() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     public int getProgressInPercent() {
       return progressInPercent_;
     }
     public Builder setProgressInPercent(int value) {
-      bitField0_ |= 0x00000002;
+      bitField0_ |= 0x00000004;
       progressInPercent_ = value;
       onChanged();
       return this;
     }
     public Builder clearProgressInPercent() {
-      bitField0_ = (bitField0_ & ~0x00000002);
+      bitField0_ = (bitField0_ & ~0x00000004);
       progressInPercent_ = 0;
       onChanged();
       return this;

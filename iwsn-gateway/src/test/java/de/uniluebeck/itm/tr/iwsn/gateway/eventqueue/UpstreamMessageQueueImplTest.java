@@ -18,9 +18,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newEvent;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newMessage;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newNotificationEvent;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newEvent;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newMessage;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newNotificationEvent;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

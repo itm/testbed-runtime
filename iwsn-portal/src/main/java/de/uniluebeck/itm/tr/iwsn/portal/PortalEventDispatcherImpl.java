@@ -23,8 +23,8 @@ import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newDevicesAttachedEvent;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newDevicesDetachedEvent;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newDevicesAttachedEvent;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newDevicesDetachedEvent;
 
 public class PortalEventDispatcherImpl extends AbstractService implements PortalEventDispatcher {
 

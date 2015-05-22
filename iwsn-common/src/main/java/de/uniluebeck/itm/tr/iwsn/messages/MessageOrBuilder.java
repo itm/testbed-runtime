@@ -5,9 +5,9 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface MessageOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required .de.uniluebeck.itm.tr.iwsn.messages.Message.Type type = 1;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 1;
   boolean hasType();
-  de.uniluebeck.itm.tr.iwsn.messages.Message.Type getType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
   
   // optional .de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest areNodesAliveRequest = 111;
   boolean hasAreNodesAliveRequest();

@@ -20,7 +20,6 @@ import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.*;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.*;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;

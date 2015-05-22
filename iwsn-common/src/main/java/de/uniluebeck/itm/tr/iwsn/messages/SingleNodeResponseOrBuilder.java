@@ -10,6 +10,10 @@ public interface SingleNodeResponseOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
+  // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType = 2;
+  boolean hasRequestType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getRequestType();
+  
   // optional bytes response = 3;
   boolean hasResponse();
   com.google.protobuf.ByteString getResponse();

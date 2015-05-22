@@ -30,183 +30,15 @@ public  final class Message extends
     return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_Message_fieldAccessorTable;
   }
   
-  public enum Type
-      implements com.google.protobuf.ProtocolMessageEnum {
-    KEEP_ALIVE(0, 1),
-    KEEP_ALIVE_ACK(1, 2),
-    REQUEST_ARE_NODES_ALIVE(2, 11),
-    REQUEST_ARE_NODES_CONNECTED(3, 12),
-    REQUEST_DISABLE_NODES(4, 13),
-    REQUEST_DISABLE_VIRTUAL_LINKS(5, 14),
-    REQUEST_DISABLE_PHYSICAL_LINKS(6, 15),
-    REQUEST_ENABLE_NODES(7, 16),
-    REQUEST_ENABLE_PHYSICAL_LINKS(8, 17),
-    REQUEST_ENABLE_VIRTUAL_LINKS(9, 18),
-    REQUEST_FLASH_IMAGES(10, 19),
-    REQUEST_GET_CHANNEL_PIPELINES(11, 20),
-    REQUEST_RESET_NODES(12, 21),
-    REQUEST_SEND_DOWNSTREAM_MESSAGES(13, 22),
-    REQUEST_SET_CHANNEL_PIPELINES(14, 23),
-    PROGRESS(15, 30),
-    RESPONSE(16, 31),
-    GET_CHANNELPIPELINES_RESPONSE(17, 32),
-    EVENT_UPSTREAM_MESSAGE(18, 40),
-    EVENT_DEVICES_ATTACHED(19, 50),
-    EVENT_DEVICES_DETACHED(20, 51),
-    EVENT_GATEWAY_CONNECTED(21, 52),
-    EVENT_GATEWAY_DISCONNECTED(22, 53),
-    EVENT_NOTIFICATION(23, 60),
-    EVENT_RESERVATION_STARTED(24, 70),
-    EVENT_RESERVATION_ENDED(25, 71),
-    EVENT_RESERVATION_MADE(26, 72),
-    EVENT_RESERVATION_CANCELLED(27, 73),
-    EVENT_RESERVATION_OPENED(28, 74),
-    EVENT_RESERVATION_CLOSED(29, 75),
-    EVENT_RESERVATION_FINALIZED(30, 76),
-    EVENT_DEVICE_CONFIG_CREATED(31, 80),
-    EVENT_DEVICE_CONFIG_UPDATED(32, 81),
-    EVENT_DEVICE_CONFIG_DELETED(33, 82),
-    EVENT_ACK(34, 90),
-    ;
-    
-    public static final int KEEP_ALIVE_VALUE = 1;
-    public static final int KEEP_ALIVE_ACK_VALUE = 2;
-    public static final int REQUEST_ARE_NODES_ALIVE_VALUE = 11;
-    public static final int REQUEST_ARE_NODES_CONNECTED_VALUE = 12;
-    public static final int REQUEST_DISABLE_NODES_VALUE = 13;
-    public static final int REQUEST_DISABLE_VIRTUAL_LINKS_VALUE = 14;
-    public static final int REQUEST_DISABLE_PHYSICAL_LINKS_VALUE = 15;
-    public static final int REQUEST_ENABLE_NODES_VALUE = 16;
-    public static final int REQUEST_ENABLE_PHYSICAL_LINKS_VALUE = 17;
-    public static final int REQUEST_ENABLE_VIRTUAL_LINKS_VALUE = 18;
-    public static final int REQUEST_FLASH_IMAGES_VALUE = 19;
-    public static final int REQUEST_GET_CHANNEL_PIPELINES_VALUE = 20;
-    public static final int REQUEST_RESET_NODES_VALUE = 21;
-    public static final int REQUEST_SEND_DOWNSTREAM_MESSAGES_VALUE = 22;
-    public static final int REQUEST_SET_CHANNEL_PIPELINES_VALUE = 23;
-    public static final int PROGRESS_VALUE = 30;
-    public static final int RESPONSE_VALUE = 31;
-    public static final int GET_CHANNELPIPELINES_RESPONSE_VALUE = 32;
-    public static final int EVENT_UPSTREAM_MESSAGE_VALUE = 40;
-    public static final int EVENT_DEVICES_ATTACHED_VALUE = 50;
-    public static final int EVENT_DEVICES_DETACHED_VALUE = 51;
-    public static final int EVENT_GATEWAY_CONNECTED_VALUE = 52;
-    public static final int EVENT_GATEWAY_DISCONNECTED_VALUE = 53;
-    public static final int EVENT_NOTIFICATION_VALUE = 60;
-    public static final int EVENT_RESERVATION_STARTED_VALUE = 70;
-    public static final int EVENT_RESERVATION_ENDED_VALUE = 71;
-    public static final int EVENT_RESERVATION_MADE_VALUE = 72;
-    public static final int EVENT_RESERVATION_CANCELLED_VALUE = 73;
-    public static final int EVENT_RESERVATION_OPENED_VALUE = 74;
-    public static final int EVENT_RESERVATION_CLOSED_VALUE = 75;
-    public static final int EVENT_RESERVATION_FINALIZED_VALUE = 76;
-    public static final int EVENT_DEVICE_CONFIG_CREATED_VALUE = 80;
-    public static final int EVENT_DEVICE_CONFIG_UPDATED_VALUE = 81;
-    public static final int EVENT_DEVICE_CONFIG_DELETED_VALUE = 82;
-    public static final int EVENT_ACK_VALUE = 90;
-    
-    
-    public final int getNumber() { return value; }
-    
-    public static Type valueOf(int value) {
-      switch (value) {
-        case 1: return KEEP_ALIVE;
-        case 2: return KEEP_ALIVE_ACK;
-        case 11: return REQUEST_ARE_NODES_ALIVE;
-        case 12: return REQUEST_ARE_NODES_CONNECTED;
-        case 13: return REQUEST_DISABLE_NODES;
-        case 14: return REQUEST_DISABLE_VIRTUAL_LINKS;
-        case 15: return REQUEST_DISABLE_PHYSICAL_LINKS;
-        case 16: return REQUEST_ENABLE_NODES;
-        case 17: return REQUEST_ENABLE_PHYSICAL_LINKS;
-        case 18: return REQUEST_ENABLE_VIRTUAL_LINKS;
-        case 19: return REQUEST_FLASH_IMAGES;
-        case 20: return REQUEST_GET_CHANNEL_PIPELINES;
-        case 21: return REQUEST_RESET_NODES;
-        case 22: return REQUEST_SEND_DOWNSTREAM_MESSAGES;
-        case 23: return REQUEST_SET_CHANNEL_PIPELINES;
-        case 30: return PROGRESS;
-        case 31: return RESPONSE;
-        case 32: return GET_CHANNELPIPELINES_RESPONSE;
-        case 40: return EVENT_UPSTREAM_MESSAGE;
-        case 50: return EVENT_DEVICES_ATTACHED;
-        case 51: return EVENT_DEVICES_DETACHED;
-        case 52: return EVENT_GATEWAY_CONNECTED;
-        case 53: return EVENT_GATEWAY_DISCONNECTED;
-        case 60: return EVENT_NOTIFICATION;
-        case 70: return EVENT_RESERVATION_STARTED;
-        case 71: return EVENT_RESERVATION_ENDED;
-        case 72: return EVENT_RESERVATION_MADE;
-        case 73: return EVENT_RESERVATION_CANCELLED;
-        case 74: return EVENT_RESERVATION_OPENED;
-        case 75: return EVENT_RESERVATION_CLOSED;
-        case 76: return EVENT_RESERVATION_FINALIZED;
-        case 80: return EVENT_DEVICE_CONFIG_CREATED;
-        case 81: return EVENT_DEVICE_CONFIG_UPDATED;
-        case 82: return EVENT_DEVICE_CONFIG_DELETED;
-        case 90: return EVENT_ACK;
-        default: return null;
-      }
-    }
-    
-    public static com.google.protobuf.Internal.EnumLiteMap<Type>
-        internalGetValueMap() {
-      return internalValueMap;
-    }
-    private static com.google.protobuf.Internal.EnumLiteMap<Type>
-        internalValueMap =
-          new com.google.protobuf.Internal.EnumLiteMap<Type>() {
-            public Type findValueByNumber(int number) {
-              return Type.valueOf(number);
-            }
-          };
-    
-    public final com.google.protobuf.Descriptors.EnumValueDescriptor
-        getValueDescriptor() {
-      return getDescriptor().getValues().get(index);
-    }
-    public final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptorForType() {
-      return getDescriptor();
-    }
-    public static final com.google.protobuf.Descriptors.EnumDescriptor
-        getDescriptor() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Message.getDescriptor().getEnumTypes().get(0);
-    }
-    
-    private static final Type[] VALUES = {
-      KEEP_ALIVE, KEEP_ALIVE_ACK, REQUEST_ARE_NODES_ALIVE, REQUEST_ARE_NODES_CONNECTED, REQUEST_DISABLE_NODES, REQUEST_DISABLE_VIRTUAL_LINKS, REQUEST_DISABLE_PHYSICAL_LINKS, REQUEST_ENABLE_NODES, REQUEST_ENABLE_PHYSICAL_LINKS, REQUEST_ENABLE_VIRTUAL_LINKS, REQUEST_FLASH_IMAGES, REQUEST_GET_CHANNEL_PIPELINES, REQUEST_RESET_NODES, REQUEST_SEND_DOWNSTREAM_MESSAGES, REQUEST_SET_CHANNEL_PIPELINES, PROGRESS, RESPONSE, GET_CHANNELPIPELINES_RESPONSE, EVENT_UPSTREAM_MESSAGE, EVENT_DEVICES_ATTACHED, EVENT_DEVICES_DETACHED, EVENT_GATEWAY_CONNECTED, EVENT_GATEWAY_DISCONNECTED, EVENT_NOTIFICATION, EVENT_RESERVATION_STARTED, EVENT_RESERVATION_ENDED, EVENT_RESERVATION_MADE, EVENT_RESERVATION_CANCELLED, EVENT_RESERVATION_OPENED, EVENT_RESERVATION_CLOSED, EVENT_RESERVATION_FINALIZED, EVENT_DEVICE_CONFIG_CREATED, EVENT_DEVICE_CONFIG_UPDATED, EVENT_DEVICE_CONFIG_DELETED, EVENT_ACK, 
-    };
-    
-    public static Type valueOf(
-        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-      if (desc.getType() != getDescriptor()) {
-        throw new java.lang.IllegalArgumentException(
-          "EnumValueDescriptor is not for this type.");
-      }
-      return VALUES[desc.getIndex()];
-    }
-    
-    private final int index;
-    private final int value;
-    
-    private Type(int index, int value) {
-      this.index = index;
-      this.value = value;
-    }
-    
-    // @@protoc_insertion_point(enum_scope:de.uniluebeck.itm.tr.iwsn.messages.Message.Type)
-  }
-  
   private int bitField0_;
   private int bitField1_;
-  // required .de.uniluebeck.itm.tr.iwsn.messages.Message.Type type = 1;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 1;
   public static final int TYPE_FIELD_NUMBER = 1;
-  private de.uniluebeck.itm.tr.iwsn.messages.Message.Type type_;
+  private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_;
   public boolean hasType() {
     return ((bitField0_ & 0x00000001) == 0x00000001);
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.Message.Type getType() {
+  public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
     return type_;
   }
   
@@ -640,7 +472,7 @@ public  final class Message extends
   }
   
   private void initFields() {
-    type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.KEEP_ALIVE;
+    type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
     areNodesAliveRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.getDefaultInstance();
     areNodesConnectedRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.getDefaultInstance();
     disableNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.getDefaultInstance();
@@ -1293,7 +1125,7 @@ public  final class Message extends
     
     public Builder clear() {
       super.clear();
-      type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.KEEP_ALIVE;
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
       bitField0_ = (bitField0_ & ~0x00000001);
       if (areNodesAliveRequestBuilder_ == null) {
         areNodesAliveRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.getDefaultInstance();
@@ -2155,7 +1987,7 @@ public  final class Message extends
           }
           case 8: {
             int rawValue = input.readEnum();
-            de.uniluebeck.itm.tr.iwsn.messages.Message.Type value = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.valueOf(rawValue);
+            de.uniluebeck.itm.tr.iwsn.messages.MessageType value = de.uniluebeck.itm.tr.iwsn.messages.MessageType.valueOf(rawValue);
             if (value == null) {
               unknownFields.mergeVarintField(1, rawValue);
             } else {
@@ -2468,15 +2300,15 @@ public  final class Message extends
     private int bitField0_;
     private int bitField1_;
     
-    // required .de.uniluebeck.itm.tr.iwsn.messages.Message.Type type = 1;
-    private de.uniluebeck.itm.tr.iwsn.messages.Message.Type type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.KEEP_ALIVE;
+    // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 1;
+    private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
     public boolean hasType() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.Message.Type getType() {
+    public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
       return type_;
     }
-    public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.Message.Type value) {
+    public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.MessageType value) {
       if (value == null) {
         throw new NullPointerException();
       }
@@ -2487,7 +2319,7 @@ public  final class Message extends
     }
     public Builder clearType() {
       bitField0_ = (bitField0_ & ~0x00000001);
-      type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.KEEP_ALIVE;
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
       onChanged();
       return this;
     }

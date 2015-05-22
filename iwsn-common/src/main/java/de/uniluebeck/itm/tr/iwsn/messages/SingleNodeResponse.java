@@ -44,11 +44,21 @@ public  final class SingleNodeResponse extends
     return header_;
   }
   
+  // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType = 2;
+  public static final int REQUESTTYPE_FIELD_NUMBER = 2;
+  private de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType_;
+  public boolean hasRequestType() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.MessageType getRequestType() {
+    return requestType_;
+  }
+  
   // optional bytes response = 3;
   public static final int RESPONSE_FIELD_NUMBER = 3;
   private com.google.protobuf.ByteString response_;
   public boolean hasResponse() {
-    return ((bitField0_ & 0x00000002) == 0x00000002);
+    return ((bitField0_ & 0x00000004) == 0x00000004);
   }
   public com.google.protobuf.ByteString getResponse() {
     return response_;
@@ -58,7 +68,7 @@ public  final class SingleNodeResponse extends
   public static final int STATUSCODE_FIELD_NUMBER = 4;
   private int statusCode_;
   public boolean hasStatusCode() {
-    return ((bitField0_ & 0x00000004) == 0x00000004);
+    return ((bitField0_ & 0x00000008) == 0x00000008);
   }
   public int getStatusCode() {
     return statusCode_;
@@ -68,7 +78,7 @@ public  final class SingleNodeResponse extends
   public static final int ERRORMESSAGE_FIELD_NUMBER = 5;
   private java.lang.Object errorMessage_;
   public boolean hasErrorMessage() {
-    return ((bitField0_ & 0x00000008) == 0x00000008);
+    return ((bitField0_ & 0x00000010) == 0x00000010);
   }
   public String getErrorMessage() {
     java.lang.Object ref = errorMessage_;
@@ -98,6 +108,7 @@ public  final class SingleNodeResponse extends
   
   private void initFields() {
     header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+    requestType_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
     response_ = com.google.protobuf.ByteString.EMPTY;
     statusCode_ = 0;
     errorMessage_ = "";
@@ -108,6 +119,10 @@ public  final class SingleNodeResponse extends
     if (isInitialized != -1) return isInitialized == 1;
     
     if (!hasHeader()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasRequestType()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -126,12 +141,15 @@ public  final class SingleNodeResponse extends
       output.writeMessage(1, header_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
-      output.writeBytes(3, response_);
+      output.writeEnum(2, requestType_.getNumber());
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
-      output.writeInt32(4, statusCode_);
+      output.writeBytes(3, response_);
     }
     if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      output.writeInt32(4, statusCode_);
+    }
+    if (((bitField0_ & 0x00000010) == 0x00000010)) {
       output.writeBytes(5, getErrorMessageBytes());
     }
     getUnknownFields().writeTo(output);
@@ -149,13 +167,17 @@ public  final class SingleNodeResponse extends
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(3, response_);
+        .computeEnumSize(2, requestType_.getNumber());
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(4, statusCode_);
+        .computeBytesSize(3, response_);
     }
     if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeInt32Size(4, statusCode_);
+    }
+    if (((bitField0_ & 0x00000010) == 0x00000010)) {
       size += com.google.protobuf.CodedOutputStream
         .computeBytesSize(5, getErrorMessageBytes());
     }
@@ -290,12 +312,14 @@ public  final class SingleNodeResponse extends
         headerBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000001);
-      response_ = com.google.protobuf.ByteString.EMPTY;
+      requestType_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
       bitField0_ = (bitField0_ & ~0x00000002);
-      statusCode_ = 0;
+      response_ = com.google.protobuf.ByteString.EMPTY;
       bitField0_ = (bitField0_ & ~0x00000004);
-      errorMessage_ = "";
+      statusCode_ = 0;
       bitField0_ = (bitField0_ & ~0x00000008);
+      errorMessage_ = "";
+      bitField0_ = (bitField0_ & ~0x00000010);
       return this;
     }
     
@@ -345,13 +369,17 @@ public  final class SingleNodeResponse extends
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000002;
       }
-      result.response_ = response_;
+      result.requestType_ = requestType_;
       if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
         to_bitField0_ |= 0x00000004;
       }
-      result.statusCode_ = statusCode_;
+      result.response_ = response_;
       if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
         to_bitField0_ |= 0x00000008;
+      }
+      result.statusCode_ = statusCode_;
+      if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+        to_bitField0_ |= 0x00000010;
       }
       result.errorMessage_ = errorMessage_;
       result.bitField0_ = to_bitField0_;
@@ -373,6 +401,9 @@ public  final class SingleNodeResponse extends
       if (other.hasHeader()) {
         mergeHeader(other.getHeader());
       }
+      if (other.hasRequestType()) {
+        setRequestType(other.getRequestType());
+      }
       if (other.hasResponse()) {
         setResponse(other.getResponse());
       }
@@ -388,6 +419,10 @@ public  final class SingleNodeResponse extends
     
     public final boolean isInitialized() {
       if (!hasHeader()) {
+        
+        return false;
+      }
+      if (!hasRequestType()) {
         
         return false;
       }
@@ -430,18 +465,29 @@ public  final class SingleNodeResponse extends
             setHeader(subBuilder.buildPartial());
             break;
           }
+          case 16: {
+            int rawValue = input.readEnum();
+            de.uniluebeck.itm.tr.iwsn.messages.MessageType value = de.uniluebeck.itm.tr.iwsn.messages.MessageType.valueOf(rawValue);
+            if (value == null) {
+              unknownFields.mergeVarintField(2, rawValue);
+            } else {
+              bitField0_ |= 0x00000002;
+              requestType_ = value;
+            }
+            break;
+          }
           case 26: {
-            bitField0_ |= 0x00000002;
+            bitField0_ |= 0x00000004;
             response_ = input.readBytes();
             break;
           }
           case 32: {
-            bitField0_ |= 0x00000004;
+            bitField0_ |= 0x00000008;
             statusCode_ = input.readInt32();
             break;
           }
           case 42: {
-            bitField0_ |= 0x00000008;
+            bitField0_ |= 0x00000010;
             errorMessage_ = input.readBytes();
             break;
           }
@@ -541,10 +587,34 @@ public  final class SingleNodeResponse extends
       return headerBuilder_;
     }
     
+    // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType = 2;
+    private de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
+    public boolean hasRequestType() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.MessageType getRequestType() {
+      return requestType_;
+    }
+    public Builder setRequestType(de.uniluebeck.itm.tr.iwsn.messages.MessageType value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      bitField0_ |= 0x00000002;
+      requestType_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearRequestType() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      requestType_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
+      onChanged();
+      return this;
+    }
+    
     // optional bytes response = 3;
     private com.google.protobuf.ByteString response_ = com.google.protobuf.ByteString.EMPTY;
     public boolean hasResponse() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     public com.google.protobuf.ByteString getResponse() {
       return response_;
@@ -553,13 +623,13 @@ public  final class SingleNodeResponse extends
       if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  bitField0_ |= 0x00000004;
       response_ = value;
       onChanged();
       return this;
     }
     public Builder clearResponse() {
-      bitField0_ = (bitField0_ & ~0x00000002);
+      bitField0_ = (bitField0_ & ~0x00000004);
       response_ = getDefaultInstance().getResponse();
       onChanged();
       return this;
@@ -568,19 +638,19 @@ public  final class SingleNodeResponse extends
     // optional int32 statusCode = 4;
     private int statusCode_ ;
     public boolean hasStatusCode() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     public int getStatusCode() {
       return statusCode_;
     }
     public Builder setStatusCode(int value) {
-      bitField0_ |= 0x00000004;
+      bitField0_ |= 0x00000008;
       statusCode_ = value;
       onChanged();
       return this;
     }
     public Builder clearStatusCode() {
-      bitField0_ = (bitField0_ & ~0x00000004);
+      bitField0_ = (bitField0_ & ~0x00000008);
       statusCode_ = 0;
       onChanged();
       return this;
@@ -589,7 +659,7 @@ public  final class SingleNodeResponse extends
     // optional string errorMessage = 5;
     private java.lang.Object errorMessage_ = "";
     public boolean hasErrorMessage() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     public String getErrorMessage() {
       java.lang.Object ref = errorMessage_;
@@ -605,19 +675,19 @@ public  final class SingleNodeResponse extends
       if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000008;
+  bitField0_ |= 0x00000010;
       errorMessage_ = value;
       onChanged();
       return this;
     }
     public Builder clearErrorMessage() {
-      bitField0_ = (bitField0_ & ~0x00000008);
+      bitField0_ = (bitField0_ & ~0x00000010);
       errorMessage_ = getDefaultInstance().getErrorMessage();
       onChanged();
       return this;
     }
     void setErrorMessage(com.google.protobuf.ByteString value) {
-      bitField0_ |= 0x00000008;
+      bitField0_ |= 0x00000010;
       errorMessage_ = value;
       onChanged();
     }

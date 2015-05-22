@@ -47,8 +47,6 @@ import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Sets.intersection;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newNotificationEvent;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newUpstreamMessageEvent;
 
 class DeviceManagerImpl extends AbstractService implements DeviceManager {
 

@@ -40,7 +40,7 @@ import static com.google.common.collect.Maps.filterValues;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.*;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newFlashImagesRequest;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newFlashImagesRequest;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
