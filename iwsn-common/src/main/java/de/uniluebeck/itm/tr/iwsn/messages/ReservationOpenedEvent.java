@@ -31,11 +31,24 @@ public  final class ReservationOpenedEvent extends
   }
   
   private int bitField0_;
-  // required string serializedKey = 1;
-  public static final int SERIALIZEDKEY_FIELD_NUMBER = 1;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  public static final int HEADER_FIELD_NUMBER = 1;
+  private de.uniluebeck.itm.tr.iwsn.messages.EventHeader header_;
+  public boolean hasHeader() {
+    return ((bitField0_ & 0x00000001) == 0x00000001);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader() {
+    return header_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder() {
+    return header_;
+  }
+  
+  // required string serializedKey = 2;
+  public static final int SERIALIZEDKEY_FIELD_NUMBER = 2;
   private java.lang.Object serializedKey_;
   public boolean hasSerializedKey() {
-    return ((bitField0_ & 0x00000001) == 0x00000001);
+    return ((bitField0_ & 0x00000002) == 0x00000002);
   }
   public String getSerializedKey() {
     java.lang.Object ref = serializedKey_;
@@ -64,6 +77,7 @@ public  final class ReservationOpenedEvent extends
   }
   
   private void initFields() {
+    header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
     serializedKey_ = "";
   }
   private byte memoizedIsInitialized = -1;
@@ -71,7 +85,15 @@ public  final class ReservationOpenedEvent extends
     byte isInitialized = memoizedIsInitialized;
     if (isInitialized != -1) return isInitialized == 1;
     
+    if (!hasHeader()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
     if (!hasSerializedKey()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!getHeader().isInitialized()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -83,7 +105,10 @@ public  final class ReservationOpenedEvent extends
                       throws java.io.IOException {
     getSerializedSize();
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
-      output.writeBytes(1, getSerializedKeyBytes());
+      output.writeMessage(1, header_);
+    }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeBytes(2, getSerializedKeyBytes());
     }
     getUnknownFields().writeTo(output);
   }
@@ -96,7 +121,11 @@ public  final class ReservationOpenedEvent extends
     size = 0;
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(1, getSerializedKeyBytes());
+        .computeMessageSize(1, header_);
+    }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(2, getSerializedKeyBytes());
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -214,6 +243,7 @@ public  final class ReservationOpenedEvent extends
     }
     private void maybeForceBuilderInitialization() {
       if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        getHeaderFieldBuilder();
       }
     }
     private static Builder create() {
@@ -222,8 +252,14 @@ public  final class ReservationOpenedEvent extends
     
     public Builder clear() {
       super.clear();
-      serializedKey_ = "";
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+      } else {
+        headerBuilder_.clear();
+      }
       bitField0_ = (bitField0_ & ~0x00000001);
+      serializedKey_ = "";
+      bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
     
@@ -265,6 +301,14 @@ public  final class ReservationOpenedEvent extends
       if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
         to_bitField0_ |= 0x00000001;
       }
+      if (headerBuilder_ == null) {
+        result.header_ = header_;
+      } else {
+        result.header_ = headerBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        to_bitField0_ |= 0x00000002;
+      }
       result.serializedKey_ = serializedKey_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
@@ -282,6 +326,9 @@ public  final class ReservationOpenedEvent extends
     
     public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent other) {
       if (other == de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance()) return this;
+      if (other.hasHeader()) {
+        mergeHeader(other.getHeader());
+      }
       if (other.hasSerializedKey()) {
         setSerializedKey(other.getSerializedKey());
       }
@@ -290,7 +337,15 @@ public  final class ReservationOpenedEvent extends
     }
     
     public final boolean isInitialized() {
+      if (!hasHeader()) {
+        
+        return false;
+      }
       if (!hasSerializedKey()) {
+        
+        return false;
+      }
+      if (!getHeader().isInitialized()) {
         
         return false;
       }
@@ -321,7 +376,16 @@ public  final class ReservationOpenedEvent extends
             break;
           }
           case 10: {
-            bitField0_ |= 0x00000001;
+            de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.newBuilder();
+            if (hasHeader()) {
+              subBuilder.mergeFrom(getHeader());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setHeader(subBuilder.buildPartial());
+            break;
+          }
+          case 18: {
+            bitField0_ |= 0x00000002;
             serializedKey_ = input.readBytes();
             break;
           }
@@ -331,10 +395,100 @@ public  final class ReservationOpenedEvent extends
     
     private int bitField0_;
     
-    // required string serializedKey = 1;
+    // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+    private de.uniluebeck.itm.tr.iwsn.messages.EventHeader header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder> headerBuilder_;
+    public boolean hasHeader() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader() {
+      if (headerBuilder_ == null) {
+        return header_;
+      } else {
+        return headerBuilder_.getMessage();
+      }
+    }
+    public Builder setHeader(de.uniluebeck.itm.tr.iwsn.messages.EventHeader value) {
+      if (headerBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        header_ = value;
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000001;
+      return this;
+    }
+    public Builder setHeader(
+        de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder builderForValue) {
+      if (headerBuilder_ == null) {
+        header_ = builderForValue.build();
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000001;
+      return this;
+    }
+    public Builder mergeHeader(de.uniluebeck.itm.tr.iwsn.messages.EventHeader value) {
+      if (headerBuilder_ == null) {
+        if (((bitField0_ & 0x00000001) == 0x00000001) &&
+            header_ != de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance()) {
+          header_ =
+            de.uniluebeck.itm.tr.iwsn.messages.EventHeader.newBuilder(header_).mergeFrom(value).buildPartial();
+        } else {
+          header_ = value;
+        }
+        onChanged();
+      } else {
+        headerBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000001;
+      return this;
+    }
+    public Builder clearHeader() {
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+        onChanged();
+      } else {
+        headerBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000001);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder getHeaderBuilder() {
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return getHeaderFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder() {
+      if (headerBuilder_ != null) {
+        return headerBuilder_.getMessageOrBuilder();
+      } else {
+        return header_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder> 
+        getHeaderFieldBuilder() {
+      if (headerBuilder_ == null) {
+        headerBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder>(
+                header_,
+                getParentForChildren(),
+                isClean());
+        header_ = null;
+      }
+      return headerBuilder_;
+    }
+    
+    // required string serializedKey = 2;
     private java.lang.Object serializedKey_ = "";
     public boolean hasSerializedKey() {
-      return ((bitField0_ & 0x00000001) == 0x00000001);
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     public String getSerializedKey() {
       java.lang.Object ref = serializedKey_;
@@ -350,19 +504,19 @@ public  final class ReservationOpenedEvent extends
       if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000001;
+  bitField0_ |= 0x00000002;
       serializedKey_ = value;
       onChanged();
       return this;
     }
     public Builder clearSerializedKey() {
-      bitField0_ = (bitField0_ & ~0x00000001);
+      bitField0_ = (bitField0_ & ~0x00000002);
       serializedKey_ = getDefaultInstance().getSerializedKey();
       onChanged();
       return this;
     }
     void setSerializedKey(com.google.protobuf.ByteString value) {
-      bitField0_ |= 0x00000001;
+      bitField0_ |= 0x00000002;
       serializedKey_ = value;
       onChanged();
     }

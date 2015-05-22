@@ -15,7 +15,7 @@ import java.net.InetAddress;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.*;
 
 public class GatewayChannelHandler extends SimpleChannelHandler {
 

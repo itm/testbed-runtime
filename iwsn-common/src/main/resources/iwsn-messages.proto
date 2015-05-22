@@ -28,59 +28,70 @@ option java_multiple_files = true;
 
 /////////////////////// REQUESTS /////////////////////// 
 
+message RequestResponseHeader {
+	optional string reservationId = 1; // an (optional) reservation ID, if request is associated with a reservation
+	required int64  requestId     = 2; // an ID to match requests and responses, should be unique for given time window
+	required uint64 timestamp     = 3; // a timestamp in Unix format
+	repeated string nodeUrns      = 4; // node URN(s) to which this request goes to / this response comes from
+}
+
 message Link {
 	required string sourceNodeUrn = 1;
 	required string targetNodeUrn = 2;
 }
 
 message AreNodesAliveRequest {
-	repeated string nodeUrns = 1;
+	required RequestResponseHeader header   = 1;
 }
 
 message AreNodesConnectedRequest {
-	repeated string nodeUrns = 1;
+	required RequestResponseHeader header   = 1;
 }
 
 message FlashImagesRequest {
-	repeated string nodeUrns = 1;
-	required bytes image     = 2;
+	required RequestResponseHeader header   = 1;
+	required bytes                 image    = 3;
 }
 
 message ResetNodesRequest {
-	repeated string nodeUrns = 1;
+	required RequestResponseHeader header   = 1;
 }
 
 message EnableVirtualLinksRequest {
-	repeated Link links = 1;
+	required RequestResponseHeader header = 1;
+	repeated Link                  links  = 2;
 }
 
 message DisableVirtualLinksRequest {
-	repeated Link links = 1;
+	required RequestResponseHeader header = 1;
+	repeated Link                  links  = 2;
 }
 
 message DisableNodesRequest {
-	repeated string nodeUrns = 1;
+	required RequestResponseHeader header   = 1;
 }
 
 message EnableNodesRequest {
-	repeated string nodeUrns = 1;
+	required RequestResponseHeader header   = 1;
 }
 
 message DisablePhysicalLinksRequest {
-	repeated Link links = 1;
+	required RequestResponseHeader header = 1;
+	repeated Link                  links  = 2;
 }
 
 message EnablePhysicalLinksRequest {
-	repeated Link links = 1;
+	required RequestResponseHeader header = 1;
+	repeated Link                  links  = 2;
 }
 
 message SendDownstreamMessagesRequest {
-	repeated string targetNodeUrns = 1;
-	required bytes  messageBytes   = 2;
+	required RequestResponseHeader header       = 1;
+	required bytes                 messageBytes = 3;
 }
 
 message GetChannelPipelinesRequest {
-	repeated string nodeUrns = 1;
+	required RequestResponseHeader header   = 1;
 }
 
 message ChannelHandlerConfiguration {
@@ -93,61 +104,20 @@ message ChannelHandlerConfiguration {
 }
 
 message SetChannelPipelinesRequest {
-	repeated string                      nodeUrns                     = 1;
-	repeated ChannelHandlerConfiguration channelHandlerConfigurations = 2;
-}
-
-message Request {
-
-	enum Type {
-		ARE_NODES_ALIVE          = 1;
-		ARE_NODES_CONNECTED      = 2;
-		DISABLE_NODES            = 3;
-		DISABLE_VIRTUAL_LINKS    = 4;
-		DISABLE_PHYSICAL_LINKS   = 5;
-		ENABLE_NODES             = 6;
-		ENABLE_PHYSICAL_LINKS    = 7;
-		ENABLE_VIRTUAL_LINKS     = 8;
-		FLASH_IMAGES             = 9;
-		GET_CHANNEL_PIPELINES    = 10;
-		RESET_NODES              = 11;
-		SEND_DOWNSTREAM_MESSAGES = 12;
-		SET_CHANNEL_PIPELINES    = 13;
-	}
-
-	optional string                           reservationId                    = 1;
-	required int64                            requestId                        = 2;
-	required Type                             type                             = 3;
-
-	optional AreNodesAliveRequest             areNodesAliveRequest             = 101;
-	optional AreNodesConnectedRequest         areNodesConnectedRequest         = 102;
-	optional DisableNodesRequest              disableNodesRequest              = 103;
-	optional DisableVirtualLinksRequest       disableVirtualLinksRequest       = 104;
-	optional DisablePhysicalLinksRequest      disablePhysicalLinksRequest      = 105;
-	optional EnableNodesRequest               enableNodesRequest               = 106;
-	optional EnablePhysicalLinksRequest       enablePhysicalLinksRequest       = 107;
-	optional EnableVirtualLinksRequest        enableVirtualLinksRequest        = 108;
-	optional FlashImagesRequest               flashImagesRequest               = 109;
-	optional GetChannelPipelinesRequest       getChannelPipelinesRequest       = 110;
-	optional ResetNodesRequest                resetNodesRequest                = 111;
-	optional SendDownstreamMessagesRequest    sendDownstreamMessagesRequest    = 112;
-	optional SetChannelPipelinesRequest       setChannelPipelinesRequest       = 113;
+	required RequestResponseHeader       header                       = 1;
+	repeated ChannelHandlerConfiguration channelHandlerConfigurations = 3;
 }
 
 message SingleNodeProgress {
-	optional string reservationId     = 1;
-	required int64  requestId         = 2;
-	required string nodeUrn           = 3;
-	required uint32 progressInPercent = 4;
+	required RequestResponseHeader header            = 1;
+	required uint32                progressInPercent = 3;
 }
 
 message SingleNodeResponse {
-	optional string reservationId = 1;
-	required int64  requestId     = 2;
-	required string nodeUrn       = 3;
-	optional bytes  response      = 4;
-	optional int32  statusCode    = 5;
-	optional string errorMessage  = 6;
+	required RequestResponseHeader header        = 1;
+	optional bytes                 response      = 3;
+	optional int32                 statusCode    = 4;
+	optional string                errorMessage  = 5;
 }
 
 message GetChannelPipelinesResponse {
@@ -155,143 +125,91 @@ message GetChannelPipelinesResponse {
 		required string                      nodeUrn               = 1;
 		repeated ChannelHandlerConfiguration handlerConfigurations = 2;
 	}
-	optional string                     reservationId = 1;
-	required int64                      requestId     = 2;
-	repeated GetChannelPipelineResponse pipelines     = 3;
+	required RequestResponseHeader      header        = 1;
+	repeated GetChannelPipelineResponse pipelines     = 2;
 }
 
 /////////////////////// EVENTS /////////////////////// 
 
 message UpstreamMessageEvent {
-	required string sourceNodeUrn = 1;
-	required uint64 timestamp     = 2;
-	required bytes  messageBytes  = 3;
+	required EventHeader header       = 1;
+	required bytes       messageBytes = 3;
 }
 
 message DevicesAttachedEvent {
-	repeated string nodeUrns  = 1;
-	required uint64 timestamp = 2;
+	required EventHeader header   = 1;
 }
 
 message DevicesDetachedEvent {
-	repeated string nodeUrns  = 1;
-	required uint64 timestamp = 2;
+	required EventHeader header   = 1;
 }
 
 message GatewayConnectedEvent {
-	required uint64 timestamp = 1;
-	required string hostname  = 2;
+	required EventHeader header   = 1;
+	required string      hostname = 2;
 }
 
 message GatewayDisconnectedEvent {
-	required uint64 timestamp = 1;
-	required string hostname  = 2;
-	repeated string nodeUrns  = 3;
+	required EventHeader header   = 1;
+	required string      hostname = 2;
 }
 
 message NotificationEvent {
-	optional string nodeUrn   = 1;
-	required uint64 timestamp = 2;
-	required string message   = 3;
+	required EventHeader header  = 1;
+	required string      message = 4;
 }
 
 message ReservationStartedEvent {
-	required string serializedKey = 1;
-	required uint64 timestamp = 2;
+	required EventHeader header        = 1;
+	required string      serializedKey = 2;
 }
 
 message ReservationEndedEvent {
-	required string serializedKey = 1;
-	required uint64 timestamp = 2;
+	required EventHeader header        = 1;
+	required string      serializedKey = 2;
 }
 
 message ReservationMadeEvent {
-	required string serializedKey = 1;
+	required EventHeader header        = 1;
+	required string      serializedKey = 2;
 }
 
 message ReservationCancelledEvent {
-	required string serializedKey = 1;
-	required uint64 timestamp = 2;
+	required EventHeader header        = 1;
+	required string      serializedKey = 2;
 }
 
 message ReservationFinalizedEvent {
-	required string serializedKey = 1;
-	required uint64 timestamp = 2;
+	required EventHeader header        = 1;
+	required string      serializedKey = 2;
 }
 
 message ReservationOpenedEvent {
-	required string serializedKey = 1;
+	required EventHeader header        = 1;
+	required string      serializedKey = 2;
 }
 
 message ReservationClosedEvent {
-	required string serializedKey = 1;
+	required EventHeader header        = 1;
+	required string      serializedKey = 2;
 }
 
 message DeviceConfigCreatedEvent {
-	required string nodeUrn = 1;
+	required EventHeader header  = 1;
 }
 
 message DeviceConfigUpdatedEvent {
-	required string nodeUrn = 1;
+	required EventHeader header  = 1;
 }
 
 message DeviceConfigDeletedEvent {
-	required string nodeUrn = 1;
+	required EventHeader header  = 1;
 }
 
-message Event {
-
-	enum Type {
-
-		UPSTREAM_MESSAGE      = 01;  // upstream, sent by gateway
-
-		DEVICES_ATTACHED      = 10;  // upstream, sent by gateway
-		DEVICES_DETACHED      = 11;  // upstream, sent by gateway or generated by portal
-
-		GATEWAY_CONNECTED     = 20;  // upstream, sent by gateway
-		GATEWAY_DISCONNECTED  = 21;  // upstream, generated by portal
-
-		NOTIFICATION          = 30;  // upstream, sent by gateway or portal
-
-		RESERVATION_STARTED   = 40;  // downstream, sent by portal
-		RESERVATION_ENDED     = 41;  // downstream, sent by portal
-		RESERVATION_MADE      = 42;  // downstream, sent by portal
-		RESERVATION_CANCELLED = 43;  // downstream, sent by portal
-
-		RESERVATION_OPENED    = 44;  // downstream, sent by portal
-		RESERVATION_CLOSED    = 45;  // downstream, sent by portal
-		RESERVATION_FINALIZED = 46;  // downstream, sent by portal
-
-		DEVICE_CONFIG_CREATED = 50;  // downstream, sent by portal
-		DEVICE_CONFIG_UPDATED = 51;  // downstream, sent by portal
-		DEVICE_CONFIG_DELETED = 52;  // downstream, sent by portal
-	}
-
-	required int64 eventId = 1;
-	required Type  type    = 2;
-
-	optional UpstreamMessageEvent      upstreamMessageEvent      = 101;
-
-	optional DevicesAttachedEvent      devicesAttachedEvent      = 110;
-	optional DevicesDetachedEvent      devicesDetachedEvent      = 111;
-
-	optional GatewayConnectedEvent     gatewayConnectedEvent     = 120;
-	optional GatewayDisconnectedEvent  gatewayDisconnectedEvent  = 121;
-
-	optional NotificationEvent         notificationEvent         = 130;
-
-	optional ReservationStartedEvent   reservationStartedEvent   = 140;
-	optional ReservationEndedEvent     reservationEndedEvent     = 141;
-	optional ReservationMadeEvent      reservationMadeEvent      = 142;
-	optional ReservationCancelledEvent reservationCancelledEvent = 143;
-
-	optional ReservationOpenedEvent    reservationOpenedEvent    = 144;
-	optional ReservationClosedEvent    reservationClosedEvent    = 145;
-	optional ReservationFinalizedEvent reservationFinalizedEvent = 146;
-
-	optional DeviceConfigCreatedEvent  deviceConfigCreatedEvent  = 150;
-	optional DeviceConfigUpdatedEvent  deviceConfigUpdatedEvent  = 151;
-	optional DeviceConfigDeletedEvent  deviceConfigDeletedEvent  = 152;
+message EventHeader {
+	required int64  eventId   = 1; // an ID to identify events, should be unique for given time window
+	required uint64 timestamp = 2; // a timestamp in Unix format
+	repeated string nodeUrns  = 3; // zero or more node URNs (if this event originated from / is about node(s))
 }
 
 message EventAck {
@@ -303,22 +221,96 @@ message EventAck {
 message Message {
 
 	enum Type {
-		REQUEST                       = 1; // downstream
-		PROGRESS                      = 2; // upstream
-		RESPONSE                      = 3; // upstream
-		GET_CHANNELPIPELINES_RESPONSE = 4; // upstream
-		EVENT                         = 5; // upstream
-		EVENT_ACK                     = 6; // upstream
-		KEEP_ALIVE                    = 7; // both
-		KEEP_ALIVE_ACK                = 8; // both
+
+		KEEP_ALIVE                       = 01; // both
+		KEEP_ALIVE_ACK                   = 02; // both
+
+		REQUEST_ARE_NODES_ALIVE          = 11; // downstream
+		REQUEST_ARE_NODES_CONNECTED      = 12; // downstream
+		REQUEST_DISABLE_NODES            = 13; // downstream
+		REQUEST_DISABLE_VIRTUAL_LINKS    = 14; // downstream
+		REQUEST_DISABLE_PHYSICAL_LINKS   = 15; // downstream
+		REQUEST_ENABLE_NODES             = 16; // downstream
+		REQUEST_ENABLE_PHYSICAL_LINKS    = 17; // downstream
+		REQUEST_ENABLE_VIRTUAL_LINKS     = 18; // downstream
+		REQUEST_FLASH_IMAGES             = 19; // downstream
+		REQUEST_GET_CHANNEL_PIPELINES    = 20; // downstream
+		REQUEST_RESET_NODES              = 21; // downstream
+		REQUEST_SEND_DOWNSTREAM_MESSAGES = 22; // downstream
+		REQUEST_SET_CHANNEL_PIPELINES    = 23; // downstream
+
+		PROGRESS                         = 30; // upstream
+		RESPONSE                         = 31; // upstream
+		GET_CHANNELPIPELINES_RESPONSE    = 32; // upstream
+
+		EVENT_UPSTREAM_MESSAGE           = 40; // upstream, sent by gateway
+
+		EVENT_DEVICES_ATTACHED           = 50; // upstream, sent by gateway
+		EVENT_DEVICES_DETACHED           = 51; // upstream, sent by gateway or generated by portal
+		EVENT_GATEWAY_CONNECTED          = 52; // upstream, sent by gateway
+		EVENT_GATEWAY_DISCONNECTED       = 53; // upstream, generated by portal
+
+		EVENT_NOTIFICATION               = 60; // upstream, sent by gateway or portal
+
+		EVENT_RESERVATION_STARTED        = 70; // downstream, sent by portal
+		EVENT_RESERVATION_ENDED          = 71; // downstream, sent by portal
+		EVENT_RESERVATION_MADE           = 72; // downstream, sent by portal
+		EVENT_RESERVATION_CANCELLED      = 73; // downstream, sent by portal
+		EVENT_RESERVATION_OPENED         = 74; // downstream, sent by portal
+		EVENT_RESERVATION_CLOSED         = 75; // downstream, sent by portal
+		EVENT_RESERVATION_FINALIZED      = 76; // downstream, sent by portal
+
+		EVENT_DEVICE_CONFIG_CREATED      = 80; // downstream, sent by portal
+		EVENT_DEVICE_CONFIG_UPDATED      = 81; // downstream, sent by portal
+		EVENT_DEVICE_CONFIG_DELETED      = 82; // downstream, sent by portal
+
+		EVENT_ACK                        = 90; // upstream
 	}
 
 	required Type                        type                        = 1;
 
-	optional Request                     request                     = 101;
-	optional SingleNodeProgress          progress                    = 102;
-	optional SingleNodeResponse          response                    = 103;
-	optional GetChannelPipelinesResponse getChannelPipelinesResponse = 104;
-	optional Event                       event                       = 105;
-	optional EventAck                    eventAck                    = 106;
+	// REQUESTS
+	optional AreNodesAliveRequest          areNodesAliveRequest          = 111;
+	optional AreNodesConnectedRequest      areNodesConnectedRequest      = 112;
+	optional DisableNodesRequest           disableNodesRequest           = 113;
+	optional DisableVirtualLinksRequest    disableVirtualLinksRequest    = 114;
+	optional DisablePhysicalLinksRequest   disablePhysicalLinksRequest   = 115;
+	optional EnableNodesRequest            enableNodesRequest            = 116;
+	optional EnablePhysicalLinksRequest    enablePhysicalLinksRequest    = 117;
+	optional EnableVirtualLinksRequest     enableVirtualLinksRequest     = 118;
+	optional FlashImagesRequest            flashImagesRequest            = 119;
+	optional GetChannelPipelinesRequest    getChannelPipelinesRequest    = 120;
+	optional ResetNodesRequest             resetNodesRequest             = 121;
+	optional SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 122;
+	optional SetChannelPipelinesRequest    setChannelPipelinesRequest    = 123;
+
+	// RESPONSES
+	optional SingleNodeProgress            progress                      = 130;
+	optional SingleNodeResponse            response                      = 131;
+	optional GetChannelPipelinesResponse   getChannelPipelinesResponse   = 132;
+
+	// EVENTS
+	optional UpstreamMessageEvent          upstreamMessageEvent          = 140;
+
+	optional DevicesAttachedEvent          devicesAttachedEvent          = 150;
+	optional DevicesDetachedEvent          devicesDetachedEvent          = 151;
+	optional GatewayConnectedEvent         gatewayConnectedEvent         = 152;
+	optional GatewayDisconnectedEvent      gatewayDisconnectedEvent      = 153;
+
+	optional NotificationEvent             notificationEvent             = 160;
+
+	optional ReservationStartedEvent       reservationStartedEvent       = 170;
+	optional ReservationEndedEvent         reservationEndedEvent         = 171;
+	optional ReservationMadeEvent          reservationMadeEvent          = 172;
+	optional ReservationCancelledEvent     reservationCancelledEvent     = 173;
+	optional ReservationOpenedEvent        reservationOpenedEvent        = 174;
+	optional ReservationClosedEvent        reservationClosedEvent        = 175;
+	optional ReservationFinalizedEvent     reservationFinalizedEvent     = 176;
+
+	optional DeviceConfigCreatedEvent      deviceConfigCreatedEvent      = 180;
+	optional DeviceConfigUpdatedEvent      deviceConfigUpdatedEvent      = 181;
+	optional DeviceConfigDeletedEvent      deviceConfigDeletedEvent      = 182;
+
+	// EVENTS ACK
+	optional EventAck                      eventAck                      = 190;
 }

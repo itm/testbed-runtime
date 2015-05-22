@@ -32,38 +32,119 @@ public  final class Message extends
   
   public enum Type
       implements com.google.protobuf.ProtocolMessageEnum {
-    REQUEST(0, 1),
-    PROGRESS(1, 2),
-    RESPONSE(2, 3),
-    GET_CHANNELPIPELINES_RESPONSE(3, 4),
-    EVENT(4, 5),
-    EVENT_ACK(5, 6),
-    KEEP_ALIVE(6, 7),
-    KEEP_ALIVE_ACK(7, 8),
+    KEEP_ALIVE(0, 1),
+    KEEP_ALIVE_ACK(1, 2),
+    REQUEST_ARE_NODES_ALIVE(2, 11),
+    REQUEST_ARE_NODES_CONNECTED(3, 12),
+    REQUEST_DISABLE_NODES(4, 13),
+    REQUEST_DISABLE_VIRTUAL_LINKS(5, 14),
+    REQUEST_DISABLE_PHYSICAL_LINKS(6, 15),
+    REQUEST_ENABLE_NODES(7, 16),
+    REQUEST_ENABLE_PHYSICAL_LINKS(8, 17),
+    REQUEST_ENABLE_VIRTUAL_LINKS(9, 18),
+    REQUEST_FLASH_IMAGES(10, 19),
+    REQUEST_GET_CHANNEL_PIPELINES(11, 20),
+    REQUEST_RESET_NODES(12, 21),
+    REQUEST_SEND_DOWNSTREAM_MESSAGES(13, 22),
+    REQUEST_SET_CHANNEL_PIPELINES(14, 23),
+    PROGRESS(15, 30),
+    RESPONSE(16, 31),
+    GET_CHANNELPIPELINES_RESPONSE(17, 32),
+    EVENT_UPSTREAM_MESSAGE(18, 40),
+    EVENT_DEVICES_ATTACHED(19, 50),
+    EVENT_DEVICES_DETACHED(20, 51),
+    EVENT_GATEWAY_CONNECTED(21, 52),
+    EVENT_GATEWAY_DISCONNECTED(22, 53),
+    EVENT_NOTIFICATION(23, 60),
+    EVENT_RESERVATION_STARTED(24, 70),
+    EVENT_RESERVATION_ENDED(25, 71),
+    EVENT_RESERVATION_MADE(26, 72),
+    EVENT_RESERVATION_CANCELLED(27, 73),
+    EVENT_RESERVATION_OPENED(28, 74),
+    EVENT_RESERVATION_CLOSED(29, 75),
+    EVENT_RESERVATION_FINALIZED(30, 76),
+    EVENT_DEVICE_CONFIG_CREATED(31, 80),
+    EVENT_DEVICE_CONFIG_UPDATED(32, 81),
+    EVENT_DEVICE_CONFIG_DELETED(33, 82),
+    EVENT_ACK(34, 90),
     ;
     
-    public static final int REQUEST_VALUE = 1;
-    public static final int PROGRESS_VALUE = 2;
-    public static final int RESPONSE_VALUE = 3;
-    public static final int GET_CHANNELPIPELINES_RESPONSE_VALUE = 4;
-    public static final int EVENT_VALUE = 5;
-    public static final int EVENT_ACK_VALUE = 6;
-    public static final int KEEP_ALIVE_VALUE = 7;
-    public static final int KEEP_ALIVE_ACK_VALUE = 8;
+    public static final int KEEP_ALIVE_VALUE = 1;
+    public static final int KEEP_ALIVE_ACK_VALUE = 2;
+    public static final int REQUEST_ARE_NODES_ALIVE_VALUE = 11;
+    public static final int REQUEST_ARE_NODES_CONNECTED_VALUE = 12;
+    public static final int REQUEST_DISABLE_NODES_VALUE = 13;
+    public static final int REQUEST_DISABLE_VIRTUAL_LINKS_VALUE = 14;
+    public static final int REQUEST_DISABLE_PHYSICAL_LINKS_VALUE = 15;
+    public static final int REQUEST_ENABLE_NODES_VALUE = 16;
+    public static final int REQUEST_ENABLE_PHYSICAL_LINKS_VALUE = 17;
+    public static final int REQUEST_ENABLE_VIRTUAL_LINKS_VALUE = 18;
+    public static final int REQUEST_FLASH_IMAGES_VALUE = 19;
+    public static final int REQUEST_GET_CHANNEL_PIPELINES_VALUE = 20;
+    public static final int REQUEST_RESET_NODES_VALUE = 21;
+    public static final int REQUEST_SEND_DOWNSTREAM_MESSAGES_VALUE = 22;
+    public static final int REQUEST_SET_CHANNEL_PIPELINES_VALUE = 23;
+    public static final int PROGRESS_VALUE = 30;
+    public static final int RESPONSE_VALUE = 31;
+    public static final int GET_CHANNELPIPELINES_RESPONSE_VALUE = 32;
+    public static final int EVENT_UPSTREAM_MESSAGE_VALUE = 40;
+    public static final int EVENT_DEVICES_ATTACHED_VALUE = 50;
+    public static final int EVENT_DEVICES_DETACHED_VALUE = 51;
+    public static final int EVENT_GATEWAY_CONNECTED_VALUE = 52;
+    public static final int EVENT_GATEWAY_DISCONNECTED_VALUE = 53;
+    public static final int EVENT_NOTIFICATION_VALUE = 60;
+    public static final int EVENT_RESERVATION_STARTED_VALUE = 70;
+    public static final int EVENT_RESERVATION_ENDED_VALUE = 71;
+    public static final int EVENT_RESERVATION_MADE_VALUE = 72;
+    public static final int EVENT_RESERVATION_CANCELLED_VALUE = 73;
+    public static final int EVENT_RESERVATION_OPENED_VALUE = 74;
+    public static final int EVENT_RESERVATION_CLOSED_VALUE = 75;
+    public static final int EVENT_RESERVATION_FINALIZED_VALUE = 76;
+    public static final int EVENT_DEVICE_CONFIG_CREATED_VALUE = 80;
+    public static final int EVENT_DEVICE_CONFIG_UPDATED_VALUE = 81;
+    public static final int EVENT_DEVICE_CONFIG_DELETED_VALUE = 82;
+    public static final int EVENT_ACK_VALUE = 90;
     
     
     public final int getNumber() { return value; }
     
     public static Type valueOf(int value) {
       switch (value) {
-        case 1: return REQUEST;
-        case 2: return PROGRESS;
-        case 3: return RESPONSE;
-        case 4: return GET_CHANNELPIPELINES_RESPONSE;
-        case 5: return EVENT;
-        case 6: return EVENT_ACK;
-        case 7: return KEEP_ALIVE;
-        case 8: return KEEP_ALIVE_ACK;
+        case 1: return KEEP_ALIVE;
+        case 2: return KEEP_ALIVE_ACK;
+        case 11: return REQUEST_ARE_NODES_ALIVE;
+        case 12: return REQUEST_ARE_NODES_CONNECTED;
+        case 13: return REQUEST_DISABLE_NODES;
+        case 14: return REQUEST_DISABLE_VIRTUAL_LINKS;
+        case 15: return REQUEST_DISABLE_PHYSICAL_LINKS;
+        case 16: return REQUEST_ENABLE_NODES;
+        case 17: return REQUEST_ENABLE_PHYSICAL_LINKS;
+        case 18: return REQUEST_ENABLE_VIRTUAL_LINKS;
+        case 19: return REQUEST_FLASH_IMAGES;
+        case 20: return REQUEST_GET_CHANNEL_PIPELINES;
+        case 21: return REQUEST_RESET_NODES;
+        case 22: return REQUEST_SEND_DOWNSTREAM_MESSAGES;
+        case 23: return REQUEST_SET_CHANNEL_PIPELINES;
+        case 30: return PROGRESS;
+        case 31: return RESPONSE;
+        case 32: return GET_CHANNELPIPELINES_RESPONSE;
+        case 40: return EVENT_UPSTREAM_MESSAGE;
+        case 50: return EVENT_DEVICES_ATTACHED;
+        case 51: return EVENT_DEVICES_DETACHED;
+        case 52: return EVENT_GATEWAY_CONNECTED;
+        case 53: return EVENT_GATEWAY_DISCONNECTED;
+        case 60: return EVENT_NOTIFICATION;
+        case 70: return EVENT_RESERVATION_STARTED;
+        case 71: return EVENT_RESERVATION_ENDED;
+        case 72: return EVENT_RESERVATION_MADE;
+        case 73: return EVENT_RESERVATION_CANCELLED;
+        case 74: return EVENT_RESERVATION_OPENED;
+        case 75: return EVENT_RESERVATION_CLOSED;
+        case 76: return EVENT_RESERVATION_FINALIZED;
+        case 80: return EVENT_DEVICE_CONFIG_CREATED;
+        case 81: return EVENT_DEVICE_CONFIG_UPDATED;
+        case 82: return EVENT_DEVICE_CONFIG_DELETED;
+        case 90: return EVENT_ACK;
         default: return null;
       }
     }
@@ -94,7 +175,7 @@ public  final class Message extends
     }
     
     private static final Type[] VALUES = {
-      REQUEST, PROGRESS, RESPONSE, GET_CHANNELPIPELINES_RESPONSE, EVENT, EVENT_ACK, KEEP_ALIVE, KEEP_ALIVE_ACK, 
+      KEEP_ALIVE, KEEP_ALIVE_ACK, REQUEST_ARE_NODES_ALIVE, REQUEST_ARE_NODES_CONNECTED, REQUEST_DISABLE_NODES, REQUEST_DISABLE_VIRTUAL_LINKS, REQUEST_DISABLE_PHYSICAL_LINKS, REQUEST_ENABLE_NODES, REQUEST_ENABLE_PHYSICAL_LINKS, REQUEST_ENABLE_VIRTUAL_LINKS, REQUEST_FLASH_IMAGES, REQUEST_GET_CHANNEL_PIPELINES, REQUEST_RESET_NODES, REQUEST_SEND_DOWNSTREAM_MESSAGES, REQUEST_SET_CHANNEL_PIPELINES, PROGRESS, RESPONSE, GET_CHANNELPIPELINES_RESPONSE, EVENT_UPSTREAM_MESSAGE, EVENT_DEVICES_ATTACHED, EVENT_DEVICES_DETACHED, EVENT_GATEWAY_CONNECTED, EVENT_GATEWAY_DISCONNECTED, EVENT_NOTIFICATION, EVENT_RESERVATION_STARTED, EVENT_RESERVATION_ENDED, EVENT_RESERVATION_MADE, EVENT_RESERVATION_CANCELLED, EVENT_RESERVATION_OPENED, EVENT_RESERVATION_CLOSED, EVENT_RESERVATION_FINALIZED, EVENT_DEVICE_CONFIG_CREATED, EVENT_DEVICE_CONFIG_UPDATED, EVENT_DEVICE_CONFIG_DELETED, EVENT_ACK, 
     };
     
     public static Type valueOf(
@@ -118,6 +199,7 @@ public  final class Message extends
   }
   
   private int bitField0_;
+  private int bitField1_;
   // required .de.uniluebeck.itm.tr.iwsn.messages.Message.Type type = 1;
   public static final int TYPE_FIELD_NUMBER = 1;
   private de.uniluebeck.itm.tr.iwsn.messages.Message.Type type_;
@@ -128,24 +210,180 @@ public  final class Message extends
     return type_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.Request request = 101;
-  public static final int REQUEST_FIELD_NUMBER = 101;
-  private de.uniluebeck.itm.tr.iwsn.messages.Request request_;
-  public boolean hasRequest() {
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest areNodesAliveRequest = 111;
+  public static final int ARENODESALIVEREQUEST_FIELD_NUMBER = 111;
+  private de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest areNodesAliveRequest_;
+  public boolean hasAreNodesAliveRequest() {
     return ((bitField0_ & 0x00000002) == 0x00000002);
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.Request getRequest() {
-    return request_;
+  public de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest getAreNodesAliveRequest() {
+    return areNodesAliveRequest_;
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.RequestOrBuilder getRequestOrBuilder() {
-    return request_;
+  public de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequestOrBuilder getAreNodesAliveRequestOrBuilder() {
+    return areNodesAliveRequest_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress progress = 102;
-  public static final int PROGRESS_FIELD_NUMBER = 102;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest areNodesConnectedRequest = 112;
+  public static final int ARENODESCONNECTEDREQUEST_FIELD_NUMBER = 112;
+  private de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest areNodesConnectedRequest_;
+  public boolean hasAreNodesConnectedRequest() {
+    return ((bitField0_ & 0x00000004) == 0x00000004);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest getAreNodesConnectedRequest() {
+    return areNodesConnectedRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequestOrBuilder getAreNodesConnectedRequestOrBuilder() {
+    return areNodesConnectedRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest disableNodesRequest = 113;
+  public static final int DISABLENODESREQUEST_FIELD_NUMBER = 113;
+  private de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest disableNodesRequest_;
+  public boolean hasDisableNodesRequest() {
+    return ((bitField0_ & 0x00000008) == 0x00000008);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest getDisableNodesRequest() {
+    return disableNodesRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequestOrBuilder getDisableNodesRequestOrBuilder() {
+    return disableNodesRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest disableVirtualLinksRequest = 114;
+  public static final int DISABLEVIRTUALLINKSREQUEST_FIELD_NUMBER = 114;
+  private de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest disableVirtualLinksRequest_;
+  public boolean hasDisableVirtualLinksRequest() {
+    return ((bitField0_ & 0x00000010) == 0x00000010);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest getDisableVirtualLinksRequest() {
+    return disableVirtualLinksRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequestOrBuilder getDisableVirtualLinksRequestOrBuilder() {
+    return disableVirtualLinksRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest disablePhysicalLinksRequest = 115;
+  public static final int DISABLEPHYSICALLINKSREQUEST_FIELD_NUMBER = 115;
+  private de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest disablePhysicalLinksRequest_;
+  public boolean hasDisablePhysicalLinksRequest() {
+    return ((bitField0_ & 0x00000020) == 0x00000020);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest getDisablePhysicalLinksRequest() {
+    return disablePhysicalLinksRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequestOrBuilder getDisablePhysicalLinksRequestOrBuilder() {
+    return disablePhysicalLinksRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest enableNodesRequest = 116;
+  public static final int ENABLENODESREQUEST_FIELD_NUMBER = 116;
+  private de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest enableNodesRequest_;
+  public boolean hasEnableNodesRequest() {
+    return ((bitField0_ & 0x00000040) == 0x00000040);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest getEnableNodesRequest() {
+    return enableNodesRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequestOrBuilder getEnableNodesRequestOrBuilder() {
+    return enableNodesRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest enablePhysicalLinksRequest = 117;
+  public static final int ENABLEPHYSICALLINKSREQUEST_FIELD_NUMBER = 117;
+  private de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest enablePhysicalLinksRequest_;
+  public boolean hasEnablePhysicalLinksRequest() {
+    return ((bitField0_ & 0x00000080) == 0x00000080);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest getEnablePhysicalLinksRequest() {
+    return enablePhysicalLinksRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequestOrBuilder getEnablePhysicalLinksRequestOrBuilder() {
+    return enablePhysicalLinksRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest enableVirtualLinksRequest = 118;
+  public static final int ENABLEVIRTUALLINKSREQUEST_FIELD_NUMBER = 118;
+  private de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest enableVirtualLinksRequest_;
+  public boolean hasEnableVirtualLinksRequest() {
+    return ((bitField0_ & 0x00000100) == 0x00000100);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest getEnableVirtualLinksRequest() {
+    return enableVirtualLinksRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequestOrBuilder getEnableVirtualLinksRequestOrBuilder() {
+    return enableVirtualLinksRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest flashImagesRequest = 119;
+  public static final int FLASHIMAGESREQUEST_FIELD_NUMBER = 119;
+  private de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest flashImagesRequest_;
+  public boolean hasFlashImagesRequest() {
+    return ((bitField0_ & 0x00000200) == 0x00000200);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest getFlashImagesRequest() {
+    return flashImagesRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequestOrBuilder getFlashImagesRequestOrBuilder() {
+    return flashImagesRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getChannelPipelinesRequest = 120;
+  public static final int GETCHANNELPIPELINESREQUEST_FIELD_NUMBER = 120;
+  private de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getChannelPipelinesRequest_;
+  public boolean hasGetChannelPipelinesRequest() {
+    return ((bitField0_ & 0x00000400) == 0x00000400);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getGetChannelPipelinesRequest() {
+    return getChannelPipelinesRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder getGetChannelPipelinesRequestOrBuilder() {
+    return getChannelPipelinesRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 121;
+  public static final int RESETNODESREQUEST_FIELD_NUMBER = 121;
+  private de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest_;
+  public boolean hasResetNodesRequest() {
+    return ((bitField0_ & 0x00000800) == 0x00000800);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest getResetNodesRequest() {
+    return resetNodesRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequestOrBuilder getResetNodesRequestOrBuilder() {
+    return resetNodesRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 122;
+  public static final int SENDDOWNSTREAMMESSAGESREQUEST_FIELD_NUMBER = 122;
+  private de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest_;
+  public boolean hasSendDownstreamMessagesRequest() {
+    return ((bitField0_ & 0x00001000) == 0x00001000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest getSendDownstreamMessagesRequest() {
+    return sendDownstreamMessagesRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequestOrBuilder getSendDownstreamMessagesRequestOrBuilder() {
+    return sendDownstreamMessagesRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 123;
+  public static final int SETCHANNELPIPELINESREQUEST_FIELD_NUMBER = 123;
+  private de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest_;
+  public boolean hasSetChannelPipelinesRequest() {
+    return ((bitField0_ & 0x00002000) == 0x00002000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest getSetChannelPipelinesRequest() {
+    return setChannelPipelinesRequest_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequestOrBuilder getSetChannelPipelinesRequestOrBuilder() {
+    return setChannelPipelinesRequest_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress progress = 130;
+  public static final int PROGRESS_FIELD_NUMBER = 130;
   private de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress progress_;
   public boolean hasProgress() {
-    return ((bitField0_ & 0x00000004) == 0x00000004);
+    return ((bitField0_ & 0x00004000) == 0x00004000);
   }
   public de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress getProgress() {
     return progress_;
@@ -154,11 +392,11 @@ public  final class Message extends
     return progress_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse response = 103;
-  public static final int RESPONSE_FIELD_NUMBER = 103;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse response = 131;
+  public static final int RESPONSE_FIELD_NUMBER = 131;
   private de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse response_;
   public boolean hasResponse() {
-    return ((bitField0_ & 0x00000008) == 0x00000008);
+    return ((bitField0_ & 0x00008000) == 0x00008000);
   }
   public de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse getResponse() {
     return response_;
@@ -167,11 +405,11 @@ public  final class Message extends
     return response_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getChannelPipelinesResponse = 104;
-  public static final int GETCHANNELPIPELINESRESPONSE_FIELD_NUMBER = 104;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getChannelPipelinesResponse = 132;
+  public static final int GETCHANNELPIPELINESRESPONSE_FIELD_NUMBER = 132;
   private de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getChannelPipelinesResponse_;
   public boolean hasGetChannelPipelinesResponse() {
-    return ((bitField0_ & 0x00000010) == 0x00000010);
+    return ((bitField0_ & 0x00010000) == 0x00010000);
   }
   public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getGetChannelPipelinesResponse() {
     return getChannelPipelinesResponse_;
@@ -180,24 +418,219 @@ public  final class Message extends
     return getChannelPipelinesResponse_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.Event event = 105;
-  public static final int EVENT_FIELD_NUMBER = 105;
-  private de.uniluebeck.itm.tr.iwsn.messages.Event event_;
-  public boolean hasEvent() {
-    return ((bitField0_ & 0x00000020) == 0x00000020);
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent upstreamMessageEvent = 140;
+  public static final int UPSTREAMMESSAGEEVENT_FIELD_NUMBER = 140;
+  private de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent upstreamMessageEvent_;
+  public boolean hasUpstreamMessageEvent() {
+    return ((bitField0_ & 0x00020000) == 0x00020000);
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.Event getEvent() {
-    return event_;
+  public de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent getUpstreamMessageEvent() {
+    return upstreamMessageEvent_;
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.EventOrBuilder getEventOrBuilder() {
-    return event_;
+  public de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEventOrBuilder getUpstreamMessageEventOrBuilder() {
+    return upstreamMessageEvent_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.EventAck eventAck = 106;
-  public static final int EVENTACK_FIELD_NUMBER = 106;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent devicesAttachedEvent = 150;
+  public static final int DEVICESATTACHEDEVENT_FIELD_NUMBER = 150;
+  private de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent devicesAttachedEvent_;
+  public boolean hasDevicesAttachedEvent() {
+    return ((bitField0_ & 0x00040000) == 0x00040000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent getDevicesAttachedEvent() {
+    return devicesAttachedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEventOrBuilder getDevicesAttachedEventOrBuilder() {
+    return devicesAttachedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent devicesDetachedEvent = 151;
+  public static final int DEVICESDETACHEDEVENT_FIELD_NUMBER = 151;
+  private de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent devicesDetachedEvent_;
+  public boolean hasDevicesDetachedEvent() {
+    return ((bitField0_ & 0x00080000) == 0x00080000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent getDevicesDetachedEvent() {
+    return devicesDetachedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEventOrBuilder getDevicesDetachedEventOrBuilder() {
+    return devicesDetachedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent gatewayConnectedEvent = 152;
+  public static final int GATEWAYCONNECTEDEVENT_FIELD_NUMBER = 152;
+  private de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent gatewayConnectedEvent_;
+  public boolean hasGatewayConnectedEvent() {
+    return ((bitField0_ & 0x00100000) == 0x00100000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent getGatewayConnectedEvent() {
+    return gatewayConnectedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEventOrBuilder getGatewayConnectedEventOrBuilder() {
+    return gatewayConnectedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent gatewayDisconnectedEvent = 153;
+  public static final int GATEWAYDISCONNECTEDEVENT_FIELD_NUMBER = 153;
+  private de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent gatewayDisconnectedEvent_;
+  public boolean hasGatewayDisconnectedEvent() {
+    return ((bitField0_ & 0x00200000) == 0x00200000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent getGatewayDisconnectedEvent() {
+    return gatewayDisconnectedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEventOrBuilder getGatewayDisconnectedEventOrBuilder() {
+    return gatewayDisconnectedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent notificationEvent = 160;
+  public static final int NOTIFICATIONEVENT_FIELD_NUMBER = 160;
+  private de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent notificationEvent_;
+  public boolean hasNotificationEvent() {
+    return ((bitField0_ & 0x00400000) == 0x00400000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent getNotificationEvent() {
+    return notificationEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.NotificationEventOrBuilder getNotificationEventOrBuilder() {
+    return notificationEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent reservationStartedEvent = 170;
+  public static final int RESERVATIONSTARTEDEVENT_FIELD_NUMBER = 170;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent reservationStartedEvent_;
+  public boolean hasReservationStartedEvent() {
+    return ((bitField0_ & 0x00800000) == 0x00800000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent getReservationStartedEvent() {
+    return reservationStartedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder getReservationStartedEventOrBuilder() {
+    return reservationStartedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent reservationEndedEvent = 171;
+  public static final int RESERVATIONENDEDEVENT_FIELD_NUMBER = 171;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent reservationEndedEvent_;
+  public boolean hasReservationEndedEvent() {
+    return ((bitField0_ & 0x01000000) == 0x01000000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent getReservationEndedEvent() {
+    return reservationEndedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder getReservationEndedEventOrBuilder() {
+    return reservationEndedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent reservationMadeEvent = 172;
+  public static final int RESERVATIONMADEEVENT_FIELD_NUMBER = 172;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent reservationMadeEvent_;
+  public boolean hasReservationMadeEvent() {
+    return ((bitField0_ & 0x02000000) == 0x02000000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent getReservationMadeEvent() {
+    return reservationMadeEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEventOrBuilder getReservationMadeEventOrBuilder() {
+    return reservationMadeEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent = 173;
+  public static final int RESERVATIONCANCELLEDEVENT_FIELD_NUMBER = 173;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent_;
+  public boolean hasReservationCancelledEvent() {
+    return ((bitField0_ & 0x04000000) == 0x04000000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent getReservationCancelledEvent() {
+    return reservationCancelledEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder getReservationCancelledEventOrBuilder() {
+    return reservationCancelledEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent reservationOpenedEvent = 174;
+  public static final int RESERVATIONOPENEDEVENT_FIELD_NUMBER = 174;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent reservationOpenedEvent_;
+  public boolean hasReservationOpenedEvent() {
+    return ((bitField0_ & 0x08000000) == 0x08000000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent getReservationOpenedEvent() {
+    return reservationOpenedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder getReservationOpenedEventOrBuilder() {
+    return reservationOpenedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent reservationClosedEvent = 175;
+  public static final int RESERVATIONCLOSEDEVENT_FIELD_NUMBER = 175;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent reservationClosedEvent_;
+  public boolean hasReservationClosedEvent() {
+    return ((bitField0_ & 0x10000000) == 0x10000000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent getReservationClosedEvent() {
+    return reservationClosedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder getReservationClosedEventOrBuilder() {
+    return reservationClosedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent reservationFinalizedEvent = 176;
+  public static final int RESERVATIONFINALIZEDEVENT_FIELD_NUMBER = 176;
+  private de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent reservationFinalizedEvent_;
+  public boolean hasReservationFinalizedEvent() {
+    return ((bitField0_ & 0x20000000) == 0x20000000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent getReservationFinalizedEvent() {
+    return reservationFinalizedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder getReservationFinalizedEventOrBuilder() {
+    return reservationFinalizedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent = 180;
+  public static final int DEVICECONFIGCREATEDEVENT_FIELD_NUMBER = 180;
+  private de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent_;
+  public boolean hasDeviceConfigCreatedEvent() {
+    return ((bitField0_ & 0x40000000) == 0x40000000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent getDeviceConfigCreatedEvent() {
+    return deviceConfigCreatedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEventOrBuilder getDeviceConfigCreatedEventOrBuilder() {
+    return deviceConfigCreatedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent deviceConfigUpdatedEvent = 181;
+  public static final int DEVICECONFIGUPDATEDEVENT_FIELD_NUMBER = 181;
+  private de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent deviceConfigUpdatedEvent_;
+  public boolean hasDeviceConfigUpdatedEvent() {
+    return ((bitField0_ & 0x80000000) == 0x80000000);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent getDeviceConfigUpdatedEvent() {
+    return deviceConfigUpdatedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEventOrBuilder getDeviceConfigUpdatedEventOrBuilder() {
+    return deviceConfigUpdatedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent deviceConfigDeletedEvent = 182;
+  public static final int DEVICECONFIGDELETEDEVENT_FIELD_NUMBER = 182;
+  private de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent deviceConfigDeletedEvent_;
+  public boolean hasDeviceConfigDeletedEvent() {
+    return ((bitField1_ & 0x00000001) == 0x00000001);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent getDeviceConfigDeletedEvent() {
+    return deviceConfigDeletedEvent_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEventOrBuilder getDeviceConfigDeletedEventOrBuilder() {
+    return deviceConfigDeletedEvent_;
+  }
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.EventAck eventAck = 190;
+  public static final int EVENTACK_FIELD_NUMBER = 190;
   private de.uniluebeck.itm.tr.iwsn.messages.EventAck eventAck_;
   public boolean hasEventAck() {
-    return ((bitField0_ & 0x00000040) == 0x00000040);
+    return ((bitField1_ & 0x00000002) == 0x00000002);
   }
   public de.uniluebeck.itm.tr.iwsn.messages.EventAck getEventAck() {
     return eventAck_;
@@ -207,12 +640,39 @@ public  final class Message extends
   }
   
   private void initFields() {
-    type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.REQUEST;
-    request_ = de.uniluebeck.itm.tr.iwsn.messages.Request.getDefaultInstance();
+    type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.KEEP_ALIVE;
+    areNodesAliveRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.getDefaultInstance();
+    areNodesConnectedRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.getDefaultInstance();
+    disableNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.getDefaultInstance();
+    disableVirtualLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.getDefaultInstance();
+    disablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.getDefaultInstance();
+    enableNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.getDefaultInstance();
+    enablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.getDefaultInstance();
+    enableVirtualLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.getDefaultInstance();
+    flashImagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.getDefaultInstance();
+    getChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.getDefaultInstance();
+    resetNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.getDefaultInstance();
+    sendDownstreamMessagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance();
+    setChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.getDefaultInstance();
     progress_ = de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.getDefaultInstance();
     response_ = de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.getDefaultInstance();
     getChannelPipelinesResponse_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.getDefaultInstance();
-    event_ = de.uniluebeck.itm.tr.iwsn.messages.Event.getDefaultInstance();
+    upstreamMessageEvent_ = de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.getDefaultInstance();
+    devicesAttachedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.getDefaultInstance();
+    devicesDetachedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.getDefaultInstance();
+    gatewayConnectedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.getDefaultInstance();
+    gatewayDisconnectedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.getDefaultInstance();
+    notificationEvent_ = de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.getDefaultInstance();
+    reservationStartedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance();
+    reservationEndedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
+    reservationMadeEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.getDefaultInstance();
+    reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
+    reservationOpenedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance();
+    reservationClosedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.getDefaultInstance();
+    reservationFinalizedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.getDefaultInstance();
+    deviceConfigCreatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.getDefaultInstance();
+    deviceConfigUpdatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.getDefaultInstance();
+    deviceConfigDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.getDefaultInstance();
     eventAck_ = de.uniluebeck.itm.tr.iwsn.messages.EventAck.getDefaultInstance();
   }
   private byte memoizedIsInitialized = -1;
@@ -224,8 +684,80 @@ public  final class Message extends
       memoizedIsInitialized = 0;
       return false;
     }
-    if (hasRequest()) {
-      if (!getRequest().isInitialized()) {
+    if (hasAreNodesAliveRequest()) {
+      if (!getAreNodesAliveRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasAreNodesConnectedRequest()) {
+      if (!getAreNodesConnectedRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasDisableNodesRequest()) {
+      if (!getDisableNodesRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasDisableVirtualLinksRequest()) {
+      if (!getDisableVirtualLinksRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasDisablePhysicalLinksRequest()) {
+      if (!getDisablePhysicalLinksRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasEnableNodesRequest()) {
+      if (!getEnableNodesRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasEnablePhysicalLinksRequest()) {
+      if (!getEnablePhysicalLinksRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasEnableVirtualLinksRequest()) {
+      if (!getEnableVirtualLinksRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasFlashImagesRequest()) {
+      if (!getFlashImagesRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasGetChannelPipelinesRequest()) {
+      if (!getGetChannelPipelinesRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasResetNodesRequest()) {
+      if (!getResetNodesRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasSendDownstreamMessagesRequest()) {
+      if (!getSendDownstreamMessagesRequest().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasSetChannelPipelinesRequest()) {
+      if (!getSetChannelPipelinesRequest().isInitialized()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -248,8 +780,98 @@ public  final class Message extends
         return false;
       }
     }
-    if (hasEvent()) {
-      if (!getEvent().isInitialized()) {
+    if (hasUpstreamMessageEvent()) {
+      if (!getUpstreamMessageEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasDevicesAttachedEvent()) {
+      if (!getDevicesAttachedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasDevicesDetachedEvent()) {
+      if (!getDevicesDetachedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasGatewayConnectedEvent()) {
+      if (!getGatewayConnectedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasGatewayDisconnectedEvent()) {
+      if (!getGatewayDisconnectedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasNotificationEvent()) {
+      if (!getNotificationEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationStartedEvent()) {
+      if (!getReservationStartedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationEndedEvent()) {
+      if (!getReservationEndedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationMadeEvent()) {
+      if (!getReservationMadeEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationCancelledEvent()) {
+      if (!getReservationCancelledEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationOpenedEvent()) {
+      if (!getReservationOpenedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationClosedEvent()) {
+      if (!getReservationClosedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasReservationFinalizedEvent()) {
+      if (!getReservationFinalizedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasDeviceConfigCreatedEvent()) {
+      if (!getDeviceConfigCreatedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasDeviceConfigUpdatedEvent()) {
+      if (!getDeviceConfigUpdatedEvent().isInitialized()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+    }
+    if (hasDeviceConfigDeletedEvent()) {
+      if (!getDeviceConfigDeletedEvent().isInitialized()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -271,22 +893,103 @@ public  final class Message extends
       output.writeEnum(1, type_.getNumber());
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
-      output.writeMessage(101, request_);
+      output.writeMessage(111, areNodesAliveRequest_);
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
-      output.writeMessage(102, progress_);
+      output.writeMessage(112, areNodesConnectedRequest_);
     }
     if (((bitField0_ & 0x00000008) == 0x00000008)) {
-      output.writeMessage(103, response_);
+      output.writeMessage(113, disableNodesRequest_);
     }
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
-      output.writeMessage(104, getChannelPipelinesResponse_);
+      output.writeMessage(114, disableVirtualLinksRequest_);
     }
     if (((bitField0_ & 0x00000020) == 0x00000020)) {
-      output.writeMessage(105, event_);
+      output.writeMessage(115, disablePhysicalLinksRequest_);
     }
     if (((bitField0_ & 0x00000040) == 0x00000040)) {
-      output.writeMessage(106, eventAck_);
+      output.writeMessage(116, enableNodesRequest_);
+    }
+    if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      output.writeMessage(117, enablePhysicalLinksRequest_);
+    }
+    if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      output.writeMessage(118, enableVirtualLinksRequest_);
+    }
+    if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      output.writeMessage(119, flashImagesRequest_);
+    }
+    if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      output.writeMessage(120, getChannelPipelinesRequest_);
+    }
+    if (((bitField0_ & 0x00000800) == 0x00000800)) {
+      output.writeMessage(121, resetNodesRequest_);
+    }
+    if (((bitField0_ & 0x00001000) == 0x00001000)) {
+      output.writeMessage(122, sendDownstreamMessagesRequest_);
+    }
+    if (((bitField0_ & 0x00002000) == 0x00002000)) {
+      output.writeMessage(123, setChannelPipelinesRequest_);
+    }
+    if (((bitField0_ & 0x00004000) == 0x00004000)) {
+      output.writeMessage(130, progress_);
+    }
+    if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      output.writeMessage(131, response_);
+    }
+    if (((bitField0_ & 0x00010000) == 0x00010000)) {
+      output.writeMessage(132, getChannelPipelinesResponse_);
+    }
+    if (((bitField0_ & 0x00020000) == 0x00020000)) {
+      output.writeMessage(140, upstreamMessageEvent_);
+    }
+    if (((bitField0_ & 0x00040000) == 0x00040000)) {
+      output.writeMessage(150, devicesAttachedEvent_);
+    }
+    if (((bitField0_ & 0x00080000) == 0x00080000)) {
+      output.writeMessage(151, devicesDetachedEvent_);
+    }
+    if (((bitField0_ & 0x00100000) == 0x00100000)) {
+      output.writeMessage(152, gatewayConnectedEvent_);
+    }
+    if (((bitField0_ & 0x00200000) == 0x00200000)) {
+      output.writeMessage(153, gatewayDisconnectedEvent_);
+    }
+    if (((bitField0_ & 0x00400000) == 0x00400000)) {
+      output.writeMessage(160, notificationEvent_);
+    }
+    if (((bitField0_ & 0x00800000) == 0x00800000)) {
+      output.writeMessage(170, reservationStartedEvent_);
+    }
+    if (((bitField0_ & 0x01000000) == 0x01000000)) {
+      output.writeMessage(171, reservationEndedEvent_);
+    }
+    if (((bitField0_ & 0x02000000) == 0x02000000)) {
+      output.writeMessage(172, reservationMadeEvent_);
+    }
+    if (((bitField0_ & 0x04000000) == 0x04000000)) {
+      output.writeMessage(173, reservationCancelledEvent_);
+    }
+    if (((bitField0_ & 0x08000000) == 0x08000000)) {
+      output.writeMessage(174, reservationOpenedEvent_);
+    }
+    if (((bitField0_ & 0x10000000) == 0x10000000)) {
+      output.writeMessage(175, reservationClosedEvent_);
+    }
+    if (((bitField0_ & 0x20000000) == 0x20000000)) {
+      output.writeMessage(176, reservationFinalizedEvent_);
+    }
+    if (((bitField0_ & 0x40000000) == 0x40000000)) {
+      output.writeMessage(180, deviceConfigCreatedEvent_);
+    }
+    if (((bitField0_ & 0x80000000) == 0x80000000)) {
+      output.writeMessage(181, deviceConfigUpdatedEvent_);
+    }
+    if (((bitField1_ & 0x00000001) == 0x00000001)) {
+      output.writeMessage(182, deviceConfigDeletedEvent_);
+    }
+    if (((bitField1_ & 0x00000002) == 0x00000002)) {
+      output.writeMessage(190, eventAck_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -303,27 +1006,135 @@ public  final class Message extends
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(101, request_);
+        .computeMessageSize(111, areNodesAliveRequest_);
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(102, progress_);
+        .computeMessageSize(112, areNodesConnectedRequest_);
     }
     if (((bitField0_ & 0x00000008) == 0x00000008)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(103, response_);
+        .computeMessageSize(113, disableNodesRequest_);
     }
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(104, getChannelPipelinesResponse_);
+        .computeMessageSize(114, disableVirtualLinksRequest_);
     }
     if (((bitField0_ & 0x00000020) == 0x00000020)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(105, event_);
+        .computeMessageSize(115, disablePhysicalLinksRequest_);
     }
     if (((bitField0_ & 0x00000040) == 0x00000040)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(106, eventAck_);
+        .computeMessageSize(116, enableNodesRequest_);
+    }
+    if (((bitField0_ & 0x00000080) == 0x00000080)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(117, enablePhysicalLinksRequest_);
+    }
+    if (((bitField0_ & 0x00000100) == 0x00000100)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(118, enableVirtualLinksRequest_);
+    }
+    if (((bitField0_ & 0x00000200) == 0x00000200)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(119, flashImagesRequest_);
+    }
+    if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(120, getChannelPipelinesRequest_);
+    }
+    if (((bitField0_ & 0x00000800) == 0x00000800)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(121, resetNodesRequest_);
+    }
+    if (((bitField0_ & 0x00001000) == 0x00001000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(122, sendDownstreamMessagesRequest_);
+    }
+    if (((bitField0_ & 0x00002000) == 0x00002000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(123, setChannelPipelinesRequest_);
+    }
+    if (((bitField0_ & 0x00004000) == 0x00004000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(130, progress_);
+    }
+    if (((bitField0_ & 0x00008000) == 0x00008000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(131, response_);
+    }
+    if (((bitField0_ & 0x00010000) == 0x00010000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(132, getChannelPipelinesResponse_);
+    }
+    if (((bitField0_ & 0x00020000) == 0x00020000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(140, upstreamMessageEvent_);
+    }
+    if (((bitField0_ & 0x00040000) == 0x00040000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(150, devicesAttachedEvent_);
+    }
+    if (((bitField0_ & 0x00080000) == 0x00080000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(151, devicesDetachedEvent_);
+    }
+    if (((bitField0_ & 0x00100000) == 0x00100000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(152, gatewayConnectedEvent_);
+    }
+    if (((bitField0_ & 0x00200000) == 0x00200000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(153, gatewayDisconnectedEvent_);
+    }
+    if (((bitField0_ & 0x00400000) == 0x00400000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(160, notificationEvent_);
+    }
+    if (((bitField0_ & 0x00800000) == 0x00800000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(170, reservationStartedEvent_);
+    }
+    if (((bitField0_ & 0x01000000) == 0x01000000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(171, reservationEndedEvent_);
+    }
+    if (((bitField0_ & 0x02000000) == 0x02000000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(172, reservationMadeEvent_);
+    }
+    if (((bitField0_ & 0x04000000) == 0x04000000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(173, reservationCancelledEvent_);
+    }
+    if (((bitField0_ & 0x08000000) == 0x08000000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(174, reservationOpenedEvent_);
+    }
+    if (((bitField0_ & 0x10000000) == 0x10000000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(175, reservationClosedEvent_);
+    }
+    if (((bitField0_ & 0x20000000) == 0x20000000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(176, reservationFinalizedEvent_);
+    }
+    if (((bitField0_ & 0x40000000) == 0x40000000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(180, deviceConfigCreatedEvent_);
+    }
+    if (((bitField0_ & 0x80000000) == 0x80000000)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(181, deviceConfigUpdatedEvent_);
+    }
+    if (((bitField1_ & 0x00000001) == 0x00000001)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(182, deviceConfigDeletedEvent_);
+    }
+    if (((bitField1_ & 0x00000002) == 0x00000002)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(190, eventAck_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -441,11 +1252,38 @@ public  final class Message extends
     }
     private void maybeForceBuilderInitialization() {
       if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
-        getRequestFieldBuilder();
+        getAreNodesAliveRequestFieldBuilder();
+        getAreNodesConnectedRequestFieldBuilder();
+        getDisableNodesRequestFieldBuilder();
+        getDisableVirtualLinksRequestFieldBuilder();
+        getDisablePhysicalLinksRequestFieldBuilder();
+        getEnableNodesRequestFieldBuilder();
+        getEnablePhysicalLinksRequestFieldBuilder();
+        getEnableVirtualLinksRequestFieldBuilder();
+        getFlashImagesRequestFieldBuilder();
+        getGetChannelPipelinesRequestFieldBuilder();
+        getResetNodesRequestFieldBuilder();
+        getSendDownstreamMessagesRequestFieldBuilder();
+        getSetChannelPipelinesRequestFieldBuilder();
         getProgressFieldBuilder();
         getResponseFieldBuilder();
         getGetChannelPipelinesResponseFieldBuilder();
-        getEventFieldBuilder();
+        getUpstreamMessageEventFieldBuilder();
+        getDevicesAttachedEventFieldBuilder();
+        getDevicesDetachedEventFieldBuilder();
+        getGatewayConnectedEventFieldBuilder();
+        getGatewayDisconnectedEventFieldBuilder();
+        getNotificationEventFieldBuilder();
+        getReservationStartedEventFieldBuilder();
+        getReservationEndedEventFieldBuilder();
+        getReservationMadeEventFieldBuilder();
+        getReservationCancelledEventFieldBuilder();
+        getReservationOpenedEventFieldBuilder();
+        getReservationClosedEventFieldBuilder();
+        getReservationFinalizedEventFieldBuilder();
+        getDeviceConfigCreatedEventFieldBuilder();
+        getDeviceConfigUpdatedEventFieldBuilder();
+        getDeviceConfigDeletedEventFieldBuilder();
         getEventAckFieldBuilder();
       }
     }
@@ -455,44 +1293,206 @@ public  final class Message extends
     
     public Builder clear() {
       super.clear();
-      type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.REQUEST;
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.KEEP_ALIVE;
       bitField0_ = (bitField0_ & ~0x00000001);
-      if (requestBuilder_ == null) {
-        request_ = de.uniluebeck.itm.tr.iwsn.messages.Request.getDefaultInstance();
+      if (areNodesAliveRequestBuilder_ == null) {
+        areNodesAliveRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.getDefaultInstance();
       } else {
-        requestBuilder_.clear();
+        areNodesAliveRequestBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000002);
+      if (areNodesConnectedRequestBuilder_ == null) {
+        areNodesConnectedRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.getDefaultInstance();
+      } else {
+        areNodesConnectedRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000004);
+      if (disableNodesRequestBuilder_ == null) {
+        disableNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.getDefaultInstance();
+      } else {
+        disableNodesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000008);
+      if (disableVirtualLinksRequestBuilder_ == null) {
+        disableVirtualLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.getDefaultInstance();
+      } else {
+        disableVirtualLinksRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000010);
+      if (disablePhysicalLinksRequestBuilder_ == null) {
+        disablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.getDefaultInstance();
+      } else {
+        disablePhysicalLinksRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000020);
+      if (enableNodesRequestBuilder_ == null) {
+        enableNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.getDefaultInstance();
+      } else {
+        enableNodesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000040);
+      if (enablePhysicalLinksRequestBuilder_ == null) {
+        enablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.getDefaultInstance();
+      } else {
+        enablePhysicalLinksRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000080);
+      if (enableVirtualLinksRequestBuilder_ == null) {
+        enableVirtualLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.getDefaultInstance();
+      } else {
+        enableVirtualLinksRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000100);
+      if (flashImagesRequestBuilder_ == null) {
+        flashImagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.getDefaultInstance();
+      } else {
+        flashImagesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000200);
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        getChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.getDefaultInstance();
+      } else {
+        getChannelPipelinesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000400);
+      if (resetNodesRequestBuilder_ == null) {
+        resetNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.getDefaultInstance();
+      } else {
+        resetNodesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000800);
+      if (sendDownstreamMessagesRequestBuilder_ == null) {
+        sendDownstreamMessagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance();
+      } else {
+        sendDownstreamMessagesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00001000);
+      if (setChannelPipelinesRequestBuilder_ == null) {
+        setChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.getDefaultInstance();
+      } else {
+        setChannelPipelinesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00002000);
       if (progressBuilder_ == null) {
         progress_ = de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.getDefaultInstance();
       } else {
         progressBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000004);
+      bitField0_ = (bitField0_ & ~0x00004000);
       if (responseBuilder_ == null) {
         response_ = de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.getDefaultInstance();
       } else {
         responseBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000008);
+      bitField0_ = (bitField0_ & ~0x00008000);
       if (getChannelPipelinesResponseBuilder_ == null) {
         getChannelPipelinesResponse_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.getDefaultInstance();
       } else {
         getChannelPipelinesResponseBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000010);
-      if (eventBuilder_ == null) {
-        event_ = de.uniluebeck.itm.tr.iwsn.messages.Event.getDefaultInstance();
+      bitField0_ = (bitField0_ & ~0x00010000);
+      if (upstreamMessageEventBuilder_ == null) {
+        upstreamMessageEvent_ = de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.getDefaultInstance();
       } else {
-        eventBuilder_.clear();
+        upstreamMessageEventBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000020);
+      bitField0_ = (bitField0_ & ~0x00020000);
+      if (devicesAttachedEventBuilder_ == null) {
+        devicesAttachedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.getDefaultInstance();
+      } else {
+        devicesAttachedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00040000);
+      if (devicesDetachedEventBuilder_ == null) {
+        devicesDetachedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.getDefaultInstance();
+      } else {
+        devicesDetachedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00080000);
+      if (gatewayConnectedEventBuilder_ == null) {
+        gatewayConnectedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.getDefaultInstance();
+      } else {
+        gatewayConnectedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00100000);
+      if (gatewayDisconnectedEventBuilder_ == null) {
+        gatewayDisconnectedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.getDefaultInstance();
+      } else {
+        gatewayDisconnectedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00200000);
+      if (notificationEventBuilder_ == null) {
+        notificationEvent_ = de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.getDefaultInstance();
+      } else {
+        notificationEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00400000);
+      if (reservationStartedEventBuilder_ == null) {
+        reservationStartedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance();
+      } else {
+        reservationStartedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00800000);
+      if (reservationEndedEventBuilder_ == null) {
+        reservationEndedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
+      } else {
+        reservationEndedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x01000000);
+      if (reservationMadeEventBuilder_ == null) {
+        reservationMadeEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.getDefaultInstance();
+      } else {
+        reservationMadeEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x02000000);
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
+      } else {
+        reservationCancelledEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x04000000);
+      if (reservationOpenedEventBuilder_ == null) {
+        reservationOpenedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance();
+      } else {
+        reservationOpenedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x08000000);
+      if (reservationClosedEventBuilder_ == null) {
+        reservationClosedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.getDefaultInstance();
+      } else {
+        reservationClosedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x10000000);
+      if (reservationFinalizedEventBuilder_ == null) {
+        reservationFinalizedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.getDefaultInstance();
+      } else {
+        reservationFinalizedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x20000000);
+      if (deviceConfigCreatedEventBuilder_ == null) {
+        deviceConfigCreatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.getDefaultInstance();
+      } else {
+        deviceConfigCreatedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x40000000);
+      if (deviceConfigUpdatedEventBuilder_ == null) {
+        deviceConfigUpdatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.getDefaultInstance();
+      } else {
+        deviceConfigUpdatedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x80000000);
+      if (deviceConfigDeletedEventBuilder_ == null) {
+        deviceConfigDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.getDefaultInstance();
+      } else {
+        deviceConfigDeletedEventBuilder_.clear();
+      }
+      bitField1_ = (bitField1_ & ~0x00000001);
       if (eventAckBuilder_ == null) {
         eventAck_ = de.uniluebeck.itm.tr.iwsn.messages.EventAck.getDefaultInstance();
       } else {
         eventAckBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000040);
+      bitField1_ = (bitField1_ & ~0x00000002);
       return this;
     }
     
@@ -530,7 +1530,9 @@ public  final class Message extends
     public de.uniluebeck.itm.tr.iwsn.messages.Message buildPartial() {
       de.uniluebeck.itm.tr.iwsn.messages.Message result = new de.uniluebeck.itm.tr.iwsn.messages.Message(this);
       int from_bitField0_ = bitField0_;
+      int from_bitField1_ = bitField1_;
       int to_bitField0_ = 0;
+      int to_bitField1_ = 0;
       if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
         to_bitField0_ |= 0x00000001;
       }
@@ -538,45 +1540,261 @@ public  final class Message extends
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000002;
       }
-      if (requestBuilder_ == null) {
-        result.request_ = request_;
+      if (areNodesAliveRequestBuilder_ == null) {
+        result.areNodesAliveRequest_ = areNodesAliveRequest_;
       } else {
-        result.request_ = requestBuilder_.build();
+        result.areNodesAliveRequest_ = areNodesAliveRequestBuilder_.build();
       }
       if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
         to_bitField0_ |= 0x00000004;
+      }
+      if (areNodesConnectedRequestBuilder_ == null) {
+        result.areNodesConnectedRequest_ = areNodesConnectedRequest_;
+      } else {
+        result.areNodesConnectedRequest_ = areNodesConnectedRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+        to_bitField0_ |= 0x00000008;
+      }
+      if (disableNodesRequestBuilder_ == null) {
+        result.disableNodesRequest_ = disableNodesRequest_;
+      } else {
+        result.disableNodesRequest_ = disableNodesRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+        to_bitField0_ |= 0x00000010;
+      }
+      if (disableVirtualLinksRequestBuilder_ == null) {
+        result.disableVirtualLinksRequest_ = disableVirtualLinksRequest_;
+      } else {
+        result.disableVirtualLinksRequest_ = disableVirtualLinksRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+        to_bitField0_ |= 0x00000020;
+      }
+      if (disablePhysicalLinksRequestBuilder_ == null) {
+        result.disablePhysicalLinksRequest_ = disablePhysicalLinksRequest_;
+      } else {
+        result.disablePhysicalLinksRequest_ = disablePhysicalLinksRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+        to_bitField0_ |= 0x00000040;
+      }
+      if (enableNodesRequestBuilder_ == null) {
+        result.enableNodesRequest_ = enableNodesRequest_;
+      } else {
+        result.enableNodesRequest_ = enableNodesRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        to_bitField0_ |= 0x00000080;
+      }
+      if (enablePhysicalLinksRequestBuilder_ == null) {
+        result.enablePhysicalLinksRequest_ = enablePhysicalLinksRequest_;
+      } else {
+        result.enablePhysicalLinksRequest_ = enablePhysicalLinksRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+        to_bitField0_ |= 0x00000100;
+      }
+      if (enableVirtualLinksRequestBuilder_ == null) {
+        result.enableVirtualLinksRequest_ = enableVirtualLinksRequest_;
+      } else {
+        result.enableVirtualLinksRequest_ = enableVirtualLinksRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+        to_bitField0_ |= 0x00000200;
+      }
+      if (flashImagesRequestBuilder_ == null) {
+        result.flashImagesRequest_ = flashImagesRequest_;
+      } else {
+        result.flashImagesRequest_ = flashImagesRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+        to_bitField0_ |= 0x00000400;
+      }
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        result.getChannelPipelinesRequest_ = getChannelPipelinesRequest_;
+      } else {
+        result.getChannelPipelinesRequest_ = getChannelPipelinesRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+        to_bitField0_ |= 0x00000800;
+      }
+      if (resetNodesRequestBuilder_ == null) {
+        result.resetNodesRequest_ = resetNodesRequest_;
+      } else {
+        result.resetNodesRequest_ = resetNodesRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00001000) == 0x00001000)) {
+        to_bitField0_ |= 0x00001000;
+      }
+      if (sendDownstreamMessagesRequestBuilder_ == null) {
+        result.sendDownstreamMessagesRequest_ = sendDownstreamMessagesRequest_;
+      } else {
+        result.sendDownstreamMessagesRequest_ = sendDownstreamMessagesRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00002000) == 0x00002000)) {
+        to_bitField0_ |= 0x00002000;
+      }
+      if (setChannelPipelinesRequestBuilder_ == null) {
+        result.setChannelPipelinesRequest_ = setChannelPipelinesRequest_;
+      } else {
+        result.setChannelPipelinesRequest_ = setChannelPipelinesRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
+        to_bitField0_ |= 0x00004000;
       }
       if (progressBuilder_ == null) {
         result.progress_ = progress_;
       } else {
         result.progress_ = progressBuilder_.build();
       }
-      if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-        to_bitField0_ |= 0x00000008;
+      if (((from_bitField0_ & 0x00008000) == 0x00008000)) {
+        to_bitField0_ |= 0x00008000;
       }
       if (responseBuilder_ == null) {
         result.response_ = response_;
       } else {
         result.response_ = responseBuilder_.build();
       }
-      if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-        to_bitField0_ |= 0x00000010;
+      if (((from_bitField0_ & 0x00010000) == 0x00010000)) {
+        to_bitField0_ |= 0x00010000;
       }
       if (getChannelPipelinesResponseBuilder_ == null) {
         result.getChannelPipelinesResponse_ = getChannelPipelinesResponse_;
       } else {
         result.getChannelPipelinesResponse_ = getChannelPipelinesResponseBuilder_.build();
       }
-      if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
-        to_bitField0_ |= 0x00000020;
+      if (((from_bitField0_ & 0x00020000) == 0x00020000)) {
+        to_bitField0_ |= 0x00020000;
       }
-      if (eventBuilder_ == null) {
-        result.event_ = event_;
+      if (upstreamMessageEventBuilder_ == null) {
+        result.upstreamMessageEvent_ = upstreamMessageEvent_;
       } else {
-        result.event_ = eventBuilder_.build();
+        result.upstreamMessageEvent_ = upstreamMessageEventBuilder_.build();
       }
-      if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
-        to_bitField0_ |= 0x00000040;
+      if (((from_bitField0_ & 0x00040000) == 0x00040000)) {
+        to_bitField0_ |= 0x00040000;
+      }
+      if (devicesAttachedEventBuilder_ == null) {
+        result.devicesAttachedEvent_ = devicesAttachedEvent_;
+      } else {
+        result.devicesAttachedEvent_ = devicesAttachedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00080000) == 0x00080000)) {
+        to_bitField0_ |= 0x00080000;
+      }
+      if (devicesDetachedEventBuilder_ == null) {
+        result.devicesDetachedEvent_ = devicesDetachedEvent_;
+      } else {
+        result.devicesDetachedEvent_ = devicesDetachedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00100000) == 0x00100000)) {
+        to_bitField0_ |= 0x00100000;
+      }
+      if (gatewayConnectedEventBuilder_ == null) {
+        result.gatewayConnectedEvent_ = gatewayConnectedEvent_;
+      } else {
+        result.gatewayConnectedEvent_ = gatewayConnectedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00200000) == 0x00200000)) {
+        to_bitField0_ |= 0x00200000;
+      }
+      if (gatewayDisconnectedEventBuilder_ == null) {
+        result.gatewayDisconnectedEvent_ = gatewayDisconnectedEvent_;
+      } else {
+        result.gatewayDisconnectedEvent_ = gatewayDisconnectedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00400000) == 0x00400000)) {
+        to_bitField0_ |= 0x00400000;
+      }
+      if (notificationEventBuilder_ == null) {
+        result.notificationEvent_ = notificationEvent_;
+      } else {
+        result.notificationEvent_ = notificationEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00800000) == 0x00800000)) {
+        to_bitField0_ |= 0x00800000;
+      }
+      if (reservationStartedEventBuilder_ == null) {
+        result.reservationStartedEvent_ = reservationStartedEvent_;
+      } else {
+        result.reservationStartedEvent_ = reservationStartedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x01000000) == 0x01000000)) {
+        to_bitField0_ |= 0x01000000;
+      }
+      if (reservationEndedEventBuilder_ == null) {
+        result.reservationEndedEvent_ = reservationEndedEvent_;
+      } else {
+        result.reservationEndedEvent_ = reservationEndedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x02000000) == 0x02000000)) {
+        to_bitField0_ |= 0x02000000;
+      }
+      if (reservationMadeEventBuilder_ == null) {
+        result.reservationMadeEvent_ = reservationMadeEvent_;
+      } else {
+        result.reservationMadeEvent_ = reservationMadeEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x04000000) == 0x04000000)) {
+        to_bitField0_ |= 0x04000000;
+      }
+      if (reservationCancelledEventBuilder_ == null) {
+        result.reservationCancelledEvent_ = reservationCancelledEvent_;
+      } else {
+        result.reservationCancelledEvent_ = reservationCancelledEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x08000000) == 0x08000000)) {
+        to_bitField0_ |= 0x08000000;
+      }
+      if (reservationOpenedEventBuilder_ == null) {
+        result.reservationOpenedEvent_ = reservationOpenedEvent_;
+      } else {
+        result.reservationOpenedEvent_ = reservationOpenedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x10000000) == 0x10000000)) {
+        to_bitField0_ |= 0x10000000;
+      }
+      if (reservationClosedEventBuilder_ == null) {
+        result.reservationClosedEvent_ = reservationClosedEvent_;
+      } else {
+        result.reservationClosedEvent_ = reservationClosedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x20000000) == 0x20000000)) {
+        to_bitField0_ |= 0x20000000;
+      }
+      if (reservationFinalizedEventBuilder_ == null) {
+        result.reservationFinalizedEvent_ = reservationFinalizedEvent_;
+      } else {
+        result.reservationFinalizedEvent_ = reservationFinalizedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x40000000) == 0x40000000)) {
+        to_bitField0_ |= 0x40000000;
+      }
+      if (deviceConfigCreatedEventBuilder_ == null) {
+        result.deviceConfigCreatedEvent_ = deviceConfigCreatedEvent_;
+      } else {
+        result.deviceConfigCreatedEvent_ = deviceConfigCreatedEventBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x80000000) == 0x80000000)) {
+        to_bitField0_ |= 0x80000000;
+      }
+      if (deviceConfigUpdatedEventBuilder_ == null) {
+        result.deviceConfigUpdatedEvent_ = deviceConfigUpdatedEvent_;
+      } else {
+        result.deviceConfigUpdatedEvent_ = deviceConfigUpdatedEventBuilder_.build();
+      }
+      if (((from_bitField1_ & 0x00000001) == 0x00000001)) {
+        to_bitField1_ |= 0x00000001;
+      }
+      if (deviceConfigDeletedEventBuilder_ == null) {
+        result.deviceConfigDeletedEvent_ = deviceConfigDeletedEvent_;
+      } else {
+        result.deviceConfigDeletedEvent_ = deviceConfigDeletedEventBuilder_.build();
+      }
+      if (((from_bitField1_ & 0x00000002) == 0x00000002)) {
+        to_bitField1_ |= 0x00000002;
       }
       if (eventAckBuilder_ == null) {
         result.eventAck_ = eventAck_;
@@ -584,6 +1802,7 @@ public  final class Message extends
         result.eventAck_ = eventAckBuilder_.build();
       }
       result.bitField0_ = to_bitField0_;
+      result.bitField1_ = to_bitField1_;
       onBuilt();
       return result;
     }
@@ -602,8 +1821,44 @@ public  final class Message extends
       if (other.hasType()) {
         setType(other.getType());
       }
-      if (other.hasRequest()) {
-        mergeRequest(other.getRequest());
+      if (other.hasAreNodesAliveRequest()) {
+        mergeAreNodesAliveRequest(other.getAreNodesAliveRequest());
+      }
+      if (other.hasAreNodesConnectedRequest()) {
+        mergeAreNodesConnectedRequest(other.getAreNodesConnectedRequest());
+      }
+      if (other.hasDisableNodesRequest()) {
+        mergeDisableNodesRequest(other.getDisableNodesRequest());
+      }
+      if (other.hasDisableVirtualLinksRequest()) {
+        mergeDisableVirtualLinksRequest(other.getDisableVirtualLinksRequest());
+      }
+      if (other.hasDisablePhysicalLinksRequest()) {
+        mergeDisablePhysicalLinksRequest(other.getDisablePhysicalLinksRequest());
+      }
+      if (other.hasEnableNodesRequest()) {
+        mergeEnableNodesRequest(other.getEnableNodesRequest());
+      }
+      if (other.hasEnablePhysicalLinksRequest()) {
+        mergeEnablePhysicalLinksRequest(other.getEnablePhysicalLinksRequest());
+      }
+      if (other.hasEnableVirtualLinksRequest()) {
+        mergeEnableVirtualLinksRequest(other.getEnableVirtualLinksRequest());
+      }
+      if (other.hasFlashImagesRequest()) {
+        mergeFlashImagesRequest(other.getFlashImagesRequest());
+      }
+      if (other.hasGetChannelPipelinesRequest()) {
+        mergeGetChannelPipelinesRequest(other.getGetChannelPipelinesRequest());
+      }
+      if (other.hasResetNodesRequest()) {
+        mergeResetNodesRequest(other.getResetNodesRequest());
+      }
+      if (other.hasSendDownstreamMessagesRequest()) {
+        mergeSendDownstreamMessagesRequest(other.getSendDownstreamMessagesRequest());
+      }
+      if (other.hasSetChannelPipelinesRequest()) {
+        mergeSetChannelPipelinesRequest(other.getSetChannelPipelinesRequest());
       }
       if (other.hasProgress()) {
         mergeProgress(other.getProgress());
@@ -614,8 +1869,53 @@ public  final class Message extends
       if (other.hasGetChannelPipelinesResponse()) {
         mergeGetChannelPipelinesResponse(other.getGetChannelPipelinesResponse());
       }
-      if (other.hasEvent()) {
-        mergeEvent(other.getEvent());
+      if (other.hasUpstreamMessageEvent()) {
+        mergeUpstreamMessageEvent(other.getUpstreamMessageEvent());
+      }
+      if (other.hasDevicesAttachedEvent()) {
+        mergeDevicesAttachedEvent(other.getDevicesAttachedEvent());
+      }
+      if (other.hasDevicesDetachedEvent()) {
+        mergeDevicesDetachedEvent(other.getDevicesDetachedEvent());
+      }
+      if (other.hasGatewayConnectedEvent()) {
+        mergeGatewayConnectedEvent(other.getGatewayConnectedEvent());
+      }
+      if (other.hasGatewayDisconnectedEvent()) {
+        mergeGatewayDisconnectedEvent(other.getGatewayDisconnectedEvent());
+      }
+      if (other.hasNotificationEvent()) {
+        mergeNotificationEvent(other.getNotificationEvent());
+      }
+      if (other.hasReservationStartedEvent()) {
+        mergeReservationStartedEvent(other.getReservationStartedEvent());
+      }
+      if (other.hasReservationEndedEvent()) {
+        mergeReservationEndedEvent(other.getReservationEndedEvent());
+      }
+      if (other.hasReservationMadeEvent()) {
+        mergeReservationMadeEvent(other.getReservationMadeEvent());
+      }
+      if (other.hasReservationCancelledEvent()) {
+        mergeReservationCancelledEvent(other.getReservationCancelledEvent());
+      }
+      if (other.hasReservationOpenedEvent()) {
+        mergeReservationOpenedEvent(other.getReservationOpenedEvent());
+      }
+      if (other.hasReservationClosedEvent()) {
+        mergeReservationClosedEvent(other.getReservationClosedEvent());
+      }
+      if (other.hasReservationFinalizedEvent()) {
+        mergeReservationFinalizedEvent(other.getReservationFinalizedEvent());
+      }
+      if (other.hasDeviceConfigCreatedEvent()) {
+        mergeDeviceConfigCreatedEvent(other.getDeviceConfigCreatedEvent());
+      }
+      if (other.hasDeviceConfigUpdatedEvent()) {
+        mergeDeviceConfigUpdatedEvent(other.getDeviceConfigUpdatedEvent());
+      }
+      if (other.hasDeviceConfigDeletedEvent()) {
+        mergeDeviceConfigDeletedEvent(other.getDeviceConfigDeletedEvent());
       }
       if (other.hasEventAck()) {
         mergeEventAck(other.getEventAck());
@@ -629,8 +1929,80 @@ public  final class Message extends
         
         return false;
       }
-      if (hasRequest()) {
-        if (!getRequest().isInitialized()) {
+      if (hasAreNodesAliveRequest()) {
+        if (!getAreNodesAliveRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasAreNodesConnectedRequest()) {
+        if (!getAreNodesConnectedRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasDisableNodesRequest()) {
+        if (!getDisableNodesRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasDisableVirtualLinksRequest()) {
+        if (!getDisableVirtualLinksRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasDisablePhysicalLinksRequest()) {
+        if (!getDisablePhysicalLinksRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasEnableNodesRequest()) {
+        if (!getEnableNodesRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasEnablePhysicalLinksRequest()) {
+        if (!getEnablePhysicalLinksRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasEnableVirtualLinksRequest()) {
+        if (!getEnableVirtualLinksRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasFlashImagesRequest()) {
+        if (!getFlashImagesRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasGetChannelPipelinesRequest()) {
+        if (!getGetChannelPipelinesRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasResetNodesRequest()) {
+        if (!getResetNodesRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasSendDownstreamMessagesRequest()) {
+        if (!getSendDownstreamMessagesRequest().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasSetChannelPipelinesRequest()) {
+        if (!getSetChannelPipelinesRequest().isInitialized()) {
           
           return false;
         }
@@ -653,8 +2025,98 @@ public  final class Message extends
           return false;
         }
       }
-      if (hasEvent()) {
-        if (!getEvent().isInitialized()) {
+      if (hasUpstreamMessageEvent()) {
+        if (!getUpstreamMessageEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasDevicesAttachedEvent()) {
+        if (!getDevicesAttachedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasDevicesDetachedEvent()) {
+        if (!getDevicesDetachedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasGatewayConnectedEvent()) {
+        if (!getGatewayConnectedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasGatewayDisconnectedEvent()) {
+        if (!getGatewayDisconnectedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasNotificationEvent()) {
+        if (!getNotificationEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationStartedEvent()) {
+        if (!getReservationStartedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationEndedEvent()) {
+        if (!getReservationEndedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationMadeEvent()) {
+        if (!getReservationMadeEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationCancelledEvent()) {
+        if (!getReservationCancelledEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationOpenedEvent()) {
+        if (!getReservationOpenedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationClosedEvent()) {
+        if (!getReservationClosedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasReservationFinalizedEvent()) {
+        if (!getReservationFinalizedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasDeviceConfigCreatedEvent()) {
+        if (!getDeviceConfigCreatedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasDeviceConfigUpdatedEvent()) {
+        if (!getDeviceConfigUpdatedEvent().isInitialized()) {
+          
+          return false;
+        }
+      }
+      if (hasDeviceConfigDeletedEvent()) {
+        if (!getDeviceConfigDeletedEvent().isInitialized()) {
           
           return false;
         }
@@ -702,16 +2164,124 @@ public  final class Message extends
             }
             break;
           }
-          case 810: {
-            de.uniluebeck.itm.tr.iwsn.messages.Request.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.Request.newBuilder();
-            if (hasRequest()) {
-              subBuilder.mergeFrom(getRequest());
+          case 890: {
+            de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.newBuilder();
+            if (hasAreNodesAliveRequest()) {
+              subBuilder.mergeFrom(getAreNodesAliveRequest());
             }
             input.readMessage(subBuilder, extensionRegistry);
-            setRequest(subBuilder.buildPartial());
+            setAreNodesAliveRequest(subBuilder.buildPartial());
             break;
           }
-          case 818: {
+          case 898: {
+            de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.newBuilder();
+            if (hasAreNodesConnectedRequest()) {
+              subBuilder.mergeFrom(getAreNodesConnectedRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setAreNodesConnectedRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 906: {
+            de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.newBuilder();
+            if (hasDisableNodesRequest()) {
+              subBuilder.mergeFrom(getDisableNodesRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setDisableNodesRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 914: {
+            de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.newBuilder();
+            if (hasDisableVirtualLinksRequest()) {
+              subBuilder.mergeFrom(getDisableVirtualLinksRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setDisableVirtualLinksRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 922: {
+            de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.newBuilder();
+            if (hasDisablePhysicalLinksRequest()) {
+              subBuilder.mergeFrom(getDisablePhysicalLinksRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setDisablePhysicalLinksRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 930: {
+            de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.newBuilder();
+            if (hasEnableNodesRequest()) {
+              subBuilder.mergeFrom(getEnableNodesRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setEnableNodesRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 938: {
+            de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.newBuilder();
+            if (hasEnablePhysicalLinksRequest()) {
+              subBuilder.mergeFrom(getEnablePhysicalLinksRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setEnablePhysicalLinksRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 946: {
+            de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.newBuilder();
+            if (hasEnableVirtualLinksRequest()) {
+              subBuilder.mergeFrom(getEnableVirtualLinksRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setEnableVirtualLinksRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 954: {
+            de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.newBuilder();
+            if (hasFlashImagesRequest()) {
+              subBuilder.mergeFrom(getFlashImagesRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setFlashImagesRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 962: {
+            de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.newBuilder();
+            if (hasGetChannelPipelinesRequest()) {
+              subBuilder.mergeFrom(getGetChannelPipelinesRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setGetChannelPipelinesRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 970: {
+            de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.newBuilder();
+            if (hasResetNodesRequest()) {
+              subBuilder.mergeFrom(getResetNodesRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setResetNodesRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 978: {
+            de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.newBuilder();
+            if (hasSendDownstreamMessagesRequest()) {
+              subBuilder.mergeFrom(getSendDownstreamMessagesRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setSendDownstreamMessagesRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 986: {
+            de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.newBuilder();
+            if (hasSetChannelPipelinesRequest()) {
+              subBuilder.mergeFrom(getSetChannelPipelinesRequest());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setSetChannelPipelinesRequest(subBuilder.buildPartial());
+            break;
+          }
+          case 1042: {
             de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.newBuilder();
             if (hasProgress()) {
               subBuilder.mergeFrom(getProgress());
@@ -720,7 +2290,7 @@ public  final class Message extends
             setProgress(subBuilder.buildPartial());
             break;
           }
-          case 826: {
+          case 1050: {
             de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.newBuilder();
             if (hasResponse()) {
               subBuilder.mergeFrom(getResponse());
@@ -729,7 +2299,7 @@ public  final class Message extends
             setResponse(subBuilder.buildPartial());
             break;
           }
-          case 834: {
+          case 1058: {
             de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.newBuilder();
             if (hasGetChannelPipelinesResponse()) {
               subBuilder.mergeFrom(getGetChannelPipelinesResponse());
@@ -738,16 +2308,151 @@ public  final class Message extends
             setGetChannelPipelinesResponse(subBuilder.buildPartial());
             break;
           }
-          case 842: {
-            de.uniluebeck.itm.tr.iwsn.messages.Event.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.Event.newBuilder();
-            if (hasEvent()) {
-              subBuilder.mergeFrom(getEvent());
+          case 1122: {
+            de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.newBuilder();
+            if (hasUpstreamMessageEvent()) {
+              subBuilder.mergeFrom(getUpstreamMessageEvent());
             }
             input.readMessage(subBuilder, extensionRegistry);
-            setEvent(subBuilder.buildPartial());
+            setUpstreamMessageEvent(subBuilder.buildPartial());
             break;
           }
-          case 850: {
+          case 1202: {
+            de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.newBuilder();
+            if (hasDevicesAttachedEvent()) {
+              subBuilder.mergeFrom(getDevicesAttachedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setDevicesAttachedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1210: {
+            de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.newBuilder();
+            if (hasDevicesDetachedEvent()) {
+              subBuilder.mergeFrom(getDevicesDetachedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setDevicesDetachedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1218: {
+            de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.newBuilder();
+            if (hasGatewayConnectedEvent()) {
+              subBuilder.mergeFrom(getGatewayConnectedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setGatewayConnectedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1226: {
+            de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.newBuilder();
+            if (hasGatewayDisconnectedEvent()) {
+              subBuilder.mergeFrom(getGatewayDisconnectedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setGatewayDisconnectedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1282: {
+            de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.newBuilder();
+            if (hasNotificationEvent()) {
+              subBuilder.mergeFrom(getNotificationEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setNotificationEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1362: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.newBuilder();
+            if (hasReservationStartedEvent()) {
+              subBuilder.mergeFrom(getReservationStartedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationStartedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1370: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.newBuilder();
+            if (hasReservationEndedEvent()) {
+              subBuilder.mergeFrom(getReservationEndedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationEndedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1378: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.newBuilder();
+            if (hasReservationMadeEvent()) {
+              subBuilder.mergeFrom(getReservationMadeEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationMadeEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1386: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.newBuilder();
+            if (hasReservationCancelledEvent()) {
+              subBuilder.mergeFrom(getReservationCancelledEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationCancelledEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1394: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.newBuilder();
+            if (hasReservationOpenedEvent()) {
+              subBuilder.mergeFrom(getReservationOpenedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationOpenedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1402: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.newBuilder();
+            if (hasReservationClosedEvent()) {
+              subBuilder.mergeFrom(getReservationClosedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationClosedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1410: {
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.newBuilder();
+            if (hasReservationFinalizedEvent()) {
+              subBuilder.mergeFrom(getReservationFinalizedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setReservationFinalizedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1442: {
+            de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.newBuilder();
+            if (hasDeviceConfigCreatedEvent()) {
+              subBuilder.mergeFrom(getDeviceConfigCreatedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setDeviceConfigCreatedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1450: {
+            de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.newBuilder();
+            if (hasDeviceConfigUpdatedEvent()) {
+              subBuilder.mergeFrom(getDeviceConfigUpdatedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setDeviceConfigUpdatedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1458: {
+            de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.newBuilder();
+            if (hasDeviceConfigDeletedEvent()) {
+              subBuilder.mergeFrom(getDeviceConfigDeletedEvent());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setDeviceConfigDeletedEvent(subBuilder.buildPartial());
+            break;
+          }
+          case 1522: {
             de.uniluebeck.itm.tr.iwsn.messages.EventAck.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.EventAck.newBuilder();
             if (hasEventAck()) {
               subBuilder.mergeFrom(getEventAck());
@@ -761,9 +2466,10 @@ public  final class Message extends
     }
     
     private int bitField0_;
+    private int bitField1_;
     
     // required .de.uniluebeck.itm.tr.iwsn.messages.Message.Type type = 1;
-    private de.uniluebeck.itm.tr.iwsn.messages.Message.Type type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.REQUEST;
+    private de.uniluebeck.itm.tr.iwsn.messages.Message.Type type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.KEEP_ALIVE;
     public boolean hasType() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
@@ -781,107 +2487,1187 @@ public  final class Message extends
     }
     public Builder clearType() {
       bitField0_ = (bitField0_ & ~0x00000001);
-      type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.REQUEST;
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.Message.Type.KEEP_ALIVE;
       onChanged();
       return this;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.Request request = 101;
-    private de.uniluebeck.itm.tr.iwsn.messages.Request request_ = de.uniluebeck.itm.tr.iwsn.messages.Request.getDefaultInstance();
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest areNodesAliveRequest = 111;
+    private de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest areNodesAliveRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.Request, de.uniluebeck.itm.tr.iwsn.messages.Request.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestOrBuilder> requestBuilder_;
-    public boolean hasRequest() {
+        de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest, de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequestOrBuilder> areNodesAliveRequestBuilder_;
+    public boolean hasAreNodesAliveRequest() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.Request getRequest() {
-      if (requestBuilder_ == null) {
-        return request_;
+    public de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest getAreNodesAliveRequest() {
+      if (areNodesAliveRequestBuilder_ == null) {
+        return areNodesAliveRequest_;
       } else {
-        return requestBuilder_.getMessage();
+        return areNodesAliveRequestBuilder_.getMessage();
       }
     }
-    public Builder setRequest(de.uniluebeck.itm.tr.iwsn.messages.Request value) {
-      if (requestBuilder_ == null) {
+    public Builder setAreNodesAliveRequest(de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest value) {
+      if (areNodesAliveRequestBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
         }
-        request_ = value;
+        areNodesAliveRequest_ = value;
         onChanged();
       } else {
-        requestBuilder_.setMessage(value);
+        areNodesAliveRequestBuilder_.setMessage(value);
       }
       bitField0_ |= 0x00000002;
       return this;
     }
-    public Builder setRequest(
-        de.uniluebeck.itm.tr.iwsn.messages.Request.Builder builderForValue) {
-      if (requestBuilder_ == null) {
-        request_ = builderForValue.build();
+    public Builder setAreNodesAliveRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.Builder builderForValue) {
+      if (areNodesAliveRequestBuilder_ == null) {
+        areNodesAliveRequest_ = builderForValue.build();
         onChanged();
       } else {
-        requestBuilder_.setMessage(builderForValue.build());
+        areNodesAliveRequestBuilder_.setMessage(builderForValue.build());
       }
       bitField0_ |= 0x00000002;
       return this;
     }
-    public Builder mergeRequest(de.uniluebeck.itm.tr.iwsn.messages.Request value) {
-      if (requestBuilder_ == null) {
+    public Builder mergeAreNodesAliveRequest(de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest value) {
+      if (areNodesAliveRequestBuilder_ == null) {
         if (((bitField0_ & 0x00000002) == 0x00000002) &&
-            request_ != de.uniluebeck.itm.tr.iwsn.messages.Request.getDefaultInstance()) {
-          request_ =
-            de.uniluebeck.itm.tr.iwsn.messages.Request.newBuilder(request_).mergeFrom(value).buildPartial();
+            areNodesAliveRequest_ != de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.getDefaultInstance()) {
+          areNodesAliveRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.newBuilder(areNodesAliveRequest_).mergeFrom(value).buildPartial();
         } else {
-          request_ = value;
+          areNodesAliveRequest_ = value;
         }
         onChanged();
       } else {
-        requestBuilder_.mergeFrom(value);
+        areNodesAliveRequestBuilder_.mergeFrom(value);
       }
       bitField0_ |= 0x00000002;
       return this;
     }
-    public Builder clearRequest() {
-      if (requestBuilder_ == null) {
-        request_ = de.uniluebeck.itm.tr.iwsn.messages.Request.getDefaultInstance();
+    public Builder clearAreNodesAliveRequest() {
+      if (areNodesAliveRequestBuilder_ == null) {
+        areNodesAliveRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.getDefaultInstance();
         onChanged();
       } else {
-        requestBuilder_.clear();
+        areNodesAliveRequestBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.Request.Builder getRequestBuilder() {
+    public de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.Builder getAreNodesAliveRequestBuilder() {
       bitField0_ |= 0x00000002;
       onChanged();
-      return getRequestFieldBuilder().getBuilder();
+      return getAreNodesAliveRequestFieldBuilder().getBuilder();
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.RequestOrBuilder getRequestOrBuilder() {
-      if (requestBuilder_ != null) {
-        return requestBuilder_.getMessageOrBuilder();
+    public de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequestOrBuilder getAreNodesAliveRequestOrBuilder() {
+      if (areNodesAliveRequestBuilder_ != null) {
+        return areNodesAliveRequestBuilder_.getMessageOrBuilder();
       } else {
-        return request_;
+        return areNodesAliveRequest_;
       }
     }
     private com.google.protobuf.SingleFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.Request, de.uniluebeck.itm.tr.iwsn.messages.Request.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestOrBuilder> 
-        getRequestFieldBuilder() {
-      if (requestBuilder_ == null) {
-        requestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-            de.uniluebeck.itm.tr.iwsn.messages.Request, de.uniluebeck.itm.tr.iwsn.messages.Request.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestOrBuilder>(
-                request_,
+        de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest, de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequestOrBuilder> 
+        getAreNodesAliveRequestFieldBuilder() {
+      if (areNodesAliveRequestBuilder_ == null) {
+        areNodesAliveRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest, de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequestOrBuilder>(
+                areNodesAliveRequest_,
                 getParentForChildren(),
                 isClean());
-        request_ = null;
+        areNodesAliveRequest_ = null;
       }
-      return requestBuilder_;
+      return areNodesAliveRequestBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress progress = 102;
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest areNodesConnectedRequest = 112;
+    private de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest areNodesConnectedRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest, de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequestOrBuilder> areNodesConnectedRequestBuilder_;
+    public boolean hasAreNodesConnectedRequest() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest getAreNodesConnectedRequest() {
+      if (areNodesConnectedRequestBuilder_ == null) {
+        return areNodesConnectedRequest_;
+      } else {
+        return areNodesConnectedRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setAreNodesConnectedRequest(de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest value) {
+      if (areNodesConnectedRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        areNodesConnectedRequest_ = value;
+        onChanged();
+      } else {
+        areNodesConnectedRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000004;
+      return this;
+    }
+    public Builder setAreNodesConnectedRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.Builder builderForValue) {
+      if (areNodesConnectedRequestBuilder_ == null) {
+        areNodesConnectedRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        areNodesConnectedRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000004;
+      return this;
+    }
+    public Builder mergeAreNodesConnectedRequest(de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest value) {
+      if (areNodesConnectedRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000004) == 0x00000004) &&
+            areNodesConnectedRequest_ != de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.getDefaultInstance()) {
+          areNodesConnectedRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.newBuilder(areNodesConnectedRequest_).mergeFrom(value).buildPartial();
+        } else {
+          areNodesConnectedRequest_ = value;
+        }
+        onChanged();
+      } else {
+        areNodesConnectedRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000004;
+      return this;
+    }
+    public Builder clearAreNodesConnectedRequest() {
+      if (areNodesConnectedRequestBuilder_ == null) {
+        areNodesConnectedRequest_ = de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        areNodesConnectedRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000004);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.Builder getAreNodesConnectedRequestBuilder() {
+      bitField0_ |= 0x00000004;
+      onChanged();
+      return getAreNodesConnectedRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequestOrBuilder getAreNodesConnectedRequestOrBuilder() {
+      if (areNodesConnectedRequestBuilder_ != null) {
+        return areNodesConnectedRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return areNodesConnectedRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest, de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequestOrBuilder> 
+        getAreNodesConnectedRequestFieldBuilder() {
+      if (areNodesConnectedRequestBuilder_ == null) {
+        areNodesConnectedRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest, de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequestOrBuilder>(
+                areNodesConnectedRequest_,
+                getParentForChildren(),
+                isClean());
+        areNodesConnectedRequest_ = null;
+      }
+      return areNodesConnectedRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest disableNodesRequest = 113;
+    private de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest disableNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest, de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequestOrBuilder> disableNodesRequestBuilder_;
+    public boolean hasDisableNodesRequest() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest getDisableNodesRequest() {
+      if (disableNodesRequestBuilder_ == null) {
+        return disableNodesRequest_;
+      } else {
+        return disableNodesRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setDisableNodesRequest(de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest value) {
+      if (disableNodesRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        disableNodesRequest_ = value;
+        onChanged();
+      } else {
+        disableNodesRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000008;
+      return this;
+    }
+    public Builder setDisableNodesRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.Builder builderForValue) {
+      if (disableNodesRequestBuilder_ == null) {
+        disableNodesRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        disableNodesRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000008;
+      return this;
+    }
+    public Builder mergeDisableNodesRequest(de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest value) {
+      if (disableNodesRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000008) == 0x00000008) &&
+            disableNodesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.getDefaultInstance()) {
+          disableNodesRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.newBuilder(disableNodesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          disableNodesRequest_ = value;
+        }
+        onChanged();
+      } else {
+        disableNodesRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000008;
+      return this;
+    }
+    public Builder clearDisableNodesRequest() {
+      if (disableNodesRequestBuilder_ == null) {
+        disableNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        disableNodesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000008);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.Builder getDisableNodesRequestBuilder() {
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return getDisableNodesRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequestOrBuilder getDisableNodesRequestOrBuilder() {
+      if (disableNodesRequestBuilder_ != null) {
+        return disableNodesRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return disableNodesRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest, de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequestOrBuilder> 
+        getDisableNodesRequestFieldBuilder() {
+      if (disableNodesRequestBuilder_ == null) {
+        disableNodesRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest, de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequestOrBuilder>(
+                disableNodesRequest_,
+                getParentForChildren(),
+                isClean());
+        disableNodesRequest_ = null;
+      }
+      return disableNodesRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest disableVirtualLinksRequest = 114;
+    private de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest disableVirtualLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequestOrBuilder> disableVirtualLinksRequestBuilder_;
+    public boolean hasDisableVirtualLinksRequest() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest getDisableVirtualLinksRequest() {
+      if (disableVirtualLinksRequestBuilder_ == null) {
+        return disableVirtualLinksRequest_;
+      } else {
+        return disableVirtualLinksRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setDisableVirtualLinksRequest(de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest value) {
+      if (disableVirtualLinksRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        disableVirtualLinksRequest_ = value;
+        onChanged();
+      } else {
+        disableVirtualLinksRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000010;
+      return this;
+    }
+    public Builder setDisableVirtualLinksRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.Builder builderForValue) {
+      if (disableVirtualLinksRequestBuilder_ == null) {
+        disableVirtualLinksRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        disableVirtualLinksRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000010;
+      return this;
+    }
+    public Builder mergeDisableVirtualLinksRequest(de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest value) {
+      if (disableVirtualLinksRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000010) == 0x00000010) &&
+            disableVirtualLinksRequest_ != de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.getDefaultInstance()) {
+          disableVirtualLinksRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.newBuilder(disableVirtualLinksRequest_).mergeFrom(value).buildPartial();
+        } else {
+          disableVirtualLinksRequest_ = value;
+        }
+        onChanged();
+      } else {
+        disableVirtualLinksRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000010;
+      return this;
+    }
+    public Builder clearDisableVirtualLinksRequest() {
+      if (disableVirtualLinksRequestBuilder_ == null) {
+        disableVirtualLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        disableVirtualLinksRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000010);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.Builder getDisableVirtualLinksRequestBuilder() {
+      bitField0_ |= 0x00000010;
+      onChanged();
+      return getDisableVirtualLinksRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequestOrBuilder getDisableVirtualLinksRequestOrBuilder() {
+      if (disableVirtualLinksRequestBuilder_ != null) {
+        return disableVirtualLinksRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return disableVirtualLinksRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequestOrBuilder> 
+        getDisableVirtualLinksRequestFieldBuilder() {
+      if (disableVirtualLinksRequestBuilder_ == null) {
+        disableVirtualLinksRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequestOrBuilder>(
+                disableVirtualLinksRequest_,
+                getParentForChildren(),
+                isClean());
+        disableVirtualLinksRequest_ = null;
+      }
+      return disableVirtualLinksRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest disablePhysicalLinksRequest = 115;
+    private de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest disablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequestOrBuilder> disablePhysicalLinksRequestBuilder_;
+    public boolean hasDisablePhysicalLinksRequest() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest getDisablePhysicalLinksRequest() {
+      if (disablePhysicalLinksRequestBuilder_ == null) {
+        return disablePhysicalLinksRequest_;
+      } else {
+        return disablePhysicalLinksRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setDisablePhysicalLinksRequest(de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest value) {
+      if (disablePhysicalLinksRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        disablePhysicalLinksRequest_ = value;
+        onChanged();
+      } else {
+        disablePhysicalLinksRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000020;
+      return this;
+    }
+    public Builder setDisablePhysicalLinksRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.Builder builderForValue) {
+      if (disablePhysicalLinksRequestBuilder_ == null) {
+        disablePhysicalLinksRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        disablePhysicalLinksRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000020;
+      return this;
+    }
+    public Builder mergeDisablePhysicalLinksRequest(de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest value) {
+      if (disablePhysicalLinksRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000020) == 0x00000020) &&
+            disablePhysicalLinksRequest_ != de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.getDefaultInstance()) {
+          disablePhysicalLinksRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.newBuilder(disablePhysicalLinksRequest_).mergeFrom(value).buildPartial();
+        } else {
+          disablePhysicalLinksRequest_ = value;
+        }
+        onChanged();
+      } else {
+        disablePhysicalLinksRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000020;
+      return this;
+    }
+    public Builder clearDisablePhysicalLinksRequest() {
+      if (disablePhysicalLinksRequestBuilder_ == null) {
+        disablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        disablePhysicalLinksRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000020);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.Builder getDisablePhysicalLinksRequestBuilder() {
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return getDisablePhysicalLinksRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequestOrBuilder getDisablePhysicalLinksRequestOrBuilder() {
+      if (disablePhysicalLinksRequestBuilder_ != null) {
+        return disablePhysicalLinksRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return disablePhysicalLinksRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequestOrBuilder> 
+        getDisablePhysicalLinksRequestFieldBuilder() {
+      if (disablePhysicalLinksRequestBuilder_ == null) {
+        disablePhysicalLinksRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequestOrBuilder>(
+                disablePhysicalLinksRequest_,
+                getParentForChildren(),
+                isClean());
+        disablePhysicalLinksRequest_ = null;
+      }
+      return disablePhysicalLinksRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest enableNodesRequest = 116;
+    private de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest enableNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest, de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequestOrBuilder> enableNodesRequestBuilder_;
+    public boolean hasEnableNodesRequest() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest getEnableNodesRequest() {
+      if (enableNodesRequestBuilder_ == null) {
+        return enableNodesRequest_;
+      } else {
+        return enableNodesRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setEnableNodesRequest(de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest value) {
+      if (enableNodesRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        enableNodesRequest_ = value;
+        onChanged();
+      } else {
+        enableNodesRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000040;
+      return this;
+    }
+    public Builder setEnableNodesRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.Builder builderForValue) {
+      if (enableNodesRequestBuilder_ == null) {
+        enableNodesRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        enableNodesRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000040;
+      return this;
+    }
+    public Builder mergeEnableNodesRequest(de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest value) {
+      if (enableNodesRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000040) == 0x00000040) &&
+            enableNodesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.getDefaultInstance()) {
+          enableNodesRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.newBuilder(enableNodesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          enableNodesRequest_ = value;
+        }
+        onChanged();
+      } else {
+        enableNodesRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000040;
+      return this;
+    }
+    public Builder clearEnableNodesRequest() {
+      if (enableNodesRequestBuilder_ == null) {
+        enableNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        enableNodesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000040);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.Builder getEnableNodesRequestBuilder() {
+      bitField0_ |= 0x00000040;
+      onChanged();
+      return getEnableNodesRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequestOrBuilder getEnableNodesRequestOrBuilder() {
+      if (enableNodesRequestBuilder_ != null) {
+        return enableNodesRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return enableNodesRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest, de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequestOrBuilder> 
+        getEnableNodesRequestFieldBuilder() {
+      if (enableNodesRequestBuilder_ == null) {
+        enableNodesRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest, de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequestOrBuilder>(
+                enableNodesRequest_,
+                getParentForChildren(),
+                isClean());
+        enableNodesRequest_ = null;
+      }
+      return enableNodesRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest enablePhysicalLinksRequest = 117;
+    private de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest enablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequestOrBuilder> enablePhysicalLinksRequestBuilder_;
+    public boolean hasEnablePhysicalLinksRequest() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest getEnablePhysicalLinksRequest() {
+      if (enablePhysicalLinksRequestBuilder_ == null) {
+        return enablePhysicalLinksRequest_;
+      } else {
+        return enablePhysicalLinksRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setEnablePhysicalLinksRequest(de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest value) {
+      if (enablePhysicalLinksRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        enablePhysicalLinksRequest_ = value;
+        onChanged();
+      } else {
+        enablePhysicalLinksRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000080;
+      return this;
+    }
+    public Builder setEnablePhysicalLinksRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.Builder builderForValue) {
+      if (enablePhysicalLinksRequestBuilder_ == null) {
+        enablePhysicalLinksRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        enablePhysicalLinksRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000080;
+      return this;
+    }
+    public Builder mergeEnablePhysicalLinksRequest(de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest value) {
+      if (enablePhysicalLinksRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000080) == 0x00000080) &&
+            enablePhysicalLinksRequest_ != de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.getDefaultInstance()) {
+          enablePhysicalLinksRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.newBuilder(enablePhysicalLinksRequest_).mergeFrom(value).buildPartial();
+        } else {
+          enablePhysicalLinksRequest_ = value;
+        }
+        onChanged();
+      } else {
+        enablePhysicalLinksRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000080;
+      return this;
+    }
+    public Builder clearEnablePhysicalLinksRequest() {
+      if (enablePhysicalLinksRequestBuilder_ == null) {
+        enablePhysicalLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        enablePhysicalLinksRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000080);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.Builder getEnablePhysicalLinksRequestBuilder() {
+      bitField0_ |= 0x00000080;
+      onChanged();
+      return getEnablePhysicalLinksRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequestOrBuilder getEnablePhysicalLinksRequestOrBuilder() {
+      if (enablePhysicalLinksRequestBuilder_ != null) {
+        return enablePhysicalLinksRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return enablePhysicalLinksRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequestOrBuilder> 
+        getEnablePhysicalLinksRequestFieldBuilder() {
+      if (enablePhysicalLinksRequestBuilder_ == null) {
+        enablePhysicalLinksRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequestOrBuilder>(
+                enablePhysicalLinksRequest_,
+                getParentForChildren(),
+                isClean());
+        enablePhysicalLinksRequest_ = null;
+      }
+      return enablePhysicalLinksRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest enableVirtualLinksRequest = 118;
+    private de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest enableVirtualLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequestOrBuilder> enableVirtualLinksRequestBuilder_;
+    public boolean hasEnableVirtualLinksRequest() {
+      return ((bitField0_ & 0x00000100) == 0x00000100);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest getEnableVirtualLinksRequest() {
+      if (enableVirtualLinksRequestBuilder_ == null) {
+        return enableVirtualLinksRequest_;
+      } else {
+        return enableVirtualLinksRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setEnableVirtualLinksRequest(de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest value) {
+      if (enableVirtualLinksRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        enableVirtualLinksRequest_ = value;
+        onChanged();
+      } else {
+        enableVirtualLinksRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000100;
+      return this;
+    }
+    public Builder setEnableVirtualLinksRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.Builder builderForValue) {
+      if (enableVirtualLinksRequestBuilder_ == null) {
+        enableVirtualLinksRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        enableVirtualLinksRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000100;
+      return this;
+    }
+    public Builder mergeEnableVirtualLinksRequest(de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest value) {
+      if (enableVirtualLinksRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000100) == 0x00000100) &&
+            enableVirtualLinksRequest_ != de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.getDefaultInstance()) {
+          enableVirtualLinksRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.newBuilder(enableVirtualLinksRequest_).mergeFrom(value).buildPartial();
+        } else {
+          enableVirtualLinksRequest_ = value;
+        }
+        onChanged();
+      } else {
+        enableVirtualLinksRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000100;
+      return this;
+    }
+    public Builder clearEnableVirtualLinksRequest() {
+      if (enableVirtualLinksRequestBuilder_ == null) {
+        enableVirtualLinksRequest_ = de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        enableVirtualLinksRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000100);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.Builder getEnableVirtualLinksRequestBuilder() {
+      bitField0_ |= 0x00000100;
+      onChanged();
+      return getEnableVirtualLinksRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequestOrBuilder getEnableVirtualLinksRequestOrBuilder() {
+      if (enableVirtualLinksRequestBuilder_ != null) {
+        return enableVirtualLinksRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return enableVirtualLinksRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequestOrBuilder> 
+        getEnableVirtualLinksRequestFieldBuilder() {
+      if (enableVirtualLinksRequestBuilder_ == null) {
+        enableVirtualLinksRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest, de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequestOrBuilder>(
+                enableVirtualLinksRequest_,
+                getParentForChildren(),
+                isClean());
+        enableVirtualLinksRequest_ = null;
+      }
+      return enableVirtualLinksRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest flashImagesRequest = 119;
+    private de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest flashImagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest, de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequestOrBuilder> flashImagesRequestBuilder_;
+    public boolean hasFlashImagesRequest() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest getFlashImagesRequest() {
+      if (flashImagesRequestBuilder_ == null) {
+        return flashImagesRequest_;
+      } else {
+        return flashImagesRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setFlashImagesRequest(de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest value) {
+      if (flashImagesRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        flashImagesRequest_ = value;
+        onChanged();
+      } else {
+        flashImagesRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000200;
+      return this;
+    }
+    public Builder setFlashImagesRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.Builder builderForValue) {
+      if (flashImagesRequestBuilder_ == null) {
+        flashImagesRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        flashImagesRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000200;
+      return this;
+    }
+    public Builder mergeFlashImagesRequest(de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest value) {
+      if (flashImagesRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000200) == 0x00000200) &&
+            flashImagesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.getDefaultInstance()) {
+          flashImagesRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.newBuilder(flashImagesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          flashImagesRequest_ = value;
+        }
+        onChanged();
+      } else {
+        flashImagesRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000200;
+      return this;
+    }
+    public Builder clearFlashImagesRequest() {
+      if (flashImagesRequestBuilder_ == null) {
+        flashImagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        flashImagesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000200);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.Builder getFlashImagesRequestBuilder() {
+      bitField0_ |= 0x00000200;
+      onChanged();
+      return getFlashImagesRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequestOrBuilder getFlashImagesRequestOrBuilder() {
+      if (flashImagesRequestBuilder_ != null) {
+        return flashImagesRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return flashImagesRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest, de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequestOrBuilder> 
+        getFlashImagesRequestFieldBuilder() {
+      if (flashImagesRequestBuilder_ == null) {
+        flashImagesRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest, de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequestOrBuilder>(
+                flashImagesRequest_,
+                getParentForChildren(),
+                isClean());
+        flashImagesRequest_ = null;
+      }
+      return flashImagesRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getChannelPipelinesRequest = 120;
+    private de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder> getChannelPipelinesRequestBuilder_;
+    public boolean hasGetChannelPipelinesRequest() {
+      return ((bitField0_ & 0x00000400) == 0x00000400);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getGetChannelPipelinesRequest() {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        return getChannelPipelinesRequest_;
+      } else {
+        return getChannelPipelinesRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setGetChannelPipelinesRequest(de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest value) {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        getChannelPipelinesRequest_ = value;
+        onChanged();
+      } else {
+        getChannelPipelinesRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000400;
+      return this;
+    }
+    public Builder setGetChannelPipelinesRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder builderForValue) {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        getChannelPipelinesRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        getChannelPipelinesRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000400;
+      return this;
+    }
+    public Builder mergeGetChannelPipelinesRequest(de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest value) {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000400) == 0x00000400) &&
+            getChannelPipelinesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.getDefaultInstance()) {
+          getChannelPipelinesRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.newBuilder(getChannelPipelinesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          getChannelPipelinesRequest_ = value;
+        }
+        onChanged();
+      } else {
+        getChannelPipelinesRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000400;
+      return this;
+    }
+    public Builder clearGetChannelPipelinesRequest() {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        getChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        getChannelPipelinesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000400);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder getGetChannelPipelinesRequestBuilder() {
+      bitField0_ |= 0x00000400;
+      onChanged();
+      return getGetChannelPipelinesRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder getGetChannelPipelinesRequestOrBuilder() {
+      if (getChannelPipelinesRequestBuilder_ != null) {
+        return getChannelPipelinesRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return getChannelPipelinesRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder> 
+        getGetChannelPipelinesRequestFieldBuilder() {
+      if (getChannelPipelinesRequestBuilder_ == null) {
+        getChannelPipelinesRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder>(
+                getChannelPipelinesRequest_,
+                getParentForChildren(),
+                isClean());
+        getChannelPipelinesRequest_ = null;
+      }
+      return getChannelPipelinesRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 121;
+    private de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest, de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequestOrBuilder> resetNodesRequestBuilder_;
+    public boolean hasResetNodesRequest() {
+      return ((bitField0_ & 0x00000800) == 0x00000800);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest getResetNodesRequest() {
+      if (resetNodesRequestBuilder_ == null) {
+        return resetNodesRequest_;
+      } else {
+        return resetNodesRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setResetNodesRequest(de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest value) {
+      if (resetNodesRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        resetNodesRequest_ = value;
+        onChanged();
+      } else {
+        resetNodesRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000800;
+      return this;
+    }
+    public Builder setResetNodesRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.Builder builderForValue) {
+      if (resetNodesRequestBuilder_ == null) {
+        resetNodesRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        resetNodesRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000800;
+      return this;
+    }
+    public Builder mergeResetNodesRequest(de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest value) {
+      if (resetNodesRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00000800) == 0x00000800) &&
+            resetNodesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.getDefaultInstance()) {
+          resetNodesRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.newBuilder(resetNodesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          resetNodesRequest_ = value;
+        }
+        onChanged();
+      } else {
+        resetNodesRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000800;
+      return this;
+    }
+    public Builder clearResetNodesRequest() {
+      if (resetNodesRequestBuilder_ == null) {
+        resetNodesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        resetNodesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000800);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.Builder getResetNodesRequestBuilder() {
+      bitField0_ |= 0x00000800;
+      onChanged();
+      return getResetNodesRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequestOrBuilder getResetNodesRequestOrBuilder() {
+      if (resetNodesRequestBuilder_ != null) {
+        return resetNodesRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return resetNodesRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest, de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequestOrBuilder> 
+        getResetNodesRequestFieldBuilder() {
+      if (resetNodesRequestBuilder_ == null) {
+        resetNodesRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest, de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequestOrBuilder>(
+                resetNodesRequest_,
+                getParentForChildren(),
+                isClean());
+        resetNodesRequest_ = null;
+      }
+      return resetNodesRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 122;
+    private de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest, de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequestOrBuilder> sendDownstreamMessagesRequestBuilder_;
+    public boolean hasSendDownstreamMessagesRequest() {
+      return ((bitField0_ & 0x00001000) == 0x00001000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest getSendDownstreamMessagesRequest() {
+      if (sendDownstreamMessagesRequestBuilder_ == null) {
+        return sendDownstreamMessagesRequest_;
+      } else {
+        return sendDownstreamMessagesRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setSendDownstreamMessagesRequest(de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest value) {
+      if (sendDownstreamMessagesRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        sendDownstreamMessagesRequest_ = value;
+        onChanged();
+      } else {
+        sendDownstreamMessagesRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00001000;
+      return this;
+    }
+    public Builder setSendDownstreamMessagesRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.Builder builderForValue) {
+      if (sendDownstreamMessagesRequestBuilder_ == null) {
+        sendDownstreamMessagesRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        sendDownstreamMessagesRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00001000;
+      return this;
+    }
+    public Builder mergeSendDownstreamMessagesRequest(de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest value) {
+      if (sendDownstreamMessagesRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00001000) == 0x00001000) &&
+            sendDownstreamMessagesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance()) {
+          sendDownstreamMessagesRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.newBuilder(sendDownstreamMessagesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          sendDownstreamMessagesRequest_ = value;
+        }
+        onChanged();
+      } else {
+        sendDownstreamMessagesRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00001000;
+      return this;
+    }
+    public Builder clearSendDownstreamMessagesRequest() {
+      if (sendDownstreamMessagesRequestBuilder_ == null) {
+        sendDownstreamMessagesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        sendDownstreamMessagesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00001000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.Builder getSendDownstreamMessagesRequestBuilder() {
+      bitField0_ |= 0x00001000;
+      onChanged();
+      return getSendDownstreamMessagesRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequestOrBuilder getSendDownstreamMessagesRequestOrBuilder() {
+      if (sendDownstreamMessagesRequestBuilder_ != null) {
+        return sendDownstreamMessagesRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return sendDownstreamMessagesRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest, de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequestOrBuilder> 
+        getSendDownstreamMessagesRequestFieldBuilder() {
+      if (sendDownstreamMessagesRequestBuilder_ == null) {
+        sendDownstreamMessagesRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest, de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequestOrBuilder>(
+                sendDownstreamMessagesRequest_,
+                getParentForChildren(),
+                isClean());
+        sendDownstreamMessagesRequest_ = null;
+      }
+      return sendDownstreamMessagesRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 123;
+    private de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequestOrBuilder> setChannelPipelinesRequestBuilder_;
+    public boolean hasSetChannelPipelinesRequest() {
+      return ((bitField0_ & 0x00002000) == 0x00002000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest getSetChannelPipelinesRequest() {
+      if (setChannelPipelinesRequestBuilder_ == null) {
+        return setChannelPipelinesRequest_;
+      } else {
+        return setChannelPipelinesRequestBuilder_.getMessage();
+      }
+    }
+    public Builder setSetChannelPipelinesRequest(de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest value) {
+      if (setChannelPipelinesRequestBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        setChannelPipelinesRequest_ = value;
+        onChanged();
+      } else {
+        setChannelPipelinesRequestBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00002000;
+      return this;
+    }
+    public Builder setSetChannelPipelinesRequest(
+        de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.Builder builderForValue) {
+      if (setChannelPipelinesRequestBuilder_ == null) {
+        setChannelPipelinesRequest_ = builderForValue.build();
+        onChanged();
+      } else {
+        setChannelPipelinesRequestBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00002000;
+      return this;
+    }
+    public Builder mergeSetChannelPipelinesRequest(de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest value) {
+      if (setChannelPipelinesRequestBuilder_ == null) {
+        if (((bitField0_ & 0x00002000) == 0x00002000) &&
+            setChannelPipelinesRequest_ != de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.getDefaultInstance()) {
+          setChannelPipelinesRequest_ =
+            de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.newBuilder(setChannelPipelinesRequest_).mergeFrom(value).buildPartial();
+        } else {
+          setChannelPipelinesRequest_ = value;
+        }
+        onChanged();
+      } else {
+        setChannelPipelinesRequestBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00002000;
+      return this;
+    }
+    public Builder clearSetChannelPipelinesRequest() {
+      if (setChannelPipelinesRequestBuilder_ == null) {
+        setChannelPipelinesRequest_ = de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.getDefaultInstance();
+        onChanged();
+      } else {
+        setChannelPipelinesRequestBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00002000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.Builder getSetChannelPipelinesRequestBuilder() {
+      bitField0_ |= 0x00002000;
+      onChanged();
+      return getSetChannelPipelinesRequestFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequestOrBuilder getSetChannelPipelinesRequestOrBuilder() {
+      if (setChannelPipelinesRequestBuilder_ != null) {
+        return setChannelPipelinesRequestBuilder_.getMessageOrBuilder();
+      } else {
+        return setChannelPipelinesRequest_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequestOrBuilder> 
+        getSetChannelPipelinesRequestFieldBuilder() {
+      if (setChannelPipelinesRequestBuilder_ == null) {
+        setChannelPipelinesRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest.Builder, de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequestOrBuilder>(
+                setChannelPipelinesRequest_,
+                getParentForChildren(),
+                isClean());
+        setChannelPipelinesRequest_ = null;
+      }
+      return setChannelPipelinesRequestBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress progress = 130;
     private de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress progress_ = de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
         de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress, de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.Builder, de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgressOrBuilder> progressBuilder_;
     public boolean hasProgress() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00004000) == 0x00004000);
     }
     public de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress getProgress() {
       if (progressBuilder_ == null) {
@@ -900,7 +3686,7 @@ public  final class Message extends
       } else {
         progressBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000004;
+      bitField0_ |= 0x00004000;
       return this;
     }
     public Builder setProgress(
@@ -911,12 +3697,12 @@ public  final class Message extends
       } else {
         progressBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000004;
+      bitField0_ |= 0x00004000;
       return this;
     }
     public Builder mergeProgress(de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress value) {
       if (progressBuilder_ == null) {
-        if (((bitField0_ & 0x00000004) == 0x00000004) &&
+        if (((bitField0_ & 0x00004000) == 0x00004000) &&
             progress_ != de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.getDefaultInstance()) {
           progress_ =
             de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.newBuilder(progress_).mergeFrom(value).buildPartial();
@@ -927,7 +3713,7 @@ public  final class Message extends
       } else {
         progressBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000004;
+      bitField0_ |= 0x00004000;
       return this;
     }
     public Builder clearProgress() {
@@ -937,11 +3723,11 @@ public  final class Message extends
       } else {
         progressBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000004);
+      bitField0_ = (bitField0_ & ~0x00004000);
       return this;
     }
     public de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress.Builder getProgressBuilder() {
-      bitField0_ |= 0x00000004;
+      bitField0_ |= 0x00004000;
       onChanged();
       return getProgressFieldBuilder().getBuilder();
     }
@@ -966,12 +3752,12 @@ public  final class Message extends
       return progressBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse response = 103;
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse response = 131;
     private de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse response_ = de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
         de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse, de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.Builder, de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponseOrBuilder> responseBuilder_;
     public boolean hasResponse() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00008000) == 0x00008000);
     }
     public de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse getResponse() {
       if (responseBuilder_ == null) {
@@ -990,7 +3776,7 @@ public  final class Message extends
       } else {
         responseBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000008;
+      bitField0_ |= 0x00008000;
       return this;
     }
     public Builder setResponse(
@@ -1001,12 +3787,12 @@ public  final class Message extends
       } else {
         responseBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000008;
+      bitField0_ |= 0x00008000;
       return this;
     }
     public Builder mergeResponse(de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse value) {
       if (responseBuilder_ == null) {
-        if (((bitField0_ & 0x00000008) == 0x00000008) &&
+        if (((bitField0_ & 0x00008000) == 0x00008000) &&
             response_ != de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.getDefaultInstance()) {
           response_ =
             de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.newBuilder(response_).mergeFrom(value).buildPartial();
@@ -1017,7 +3803,7 @@ public  final class Message extends
       } else {
         responseBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000008;
+      bitField0_ |= 0x00008000;
       return this;
     }
     public Builder clearResponse() {
@@ -1027,11 +3813,11 @@ public  final class Message extends
       } else {
         responseBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000008);
+      bitField0_ = (bitField0_ & ~0x00008000);
       return this;
     }
     public de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse.Builder getResponseBuilder() {
-      bitField0_ |= 0x00000008;
+      bitField0_ |= 0x00008000;
       onChanged();
       return getResponseFieldBuilder().getBuilder();
     }
@@ -1056,12 +3842,12 @@ public  final class Message extends
       return responseBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getChannelPipelinesResponse = 104;
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getChannelPipelinesResponse = 132;
     private de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getChannelPipelinesResponse_ = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
         de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.Builder, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponseOrBuilder> getChannelPipelinesResponseBuilder_;
     public boolean hasGetChannelPipelinesResponse() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00010000) == 0x00010000);
     }
     public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getGetChannelPipelinesResponse() {
       if (getChannelPipelinesResponseBuilder_ == null) {
@@ -1080,7 +3866,7 @@ public  final class Message extends
       } else {
         getChannelPipelinesResponseBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00010000;
       return this;
     }
     public Builder setGetChannelPipelinesResponse(
@@ -1091,12 +3877,12 @@ public  final class Message extends
       } else {
         getChannelPipelinesResponseBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00010000;
       return this;
     }
     public Builder mergeGetChannelPipelinesResponse(de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse value) {
       if (getChannelPipelinesResponseBuilder_ == null) {
-        if (((bitField0_ & 0x00000010) == 0x00000010) &&
+        if (((bitField0_ & 0x00010000) == 0x00010000) &&
             getChannelPipelinesResponse_ != de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.getDefaultInstance()) {
           getChannelPipelinesResponse_ =
             de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.newBuilder(getChannelPipelinesResponse_).mergeFrom(value).buildPartial();
@@ -1107,7 +3893,7 @@ public  final class Message extends
       } else {
         getChannelPipelinesResponseBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00010000;
       return this;
     }
     public Builder clearGetChannelPipelinesResponse() {
@@ -1117,11 +3903,11 @@ public  final class Message extends
       } else {
         getChannelPipelinesResponseBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000010);
+      bitField0_ = (bitField0_ & ~0x00010000);
       return this;
     }
     public de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.Builder getGetChannelPipelinesResponseBuilder() {
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00010000;
       onChanged();
       return getGetChannelPipelinesResponseFieldBuilder().getBuilder();
     }
@@ -1146,102 +3932,1452 @@ public  final class Message extends
       return getChannelPipelinesResponseBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.Event event = 105;
-    private de.uniluebeck.itm.tr.iwsn.messages.Event event_ = de.uniluebeck.itm.tr.iwsn.messages.Event.getDefaultInstance();
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent upstreamMessageEvent = 140;
+    private de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent upstreamMessageEvent_ = de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.Event, de.uniluebeck.itm.tr.iwsn.messages.Event.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventOrBuilder> eventBuilder_;
-    public boolean hasEvent() {
-      return ((bitField0_ & 0x00000020) == 0x00000020);
+        de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent, de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEventOrBuilder> upstreamMessageEventBuilder_;
+    public boolean hasUpstreamMessageEvent() {
+      return ((bitField0_ & 0x00020000) == 0x00020000);
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.Event getEvent() {
-      if (eventBuilder_ == null) {
-        return event_;
+    public de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent getUpstreamMessageEvent() {
+      if (upstreamMessageEventBuilder_ == null) {
+        return upstreamMessageEvent_;
       } else {
-        return eventBuilder_.getMessage();
+        return upstreamMessageEventBuilder_.getMessage();
       }
     }
-    public Builder setEvent(de.uniluebeck.itm.tr.iwsn.messages.Event value) {
-      if (eventBuilder_ == null) {
+    public Builder setUpstreamMessageEvent(de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent value) {
+      if (upstreamMessageEventBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
         }
-        event_ = value;
+        upstreamMessageEvent_ = value;
         onChanged();
       } else {
-        eventBuilder_.setMessage(value);
+        upstreamMessageEventBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000020;
+      bitField0_ |= 0x00020000;
       return this;
     }
-    public Builder setEvent(
-        de.uniluebeck.itm.tr.iwsn.messages.Event.Builder builderForValue) {
-      if (eventBuilder_ == null) {
-        event_ = builderForValue.build();
+    public Builder setUpstreamMessageEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.Builder builderForValue) {
+      if (upstreamMessageEventBuilder_ == null) {
+        upstreamMessageEvent_ = builderForValue.build();
         onChanged();
       } else {
-        eventBuilder_.setMessage(builderForValue.build());
+        upstreamMessageEventBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000020;
+      bitField0_ |= 0x00020000;
       return this;
     }
-    public Builder mergeEvent(de.uniluebeck.itm.tr.iwsn.messages.Event value) {
-      if (eventBuilder_ == null) {
-        if (((bitField0_ & 0x00000020) == 0x00000020) &&
-            event_ != de.uniluebeck.itm.tr.iwsn.messages.Event.getDefaultInstance()) {
-          event_ =
-            de.uniluebeck.itm.tr.iwsn.messages.Event.newBuilder(event_).mergeFrom(value).buildPartial();
+    public Builder mergeUpstreamMessageEvent(de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent value) {
+      if (upstreamMessageEventBuilder_ == null) {
+        if (((bitField0_ & 0x00020000) == 0x00020000) &&
+            upstreamMessageEvent_ != de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.getDefaultInstance()) {
+          upstreamMessageEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.newBuilder(upstreamMessageEvent_).mergeFrom(value).buildPartial();
         } else {
-          event_ = value;
+          upstreamMessageEvent_ = value;
         }
         onChanged();
       } else {
-        eventBuilder_.mergeFrom(value);
+        upstreamMessageEventBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000020;
+      bitField0_ |= 0x00020000;
       return this;
     }
-    public Builder clearEvent() {
-      if (eventBuilder_ == null) {
-        event_ = de.uniluebeck.itm.tr.iwsn.messages.Event.getDefaultInstance();
+    public Builder clearUpstreamMessageEvent() {
+      if (upstreamMessageEventBuilder_ == null) {
+        upstreamMessageEvent_ = de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.getDefaultInstance();
         onChanged();
       } else {
-        eventBuilder_.clear();
+        upstreamMessageEventBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000020);
+      bitField0_ = (bitField0_ & ~0x00020000);
       return this;
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.Event.Builder getEventBuilder() {
-      bitField0_ |= 0x00000020;
+    public de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.Builder getUpstreamMessageEventBuilder() {
+      bitField0_ |= 0x00020000;
       onChanged();
-      return getEventFieldBuilder().getBuilder();
+      return getUpstreamMessageEventFieldBuilder().getBuilder();
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.EventOrBuilder getEventOrBuilder() {
-      if (eventBuilder_ != null) {
-        return eventBuilder_.getMessageOrBuilder();
+    public de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEventOrBuilder getUpstreamMessageEventOrBuilder() {
+      if (upstreamMessageEventBuilder_ != null) {
+        return upstreamMessageEventBuilder_.getMessageOrBuilder();
       } else {
-        return event_;
+        return upstreamMessageEvent_;
       }
     }
     private com.google.protobuf.SingleFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.Event, de.uniluebeck.itm.tr.iwsn.messages.Event.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventOrBuilder> 
-        getEventFieldBuilder() {
-      if (eventBuilder_ == null) {
-        eventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-            de.uniluebeck.itm.tr.iwsn.messages.Event, de.uniluebeck.itm.tr.iwsn.messages.Event.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventOrBuilder>(
-                event_,
+        de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent, de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEventOrBuilder> 
+        getUpstreamMessageEventFieldBuilder() {
+      if (upstreamMessageEventBuilder_ == null) {
+        upstreamMessageEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent, de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEventOrBuilder>(
+                upstreamMessageEvent_,
                 getParentForChildren(),
                 isClean());
-        event_ = null;
+        upstreamMessageEvent_ = null;
       }
-      return eventBuilder_;
+      return upstreamMessageEventBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.EventAck eventAck = 106;
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent devicesAttachedEvent = 150;
+    private de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent devicesAttachedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent, de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEventOrBuilder> devicesAttachedEventBuilder_;
+    public boolean hasDevicesAttachedEvent() {
+      return ((bitField0_ & 0x00040000) == 0x00040000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent getDevicesAttachedEvent() {
+      if (devicesAttachedEventBuilder_ == null) {
+        return devicesAttachedEvent_;
+      } else {
+        return devicesAttachedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setDevicesAttachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent value) {
+      if (devicesAttachedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        devicesAttachedEvent_ = value;
+        onChanged();
+      } else {
+        devicesAttachedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00040000;
+      return this;
+    }
+    public Builder setDevicesAttachedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.Builder builderForValue) {
+      if (devicesAttachedEventBuilder_ == null) {
+        devicesAttachedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        devicesAttachedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00040000;
+      return this;
+    }
+    public Builder mergeDevicesAttachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent value) {
+      if (devicesAttachedEventBuilder_ == null) {
+        if (((bitField0_ & 0x00040000) == 0x00040000) &&
+            devicesAttachedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.getDefaultInstance()) {
+          devicesAttachedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.newBuilder(devicesAttachedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          devicesAttachedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        devicesAttachedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00040000;
+      return this;
+    }
+    public Builder clearDevicesAttachedEvent() {
+      if (devicesAttachedEventBuilder_ == null) {
+        devicesAttachedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        devicesAttachedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00040000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.Builder getDevicesAttachedEventBuilder() {
+      bitField0_ |= 0x00040000;
+      onChanged();
+      return getDevicesAttachedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEventOrBuilder getDevicesAttachedEventOrBuilder() {
+      if (devicesAttachedEventBuilder_ != null) {
+        return devicesAttachedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return devicesAttachedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent, de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEventOrBuilder> 
+        getDevicesAttachedEventFieldBuilder() {
+      if (devicesAttachedEventBuilder_ == null) {
+        devicesAttachedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent, de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEventOrBuilder>(
+                devicesAttachedEvent_,
+                getParentForChildren(),
+                isClean());
+        devicesAttachedEvent_ = null;
+      }
+      return devicesAttachedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent devicesDetachedEvent = 151;
+    private de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent devicesDetachedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent, de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEventOrBuilder> devicesDetachedEventBuilder_;
+    public boolean hasDevicesDetachedEvent() {
+      return ((bitField0_ & 0x00080000) == 0x00080000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent getDevicesDetachedEvent() {
+      if (devicesDetachedEventBuilder_ == null) {
+        return devicesDetachedEvent_;
+      } else {
+        return devicesDetachedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setDevicesDetachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent value) {
+      if (devicesDetachedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        devicesDetachedEvent_ = value;
+        onChanged();
+      } else {
+        devicesDetachedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00080000;
+      return this;
+    }
+    public Builder setDevicesDetachedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.Builder builderForValue) {
+      if (devicesDetachedEventBuilder_ == null) {
+        devicesDetachedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        devicesDetachedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00080000;
+      return this;
+    }
+    public Builder mergeDevicesDetachedEvent(de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent value) {
+      if (devicesDetachedEventBuilder_ == null) {
+        if (((bitField0_ & 0x00080000) == 0x00080000) &&
+            devicesDetachedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.getDefaultInstance()) {
+          devicesDetachedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.newBuilder(devicesDetachedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          devicesDetachedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        devicesDetachedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00080000;
+      return this;
+    }
+    public Builder clearDevicesDetachedEvent() {
+      if (devicesDetachedEventBuilder_ == null) {
+        devicesDetachedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        devicesDetachedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00080000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.Builder getDevicesDetachedEventBuilder() {
+      bitField0_ |= 0x00080000;
+      onChanged();
+      return getDevicesDetachedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEventOrBuilder getDevicesDetachedEventOrBuilder() {
+      if (devicesDetachedEventBuilder_ != null) {
+        return devicesDetachedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return devicesDetachedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent, de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEventOrBuilder> 
+        getDevicesDetachedEventFieldBuilder() {
+      if (devicesDetachedEventBuilder_ == null) {
+        devicesDetachedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent, de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEventOrBuilder>(
+                devicesDetachedEvent_,
+                getParentForChildren(),
+                isClean());
+        devicesDetachedEvent_ = null;
+      }
+      return devicesDetachedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent gatewayConnectedEvent = 152;
+    private de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent gatewayConnectedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent, de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEventOrBuilder> gatewayConnectedEventBuilder_;
+    public boolean hasGatewayConnectedEvent() {
+      return ((bitField0_ & 0x00100000) == 0x00100000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent getGatewayConnectedEvent() {
+      if (gatewayConnectedEventBuilder_ == null) {
+        return gatewayConnectedEvent_;
+      } else {
+        return gatewayConnectedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setGatewayConnectedEvent(de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent value) {
+      if (gatewayConnectedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        gatewayConnectedEvent_ = value;
+        onChanged();
+      } else {
+        gatewayConnectedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00100000;
+      return this;
+    }
+    public Builder setGatewayConnectedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.Builder builderForValue) {
+      if (gatewayConnectedEventBuilder_ == null) {
+        gatewayConnectedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        gatewayConnectedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00100000;
+      return this;
+    }
+    public Builder mergeGatewayConnectedEvent(de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent value) {
+      if (gatewayConnectedEventBuilder_ == null) {
+        if (((bitField0_ & 0x00100000) == 0x00100000) &&
+            gatewayConnectedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.getDefaultInstance()) {
+          gatewayConnectedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.newBuilder(gatewayConnectedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          gatewayConnectedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        gatewayConnectedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00100000;
+      return this;
+    }
+    public Builder clearGatewayConnectedEvent() {
+      if (gatewayConnectedEventBuilder_ == null) {
+        gatewayConnectedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        gatewayConnectedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00100000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.Builder getGatewayConnectedEventBuilder() {
+      bitField0_ |= 0x00100000;
+      onChanged();
+      return getGatewayConnectedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEventOrBuilder getGatewayConnectedEventOrBuilder() {
+      if (gatewayConnectedEventBuilder_ != null) {
+        return gatewayConnectedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return gatewayConnectedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent, de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEventOrBuilder> 
+        getGatewayConnectedEventFieldBuilder() {
+      if (gatewayConnectedEventBuilder_ == null) {
+        gatewayConnectedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent, de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEventOrBuilder>(
+                gatewayConnectedEvent_,
+                getParentForChildren(),
+                isClean());
+        gatewayConnectedEvent_ = null;
+      }
+      return gatewayConnectedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent gatewayDisconnectedEvent = 153;
+    private de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent gatewayDisconnectedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent, de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEventOrBuilder> gatewayDisconnectedEventBuilder_;
+    public boolean hasGatewayDisconnectedEvent() {
+      return ((bitField0_ & 0x00200000) == 0x00200000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent getGatewayDisconnectedEvent() {
+      if (gatewayDisconnectedEventBuilder_ == null) {
+        return gatewayDisconnectedEvent_;
+      } else {
+        return gatewayDisconnectedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setGatewayDisconnectedEvent(de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent value) {
+      if (gatewayDisconnectedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        gatewayDisconnectedEvent_ = value;
+        onChanged();
+      } else {
+        gatewayDisconnectedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00200000;
+      return this;
+    }
+    public Builder setGatewayDisconnectedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.Builder builderForValue) {
+      if (gatewayDisconnectedEventBuilder_ == null) {
+        gatewayDisconnectedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        gatewayDisconnectedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00200000;
+      return this;
+    }
+    public Builder mergeGatewayDisconnectedEvent(de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent value) {
+      if (gatewayDisconnectedEventBuilder_ == null) {
+        if (((bitField0_ & 0x00200000) == 0x00200000) &&
+            gatewayDisconnectedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.getDefaultInstance()) {
+          gatewayDisconnectedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.newBuilder(gatewayDisconnectedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          gatewayDisconnectedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        gatewayDisconnectedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00200000;
+      return this;
+    }
+    public Builder clearGatewayDisconnectedEvent() {
+      if (gatewayDisconnectedEventBuilder_ == null) {
+        gatewayDisconnectedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        gatewayDisconnectedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00200000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.Builder getGatewayDisconnectedEventBuilder() {
+      bitField0_ |= 0x00200000;
+      onChanged();
+      return getGatewayDisconnectedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEventOrBuilder getGatewayDisconnectedEventOrBuilder() {
+      if (gatewayDisconnectedEventBuilder_ != null) {
+        return gatewayDisconnectedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return gatewayDisconnectedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent, de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEventOrBuilder> 
+        getGatewayDisconnectedEventFieldBuilder() {
+      if (gatewayDisconnectedEventBuilder_ == null) {
+        gatewayDisconnectedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent, de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEventOrBuilder>(
+                gatewayDisconnectedEvent_,
+                getParentForChildren(),
+                isClean());
+        gatewayDisconnectedEvent_ = null;
+      }
+      return gatewayDisconnectedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent notificationEvent = 160;
+    private de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent notificationEvent_ = de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent, de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.NotificationEventOrBuilder> notificationEventBuilder_;
+    public boolean hasNotificationEvent() {
+      return ((bitField0_ & 0x00400000) == 0x00400000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent getNotificationEvent() {
+      if (notificationEventBuilder_ == null) {
+        return notificationEvent_;
+      } else {
+        return notificationEventBuilder_.getMessage();
+      }
+    }
+    public Builder setNotificationEvent(de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent value) {
+      if (notificationEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        notificationEvent_ = value;
+        onChanged();
+      } else {
+        notificationEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00400000;
+      return this;
+    }
+    public Builder setNotificationEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.Builder builderForValue) {
+      if (notificationEventBuilder_ == null) {
+        notificationEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        notificationEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00400000;
+      return this;
+    }
+    public Builder mergeNotificationEvent(de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent value) {
+      if (notificationEventBuilder_ == null) {
+        if (((bitField0_ & 0x00400000) == 0x00400000) &&
+            notificationEvent_ != de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.getDefaultInstance()) {
+          notificationEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.newBuilder(notificationEvent_).mergeFrom(value).buildPartial();
+        } else {
+          notificationEvent_ = value;
+        }
+        onChanged();
+      } else {
+        notificationEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00400000;
+      return this;
+    }
+    public Builder clearNotificationEvent() {
+      if (notificationEventBuilder_ == null) {
+        notificationEvent_ = de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        notificationEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00400000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.Builder getNotificationEventBuilder() {
+      bitField0_ |= 0x00400000;
+      onChanged();
+      return getNotificationEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.NotificationEventOrBuilder getNotificationEventOrBuilder() {
+      if (notificationEventBuilder_ != null) {
+        return notificationEventBuilder_.getMessageOrBuilder();
+      } else {
+        return notificationEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent, de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.NotificationEventOrBuilder> 
+        getNotificationEventFieldBuilder() {
+      if (notificationEventBuilder_ == null) {
+        notificationEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent, de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.NotificationEventOrBuilder>(
+                notificationEvent_,
+                getParentForChildren(),
+                isClean());
+        notificationEvent_ = null;
+      }
+      return notificationEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent reservationStartedEvent = 170;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent reservationStartedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder> reservationStartedEventBuilder_;
+    public boolean hasReservationStartedEvent() {
+      return ((bitField0_ & 0x00800000) == 0x00800000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent getReservationStartedEvent() {
+      if (reservationStartedEventBuilder_ == null) {
+        return reservationStartedEvent_;
+      } else {
+        return reservationStartedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationStartedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent value) {
+      if (reservationStartedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationStartedEvent_ = value;
+        onChanged();
+      } else {
+        reservationStartedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00800000;
+      return this;
+    }
+    public Builder setReservationStartedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder builderForValue) {
+      if (reservationStartedEventBuilder_ == null) {
+        reservationStartedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationStartedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00800000;
+      return this;
+    }
+    public Builder mergeReservationStartedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent value) {
+      if (reservationStartedEventBuilder_ == null) {
+        if (((bitField0_ & 0x00800000) == 0x00800000) &&
+            reservationStartedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance()) {
+          reservationStartedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.newBuilder(reservationStartedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationStartedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationStartedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00800000;
+      return this;
+    }
+    public Builder clearReservationStartedEvent() {
+      if (reservationStartedEventBuilder_ == null) {
+        reservationStartedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationStartedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00800000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder getReservationStartedEventBuilder() {
+      bitField0_ |= 0x00800000;
+      onChanged();
+      return getReservationStartedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder getReservationStartedEventOrBuilder() {
+      if (reservationStartedEventBuilder_ != null) {
+        return reservationStartedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationStartedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder> 
+        getReservationStartedEventFieldBuilder() {
+      if (reservationStartedEventBuilder_ == null) {
+        reservationStartedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder>(
+                reservationStartedEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationStartedEvent_ = null;
+      }
+      return reservationStartedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent reservationEndedEvent = 171;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent reservationEndedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder> reservationEndedEventBuilder_;
+    public boolean hasReservationEndedEvent() {
+      return ((bitField0_ & 0x01000000) == 0x01000000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent getReservationEndedEvent() {
+      if (reservationEndedEventBuilder_ == null) {
+        return reservationEndedEvent_;
+      } else {
+        return reservationEndedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationEndedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent value) {
+      if (reservationEndedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationEndedEvent_ = value;
+        onChanged();
+      } else {
+        reservationEndedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x01000000;
+      return this;
+    }
+    public Builder setReservationEndedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder builderForValue) {
+      if (reservationEndedEventBuilder_ == null) {
+        reservationEndedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationEndedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x01000000;
+      return this;
+    }
+    public Builder mergeReservationEndedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent value) {
+      if (reservationEndedEventBuilder_ == null) {
+        if (((bitField0_ & 0x01000000) == 0x01000000) &&
+            reservationEndedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance()) {
+          reservationEndedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.newBuilder(reservationEndedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationEndedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationEndedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x01000000;
+      return this;
+    }
+    public Builder clearReservationEndedEvent() {
+      if (reservationEndedEventBuilder_ == null) {
+        reservationEndedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationEndedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x01000000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder getReservationEndedEventBuilder() {
+      bitField0_ |= 0x01000000;
+      onChanged();
+      return getReservationEndedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder getReservationEndedEventOrBuilder() {
+      if (reservationEndedEventBuilder_ != null) {
+        return reservationEndedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationEndedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder> 
+        getReservationEndedEventFieldBuilder() {
+      if (reservationEndedEventBuilder_ == null) {
+        reservationEndedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder>(
+                reservationEndedEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationEndedEvent_ = null;
+      }
+      return reservationEndedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent reservationMadeEvent = 172;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent reservationMadeEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEventOrBuilder> reservationMadeEventBuilder_;
+    public boolean hasReservationMadeEvent() {
+      return ((bitField0_ & 0x02000000) == 0x02000000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent getReservationMadeEvent() {
+      if (reservationMadeEventBuilder_ == null) {
+        return reservationMadeEvent_;
+      } else {
+        return reservationMadeEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationMadeEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent value) {
+      if (reservationMadeEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationMadeEvent_ = value;
+        onChanged();
+      } else {
+        reservationMadeEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x02000000;
+      return this;
+    }
+    public Builder setReservationMadeEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.Builder builderForValue) {
+      if (reservationMadeEventBuilder_ == null) {
+        reservationMadeEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationMadeEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x02000000;
+      return this;
+    }
+    public Builder mergeReservationMadeEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent value) {
+      if (reservationMadeEventBuilder_ == null) {
+        if (((bitField0_ & 0x02000000) == 0x02000000) &&
+            reservationMadeEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.getDefaultInstance()) {
+          reservationMadeEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.newBuilder(reservationMadeEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationMadeEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationMadeEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x02000000;
+      return this;
+    }
+    public Builder clearReservationMadeEvent() {
+      if (reservationMadeEventBuilder_ == null) {
+        reservationMadeEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationMadeEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x02000000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.Builder getReservationMadeEventBuilder() {
+      bitField0_ |= 0x02000000;
+      onChanged();
+      return getReservationMadeEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEventOrBuilder getReservationMadeEventOrBuilder() {
+      if (reservationMadeEventBuilder_ != null) {
+        return reservationMadeEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationMadeEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEventOrBuilder> 
+        getReservationMadeEventFieldBuilder() {
+      if (reservationMadeEventBuilder_ == null) {
+        reservationMadeEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEventOrBuilder>(
+                reservationMadeEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationMadeEvent_ = null;
+      }
+      return reservationMadeEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent = 173;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder> reservationCancelledEventBuilder_;
+    public boolean hasReservationCancelledEvent() {
+      return ((bitField0_ & 0x04000000) == 0x04000000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent getReservationCancelledEvent() {
+      if (reservationCancelledEventBuilder_ == null) {
+        return reservationCancelledEvent_;
+      } else {
+        return reservationCancelledEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationCancelledEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent value) {
+      if (reservationCancelledEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationCancelledEvent_ = value;
+        onChanged();
+      } else {
+        reservationCancelledEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x04000000;
+      return this;
+    }
+    public Builder setReservationCancelledEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder builderForValue) {
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationCancelledEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x04000000;
+      return this;
+    }
+    public Builder mergeReservationCancelledEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent value) {
+      if (reservationCancelledEventBuilder_ == null) {
+        if (((bitField0_ & 0x04000000) == 0x04000000) &&
+            reservationCancelledEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance()) {
+          reservationCancelledEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.newBuilder(reservationCancelledEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationCancelledEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationCancelledEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x04000000;
+      return this;
+    }
+    public Builder clearReservationCancelledEvent() {
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationCancelledEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x04000000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder getReservationCancelledEventBuilder() {
+      bitField0_ |= 0x04000000;
+      onChanged();
+      return getReservationCancelledEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder getReservationCancelledEventOrBuilder() {
+      if (reservationCancelledEventBuilder_ != null) {
+        return reservationCancelledEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationCancelledEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder> 
+        getReservationCancelledEventFieldBuilder() {
+      if (reservationCancelledEventBuilder_ == null) {
+        reservationCancelledEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder>(
+                reservationCancelledEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationCancelledEvent_ = null;
+      }
+      return reservationCancelledEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent reservationOpenedEvent = 174;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent reservationOpenedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder> reservationOpenedEventBuilder_;
+    public boolean hasReservationOpenedEvent() {
+      return ((bitField0_ & 0x08000000) == 0x08000000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent getReservationOpenedEvent() {
+      if (reservationOpenedEventBuilder_ == null) {
+        return reservationOpenedEvent_;
+      } else {
+        return reservationOpenedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationOpenedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent value) {
+      if (reservationOpenedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationOpenedEvent_ = value;
+        onChanged();
+      } else {
+        reservationOpenedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x08000000;
+      return this;
+    }
+    public Builder setReservationOpenedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder builderForValue) {
+      if (reservationOpenedEventBuilder_ == null) {
+        reservationOpenedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationOpenedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x08000000;
+      return this;
+    }
+    public Builder mergeReservationOpenedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent value) {
+      if (reservationOpenedEventBuilder_ == null) {
+        if (((bitField0_ & 0x08000000) == 0x08000000) &&
+            reservationOpenedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance()) {
+          reservationOpenedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.newBuilder(reservationOpenedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationOpenedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationOpenedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x08000000;
+      return this;
+    }
+    public Builder clearReservationOpenedEvent() {
+      if (reservationOpenedEventBuilder_ == null) {
+        reservationOpenedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationOpenedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x08000000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder getReservationOpenedEventBuilder() {
+      bitField0_ |= 0x08000000;
+      onChanged();
+      return getReservationOpenedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder getReservationOpenedEventOrBuilder() {
+      if (reservationOpenedEventBuilder_ != null) {
+        return reservationOpenedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationOpenedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder> 
+        getReservationOpenedEventFieldBuilder() {
+      if (reservationOpenedEventBuilder_ == null) {
+        reservationOpenedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder>(
+                reservationOpenedEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationOpenedEvent_ = null;
+      }
+      return reservationOpenedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent reservationClosedEvent = 175;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent reservationClosedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder> reservationClosedEventBuilder_;
+    public boolean hasReservationClosedEvent() {
+      return ((bitField0_ & 0x10000000) == 0x10000000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent getReservationClosedEvent() {
+      if (reservationClosedEventBuilder_ == null) {
+        return reservationClosedEvent_;
+      } else {
+        return reservationClosedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationClosedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent value) {
+      if (reservationClosedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationClosedEvent_ = value;
+        onChanged();
+      } else {
+        reservationClosedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x10000000;
+      return this;
+    }
+    public Builder setReservationClosedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder builderForValue) {
+      if (reservationClosedEventBuilder_ == null) {
+        reservationClosedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationClosedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x10000000;
+      return this;
+    }
+    public Builder mergeReservationClosedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent value) {
+      if (reservationClosedEventBuilder_ == null) {
+        if (((bitField0_ & 0x10000000) == 0x10000000) &&
+            reservationClosedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.getDefaultInstance()) {
+          reservationClosedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.newBuilder(reservationClosedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationClosedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationClosedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x10000000;
+      return this;
+    }
+    public Builder clearReservationClosedEvent() {
+      if (reservationClosedEventBuilder_ == null) {
+        reservationClosedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationClosedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x10000000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder getReservationClosedEventBuilder() {
+      bitField0_ |= 0x10000000;
+      onChanged();
+      return getReservationClosedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder getReservationClosedEventOrBuilder() {
+      if (reservationClosedEventBuilder_ != null) {
+        return reservationClosedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationClosedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder> 
+        getReservationClosedEventFieldBuilder() {
+      if (reservationClosedEventBuilder_ == null) {
+        reservationClosedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder>(
+                reservationClosedEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationClosedEvent_ = null;
+      }
+      return reservationClosedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent reservationFinalizedEvent = 176;
+    private de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent reservationFinalizedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder> reservationFinalizedEventBuilder_;
+    public boolean hasReservationFinalizedEvent() {
+      return ((bitField0_ & 0x20000000) == 0x20000000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent getReservationFinalizedEvent() {
+      if (reservationFinalizedEventBuilder_ == null) {
+        return reservationFinalizedEvent_;
+      } else {
+        return reservationFinalizedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setReservationFinalizedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent value) {
+      if (reservationFinalizedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        reservationFinalizedEvent_ = value;
+        onChanged();
+      } else {
+        reservationFinalizedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x20000000;
+      return this;
+    }
+    public Builder setReservationFinalizedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder builderForValue) {
+      if (reservationFinalizedEventBuilder_ == null) {
+        reservationFinalizedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        reservationFinalizedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x20000000;
+      return this;
+    }
+    public Builder mergeReservationFinalizedEvent(de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent value) {
+      if (reservationFinalizedEventBuilder_ == null) {
+        if (((bitField0_ & 0x20000000) == 0x20000000) &&
+            reservationFinalizedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.getDefaultInstance()) {
+          reservationFinalizedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.newBuilder(reservationFinalizedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          reservationFinalizedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        reservationFinalizedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x20000000;
+      return this;
+    }
+    public Builder clearReservationFinalizedEvent() {
+      if (reservationFinalizedEventBuilder_ == null) {
+        reservationFinalizedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        reservationFinalizedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x20000000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder getReservationFinalizedEventBuilder() {
+      bitField0_ |= 0x20000000;
+      onChanged();
+      return getReservationFinalizedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder getReservationFinalizedEventOrBuilder() {
+      if (reservationFinalizedEventBuilder_ != null) {
+        return reservationFinalizedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return reservationFinalizedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder> 
+        getReservationFinalizedEventFieldBuilder() {
+      if (reservationFinalizedEventBuilder_ == null) {
+        reservationFinalizedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder>(
+                reservationFinalizedEvent_,
+                getParentForChildren(),
+                isClean());
+        reservationFinalizedEvent_ = null;
+      }
+      return reservationFinalizedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent = 180;
+    private de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEventOrBuilder> deviceConfigCreatedEventBuilder_;
+    public boolean hasDeviceConfigCreatedEvent() {
+      return ((bitField0_ & 0x40000000) == 0x40000000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent getDeviceConfigCreatedEvent() {
+      if (deviceConfigCreatedEventBuilder_ == null) {
+        return deviceConfigCreatedEvent_;
+      } else {
+        return deviceConfigCreatedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setDeviceConfigCreatedEvent(de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent value) {
+      if (deviceConfigCreatedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        deviceConfigCreatedEvent_ = value;
+        onChanged();
+      } else {
+        deviceConfigCreatedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x40000000;
+      return this;
+    }
+    public Builder setDeviceConfigCreatedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.Builder builderForValue) {
+      if (deviceConfigCreatedEventBuilder_ == null) {
+        deviceConfigCreatedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        deviceConfigCreatedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x40000000;
+      return this;
+    }
+    public Builder mergeDeviceConfigCreatedEvent(de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent value) {
+      if (deviceConfigCreatedEventBuilder_ == null) {
+        if (((bitField0_ & 0x40000000) == 0x40000000) &&
+            deviceConfigCreatedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.getDefaultInstance()) {
+          deviceConfigCreatedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.newBuilder(deviceConfigCreatedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          deviceConfigCreatedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        deviceConfigCreatedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x40000000;
+      return this;
+    }
+    public Builder clearDeviceConfigCreatedEvent() {
+      if (deviceConfigCreatedEventBuilder_ == null) {
+        deviceConfigCreatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        deviceConfigCreatedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x40000000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.Builder getDeviceConfigCreatedEventBuilder() {
+      bitField0_ |= 0x40000000;
+      onChanged();
+      return getDeviceConfigCreatedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEventOrBuilder getDeviceConfigCreatedEventOrBuilder() {
+      if (deviceConfigCreatedEventBuilder_ != null) {
+        return deviceConfigCreatedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return deviceConfigCreatedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEventOrBuilder> 
+        getDeviceConfigCreatedEventFieldBuilder() {
+      if (deviceConfigCreatedEventBuilder_ == null) {
+        deviceConfigCreatedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEventOrBuilder>(
+                deviceConfigCreatedEvent_,
+                getParentForChildren(),
+                isClean());
+        deviceConfigCreatedEvent_ = null;
+      }
+      return deviceConfigCreatedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent deviceConfigUpdatedEvent = 181;
+    private de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent deviceConfigUpdatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEventOrBuilder> deviceConfigUpdatedEventBuilder_;
+    public boolean hasDeviceConfigUpdatedEvent() {
+      return ((bitField0_ & 0x80000000) == 0x80000000);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent getDeviceConfigUpdatedEvent() {
+      if (deviceConfigUpdatedEventBuilder_ == null) {
+        return deviceConfigUpdatedEvent_;
+      } else {
+        return deviceConfigUpdatedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setDeviceConfigUpdatedEvent(de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent value) {
+      if (deviceConfigUpdatedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        deviceConfigUpdatedEvent_ = value;
+        onChanged();
+      } else {
+        deviceConfigUpdatedEventBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x80000000;
+      return this;
+    }
+    public Builder setDeviceConfigUpdatedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.Builder builderForValue) {
+      if (deviceConfigUpdatedEventBuilder_ == null) {
+        deviceConfigUpdatedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        deviceConfigUpdatedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x80000000;
+      return this;
+    }
+    public Builder mergeDeviceConfigUpdatedEvent(de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent value) {
+      if (deviceConfigUpdatedEventBuilder_ == null) {
+        if (((bitField0_ & 0x80000000) == 0x80000000) &&
+            deviceConfigUpdatedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.getDefaultInstance()) {
+          deviceConfigUpdatedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.newBuilder(deviceConfigUpdatedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          deviceConfigUpdatedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        deviceConfigUpdatedEventBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x80000000;
+      return this;
+    }
+    public Builder clearDeviceConfigUpdatedEvent() {
+      if (deviceConfigUpdatedEventBuilder_ == null) {
+        deviceConfigUpdatedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        deviceConfigUpdatedEventBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x80000000);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.Builder getDeviceConfigUpdatedEventBuilder() {
+      bitField0_ |= 0x80000000;
+      onChanged();
+      return getDeviceConfigUpdatedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEventOrBuilder getDeviceConfigUpdatedEventOrBuilder() {
+      if (deviceConfigUpdatedEventBuilder_ != null) {
+        return deviceConfigUpdatedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return deviceConfigUpdatedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEventOrBuilder> 
+        getDeviceConfigUpdatedEventFieldBuilder() {
+      if (deviceConfigUpdatedEventBuilder_ == null) {
+        deviceConfigUpdatedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEventOrBuilder>(
+                deviceConfigUpdatedEvent_,
+                getParentForChildren(),
+                isClean());
+        deviceConfigUpdatedEvent_ = null;
+      }
+      return deviceConfigUpdatedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent deviceConfigDeletedEvent = 182;
+    private de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent deviceConfigDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEventOrBuilder> deviceConfigDeletedEventBuilder_;
+    public boolean hasDeviceConfigDeletedEvent() {
+      return ((bitField1_ & 0x00000001) == 0x00000001);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent getDeviceConfigDeletedEvent() {
+      if (deviceConfigDeletedEventBuilder_ == null) {
+        return deviceConfigDeletedEvent_;
+      } else {
+        return deviceConfigDeletedEventBuilder_.getMessage();
+      }
+    }
+    public Builder setDeviceConfigDeletedEvent(de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent value) {
+      if (deviceConfigDeletedEventBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        deviceConfigDeletedEvent_ = value;
+        onChanged();
+      } else {
+        deviceConfigDeletedEventBuilder_.setMessage(value);
+      }
+      bitField1_ |= 0x00000001;
+      return this;
+    }
+    public Builder setDeviceConfigDeletedEvent(
+        de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.Builder builderForValue) {
+      if (deviceConfigDeletedEventBuilder_ == null) {
+        deviceConfigDeletedEvent_ = builderForValue.build();
+        onChanged();
+      } else {
+        deviceConfigDeletedEventBuilder_.setMessage(builderForValue.build());
+      }
+      bitField1_ |= 0x00000001;
+      return this;
+    }
+    public Builder mergeDeviceConfigDeletedEvent(de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent value) {
+      if (deviceConfigDeletedEventBuilder_ == null) {
+        if (((bitField1_ & 0x00000001) == 0x00000001) &&
+            deviceConfigDeletedEvent_ != de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.getDefaultInstance()) {
+          deviceConfigDeletedEvent_ =
+            de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.newBuilder(deviceConfigDeletedEvent_).mergeFrom(value).buildPartial();
+        } else {
+          deviceConfigDeletedEvent_ = value;
+        }
+        onChanged();
+      } else {
+        deviceConfigDeletedEventBuilder_.mergeFrom(value);
+      }
+      bitField1_ |= 0x00000001;
+      return this;
+    }
+    public Builder clearDeviceConfigDeletedEvent() {
+      if (deviceConfigDeletedEventBuilder_ == null) {
+        deviceConfigDeletedEvent_ = de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.getDefaultInstance();
+        onChanged();
+      } else {
+        deviceConfigDeletedEventBuilder_.clear();
+      }
+      bitField1_ = (bitField1_ & ~0x00000001);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.Builder getDeviceConfigDeletedEventBuilder() {
+      bitField1_ |= 0x00000001;
+      onChanged();
+      return getDeviceConfigDeletedEventFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEventOrBuilder getDeviceConfigDeletedEventOrBuilder() {
+      if (deviceConfigDeletedEventBuilder_ != null) {
+        return deviceConfigDeletedEventBuilder_.getMessageOrBuilder();
+      } else {
+        return deviceConfigDeletedEvent_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEventOrBuilder> 
+        getDeviceConfigDeletedEventFieldBuilder() {
+      if (deviceConfigDeletedEventBuilder_ == null) {
+        deviceConfigDeletedEventBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent.Builder, de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEventOrBuilder>(
+                deviceConfigDeletedEvent_,
+                getParentForChildren(),
+                isClean());
+        deviceConfigDeletedEvent_ = null;
+      }
+      return deviceConfigDeletedEventBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.EventAck eventAck = 190;
     private de.uniluebeck.itm.tr.iwsn.messages.EventAck eventAck_ = de.uniluebeck.itm.tr.iwsn.messages.EventAck.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
         de.uniluebeck.itm.tr.iwsn.messages.EventAck, de.uniluebeck.itm.tr.iwsn.messages.EventAck.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventAckOrBuilder> eventAckBuilder_;
     public boolean hasEventAck() {
-      return ((bitField0_ & 0x00000040) == 0x00000040);
+      return ((bitField1_ & 0x00000002) == 0x00000002);
     }
     public de.uniluebeck.itm.tr.iwsn.messages.EventAck getEventAck() {
       if (eventAckBuilder_ == null) {
@@ -1260,7 +5396,7 @@ public  final class Message extends
       } else {
         eventAckBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000040;
+      bitField1_ |= 0x00000002;
       return this;
     }
     public Builder setEventAck(
@@ -1271,12 +5407,12 @@ public  final class Message extends
       } else {
         eventAckBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000040;
+      bitField1_ |= 0x00000002;
       return this;
     }
     public Builder mergeEventAck(de.uniluebeck.itm.tr.iwsn.messages.EventAck value) {
       if (eventAckBuilder_ == null) {
-        if (((bitField0_ & 0x00000040) == 0x00000040) &&
+        if (((bitField1_ & 0x00000002) == 0x00000002) &&
             eventAck_ != de.uniluebeck.itm.tr.iwsn.messages.EventAck.getDefaultInstance()) {
           eventAck_ =
             de.uniluebeck.itm.tr.iwsn.messages.EventAck.newBuilder(eventAck_).mergeFrom(value).buildPartial();
@@ -1287,7 +5423,7 @@ public  final class Message extends
       } else {
         eventAckBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000040;
+      bitField1_ |= 0x00000002;
       return this;
     }
     public Builder clearEventAck() {
@@ -1297,11 +5433,11 @@ public  final class Message extends
       } else {
         eventAckBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000040);
+      bitField1_ = (bitField1_ & ~0x00000002);
       return this;
     }
     public de.uniluebeck.itm.tr.iwsn.messages.EventAck.Builder getEventAckBuilder() {
-      bitField0_ |= 0x00000040;
+      bitField1_ |= 0x00000002;
       onChanged();
       return getEventAckFieldBuilder().getBuilder();
     }

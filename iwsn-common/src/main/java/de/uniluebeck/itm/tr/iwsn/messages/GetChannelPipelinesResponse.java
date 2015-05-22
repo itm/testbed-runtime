@@ -699,50 +699,21 @@ public  final class GetChannelPipelinesResponse extends
   }
   
   private int bitField0_;
-  // optional string reservationId = 1;
-  public static final int RESERVATIONID_FIELD_NUMBER = 1;
-  private java.lang.Object reservationId_;
-  public boolean hasReservationId() {
+  // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+  public static final int HEADER_FIELD_NUMBER = 1;
+  private de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header_;
+  public boolean hasHeader() {
     return ((bitField0_ & 0x00000001) == 0x00000001);
   }
-  public String getReservationId() {
-    java.lang.Object ref = reservationId_;
-    if (ref instanceof String) {
-      return (String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      String s = bs.toStringUtf8();
-      if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-        reservationId_ = s;
-      }
-      return s;
-    }
+  public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader() {
+    return header_;
   }
-  private com.google.protobuf.ByteString getReservationIdBytes() {
-    java.lang.Object ref = reservationId_;
-    if (ref instanceof String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-      reservationId_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
+  public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder() {
+    return header_;
   }
   
-  // required int64 requestId = 2;
-  public static final int REQUESTID_FIELD_NUMBER = 2;
-  private long requestId_;
-  public boolean hasRequestId() {
-    return ((bitField0_ & 0x00000002) == 0x00000002);
-  }
-  public long getRequestId() {
-    return requestId_;
-  }
-  
-  // repeated .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse pipelines = 3;
-  public static final int PIPELINES_FIELD_NUMBER = 3;
+  // repeated .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse pipelines = 2;
+  public static final int PIPELINES_FIELD_NUMBER = 2;
   private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> pipelines_;
   public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> getPipelinesList() {
     return pipelines_;
@@ -763,8 +734,7 @@ public  final class GetChannelPipelinesResponse extends
   }
   
   private void initFields() {
-    reservationId_ = "";
-    requestId_ = 0L;
+    header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
     pipelines_ = java.util.Collections.emptyList();
   }
   private byte memoizedIsInitialized = -1;
@@ -772,7 +742,11 @@ public  final class GetChannelPipelinesResponse extends
     byte isInitialized = memoizedIsInitialized;
     if (isInitialized != -1) return isInitialized == 1;
     
-    if (!hasRequestId()) {
+    if (!hasHeader()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!getHeader().isInitialized()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -790,13 +764,10 @@ public  final class GetChannelPipelinesResponse extends
                       throws java.io.IOException {
     getSerializedSize();
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
-      output.writeBytes(1, getReservationIdBytes());
-    }
-    if (((bitField0_ & 0x00000002) == 0x00000002)) {
-      output.writeInt64(2, requestId_);
+      output.writeMessage(1, header_);
     }
     for (int i = 0; i < pipelines_.size(); i++) {
-      output.writeMessage(3, pipelines_.get(i));
+      output.writeMessage(2, pipelines_.get(i));
     }
     getUnknownFields().writeTo(output);
   }
@@ -809,15 +780,11 @@ public  final class GetChannelPipelinesResponse extends
     size = 0;
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(1, getReservationIdBytes());
-    }
-    if (((bitField0_ & 0x00000002) == 0x00000002)) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(2, requestId_);
+        .computeMessageSize(1, header_);
     }
     for (int i = 0; i < pipelines_.size(); i++) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(3, pipelines_.get(i));
+        .computeMessageSize(2, pipelines_.get(i));
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -935,6 +902,7 @@ public  final class GetChannelPipelinesResponse extends
     }
     private void maybeForceBuilderInitialization() {
       if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        getHeaderFieldBuilder();
         getPipelinesFieldBuilder();
       }
     }
@@ -944,13 +912,15 @@ public  final class GetChannelPipelinesResponse extends
     
     public Builder clear() {
       super.clear();
-      reservationId_ = "";
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+      } else {
+        headerBuilder_.clear();
+      }
       bitField0_ = (bitField0_ & ~0x00000001);
-      requestId_ = 0L;
-      bitField0_ = (bitField0_ & ~0x00000002);
       if (pipelinesBuilder_ == null) {
         pipelines_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000002);
       } else {
         pipelinesBuilder_.clear();
       }
@@ -995,15 +965,15 @@ public  final class GetChannelPipelinesResponse extends
       if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
         to_bitField0_ |= 0x00000001;
       }
-      result.reservationId_ = reservationId_;
-      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
-        to_bitField0_ |= 0x00000002;
+      if (headerBuilder_ == null) {
+        result.header_ = header_;
+      } else {
+        result.header_ = headerBuilder_.build();
       }
-      result.requestId_ = requestId_;
       if (pipelinesBuilder_ == null) {
-        if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
           pipelines_ = java.util.Collections.unmodifiableList(pipelines_);
-          bitField0_ = (bitField0_ & ~0x00000004);
+          bitField0_ = (bitField0_ & ~0x00000002);
         }
         result.pipelines_ = pipelines_;
       } else {
@@ -1025,17 +995,14 @@ public  final class GetChannelPipelinesResponse extends
     
     public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse other) {
       if (other == de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.getDefaultInstance()) return this;
-      if (other.hasReservationId()) {
-        setReservationId(other.getReservationId());
-      }
-      if (other.hasRequestId()) {
-        setRequestId(other.getRequestId());
+      if (other.hasHeader()) {
+        mergeHeader(other.getHeader());
       }
       if (pipelinesBuilder_ == null) {
         if (!other.pipelines_.isEmpty()) {
           if (pipelines_.isEmpty()) {
             pipelines_ = other.pipelines_;
-            bitField0_ = (bitField0_ & ~0x00000004);
+            bitField0_ = (bitField0_ & ~0x00000002);
           } else {
             ensurePipelinesIsMutable();
             pipelines_.addAll(other.pipelines_);
@@ -1048,7 +1015,7 @@ public  final class GetChannelPipelinesResponse extends
             pipelinesBuilder_.dispose();
             pipelinesBuilder_ = null;
             pipelines_ = other.pipelines_;
-            bitField0_ = (bitField0_ & ~0x00000004);
+            bitField0_ = (bitField0_ & ~0x00000002);
             pipelinesBuilder_ = 
               com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                  getPipelinesFieldBuilder() : null;
@@ -1062,7 +1029,11 @@ public  final class GetChannelPipelinesResponse extends
     }
     
     public final boolean isInitialized() {
-      if (!hasRequestId()) {
+      if (!hasHeader()) {
+        
+        return false;
+      }
+      if (!getHeader().isInitialized()) {
         
         return false;
       }
@@ -1099,16 +1070,15 @@ public  final class GetChannelPipelinesResponse extends
             break;
           }
           case 10: {
-            bitField0_ |= 0x00000001;
-            reservationId_ = input.readBytes();
+            de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.newBuilder();
+            if (hasHeader()) {
+              subBuilder.mergeFrom(getHeader());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setHeader(subBuilder.buildPartial());
             break;
           }
-          case 16: {
-            bitField0_ |= 0x00000002;
-            requestId_ = input.readInt64();
-            break;
-          }
-          case 26: {
+          case 18: {
             de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse.newBuilder();
             input.readMessage(subBuilder, extensionRegistry);
             addPipelines(subBuilder.buildPartial());
@@ -1120,70 +1090,103 @@ public  final class GetChannelPipelinesResponse extends
     
     private int bitField0_;
     
-    // optional string reservationId = 1;
-    private java.lang.Object reservationId_ = "";
-    public boolean hasReservationId() {
+    // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+    private de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder> headerBuilder_;
+    public boolean hasHeader() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public String getReservationId() {
-      java.lang.Object ref = reservationId_;
-      if (!(ref instanceof String)) {
-        String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-        reservationId_ = s;
-        return s;
+    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader() {
+      if (headerBuilder_ == null) {
+        return header_;
       } else {
-        return (String) ref;
+        return headerBuilder_.getMessage();
       }
     }
-    public Builder setReservationId(String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-      reservationId_ = value;
-      onChanged();
-      return this;
-    }
-    public Builder clearReservationId() {
-      bitField0_ = (bitField0_ & ~0x00000001);
-      reservationId_ = getDefaultInstance().getReservationId();
-      onChanged();
-      return this;
-    }
-    void setReservationId(com.google.protobuf.ByteString value) {
+    public Builder setHeader(de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader value) {
+      if (headerBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        header_ = value;
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(value);
+      }
       bitField0_ |= 0x00000001;
-      reservationId_ = value;
-      onChanged();
-    }
-    
-    // required int64 requestId = 2;
-    private long requestId_ ;
-    public boolean hasRequestId() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public long getRequestId() {
-      return requestId_;
-    }
-    public Builder setRequestId(long value) {
-      bitField0_ |= 0x00000002;
-      requestId_ = value;
-      onChanged();
       return this;
     }
-    public Builder clearRequestId() {
-      bitField0_ = (bitField0_ & ~0x00000002);
-      requestId_ = 0L;
-      onChanged();
+    public Builder setHeader(
+        de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder builderForValue) {
+      if (headerBuilder_ == null) {
+        header_ = builderForValue.build();
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000001;
       return this;
     }
+    public Builder mergeHeader(de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader value) {
+      if (headerBuilder_ == null) {
+        if (((bitField0_ & 0x00000001) == 0x00000001) &&
+            header_ != de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance()) {
+          header_ =
+            de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.newBuilder(header_).mergeFrom(value).buildPartial();
+        } else {
+          header_ = value;
+        }
+        onChanged();
+      } else {
+        headerBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000001;
+      return this;
+    }
+    public Builder clearHeader() {
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+        onChanged();
+      } else {
+        headerBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000001);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder getHeaderBuilder() {
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return getHeaderFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder() {
+      if (headerBuilder_ != null) {
+        return headerBuilder_.getMessageOrBuilder();
+      } else {
+        return header_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder> 
+        getHeaderFieldBuilder() {
+      if (headerBuilder_ == null) {
+        headerBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder>(
+                header_,
+                getParentForChildren(),
+                isClean());
+        header_ = null;
+      }
+      return headerBuilder_;
+    }
     
-    // repeated .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse pipelines = 3;
+    // repeated .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse pipelines = 2;
     private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> pipelines_ =
       java.util.Collections.emptyList();
     private void ensurePipelinesIsMutable() {
-      if (!((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (!((bitField0_ & 0x00000002) == 0x00000002)) {
         pipelines_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse>(pipelines_);
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000002;
        }
     }
     
@@ -1299,7 +1302,7 @@ public  final class GetChannelPipelinesResponse extends
     public Builder clearPipelines() {
       if (pipelinesBuilder_ == null) {
         pipelines_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
       } else {
         pipelinesBuilder_.clear();
@@ -1355,7 +1358,7 @@ public  final class GetChannelPipelinesResponse extends
         pipelinesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
             de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse.Builder, de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponseOrBuilder>(
                 pipelines_,
-                ((bitField0_ & 0x00000004) == 0x00000004),
+                ((bitField0_ & 0x00000002) == 0x00000002),
                 getParentForChildren(),
                 isClean());
         pipelines_ = null;

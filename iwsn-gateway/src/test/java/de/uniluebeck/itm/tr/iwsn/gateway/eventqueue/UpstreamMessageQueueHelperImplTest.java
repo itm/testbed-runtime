@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 

@@ -31,47 +31,32 @@ public  final class DeviceConfigCreatedEvent extends
   }
   
   private int bitField0_;
-  // required string nodeUrn = 1;
-  public static final int NODEURN_FIELD_NUMBER = 1;
-  private java.lang.Object nodeUrn_;
-  public boolean hasNodeUrn() {
+  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  public static final int HEADER_FIELD_NUMBER = 1;
+  private de.uniluebeck.itm.tr.iwsn.messages.EventHeader header_;
+  public boolean hasHeader() {
     return ((bitField0_ & 0x00000001) == 0x00000001);
   }
-  public String getNodeUrn() {
-    java.lang.Object ref = nodeUrn_;
-    if (ref instanceof String) {
-      return (String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      String s = bs.toStringUtf8();
-      if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-        nodeUrn_ = s;
-      }
-      return s;
-    }
+  public de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader() {
+    return header_;
   }
-  private com.google.protobuf.ByteString getNodeUrnBytes() {
-    java.lang.Object ref = nodeUrn_;
-    if (ref instanceof String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-      nodeUrn_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
+  public de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder() {
+    return header_;
   }
   
   private void initFields() {
-    nodeUrn_ = "";
+    header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
   }
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
     if (isInitialized != -1) return isInitialized == 1;
     
-    if (!hasNodeUrn()) {
+    if (!hasHeader()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!getHeader().isInitialized()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -83,7 +68,7 @@ public  final class DeviceConfigCreatedEvent extends
                       throws java.io.IOException {
     getSerializedSize();
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
-      output.writeBytes(1, getNodeUrnBytes());
+      output.writeMessage(1, header_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -96,7 +81,7 @@ public  final class DeviceConfigCreatedEvent extends
     size = 0;
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(1, getNodeUrnBytes());
+        .computeMessageSize(1, header_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -214,6 +199,7 @@ public  final class DeviceConfigCreatedEvent extends
     }
     private void maybeForceBuilderInitialization() {
       if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        getHeaderFieldBuilder();
       }
     }
     private static Builder create() {
@@ -222,7 +208,11 @@ public  final class DeviceConfigCreatedEvent extends
     
     public Builder clear() {
       super.clear();
-      nodeUrn_ = "";
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+      } else {
+        headerBuilder_.clear();
+      }
       bitField0_ = (bitField0_ & ~0x00000001);
       return this;
     }
@@ -265,7 +255,11 @@ public  final class DeviceConfigCreatedEvent extends
       if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
         to_bitField0_ |= 0x00000001;
       }
-      result.nodeUrn_ = nodeUrn_;
+      if (headerBuilder_ == null) {
+        result.header_ = header_;
+      } else {
+        result.header_ = headerBuilder_.build();
+      }
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -282,15 +276,19 @@ public  final class DeviceConfigCreatedEvent extends
     
     public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent other) {
       if (other == de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent.getDefaultInstance()) return this;
-      if (other.hasNodeUrn()) {
-        setNodeUrn(other.getNodeUrn());
+      if (other.hasHeader()) {
+        mergeHeader(other.getHeader());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
     }
     
     public final boolean isInitialized() {
-      if (!hasNodeUrn()) {
+      if (!hasHeader()) {
+        
+        return false;
+      }
+      if (!getHeader().isInitialized()) {
         
         return false;
       }
@@ -321,8 +319,12 @@ public  final class DeviceConfigCreatedEvent extends
             break;
           }
           case 10: {
-            bitField0_ |= 0x00000001;
-            nodeUrn_ = input.readBytes();
+            de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.newBuilder();
+            if (hasHeader()) {
+              subBuilder.mergeFrom(getHeader());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setHeader(subBuilder.buildPartial());
             break;
           }
         }
@@ -331,40 +333,94 @@ public  final class DeviceConfigCreatedEvent extends
     
     private int bitField0_;
     
-    // required string nodeUrn = 1;
-    private java.lang.Object nodeUrn_ = "";
-    public boolean hasNodeUrn() {
+    // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+    private de.uniluebeck.itm.tr.iwsn.messages.EventHeader header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder> headerBuilder_;
+    public boolean hasHeader() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public String getNodeUrn() {
-      java.lang.Object ref = nodeUrn_;
-      if (!(ref instanceof String)) {
-        String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-        nodeUrn_ = s;
-        return s;
+    public de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader() {
+      if (headerBuilder_ == null) {
+        return header_;
       } else {
-        return (String) ref;
+        return headerBuilder_.getMessage();
       }
     }
-    public Builder setNodeUrn(String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  bitField0_ |= 0x00000001;
-      nodeUrn_ = value;
-      onChanged();
-      return this;
-    }
-    public Builder clearNodeUrn() {
-      bitField0_ = (bitField0_ & ~0x00000001);
-      nodeUrn_ = getDefaultInstance().getNodeUrn();
-      onChanged();
-      return this;
-    }
-    void setNodeUrn(com.google.protobuf.ByteString value) {
+    public Builder setHeader(de.uniluebeck.itm.tr.iwsn.messages.EventHeader value) {
+      if (headerBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        header_ = value;
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(value);
+      }
       bitField0_ |= 0x00000001;
-      nodeUrn_ = value;
+      return this;
+    }
+    public Builder setHeader(
+        de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder builderForValue) {
+      if (headerBuilder_ == null) {
+        header_ = builderForValue.build();
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000001;
+      return this;
+    }
+    public Builder mergeHeader(de.uniluebeck.itm.tr.iwsn.messages.EventHeader value) {
+      if (headerBuilder_ == null) {
+        if (((bitField0_ & 0x00000001) == 0x00000001) &&
+            header_ != de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance()) {
+          header_ =
+            de.uniluebeck.itm.tr.iwsn.messages.EventHeader.newBuilder(header_).mergeFrom(value).buildPartial();
+        } else {
+          header_ = value;
+        }
+        onChanged();
+      } else {
+        headerBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000001;
+      return this;
+    }
+    public Builder clearHeader() {
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+        onChanged();
+      } else {
+        headerBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000001);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder getHeaderBuilder() {
+      bitField0_ |= 0x00000001;
       onChanged();
+      return getHeaderFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder() {
+      if (headerBuilder_ != null) {
+        return headerBuilder_.getMessageOrBuilder();
+      } else {
+        return header_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder> 
+        getHeaderFieldBuilder() {
+      if (headerBuilder_ == null) {
+        headerBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder>(
+                header_,
+                getParentForChildren(),
+                isClean());
+        header_ = null;
+      }
+      return headerBuilder_;
     }
     
     // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent)

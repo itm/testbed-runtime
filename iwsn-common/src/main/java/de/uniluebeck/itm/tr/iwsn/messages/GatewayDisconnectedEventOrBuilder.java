@@ -5,16 +5,12 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface GatewayDisconnectedEventOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required uint64 timestamp = 1;
-  boolean hasTimestamp();
-  long getTimestamp();
+  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  boolean hasHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
   
   // required string hostname = 2;
   boolean hasHostname();
   String getHostname();
-  
-  // repeated string nodeUrns = 3;
-  java.util.List<String> getNodeUrnsList();
-  int getNodeUrnsCount();
-  String getNodeUrns(int index);
 }

@@ -36,8 +36,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newGetChannelPipelinesResponse;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSingleNodeResponse;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newGetChannelPipelinesResponse;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newSingleNodeResponse;
 
 public class RequestHandlerImpl extends AbstractService implements RequestHandler {
 

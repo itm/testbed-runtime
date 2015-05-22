@@ -5,15 +5,12 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface GetChannelPipelinesResponseOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // optional string reservationId = 1;
-  boolean hasReservationId();
-  String getReservationId();
+  // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+  boolean hasHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
-  // required int64 requestId = 2;
-  boolean hasRequestId();
-  long getRequestId();
-  
-  // repeated .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse pipelines = 3;
+  // repeated .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse pipelines = 2;
   java.util.List<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> 
       getPipelinesList();
   de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse getPipelines(int index);

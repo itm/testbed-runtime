@@ -30,8 +30,22 @@ public  final class DisablePhysicalLinksRequest extends
     return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_DisablePhysicalLinksRequest_fieldAccessorTable;
   }
   
-  // repeated .de.uniluebeck.itm.tr.iwsn.messages.Link links = 1;
-  public static final int LINKS_FIELD_NUMBER = 1;
+  private int bitField0_;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+  public static final int HEADER_FIELD_NUMBER = 1;
+  private de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header_;
+  public boolean hasHeader() {
+    return ((bitField0_ & 0x00000001) == 0x00000001);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader() {
+    return header_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder() {
+    return header_;
+  }
+  
+  // repeated .de.uniluebeck.itm.tr.iwsn.messages.Link links = 2;
+  public static final int LINKS_FIELD_NUMBER = 2;
   private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.Link> links_;
   public java.util.List<de.uniluebeck.itm.tr.iwsn.messages.Link> getLinksList() {
     return links_;
@@ -52,6 +66,7 @@ public  final class DisablePhysicalLinksRequest extends
   }
   
   private void initFields() {
+    header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
     links_ = java.util.Collections.emptyList();
   }
   private byte memoizedIsInitialized = -1;
@@ -59,6 +74,14 @@ public  final class DisablePhysicalLinksRequest extends
     byte isInitialized = memoizedIsInitialized;
     if (isInitialized != -1) return isInitialized == 1;
     
+    if (!hasHeader()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!getHeader().isInitialized()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
     for (int i = 0; i < getLinksCount(); i++) {
       if (!getLinks(i).isInitialized()) {
         memoizedIsInitialized = 0;
@@ -72,8 +95,11 @@ public  final class DisablePhysicalLinksRequest extends
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
     getSerializedSize();
+    if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      output.writeMessage(1, header_);
+    }
     for (int i = 0; i < links_.size(); i++) {
-      output.writeMessage(1, links_.get(i));
+      output.writeMessage(2, links_.get(i));
     }
     getUnknownFields().writeTo(output);
   }
@@ -84,9 +110,13 @@ public  final class DisablePhysicalLinksRequest extends
     if (size != -1) return size;
   
     size = 0;
+    if (((bitField0_ & 0x00000001) == 0x00000001)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(1, header_);
+    }
     for (int i = 0; i < links_.size(); i++) {
       size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(1, links_.get(i));
+        .computeMessageSize(2, links_.get(i));
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -204,6 +234,7 @@ public  final class DisablePhysicalLinksRequest extends
     }
     private void maybeForceBuilderInitialization() {
       if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        getHeaderFieldBuilder();
         getLinksFieldBuilder();
       }
     }
@@ -213,9 +244,15 @@ public  final class DisablePhysicalLinksRequest extends
     
     public Builder clear() {
       super.clear();
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+      } else {
+        headerBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000001);
       if (linksBuilder_ == null) {
         links_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000002);
       } else {
         linksBuilder_.clear();
       }
@@ -256,15 +293,25 @@ public  final class DisablePhysicalLinksRequest extends
     public de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest buildPartial() {
       de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest result = new de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest(this);
       int from_bitField0_ = bitField0_;
+      int to_bitField0_ = 0;
+      if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+        to_bitField0_ |= 0x00000001;
+      }
+      if (headerBuilder_ == null) {
+        result.header_ = header_;
+      } else {
+        result.header_ = headerBuilder_.build();
+      }
       if (linksBuilder_ == null) {
-        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
           links_ = java.util.Collections.unmodifiableList(links_);
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
         }
         result.links_ = links_;
       } else {
         result.links_ = linksBuilder_.build();
       }
+      result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
@@ -280,11 +327,14 @@ public  final class DisablePhysicalLinksRequest extends
     
     public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest other) {
       if (other == de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest.getDefaultInstance()) return this;
+      if (other.hasHeader()) {
+        mergeHeader(other.getHeader());
+      }
       if (linksBuilder_ == null) {
         if (!other.links_.isEmpty()) {
           if (links_.isEmpty()) {
             links_ = other.links_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000002);
           } else {
             ensureLinksIsMutable();
             links_.addAll(other.links_);
@@ -297,7 +347,7 @@ public  final class DisablePhysicalLinksRequest extends
             linksBuilder_.dispose();
             linksBuilder_ = null;
             links_ = other.links_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000002);
             linksBuilder_ = 
               com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                  getLinksFieldBuilder() : null;
@@ -311,6 +361,14 @@ public  final class DisablePhysicalLinksRequest extends
     }
     
     public final boolean isInitialized() {
+      if (!hasHeader()) {
+        
+        return false;
+      }
+      if (!getHeader().isInitialized()) {
+        
+        return false;
+      }
       for (int i = 0; i < getLinksCount(); i++) {
         if (!getLinks(i).isInitialized()) {
           
@@ -344,6 +402,15 @@ public  final class DisablePhysicalLinksRequest extends
             break;
           }
           case 10: {
+            de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.newBuilder();
+            if (hasHeader()) {
+              subBuilder.mergeFrom(getHeader());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setHeader(subBuilder.buildPartial());
+            break;
+          }
+          case 18: {
             de.uniluebeck.itm.tr.iwsn.messages.Link.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.Link.newBuilder();
             input.readMessage(subBuilder, extensionRegistry);
             addLinks(subBuilder.buildPartial());
@@ -355,13 +422,103 @@ public  final class DisablePhysicalLinksRequest extends
     
     private int bitField0_;
     
-    // repeated .de.uniluebeck.itm.tr.iwsn.messages.Link links = 1;
+    // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+    private de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder> headerBuilder_;
+    public boolean hasHeader() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader() {
+      if (headerBuilder_ == null) {
+        return header_;
+      } else {
+        return headerBuilder_.getMessage();
+      }
+    }
+    public Builder setHeader(de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader value) {
+      if (headerBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        header_ = value;
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000001;
+      return this;
+    }
+    public Builder setHeader(
+        de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder builderForValue) {
+      if (headerBuilder_ == null) {
+        header_ = builderForValue.build();
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000001;
+      return this;
+    }
+    public Builder mergeHeader(de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader value) {
+      if (headerBuilder_ == null) {
+        if (((bitField0_ & 0x00000001) == 0x00000001) &&
+            header_ != de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance()) {
+          header_ =
+            de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.newBuilder(header_).mergeFrom(value).buildPartial();
+        } else {
+          header_ = value;
+        }
+        onChanged();
+      } else {
+        headerBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000001;
+      return this;
+    }
+    public Builder clearHeader() {
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+        onChanged();
+      } else {
+        headerBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000001);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder getHeaderBuilder() {
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return getHeaderFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder() {
+      if (headerBuilder_ != null) {
+        return headerBuilder_.getMessageOrBuilder();
+      } else {
+        return header_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder> 
+        getHeaderFieldBuilder() {
+      if (headerBuilder_ == null) {
+        headerBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder>(
+                header_,
+                getParentForChildren(),
+                isClean());
+        header_ = null;
+      }
+      return headerBuilder_;
+    }
+    
+    // repeated .de.uniluebeck.itm.tr.iwsn.messages.Link links = 2;
     private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.Link> links_ =
       java.util.Collections.emptyList();
     private void ensureLinksIsMutable() {
-      if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+      if (!((bitField0_ & 0x00000002) == 0x00000002)) {
         links_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.Link>(links_);
-        bitField0_ |= 0x00000001;
+        bitField0_ |= 0x00000002;
        }
     }
     
@@ -477,7 +634,7 @@ public  final class DisablePhysicalLinksRequest extends
     public Builder clearLinks() {
       if (linksBuilder_ == null) {
         links_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
       } else {
         linksBuilder_.clear();
@@ -533,7 +690,7 @@ public  final class DisablePhysicalLinksRequest extends
         linksBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
             de.uniluebeck.itm.tr.iwsn.messages.Link, de.uniluebeck.itm.tr.iwsn.messages.Link.Builder, de.uniluebeck.itm.tr.iwsn.messages.LinkOrBuilder>(
                 links_,
-                ((bitField0_ & 0x00000001) == 0x00000001),
+                ((bitField0_ & 0x00000002) == 0x00000002),
                 getParentForChildren(),
                 isClean());
         links_ = null;

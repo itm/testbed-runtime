@@ -31,14 +31,17 @@ public  final class GatewayConnectedEvent extends
   }
   
   private int bitField0_;
-  // required uint64 timestamp = 1;
-  public static final int TIMESTAMP_FIELD_NUMBER = 1;
-  private long timestamp_;
-  public boolean hasTimestamp() {
+  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  public static final int HEADER_FIELD_NUMBER = 1;
+  private de.uniluebeck.itm.tr.iwsn.messages.EventHeader header_;
+  public boolean hasHeader() {
     return ((bitField0_ & 0x00000001) == 0x00000001);
   }
-  public long getTimestamp() {
-    return timestamp_;
+  public de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader() {
+    return header_;
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder() {
+    return header_;
   }
   
   // required string hostname = 2;
@@ -74,7 +77,7 @@ public  final class GatewayConnectedEvent extends
   }
   
   private void initFields() {
-    timestamp_ = 0L;
+    header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
     hostname_ = "";
   }
   private byte memoizedIsInitialized = -1;
@@ -82,11 +85,15 @@ public  final class GatewayConnectedEvent extends
     byte isInitialized = memoizedIsInitialized;
     if (isInitialized != -1) return isInitialized == 1;
     
-    if (!hasTimestamp()) {
+    if (!hasHeader()) {
       memoizedIsInitialized = 0;
       return false;
     }
     if (!hasHostname()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!getHeader().isInitialized()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -98,7 +105,7 @@ public  final class GatewayConnectedEvent extends
                       throws java.io.IOException {
     getSerializedSize();
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
-      output.writeUInt64(1, timestamp_);
+      output.writeMessage(1, header_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       output.writeBytes(2, getHostnameBytes());
@@ -114,7 +121,7 @@ public  final class GatewayConnectedEvent extends
     size = 0;
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeUInt64Size(1, timestamp_);
+        .computeMessageSize(1, header_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
@@ -236,6 +243,7 @@ public  final class GatewayConnectedEvent extends
     }
     private void maybeForceBuilderInitialization() {
       if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        getHeaderFieldBuilder();
       }
     }
     private static Builder create() {
@@ -244,7 +252,11 @@ public  final class GatewayConnectedEvent extends
     
     public Builder clear() {
       super.clear();
-      timestamp_ = 0L;
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+      } else {
+        headerBuilder_.clear();
+      }
       bitField0_ = (bitField0_ & ~0x00000001);
       hostname_ = "";
       bitField0_ = (bitField0_ & ~0x00000002);
@@ -289,7 +301,11 @@ public  final class GatewayConnectedEvent extends
       if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
         to_bitField0_ |= 0x00000001;
       }
-      result.timestamp_ = timestamp_;
+      if (headerBuilder_ == null) {
+        result.header_ = header_;
+      } else {
+        result.header_ = headerBuilder_.build();
+      }
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000002;
       }
@@ -310,8 +326,8 @@ public  final class GatewayConnectedEvent extends
     
     public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent other) {
       if (other == de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.getDefaultInstance()) return this;
-      if (other.hasTimestamp()) {
-        setTimestamp(other.getTimestamp());
+      if (other.hasHeader()) {
+        mergeHeader(other.getHeader());
       }
       if (other.hasHostname()) {
         setHostname(other.getHostname());
@@ -321,11 +337,15 @@ public  final class GatewayConnectedEvent extends
     }
     
     public final boolean isInitialized() {
-      if (!hasTimestamp()) {
+      if (!hasHeader()) {
         
         return false;
       }
       if (!hasHostname()) {
+        
+        return false;
+      }
+      if (!getHeader().isInitialized()) {
         
         return false;
       }
@@ -355,9 +375,13 @@ public  final class GatewayConnectedEvent extends
             }
             break;
           }
-          case 8: {
-            bitField0_ |= 0x00000001;
-            timestamp_ = input.readUInt64();
+          case 10: {
+            de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.newBuilder();
+            if (hasHeader()) {
+              subBuilder.mergeFrom(getHeader());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setHeader(subBuilder.buildPartial());
             break;
           }
           case 18: {
@@ -371,25 +395,94 @@ public  final class GatewayConnectedEvent extends
     
     private int bitField0_;
     
-    // required uint64 timestamp = 1;
-    private long timestamp_ ;
-    public boolean hasTimestamp() {
+    // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+    private de.uniluebeck.itm.tr.iwsn.messages.EventHeader header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder> headerBuilder_;
+    public boolean hasHeader() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public long getTimestamp() {
-      return timestamp_;
+    public de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader() {
+      if (headerBuilder_ == null) {
+        return header_;
+      } else {
+        return headerBuilder_.getMessage();
+      }
     }
-    public Builder setTimestamp(long value) {
+    public Builder setHeader(de.uniluebeck.itm.tr.iwsn.messages.EventHeader value) {
+      if (headerBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        header_ = value;
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(value);
+      }
       bitField0_ |= 0x00000001;
-      timestamp_ = value;
-      onChanged();
       return this;
     }
-    public Builder clearTimestamp() {
-      bitField0_ = (bitField0_ & ~0x00000001);
-      timestamp_ = 0L;
-      onChanged();
+    public Builder setHeader(
+        de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder builderForValue) {
+      if (headerBuilder_ == null) {
+        header_ = builderForValue.build();
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000001;
       return this;
+    }
+    public Builder mergeHeader(de.uniluebeck.itm.tr.iwsn.messages.EventHeader value) {
+      if (headerBuilder_ == null) {
+        if (((bitField0_ & 0x00000001) == 0x00000001) &&
+            header_ != de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance()) {
+          header_ =
+            de.uniluebeck.itm.tr.iwsn.messages.EventHeader.newBuilder(header_).mergeFrom(value).buildPartial();
+        } else {
+          header_ = value;
+        }
+        onChanged();
+      } else {
+        headerBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000001;
+      return this;
+    }
+    public Builder clearHeader() {
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+        onChanged();
+      } else {
+        headerBuilder_.clear();
+      }
+      bitField0_ = (bitField0_ & ~0x00000001);
+      return this;
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder getHeaderBuilder() {
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return getHeaderFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder() {
+      if (headerBuilder_ != null) {
+        return headerBuilder_.getMessageOrBuilder();
+      } else {
+        return header_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder> 
+        getHeaderFieldBuilder() {
+      if (headerBuilder_ == null) {
+        headerBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder>(
+                header_,
+                getParentForChildren(),
+                isClean());
+        header_ = null;
+      }
+      return headerBuilder_;
     }
     
     // required string hostname = 2;

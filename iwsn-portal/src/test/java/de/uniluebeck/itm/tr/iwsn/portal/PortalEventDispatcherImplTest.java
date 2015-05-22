@@ -17,14 +17,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.*;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.*;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -163,7 +161,7 @@ public class PortalEventDispatcherImplTest {
 
         final ArgumentCaptor<DevicesAttachedEvent> captor = ArgumentCaptor.forClass(DevicesAttachedEvent.class);
         verify(eventBus, times(1)).post(captor.capture());
-        assertTrue(MessagesHelper.equals(captor.getValue(), newDevicesAttachedEvent(timestamp, RESERVED_NODES)));
+        assertTrue(MessageFactory.equals(captor.getValue(), newDevicesAttachedEvent(timestamp, RESERVED_NODES)));
     }
 
     @Test
@@ -308,7 +306,7 @@ public class PortalEventDispatcherImplTest {
 
         final ArgumentCaptor<DevicesDetachedEvent> captor = ArgumentCaptor.forClass(DevicesDetachedEvent.class);
         verify(eventBus, times(1)).post(captor.capture());
-        assertTrue(MessagesHelper.equals(captor.getValue(), newDevicesDetachedEvent(timestamp, RESERVED_NODES)));
+        assertTrue(MessageFactory.equals(captor.getValue(), newDevicesDetachedEvent(timestamp, RESERVED_NODES)));
     }
 
     @After

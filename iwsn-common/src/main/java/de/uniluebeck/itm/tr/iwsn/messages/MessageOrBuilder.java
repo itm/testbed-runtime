@@ -9,32 +9,167 @@ public interface MessageOrBuilder
   boolean hasType();
   de.uniluebeck.itm.tr.iwsn.messages.Message.Type getType();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.Request request = 101;
-  boolean hasRequest();
-  de.uniluebeck.itm.tr.iwsn.messages.Request getRequest();
-  de.uniluebeck.itm.tr.iwsn.messages.RequestOrBuilder getRequestOrBuilder();
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest areNodesAliveRequest = 111;
+  boolean hasAreNodesAliveRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest getAreNodesAliveRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequestOrBuilder getAreNodesAliveRequestOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress progress = 102;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest areNodesConnectedRequest = 112;
+  boolean hasAreNodesConnectedRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequest getAreNodesConnectedRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.AreNodesConnectedRequestOrBuilder getAreNodesConnectedRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest disableNodesRequest = 113;
+  boolean hasDisableNodesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequest getDisableNodesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.DisableNodesRequestOrBuilder getDisableNodesRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest disableVirtualLinksRequest = 114;
+  boolean hasDisableVirtualLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequest getDisableVirtualLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.DisableVirtualLinksRequestOrBuilder getDisableVirtualLinksRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest disablePhysicalLinksRequest = 115;
+  boolean hasDisablePhysicalLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequest getDisablePhysicalLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.DisablePhysicalLinksRequestOrBuilder getDisablePhysicalLinksRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest enableNodesRequest = 116;
+  boolean hasEnableNodesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequest getEnableNodesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.EnableNodesRequestOrBuilder getEnableNodesRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest enablePhysicalLinksRequest = 117;
+  boolean hasEnablePhysicalLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequest getEnablePhysicalLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.EnablePhysicalLinksRequestOrBuilder getEnablePhysicalLinksRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest enableVirtualLinksRequest = 118;
+  boolean hasEnableVirtualLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequest getEnableVirtualLinksRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.EnableVirtualLinksRequestOrBuilder getEnableVirtualLinksRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest flashImagesRequest = 119;
+  boolean hasFlashImagesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest getFlashImagesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequestOrBuilder getFlashImagesRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getChannelPipelinesRequest = 120;
+  boolean hasGetChannelPipelinesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequest getGetChannelPipelinesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesRequestOrBuilder getGetChannelPipelinesRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest resetNodesRequest = 121;
+  boolean hasResetNodesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequest getResetNodesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.ResetNodesRequestOrBuilder getResetNodesRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest sendDownstreamMessagesRequest = 122;
+  boolean hasSendDownstreamMessagesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest getSendDownstreamMessagesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequestOrBuilder getSendDownstreamMessagesRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest setChannelPipelinesRequest = 123;
+  boolean hasSetChannelPipelinesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest getSetChannelPipelinesRequest();
+  de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequestOrBuilder getSetChannelPipelinesRequestOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress progress = 130;
   boolean hasProgress();
   de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress getProgress();
   de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgressOrBuilder getProgressOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse response = 103;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse response = 131;
   boolean hasResponse();
   de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse getResponse();
   de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponseOrBuilder getResponseOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getChannelPipelinesResponse = 104;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getChannelPipelinesResponse = 132;
   boolean hasGetChannelPipelinesResponse();
   de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getGetChannelPipelinesResponse();
   de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponseOrBuilder getGetChannelPipelinesResponseOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.Event event = 105;
-  boolean hasEvent();
-  de.uniluebeck.itm.tr.iwsn.messages.Event getEvent();
-  de.uniluebeck.itm.tr.iwsn.messages.EventOrBuilder getEventOrBuilder();
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent upstreamMessageEvent = 140;
+  boolean hasUpstreamMessageEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent getUpstreamMessageEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEventOrBuilder getUpstreamMessageEventOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.EventAck eventAck = 106;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent devicesAttachedEvent = 150;
+  boolean hasDevicesAttachedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent getDevicesAttachedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEventOrBuilder getDevicesAttachedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent devicesDetachedEvent = 151;
+  boolean hasDevicesDetachedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEvent getDevicesDetachedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DevicesDetachedEventOrBuilder getDevicesDetachedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent gatewayConnectedEvent = 152;
+  boolean hasGatewayConnectedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent getGatewayConnectedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEventOrBuilder getGatewayConnectedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent gatewayDisconnectedEvent = 153;
+  boolean hasGatewayDisconnectedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent getGatewayDisconnectedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEventOrBuilder getGatewayDisconnectedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent notificationEvent = 160;
+  boolean hasNotificationEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent getNotificationEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.NotificationEventOrBuilder getNotificationEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent reservationStartedEvent = 170;
+  boolean hasReservationStartedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent getReservationStartedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEventOrBuilder getReservationStartedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent reservationEndedEvent = 171;
+  boolean hasReservationEndedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent getReservationEndedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEventOrBuilder getReservationEndedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent reservationMadeEvent = 172;
+  boolean hasReservationMadeEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEvent getReservationMadeEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationMadeEventOrBuilder getReservationMadeEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent reservationCancelledEvent = 173;
+  boolean hasReservationCancelledEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEvent getReservationCancelledEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationCancelledEventOrBuilder getReservationCancelledEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent reservationOpenedEvent = 174;
+  boolean hasReservationOpenedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEvent getReservationOpenedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationOpenedEventOrBuilder getReservationOpenedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent reservationClosedEvent = 175;
+  boolean hasReservationClosedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEvent getReservationClosedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationClosedEventOrBuilder getReservationClosedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent reservationFinalizedEvent = 176;
+  boolean hasReservationFinalizedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEvent getReservationFinalizedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.ReservationFinalizedEventOrBuilder getReservationFinalizedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent deviceConfigCreatedEvent = 180;
+  boolean hasDeviceConfigCreatedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent getDeviceConfigCreatedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEventOrBuilder getDeviceConfigCreatedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent deviceConfigUpdatedEvent = 181;
+  boolean hasDeviceConfigUpdatedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent getDeviceConfigUpdatedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEventOrBuilder getDeviceConfigUpdatedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent deviceConfigDeletedEvent = 182;
+  boolean hasDeviceConfigDeletedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent getDeviceConfigDeletedEvent();
+  de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEventOrBuilder getDeviceConfigDeletedEventOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.EventAck eventAck = 190;
   boolean hasEventAck();
   de.uniluebeck.itm.tr.iwsn.messages.EventAck getEventAck();
   de.uniluebeck.itm.tr.iwsn.messages.EventAckOrBuilder getEventAckOrBuilder();

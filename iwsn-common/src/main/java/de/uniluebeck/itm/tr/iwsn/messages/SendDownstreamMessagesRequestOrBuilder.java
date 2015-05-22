@@ -5,12 +5,12 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface SendDownstreamMessagesRequestOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // repeated string targetNodeUrns = 1;
-  java.util.List<String> getTargetNodeUrnsList();
-  int getTargetNodeUrnsCount();
-  String getTargetNodeUrns(int index);
+  // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+  boolean hasHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
-  // required bytes messageBytes = 2;
+  // required bytes messageBytes = 3;
   boolean hasMessageBytes();
   com.google.protobuf.ByteString getMessageBytes();
 }

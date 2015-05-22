@@ -5,7 +5,8 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface DeviceConfigDeletedEventOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required string nodeUrn = 1;
-  boolean hasNodeUrn();
-  String getNodeUrn();
+  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  boolean hasHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
 }

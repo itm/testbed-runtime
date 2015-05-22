@@ -5,13 +5,10 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface UpstreamMessageEventOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required string sourceNodeUrn = 1;
-  boolean hasSourceNodeUrn();
-  String getSourceNodeUrn();
-  
-  // required uint64 timestamp = 2;
-  boolean hasTimestamp();
-  long getTimestamp();
+  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  boolean hasHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
   
   // required bytes messageBytes = 3;
   boolean hasMessageBytes();

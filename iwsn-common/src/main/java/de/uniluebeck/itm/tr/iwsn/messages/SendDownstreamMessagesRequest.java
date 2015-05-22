@@ -31,32 +31,31 @@ public  final class SendDownstreamMessagesRequest extends
   }
   
   private int bitField0_;
-  // repeated string targetNodeUrns = 1;
-  public static final int TARGETNODEURNS_FIELD_NUMBER = 1;
-  private com.google.protobuf.LazyStringList targetNodeUrns_;
-  public java.util.List<String>
-      getTargetNodeUrnsList() {
-    return targetNodeUrns_;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+  public static final int HEADER_FIELD_NUMBER = 1;
+  private de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header_;
+  public boolean hasHeader() {
+    return ((bitField0_ & 0x00000001) == 0x00000001);
   }
-  public int getTargetNodeUrnsCount() {
-    return targetNodeUrns_.size();
+  public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader() {
+    return header_;
   }
-  public String getTargetNodeUrns(int index) {
-    return targetNodeUrns_.get(index);
+  public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder() {
+    return header_;
   }
   
-  // required bytes messageBytes = 2;
-  public static final int MESSAGEBYTES_FIELD_NUMBER = 2;
+  // required bytes messageBytes = 3;
+  public static final int MESSAGEBYTES_FIELD_NUMBER = 3;
   private com.google.protobuf.ByteString messageBytes_;
   public boolean hasMessageBytes() {
-    return ((bitField0_ & 0x00000001) == 0x00000001);
+    return ((bitField0_ & 0x00000002) == 0x00000002);
   }
   public com.google.protobuf.ByteString getMessageBytes() {
     return messageBytes_;
   }
   
   private void initFields() {
-    targetNodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+    header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
     messageBytes_ = com.google.protobuf.ByteString.EMPTY;
   }
   private byte memoizedIsInitialized = -1;
@@ -64,7 +63,15 @@ public  final class SendDownstreamMessagesRequest extends
     byte isInitialized = memoizedIsInitialized;
     if (isInitialized != -1) return isInitialized == 1;
     
+    if (!hasHeader()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
     if (!hasMessageBytes()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!getHeader().isInitialized()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -75,11 +82,11 @@ public  final class SendDownstreamMessagesRequest extends
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
     getSerializedSize();
-    for (int i = 0; i < targetNodeUrns_.size(); i++) {
-      output.writeBytes(1, targetNodeUrns_.getByteString(i));
-    }
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
-      output.writeBytes(2, messageBytes_);
+      output.writeMessage(1, header_);
+    }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeBytes(3, messageBytes_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -90,18 +97,13 @@ public  final class SendDownstreamMessagesRequest extends
     if (size != -1) return size;
   
     size = 0;
-    {
-      int dataSize = 0;
-      for (int i = 0; i < targetNodeUrns_.size(); i++) {
-        dataSize += com.google.protobuf.CodedOutputStream
-          .computeBytesSizeNoTag(targetNodeUrns_.getByteString(i));
-      }
-      size += dataSize;
-      size += 1 * getTargetNodeUrnsList().size();
-    }
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(2, messageBytes_);
+        .computeMessageSize(1, header_);
+    }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(3, messageBytes_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -219,6 +221,7 @@ public  final class SendDownstreamMessagesRequest extends
     }
     private void maybeForceBuilderInitialization() {
       if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        getHeaderFieldBuilder();
       }
     }
     private static Builder create() {
@@ -227,7 +230,11 @@ public  final class SendDownstreamMessagesRequest extends
     
     public Builder clear() {
       super.clear();
-      targetNodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+      } else {
+        headerBuilder_.clear();
+      }
       bitField0_ = (bitField0_ & ~0x00000001);
       messageBytes_ = com.google.protobuf.ByteString.EMPTY;
       bitField0_ = (bitField0_ & ~0x00000002);
@@ -269,14 +276,16 @@ public  final class SendDownstreamMessagesRequest extends
       de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest result = new de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest(this);
       int from_bitField0_ = bitField0_;
       int to_bitField0_ = 0;
-      if (((bitField0_ & 0x00000001) == 0x00000001)) {
-        targetNodeUrns_ = new com.google.protobuf.UnmodifiableLazyStringList(
-            targetNodeUrns_);
-        bitField0_ = (bitField0_ & ~0x00000001);
-      }
-      result.targetNodeUrns_ = targetNodeUrns_;
-      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
         to_bitField0_ |= 0x00000001;
+      }
+      if (headerBuilder_ == null) {
+        result.header_ = header_;
+      } else {
+        result.header_ = headerBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        to_bitField0_ |= 0x00000002;
       }
       result.messageBytes_ = messageBytes_;
       result.bitField0_ = to_bitField0_;
@@ -295,15 +304,8 @@ public  final class SendDownstreamMessagesRequest extends
     
     public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest other) {
       if (other == de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance()) return this;
-      if (!other.targetNodeUrns_.isEmpty()) {
-        if (targetNodeUrns_.isEmpty()) {
-          targetNodeUrns_ = other.targetNodeUrns_;
-          bitField0_ = (bitField0_ & ~0x00000001);
-        } else {
-          ensureTargetNodeUrnsIsMutable();
-          targetNodeUrns_.addAll(other.targetNodeUrns_);
-        }
-        onChanged();
+      if (other.hasHeader()) {
+        mergeHeader(other.getHeader());
       }
       if (other.hasMessageBytes()) {
         setMessageBytes(other.getMessageBytes());
@@ -313,7 +315,15 @@ public  final class SendDownstreamMessagesRequest extends
     }
     
     public final boolean isInitialized() {
+      if (!hasHeader()) {
+        
+        return false;
+      }
       if (!hasMessageBytes()) {
+        
+        return false;
+      }
+      if (!getHeader().isInitialized()) {
         
         return false;
       }
@@ -344,11 +354,15 @@ public  final class SendDownstreamMessagesRequest extends
             break;
           }
           case 10: {
-            ensureTargetNodeUrnsIsMutable();
-            targetNodeUrns_.add(input.readBytes());
+            de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.newBuilder();
+            if (hasHeader()) {
+              subBuilder.mergeFrom(getHeader());
+            }
+            input.readMessage(subBuilder, extensionRegistry);
+            setHeader(subBuilder.buildPartial());
             break;
           }
-          case 18: {
+          case 26: {
             bitField0_ |= 0x00000002;
             messageBytes_ = input.readBytes();
             break;
@@ -359,63 +373,97 @@ public  final class SendDownstreamMessagesRequest extends
     
     private int bitField0_;
     
-    // repeated string targetNodeUrns = 1;
-    private com.google.protobuf.LazyStringList targetNodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-    private void ensureTargetNodeUrnsIsMutable() {
-      if (!((bitField0_ & 0x00000001) == 0x00000001)) {
-        targetNodeUrns_ = new com.google.protobuf.LazyStringArrayList(targetNodeUrns_);
-        bitField0_ |= 0x00000001;
-       }
+    // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+    private de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder> headerBuilder_;
+    public boolean hasHeader() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public java.util.List<String>
-        getTargetNodeUrnsList() {
-      return java.util.Collections.unmodifiableList(targetNodeUrns_);
+    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader() {
+      if (headerBuilder_ == null) {
+        return header_;
+      } else {
+        return headerBuilder_.getMessage();
+      }
     }
-    public int getTargetNodeUrnsCount() {
-      return targetNodeUrns_.size();
-    }
-    public String getTargetNodeUrns(int index) {
-      return targetNodeUrns_.get(index);
-    }
-    public Builder setTargetNodeUrns(
-        int index, String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureTargetNodeUrnsIsMutable();
-      targetNodeUrns_.set(index, value);
-      onChanged();
+    public Builder setHeader(de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader value) {
+      if (headerBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        header_ = value;
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000001;
       return this;
     }
-    public Builder addTargetNodeUrns(String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  ensureTargetNodeUrnsIsMutable();
-      targetNodeUrns_.add(value);
-      onChanged();
+    public Builder setHeader(
+        de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder builderForValue) {
+      if (headerBuilder_ == null) {
+        header_ = builderForValue.build();
+        onChanged();
+      } else {
+        headerBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000001;
       return this;
     }
-    public Builder addAllTargetNodeUrns(
-        java.lang.Iterable<String> values) {
-      ensureTargetNodeUrnsIsMutable();
-      super.addAll(values, targetNodeUrns_);
-      onChanged();
+    public Builder mergeHeader(de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader value) {
+      if (headerBuilder_ == null) {
+        if (((bitField0_ & 0x00000001) == 0x00000001) &&
+            header_ != de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance()) {
+          header_ =
+            de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.newBuilder(header_).mergeFrom(value).buildPartial();
+        } else {
+          header_ = value;
+        }
+        onChanged();
+      } else {
+        headerBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000001;
       return this;
     }
-    public Builder clearTargetNodeUrns() {
-      targetNodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+    public Builder clearHeader() {
+      if (headerBuilder_ == null) {
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+        onChanged();
+      } else {
+        headerBuilder_.clear();
+      }
       bitField0_ = (bitField0_ & ~0x00000001);
-      onChanged();
       return this;
     }
-    void addTargetNodeUrns(com.google.protobuf.ByteString value) {
-      ensureTargetNodeUrnsIsMutable();
-      targetNodeUrns_.add(value);
+    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder getHeaderBuilder() {
+      bitField0_ |= 0x00000001;
       onChanged();
+      return getHeaderFieldBuilder().getBuilder();
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder() {
+      if (headerBuilder_ != null) {
+        return headerBuilder_.getMessageOrBuilder();
+      } else {
+        return header_;
+      }
+    }
+    private com.google.protobuf.SingleFieldBuilder<
+        de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder> 
+        getHeaderFieldBuilder() {
+      if (headerBuilder_ == null) {
+        headerBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+            de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder>(
+                header_,
+                getParentForChildren(),
+                isClean());
+        header_ = null;
+      }
+      return headerBuilder_;
     }
     
-    // required bytes messageBytes = 2;
+    // required bytes messageBytes = 3;
     private com.google.protobuf.ByteString messageBytes_ = com.google.protobuf.ByteString.EMPTY;
     public boolean hasMessageBytes() {
       return ((bitField0_ & 0x00000002) == 0x00000002);

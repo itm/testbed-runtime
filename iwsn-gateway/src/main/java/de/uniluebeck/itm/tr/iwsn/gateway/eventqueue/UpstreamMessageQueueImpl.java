@@ -31,8 +31,8 @@ import java.util.concurrent.CancellationException;
 import static com.google.common.base.Functions.toStringFunction;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.util.concurrent.Futures.addCallback;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newEvent;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newMessage;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newEvent;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newMessage;
 
 @SuppressWarnings("NullableProblems")
 public class UpstreamMessageQueueImpl extends AbstractService implements UpstreamMessageQueue {

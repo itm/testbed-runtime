@@ -5,12 +5,8 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface DevicesAttachedEventOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // repeated string nodeUrns = 1;
-  java.util.List<String> getNodeUrnsList();
-  int getNodeUrnsCount();
-  String getNodeUrns(int index);
-  
-  // required uint64 timestamp = 2;
-  boolean hasTimestamp();
-  long getTimestamp();
+  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  boolean hasHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
 }

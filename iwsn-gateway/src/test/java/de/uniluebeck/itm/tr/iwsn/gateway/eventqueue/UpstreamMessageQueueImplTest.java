@@ -1,13 +1,10 @@
 package de.uniluebeck.itm.tr.iwsn.gateway.eventqueue;
 
 import com.google.common.util.concurrent.SettableFuture;
-import com.google.protobuf.MessageLite;
 import com.leansoft.bigqueue.IBigQueue;
 import de.uniluebeck.itm.tr.common.IdProvider;
-import de.uniluebeck.itm.tr.iwsn.gateway.DeviceAdapter;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayConfig;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
-import de.uniluebeck.itm.tr.iwsn.gateway.events.DevicesConnectedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -21,9 +18,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newEvent;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newMessage;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newNotificationEvent;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newEvent;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newMessage;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newNotificationEvent;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

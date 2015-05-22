@@ -50,7 +50,7 @@ import static de.uniluebeck.itm.tr.common.Base64Helper.*;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.fromJSON;
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.*;
 
 @Path("/experiments/")
 public class ExperimentResourceImpl implements ExperimentResource {

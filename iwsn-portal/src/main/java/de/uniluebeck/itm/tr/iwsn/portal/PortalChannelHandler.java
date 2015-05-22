@@ -27,7 +27,7 @@ import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.*;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.*;
 import static de.uniluebeck.itm.tr.iwsn.messages.RequestHelper.extractNodeUrns;
 import static org.jboss.netty.channel.Channels.write;
 
@@ -527,7 +527,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
             final Collection<NodeUrn> nodeUrns = contextToNodeUrnsMap.get(ctx);
 
             String remoteAddress = ctx.getChannel().getRemoteAddress().toString();
-            portalEventBus.post(MessagesHelper.newGatewayDisconnectedEvent(remoteAddress, nodeUrns));
+            portalEventBus.post(MessageFactory.newGatewayDisconnectedEvent(remoteAddress, nodeUrns));
             log.info("Gateway DISCONNECTED from portal server: {}", remoteAddress);
 
             // send notification that devices on this channel have been detached

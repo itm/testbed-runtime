@@ -18,7 +18,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.*;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newFlashImagesRequest;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newFlashImagesRequest;
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;

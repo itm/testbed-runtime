@@ -5,11 +5,12 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface ReservationEndedEventOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required string serializedKey = 1;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  boolean hasHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
+  
+  // required string serializedKey = 2;
   boolean hasSerializedKey();
   String getSerializedKey();
-  
-  // required uint64 timestamp = 2;
-  boolean hasTimestamp();
-  long getTimestamp();
 }

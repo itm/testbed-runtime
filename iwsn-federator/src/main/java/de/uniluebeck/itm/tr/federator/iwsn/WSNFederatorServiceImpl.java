@@ -67,7 +67,7 @@ import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.util.concurrent.Futures.addCallback;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSingleNodeResponse;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newSingleNodeResponse;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
 
 

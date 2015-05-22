@@ -5,15 +5,12 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface NotificationEventOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // optional string nodeUrn = 1;
-  boolean hasNodeUrn();
-  String getNodeUrn();
+  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  boolean hasHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
   
-  // required uint64 timestamp = 2;
-  boolean hasTimestamp();
-  long getTimestamp();
-  
-  // required string message = 3;
+  // required string message = 4;
   boolean hasMessage();
   String getMessage();
 }

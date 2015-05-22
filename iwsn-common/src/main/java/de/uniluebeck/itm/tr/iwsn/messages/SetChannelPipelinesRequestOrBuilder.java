@@ -5,12 +5,12 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface SetChannelPipelinesRequestOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // repeated string nodeUrns = 1;
-  java.util.List<String> getNodeUrnsList();
-  int getNodeUrnsCount();
-  String getNodeUrns(int index);
+  // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+  boolean hasHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
-  // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration channelHandlerConfigurations = 2;
+  // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration channelHandlerConfigurations = 3;
   java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> 
       getChannelHandlerConfigurationsList();
   de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration getChannelHandlerConfigurations(int index);

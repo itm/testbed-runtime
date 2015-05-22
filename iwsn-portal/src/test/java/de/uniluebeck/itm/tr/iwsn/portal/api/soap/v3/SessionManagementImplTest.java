@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessagesHelper.newSingleNodeResponse;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactory.newSingleNodeResponse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.isA;
