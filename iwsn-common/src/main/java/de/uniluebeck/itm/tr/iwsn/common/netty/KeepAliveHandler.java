@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.common.netty;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Throwables;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageType;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.jboss.netty.channel.*;
 import org.slf4j.Logger;
@@ -196,7 +197,7 @@ public class KeepAliveHandler extends SimpleChannelUpstreamHandler {
             stopwatch.reset();
             stopwatch.start();
 
-            if (e.getMessage() instanceof Message && ((Message) e.getMessage()).getType() == Message.Type.KEEP_ALIVE) {
+            if (e.getMessage() instanceof Message && ((Message) e.getMessage()).getType() == MessageType.KEEP_ALIVE) {
                 sendKeepAliveAck();
             }
 
@@ -232,7 +233,7 @@ public class KeepAliveHandler extends SimpleChannelUpstreamHandler {
                 return;
             }
 
-            final Message message = Message.newBuilder().setType(Message.Type.KEEP_ALIVE_ACK).build();
+            final Message message = Message.newBuilder().setType(MessageType.KEEP_ALIVE_ACK).build();
 
             Channels.write(channel, message);
 
@@ -266,21 +267,18 @@ public class KeepAliveHandler extends SimpleChannelUpstreamHandler {
                     return;
                 }
 
-                final Message message = Message.newBuilder().setType(Message.Type.KEEP_ALIVE).build();
-                final ChannelFutureListener listener = new ChannelFutureListener() {
-                    @Override
-                    public void operationComplete(final ChannelFuture future) throws Exception {
-                        @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-                        final boolean channelClosed = !future.isSuccess() &&
-                                future.getCause() instanceof ClosedChannelException;
-                        if (channelClosed) {
-                            log.trace("KeepAliveHandler.operationComplete(success={},cause={})",
-                                    future.isSuccess(), future.getCause()
-                            );
-                            future.getChannel().close();
-                        }
-                    }
-                };
+                final Message message = Message.newBuilder().setType(MessageType.KEEP_ALIVE).build();
+                final ChannelFutureListener listener = future -> {
+					@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+					final boolean channelClosed = !future.isSuccess() &&
+							future.getCause() instanceof ClosedChannelException;
+					if (channelClosed) {
+						log.trace("KeepAliveHandler.operationComplete(success={},cause={})",
+								future.isSuccess(), future.getCause()
+						);
+						future.getChannel().close();
+					}
+				};
 
                 Channels.write(channel, message).addListener(listener);
 

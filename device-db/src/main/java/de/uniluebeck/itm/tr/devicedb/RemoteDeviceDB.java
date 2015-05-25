@@ -9,9 +9,7 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.dto.DeviceConfigDto;
-import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryPlus;
@@ -32,18 +30,15 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Optional.empty;
 
 public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
-	private static final Function<DeviceConfigDto, DeviceConfig> DTO_TO_CONFIG_FUNCTION =
-			new Function<DeviceConfigDto, DeviceConfig>() {
-				@Override
-				public DeviceConfig apply(final DeviceConfigDto input) {
-					return DeviceConfigHelper.fromDto(input);
-				}
-			};
+	private static final Function<DeviceConfigDto, DeviceConfig> DTO_TO_CONFIG_FUNCTION = DeviceConfigHelper::fromDto;
 
 	private final EventBusService eventBusService;
+
+	private final MessageFactory mf;
 
 	private final URI remoteDeviceDBUri;
 
@@ -55,11 +50,13 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 	@Inject
 	public RemoteDeviceDB(final EventBusService eventBusService,
+						  final MessageFactory mf,
 						  @Named(DeviceDBConfig.DEVICEDB_REMOTE_URI) final URI remoteDeviceDBUri,
 						  @Nullable @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_URI) final URI remoteDeviceDBAdminUri,
 						  @Nullable @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_USERNAME) final String adminUsername,
 						  @Nullable @Named(DeviceDBConfig.DEVICEDB_REMOTE_ADMIN_PASSWORD) final String adminPassword) {
 		this.eventBusService = eventBusService;
+		this.mf = mf;
 		this.remoteDeviceDBUri = remoteDeviceDBUri;
 		this.remoteDeviceDBAdminUri = remoteDeviceDBAdminUri;
 		this.adminUsername = adminUsername;
@@ -172,10 +169,8 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 			final DeviceConfigDto config = DeviceConfigHelper.toDto(deviceConfig);
 			adminClient().add(config, config.getNodeUrn());
-			final DeviceConfigCreatedEvent event = DeviceConfigCreatedEvent
-					.newBuilder()
-					.setNodeUrn(deviceConfig.getNodeUrn().toString())
-					.build();
+			final DeviceConfigCreatedEvent event = mf.deviceConfigCreatedEvent(deviceConfig.getNodeUrn(), empty());
+
 			eventBusService.post(event);
 
 		} catch (Exception e) {
@@ -191,10 +186,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 		try {
 
 			adminClient().update(DeviceConfigHelper.toDto(deviceConfig), deviceConfig.getNodeUrn().toString());
-			final DeviceConfigUpdatedEvent event = DeviceConfigUpdatedEvent
-					.newBuilder()
-					.setNodeUrn(deviceConfig.getNodeUrn().toString())
-					.build();
+			DeviceConfigUpdatedEvent event = mf.deviceConfigUpdatedEvent(deviceConfig.getNodeUrn(), empty());
 			eventBusService.post(event);
 
 		} catch (Exception e) {
@@ -211,10 +203,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 		try {
 
 			adminClient().delete(nodeUrn.toString());
-			final DeviceConfigDeletedEvent event = DeviceConfigDeletedEvent
-					.newBuilder()
-					.setNodeUrn(nodeUrn.toString())
-					.build();
+			final DeviceConfigDeletedEvent event = mf.deviceConfigDeletedEvent(nodeUrn, empty());
 			eventBusService.post(event);
 			return true;
 
@@ -239,11 +228,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 
 			for (NodeUrn nodeUrn : nodeUrns) {
 
-				final DeviceConfigDeletedEvent event = DeviceConfigDeletedEvent
-						.newBuilder()
-						.setNodeUrn(nodeUrn.toString())
-						.build();
-
+				final DeviceConfigDeletedEvent event = mf.deviceConfigDeletedEvent(nodeUrn, empty());
 				eventBusService.post(event);
 			}
 
@@ -271,6 +256,7 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 	}
 
 	private DeviceDBRestAdminResource adminClient() {
+		assert remoteDeviceDBAdminUri != null;
 		return JAXRSClientFactoryPlus.create(
 				remoteDeviceDBAdminUri.toString(),
 				DeviceDBRestAdminResource.class,

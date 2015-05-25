@@ -3,21 +3,19 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.common.IdProvider;
+import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.common.NodeUrnHelper;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.devicedb.CachedDeviceDBService;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.RequestHelper;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.ReservationNotRunningException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.exceptions.UnknownSecretReservationKeysException;
-import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.wsn.ChannelPipelinesMap;
 import eu.wisebed.wiseml.Capability;
@@ -50,24 +48,15 @@ import static de.uniluebeck.itm.tr.common.Base64Helper.*;
 import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.fromJSON;
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
+import static de.uniluebeck.itm.tr.iwsn.messages.MessageUtils.isErrorStatusCode;
+import static de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters.convertCHCs;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 @Path("/experiments/")
 public class ExperimentResourceImpl implements ExperimentResource {
 
 	private static final Logger log = LoggerFactory.getLogger(ExperimentResourceImpl.class);
-
-	private final CachedDeviceDBService cachedDeviceDBService;
-
-	private enum Operation {
-		RESET,
-		ALIVE,
-		CONNECTED,
-		FLASH,
-		SEND,
-		SET_CHANNEL_PIPELINE,
-		NODE_API
-	}
-
 	private static final Map<Operation, Duration> DEFAULT_TIMEOUTS_MS = newHashMap();
 
 	static {
@@ -80,32 +69,31 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		DEFAULT_TIMEOUTS_MS.put(Operation.SET_CHANNEL_PIPELINE, Duration.standardSeconds(10));
 	}
 
+	private final CachedDeviceDBService cachedDeviceDBService;
 	private final WisemlProvider wisemlProvider;
-
 	private final ReservationManager reservationManager;
-
-	private final IdProvider requestIdProvider;
-
 	private final PortalEventBus portalEventBus;
-
+	private final MessageFactory mf;
 	private final ResponseTrackerFactory responseTrackerFactory;
-
+	private final RequestHelper requestHelper;
 	@Context
 	private UriInfo uriInfo;
 
 	@Inject
 	public ExperimentResourceImpl(final WisemlProvider wisemlProvider,
 								  final PortalEventBus portalEventBus,
+								  final MessageFactory mf,
 								  final ResponseTrackerFactory responseTrackerFactory,
 								  final ReservationManager reservationManager,
-								  final IdProvider requestIdProvider,
-								  final CachedDeviceDBService cachedDeviceDBService) {
+								  final CachedDeviceDBService cachedDeviceDBService,
+								  final RequestHelper requestHelper) {
 		this.wisemlProvider = checkNotNull(wisemlProvider);
 		this.portalEventBus = checkNotNull(portalEventBus);
+		this.mf = checkNotNull(mf);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.reservationManager = checkNotNull(reservationManager);
-		this.requestIdProvider = checkNotNull(requestIdProvider);
 		this.cachedDeviceDBService = checkNotNull(cachedDeviceDBService);
+		this.requestHelper = checkNotNull(requestHelper);
 	}
 
 	@Override
@@ -178,7 +166,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final Wiseml wiseml = wisemlProvider.get();
 
 		NodeUrnList nodeList = new NodeUrnList();
-		nodeList.nodeUrns = new LinkedList<String>();
+		nodeList.nodeUrns = new LinkedList<>();
 
 		// First add all
 		for (Node node : wiseml.getSetup().getNode()) {
@@ -273,18 +261,17 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 		for (FlashProgramsRequest.FlashTask flashTask : flashData.configurations) {
 
-			final long requestId = requestIdProvider.get();
-			final Request request = newFlashImagesRequest(
-					secretReservationKeysBase64,
-					requestId,
-					transform(flashTask.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN),
+			final FlashImagesRequest request = mf.flashImagesRequest(
+					of(secretReservationKeysBase64),
+					empty(),
+					transform(flashTask.nodeUrns, NodeUrn::new),
 					extractByteArrayFromDataURL(flashTask.image)
 			);
 
-			requestIds.add(requestId);
+			requestIds.add(request.getHeader().getRequestId());
 
 			// just create ResponseTracker, we can retrieve it using the reservation later
-			reservation.createResponseTracker(request);
+			reservation.createResponseTracker(request.getHeader());
 			reservation.getEventBus().post(request);
 		}
 
@@ -329,9 +316,14 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
-		final Request request = newResetNodesRequest(secretReservationKeysBase64, requestIdProvider.get(), nodeUrns);
+		final ResetNodesRequest request = mf.resetNodesRequest(of(secretReservationKeysBase64), empty(), nodeUrns);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, retrieveTimeout(Operation.RESET, nodeUrns));
+		return sendRequestAndGetOperationStatusMap(
+				reservation,
+				request,
+				request.getHeader(),
+				retrieveTimeout(Operation.RESET, nodeUrns)
+		);
 	}
 
 	@POST
@@ -351,16 +343,17 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Iterable<NodeUrn> nodeUrns = transform(chcl.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 
-		final Request request = newSetChannelPipelinesRequest(
-				secretReservationKeysBase64,
-				requestIdProvider.get(),
+		final SetChannelPipelinesRequest request = mf.setChannelPipelinesRequest(
+				of(secretReservationKeysBase64),
+				empty(),
 				nodeUrns,
-				Converters.convertCHCs(chcl.handlers)
+				convertCHCs(chcl.handlers)
 		);
 
 		return sendRequestAndGetOperationStatusMap(
 				reservation,
 				request,
+				request.getHeader(),
 				retrieveTimeout(Operation.SET_CHANNEL_PIPELINE, nodeUrns)
 		);
 	}
@@ -379,9 +372,8 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
 		final ReservationEventBus reservationEventBus = reservation.getEventBus();
-		final long requestId = requestIdProvider.get();
 
-		return RequestHelper.getChannelPipelines(nodeUrns, secretReservationKeysBase64, requestId, reservationEventBus);
+		return requestHelper.getChannelPipelines(nodeUrns, secretReservationKeysBase64, reservationEventBus);
 	}
 
 	@Override
@@ -394,9 +386,10 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		log.trace("ExperimentResourceImpl.areNodesConnected({})", nodeUrnList);
 
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
-		final Request request = newAreNodesConnectedRequest(null, requestIdProvider.get(), nodeUrns);
+		final AreNodesConnectedRequest request = mf.areNodesConnectedRequest(empty(), empty(), nodeUrns);
+		final Duration timeout = retrieveTimeout(Operation.CONNECTED, nodeUrns);
 
-		return sendRequestAndGetOperationStatusMap(request, retrieveTimeout(Operation.CONNECTED, nodeUrns));
+		return sendRequestAndGetOperationStatusMap(request, request.getHeader(), timeout);
 	}
 
 	@Override
@@ -411,9 +404,10 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
-		final Request request = newAreNodesAliveRequest(secretReservationKeysBase64, requestIdProvider.get(), nodeUrns);
+		final AreNodesAliveRequest request = mf.areNodesAliveRequest(of(secretReservationKeysBase64), empty(), nodeUrns);
+		final Duration timeout = retrieveTimeout(Operation.ALIVE, nodeUrns);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, retrieveTimeout(Operation.ALIVE, nodeUrns));
+		return sendRequestAndGetOperationStatusMap(reservation, request, request.getHeader(), timeout);
 	}
 
 	@Override
@@ -428,14 +422,15 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final Iterable<NodeUrn> nodeUrns = transform(data.targetNodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
-		final Request request = newSendDownstreamMessageRequest(
-				secretReservationKeysBase64,
-				requestIdProvider.get(),
+		final Duration timeout = retrieveTimeout(Operation.SEND, nodeUrns);
+		final SendDownstreamMessagesRequest request = mf.sendDownstreamMessageRequest(
+				of(secretReservationKeysBase64),
+				empty(),
 				nodeUrns,
 				decodeBytes(data.bytesBase64)
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, retrieveTimeout(Operation.SEND, nodeUrns));
+		return sendRequestAndGetOperationStatusMap(reservation, request, request.getHeader(), timeout);
 	}
 
 	@Override
@@ -454,14 +449,14 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final NodeUrn to = new NodeUrn(link.to);
 		final Multimap<NodeUrn, NodeUrn> links = HashMultimap.create();
 		links.put(from, to);
-
-		final Request request = newDisableVirtualLinksRequest(
-				secretReservationKeysBase64,
-				requestIdProvider.get(),
+		final Duration timeout = retrieveTimeout(Operation.NODE_API, from);
+		final DisableVirtualLinksRequest request = mf.disableVirtualLinksRequest(
+				of(secretReservationKeysBase64),
+				empty(),
 				links
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, retrieveTimeout(Operation.NODE_API, from));
+		return sendRequestAndGetOperationStatusMap(reservation, request, request.getHeader(), timeout);
 	}
 
 	@Override
@@ -476,13 +471,14 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final NodeUrn nodeUrn = new NodeUrn(nodeUrnString);
-		final Request request = newDisableNodesRequest(
-				secretReservationKeysBase64,
-				requestIdProvider.get(),
+		final Duration timeout = retrieveTimeout(Operation.NODE_API, nodeUrn);
+		final DisableNodesRequest request = mf.disableNodesRequest(
+				of(secretReservationKeysBase64),
+				empty(),
 				newArrayList(nodeUrn)
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, retrieveTimeout(Operation.NODE_API, nodeUrn));
+		return sendRequestAndGetOperationStatusMap(reservation, request, request.getHeader(), timeout);
 	}
 
 	@Override
@@ -497,13 +493,14 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
 		final NodeUrn nodeUrn = new NodeUrn(nodeUrnString);
-		final Request request = newEnableNodesRequest(
-				secretReservationKeysBase64,
-				requestIdProvider.get(),
+		final Duration timeout = retrieveTimeout(Operation.NODE_API, nodeUrn);
+		final EnableNodesRequest request = mf.enableNodesRequest(
+				of(secretReservationKeysBase64),
+				empty(),
 				newArrayList(nodeUrn)
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, retrieveTimeout(Operation.NODE_API, nodeUrn));
+		return sendRequestAndGetOperationStatusMap(reservation, request, request.getHeader(), timeout);
 	}
 
 	@Override
@@ -522,14 +519,14 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final NodeUrn from = new NodeUrn(nodeUrns.from);
 		final NodeUrn to = new NodeUrn(nodeUrns.to);
 		links.put(from, to);
-
-		final Request request = newDisablePhysicalLinksRequest(
-				secretReservationKeysBase64,
-				requestIdProvider.get(),
+		final Duration timeout = retrieveTimeout(Operation.NODE_API, from);
+		final DisablePhysicalLinksRequest request = mf.disablePhysicalLinksRequest(
+				of(secretReservationKeysBase64),
+				empty(),
 				links
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, retrieveTimeout(Operation.NODE_API, from));
+		return sendRequestAndGetOperationStatusMap(reservation, request, request.getHeader(), timeout);
 	}
 
 	@Override
@@ -548,14 +545,14 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		final NodeUrn from = new NodeUrn(nodeUrns.from);
 		final NodeUrn to = new NodeUrn(nodeUrns.to);
 		links.put(from, to);
-
-		final Request request = newEnablePhysicalLinksRequest(
-				secretReservationKeysBase64,
-				requestIdProvider.get(),
+		final Duration timeout = retrieveTimeout(Operation.NODE_API, from);
+		final EnablePhysicalLinksRequest request = mf.enablePhysicalLinksRequest(
+				of(secretReservationKeysBase64),
+				empty(),
 				links
 		);
 
-		return sendRequestAndGetOperationStatusMap(reservation, request, retrieveTimeout(Operation.NODE_API, from));
+		return sendRequestAndGetOperationStatusMap(reservation, request, request.getHeader(), timeout);
 	}
 
 	private Wiseml filterWisemlForReservedNodes(final String secretReservationKeysBase64) throws Exception {
@@ -607,7 +604,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	private OperationStatusMap buildOperationStatusMap(final Map<Long, ResponseTracker> requestIdToResponseTrackerMap) {
 
 		final OperationStatusMap operationStatusMap = new OperationStatusMap();
-		operationStatusMap.operationStatus = new HashMap<String, JobNodeStatus>();
+		operationStatusMap.operationStatus = new HashMap<>();
 
 		for (long requestId : requestIdToResponseTrackerMap.keySet()) {
 
@@ -619,9 +616,8 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				if (responseTracker.get(nodeUrn).isDone()) {
 					try {
 						final SingleNodeResponse response = responseTracker.get(nodeUrn).get();
-						final Request request = responseTracker.getRequest();
 						status = new JobNodeStatus(
-								isErrorStatusCode(request, response) ? JobState.FAILED : JobState.SUCCESS,
+								isErrorStatusCode(response) ? JobState.FAILED : JobState.SUCCESS,
 								response.getStatusCode(),
 								response.getErrorMessage()
 						);
@@ -643,13 +639,15 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		return operationStatusMap;
 	}
 
-	private Response sendRequestAndGetOperationStatusMap(final Request request, final Duration timeout) {
+	private Response sendRequestAndGetOperationStatusMap(final MessageLite request,
+														 final RequestResponseHeader requestHeader,
+														 final Duration timeout) {
 
-		final ResponseTracker responseTracker = responseTrackerFactory.create(request, portalEventBus);
+		final ResponseTracker responseTracker = responseTrackerFactory.create(requestHeader, portalEventBus);
 		portalEventBus.post(request);
 
 		final Map<Long, ResponseTracker> map = newHashMap();
-		map.put(request.getRequestId(), responseTracker);
+		map.put(requestHeader.getRequestId(), responseTracker);
 
 		try {
 			responseTracker.get(timeout.getMillis(), TimeUnit.MILLISECONDS);
@@ -663,11 +661,12 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	}
 
 	private Response sendRequestAndGetOperationStatusMap(final Reservation reservation,
-														 final Request request,
+														 final MessageLite request,
+														 final RequestResponseHeader requestHeader,
 														 final Duration timeout)
 			throws ReservationNotRunningException {
 
-		final ResponseTracker responseTracker = reservation.createResponseTracker(request);
+		final ResponseTracker responseTracker = reservation.createResponseTracker(requestHeader);
 
 		if (!reservation.isRunning()) {
 			throw new ReservationNotRunningException(reservation.getInterval());
@@ -678,12 +677,12 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		try {
 			responseTracker.get(timeout.getMillis(), TimeUnit.MILLISECONDS);
 		} catch (TimeoutException e) {
-			return Response.ok(buildOperationStatusMap(reservation, request.getRequestId())).build();
+			return Response.ok(buildOperationStatusMap(reservation, requestHeader.getRequestId())).build();
 		} catch (Exception e) {
 			throw propagate(e);
 		}
 
-		return Response.ok(buildOperationStatusMap(reservation, request.getRequestId())).build();
+		return Response.ok(buildOperationStatusMap(reservation, requestHeader.getRequestId())).build();
 	}
 
 	private Duration retrieveTimeout(final Operation op, final Iterable<NodeUrn> nodeUrns) {
@@ -737,6 +736,16 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 	private Duration retrieveTimeout(final Operation op, final NodeUrn nodeUrn) {
 		return retrieveTimeout(op, newArrayList(nodeUrn));
+	}
+
+	private enum Operation {
+		RESET,
+		ALIVE,
+		CONNECTED,
+		FLASH,
+		SEND,
+		SET_CHANNEL_PIPELINE,
+		NODE_API
 	}
 
 }

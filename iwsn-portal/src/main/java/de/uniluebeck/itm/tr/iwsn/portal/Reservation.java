@@ -3,7 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.portal;
 import com.google.common.util.concurrent.Service;
 import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -50,11 +50,11 @@ public interface Reservation extends Service {
      * Creates a response tracker for the given {@code requestId}. ResponseTracker instances are held in a cache until
      * a certain reasonable time limit and will then be removed.
      *
-     * @param request the request to track
+     * @param requestHeader the header of the request to track
      * @return a newly created ResponseTracker instance
      * @throws IllegalArgumentException if an entry for the given requestId already exists
      */
-    ResponseTracker createResponseTracker(Request request);
+    ResponseTracker createResponseTracker(RequestResponseHeader requestHeader);
 
     /**
      * Gets a response tracker for the given {@code requestId}. ResponseTracker instances are held in a cache until a
@@ -87,7 +87,7 @@ public interface Reservation extends Service {
      */
     boolean touch();
 
-    public static class Entry {
+    class Entry {
 
         private NodeUrnPrefix nodeUrnPrefix;
 

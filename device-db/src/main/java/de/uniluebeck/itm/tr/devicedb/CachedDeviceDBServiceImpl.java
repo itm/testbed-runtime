@@ -83,23 +83,26 @@ public class CachedDeviceDBServiceImpl extends AbstractService implements Cached
 
 	@Subscribe
 	public void on(final DeviceConfigCreatedEvent event) {
-		NodeUrn nodeUrn = new NodeUrn(event.getNodeUrn());
-		cache.getUnchecked(nodeUrn);
-		log.trace("Adding newly created DeviceConfig for node URN {} in cache", nodeUrn);
+		event.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(nodeUrn -> {
+			cache.getUnchecked(nodeUrn);
+			log.trace("Adding newly created DeviceConfig for node URN {} in cache", nodeUrn);
+		});
 	}
 
 	@Subscribe
 	public void on(final DeviceConfigUpdatedEvent event) {
-		NodeUrn nodeUrn = new NodeUrn(event.getNodeUrn());
-		log.trace("Refreshing updated DeviceConfig for node URN {} in cache", nodeUrn);
-		cache.refresh(nodeUrn);
+		event.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(nodeUrn -> {
+			log.trace("Refreshing updated DeviceConfig for node URN {} in cache", nodeUrn);
+			cache.refresh(nodeUrn);
+		});
 	}
 
 	@Subscribe
 	public void on(final DeviceConfigDeletedEvent event) {
-		NodeUrn nodeUrn = new NodeUrn(event.getNodeUrn());
-		log.trace("Removing deleted DeviceConfig for node URN {} from cache", nodeUrn);
-		cache.invalidate(nodeUrn);
+		event.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(nodeUrn -> {
+			log.trace("Removing deleted DeviceConfig for node URN {} from cache", nodeUrn);
+			cache.invalidate(nodeUrn);
+		});
 	}
 
 	@Override

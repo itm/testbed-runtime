@@ -27,7 +27,6 @@ import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.messages.RequestHelper.extractNodeUrns;
 import static org.jboss.netty.channel.Channels.write;
 
 public class PortalChannelHandler extends SimpleChannelHandler {

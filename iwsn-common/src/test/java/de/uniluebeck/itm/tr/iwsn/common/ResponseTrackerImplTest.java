@@ -1,8 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.common;
 
 import de.uniluebeck.itm.tr.common.EventBusService;
-import de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.junit.Before;
@@ -30,40 +29,52 @@ public class ResponseTrackerImplTest {
 
 	private static final NodeUrn NODE_URN_3 = new NodeUrn(NODE_URN_3_STRING);
 
-	private final AreNodesAliveRequest areNodesAliveRequest = AreNodesAliveRequest.newBuilder()
+	private RequestResponseHeader requestHeader = RequestResponseHeader
+			.newBuilder()
+			.setReservationId("" + new Random().nextLong())
+			.setRequestId(new Random().nextLong())
 			.addNodeUrns(NODE_URN_1_STRING)
 			.addNodeUrns(NODE_URN_2_STRING)
 			.addNodeUrns(NODE_URN_3_STRING)
 			.build();
 
-	private Request request = Request.newBuilder()
-			.setReservationId("" + new Random().nextLong())
-			.setRequestId(new Random().nextLong())
-			.setType(Request.Type.ARE_NODES_ALIVE)
-			.setAreNodesAliveRequest(areNodesAliveRequest)
+	private SingleNodeResponse node1Response = SingleNodeResponse
+			.newBuilder()
+			.setHeader(RequestResponseHeader
+					.newBuilder()
+					.setReservationId(requestHeader.getReservationId())
+					.setRequestId(requestHeader.getRequestId())
+					.addNodeUrns(NODE_URN_1_STRING))
+			.setStatusCode(1)
 			.build();
 
-	private SingleNodeResponse responseNode1 = SingleNodeResponse.newBuilder()
-			.setReservationId(request.getReservationId())
-			.setRequestId(request.getRequestId())
-			.setNodeUrn(NODE_URN_1_STRING)
+	private SingleNodeResponse node2Response = SingleNodeResponse
+			.newBuilder()
+			.setHeader(RequestResponseHeader
+					.newBuilder()
+					.setReservationId(requestHeader.getReservationId())
+					.setRequestId(requestHeader.getRequestId())
+					.addNodeUrns(NODE_URN_2_STRING))
+			.setStatusCode(1)
 			.build();
 
-	private SingleNodeResponse responseNode2 = SingleNodeResponse.newBuilder()
-			.setReservationId(request.getReservationId())
-			.setRequestId(request.getRequestId())
-			.setNodeUrn(NODE_URN_2_STRING)
-			.build();
-
-	private SingleNodeResponse responseNode3 = SingleNodeResponse.newBuilder()
-			.setReservationId(request.getReservationId())
-			.setRequestId(request.getRequestId())
-			.setNodeUrn(NODE_URN_3_STRING)
+	private SingleNodeResponse node3Response = SingleNodeResponse
+			.newBuilder()
+			.setHeader(RequestResponseHeader
+							.newBuilder()
+							.setReservationId(requestHeader.getReservationId())
+							.setRequestId(requestHeader.getRequestId())
+							.addNodeUrns(NODE_URN_3_STRING)
+			)
+			.setStatusCode(1)
 			.build();
 
 	private SingleNodeResponse responseOfOtherReservationWithSameRequestId = SingleNodeResponse
-			.newBuilder(responseNode1)
-			.setReservationId("" + new Random().nextLong())
+			.newBuilder()
+			.setHeader(RequestResponseHeader
+					.newBuilder(node1Response.getHeader())
+					.setReservationId("" + new Random().nextLong()))
+			.setStatusCode(1)
 			.build();
 
 	@Mock
@@ -73,7 +84,7 @@ public class ResponseTrackerImplTest {
 
 	@Before
 	public void setUp() throws Exception {
-		responseTracker = new ResponseTrackerImpl(request, eventBusService);
+		responseTracker = new ResponseTrackerImpl(requestHeader, eventBusService);
 	}
 
 	@Test
@@ -83,15 +94,15 @@ public class ResponseTrackerImplTest {
 
 	@Test
 	public void testIsNotDoneWhenOneOfThreeResponsesArrived() throws Exception {
-		responseTracker.onSingleNodeResponse(responseNode1);
+		responseTracker.onSingleNodeResponse(node1Response);
 		assertFalse(responseTracker.isDone());
 	}
 
 	@Test
 	public void testIsNotDoneWhenTwoOfThreeResponsesArrived() throws Exception {
 
-		responseTracker.onSingleNodeResponse(responseNode1);
-		responseTracker.onSingleNodeResponse(responseNode2);
+		responseTracker.onSingleNodeResponse(node1Response);
+		responseTracker.onSingleNodeResponse(node2Response);
 
 		assertFalse(responseTracker.isDone());
 	}
@@ -99,9 +110,9 @@ public class ResponseTrackerImplTest {
 	@Test
 	public void testIsDoneWhenAllResponsesArrived() throws Exception {
 
-		responseTracker.onSingleNodeResponse(responseNode1);
-		responseTracker.onSingleNodeResponse(responseNode2);
-		responseTracker.onSingleNodeResponse(responseNode3);
+		responseTracker.onSingleNodeResponse(node1Response);
+		responseTracker.onSingleNodeResponse(node2Response);
+		responseTracker.onSingleNodeResponse(node3Response);
 
 		assertTrue(responseTracker.isDone());
 	}
@@ -110,8 +121,8 @@ public class ResponseTrackerImplTest {
 	public void testIsNotDoneWhenOneOfThreeResponsesBelongsToDifferentReservation() throws Exception {
 
 		responseTracker.onSingleNodeResponse(responseOfOtherReservationWithSameRequestId);
-		responseTracker.onSingleNodeResponse(responseNode2);
-		responseTracker.onSingleNodeResponse(responseNode3);
+		responseTracker.onSingleNodeResponse(node2Response);
+		responseTracker.onSingleNodeResponse(node3Response);
 
 		assertFalse(responseTracker.isDone());
 	}
@@ -119,12 +130,12 @@ public class ResponseTrackerImplTest {
 	@Test
 	public void testResponsesAreCorrectlyMappedWhenDone() throws Exception {
 
-		responseTracker.onSingleNodeResponse(responseNode1);
-		responseTracker.onSingleNodeResponse(responseNode2);
-		responseTracker.onSingleNodeResponse(responseNode3);
+		responseTracker.onSingleNodeResponse(node1Response);
+		responseTracker.onSingleNodeResponse(node2Response);
+		responseTracker.onSingleNodeResponse(node3Response);
 
-		assertSame(responseNode1, responseTracker.get().get(NODE_URN_1));
-		assertSame(responseNode2, responseTracker.get().get(NODE_URN_2));
-		assertSame(responseNode3, responseTracker.get().get(NODE_URN_3));
+		assertSame(node1Response, responseTracker.get().get(NODE_URN_1));
+		assertSame(node2Response, responseTracker.get().get(NODE_URN_2));
+		assertSame(node3Response, responseTracker.get().get(NODE_URN_3));
 	}
 }

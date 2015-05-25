@@ -4,7 +4,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.common.EventBusService;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import de.uniluebeck.itm.util.concurrent.ProgressListenableFuture;
@@ -24,43 +24,42 @@ import java.util.concurrent.TimeoutException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.iwsn.messages.RequestHelper.extractNodeUrns;
 
 @SuppressWarnings("NullableProblems")
 class ResponseTrackerImpl implements ResponseTracker {
 
 	private final static Logger log = LoggerFactory.getLogger(ResponseTrackerImpl.class);
 
-	private final Request request;
+	private final RequestResponseHeader requestHeader;
 
 	private final EventBusService eventBusService;
 
 	private final ProgressSettableFutureMap<NodeUrn, SingleNodeResponse> futureMap;
 
 	@Inject
-	public ResponseTrackerImpl(@Assisted final Request request, @Assisted final EventBusService eventBusService) {
+	public ResponseTrackerImpl(@Assisted final RequestResponseHeader requestHeader,
+							   @Assisted final EventBusService eventBusService) {
 
-		this.request = checkNotNull(request);
+		this.requestHeader = checkNotNull(requestHeader);
 		this.eventBusService = checkNotNull(eventBusService);
 
-		final Set<NodeUrn> requestNodeUrns = extractNodeUrns(request);
-
-		checkArgument(!requestNodeUrns.isEmpty());
+		checkArgument(!requestHeader.getNodeUrnsList().isEmpty());
 
 		final Map<NodeUrn, ProgressListenableFuture<SingleNodeResponse>> futureMapContent = newHashMap();
 
-		for (NodeUrn nodeUrn : requestNodeUrns) {
+		for (NodeUrn nodeUrn : transform(requestHeader.getNodeUrnsList(), NodeUrn::new)) {
 			futureMapContent.put(nodeUrn, ProgressSettableFuture.<SingleNodeResponse>create());
 		}
 
-		this.futureMap = new ProgressSettableFutureMap<NodeUrn, SingleNodeResponse>(futureMapContent);
+		this.futureMap = new ProgressSettableFutureMap<>(futureMapContent);
 		this.eventBusService.register(this);
 	}
 
 	@Override
-	public Request getRequest() {
-		return request;
+	public RequestResponseHeader getRequestHeader() {
+		return requestHeader;
 	}
 
 	@Subscribe
@@ -68,30 +67,32 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 		log.trace("ResponseTrackerImpl.onSingleNodeResponse({})", response);
 
-		final boolean reservationIdEquals = ((request.hasReservationId() && response.hasReservationId()) ||
-				(!request.hasReservationId() && !response.hasReservationId())) &&
-				request.getReservationId().equals(response.getReservationId());
+		final boolean reservationIdEquals = ((requestHeader.hasReservationId() && response.getHeader().hasReservationId()) ||
+				(!requestHeader.hasReservationId() && !response.getHeader().hasReservationId())) &&
+				requestHeader.getReservationId().equals(response.getHeader().getReservationId());
 
-		final boolean requestIdEquals = request.getRequestId() == response.getRequestId();
+		final boolean requestIdEquals = requestHeader.getRequestId() == response.getHeader().getRequestId();
 		final boolean forMe = reservationIdEquals && requestIdEquals;
 
 		if (forMe) {
 
-			final NodeUrn responseNodeUrn = new NodeUrn(response.getNodeUrn());
-			final ProgressSettableFuture<SingleNodeResponse> future =
-					(ProgressSettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn);
+			response.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(responseNodeUrn -> {
 
-			if (future.isDone()) {
-				log.warn(
-						"Received multiple responses for reservationId {} and requestId {}. Ignoring subsequent responses...",
-						request.getReservationId(), request.getRequestId()
-				);
-			} else {
-				future.set(response);
-				if (futureMap.isDone()) {
-					eventBusService.unregister(this);
+				final ProgressSettableFuture<SingleNodeResponse> future =
+						(ProgressSettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn);
+
+				if (future.isDone()) {
+					log.warn(
+							"Received multiple responses for reservationId {} and requestId {}. Ignoring subsequent responses...",
+							requestHeader.getReservationId(), requestHeader.getRequestId()
+					);
+				} else {
+					future.set(response);
+					if (futureMap.isDone()) {
+						eventBusService.unregister(this);
+					}
 				}
-			}
+			});
 		}
 	}
 
@@ -101,18 +102,19 @@ class ResponseTrackerImpl implements ResponseTracker {
 		log.trace("ResponseTrackerImpl.onSingleNodeProgress({})", progress);
 
 		final boolean reservationIdEquals =
-				((request.hasReservationId() && progress.hasReservationId()) ||
-						(!request.hasReservationId() && !progress.hasReservationId())) &&
-						request.getReservationId().equals(progress.getReservationId());
-		final boolean requestIdEquals = request.getRequestId() == progress.getRequestId();
+				((requestHeader.hasReservationId() && progress.getHeader().hasReservationId()) ||
+						(!requestHeader.hasReservationId() && !progress.getHeader().hasReservationId())) &&
+						requestHeader.getReservationId().equals(progress.getHeader().getReservationId());
+		final boolean requestIdEquals = requestHeader.getRequestId() == progress.getHeader().getRequestId();
 		final boolean forMe = reservationIdEquals && requestIdEquals;
 
 		if (forMe) {
 
-			final NodeUrn responseNodeUrn = new NodeUrn(progress.getNodeUrn());
-			((ProgressSettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn)).setProgress(
-					(float) progress.getProgressInPercent() / 100.0f
-			);
+			progress.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(progressNodeUrn -> {
+				((ProgressSettableFuture<SingleNodeResponse>) futureMap.get(progressNodeUrn)).setProgress(
+						(float) progress.getProgressInPercent() / 100.0f
+				);
+			});
 		}
 	}
 
@@ -222,7 +224,7 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 	@Override
 	public String toString() {
-		return "ResponseTrackerImpl[requestId=" + request.getRequestId() + ",reservationId=" + request
+		return "ResponseTrackerImpl[requestId=" + requestHeader.getRequestId() + ",reservationId=" + requestHeader
 				.getReservationId() + "]@" + Integer.toHexString(hashCode());
 	}
 }

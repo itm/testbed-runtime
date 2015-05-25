@@ -83,8 +83,8 @@ public class DeviceManagerImplTest {
                 builtInDeviceAdapterFactories,
                 deviceAdapterRegistry,
                 deviceDBService,
-                deviceFoundEvents
-        );
+                deviceFoundEvents,
+                mf);
     }
 
     @Test

@@ -8,10 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Created by danbim on 22/05/15.
- */
 public interface MessageFactory {
+
 	UpstreamMessageEvent upstreamMessageEvent(Optional<Long> timestamp,
 											  NodeUrn nodeUrn,
 											  byte[] bytes);
@@ -87,12 +85,12 @@ public interface MessageFactory {
 	SendDownstreamMessagesRequest sendDownstreamMessageRequest(Optional<String> reservationId,
 															   Optional<Long> timestamp,
 															   Iterable<NodeUrn> nodeUrns,
-															   ByteString bytes);
+															   byte[] bytes);
 
 	FlashImagesRequest flashImagesRequest(Optional<String> reservationId,
 										  Optional<Long> timestamp,
 										  Iterable<NodeUrn> nodeUrns,
-										  ByteString image);
+										  byte[] image);
 
 	DisableVirtualLinksRequest disableVirtualLinksRequest(Optional<String> reservationId,
 														  Optional<Long> timestamp,
@@ -121,4 +119,12 @@ public interface MessageFactory {
 	AreNodesAliveRequest areNodesAliveRequest(Optional<String> reservationId,
 											  Optional<Long> timestamp,
 											  Iterable<NodeUrn> nodeUrns);
+
+	DeviceConfigCreatedEvent deviceConfigCreatedEvent(NodeUrn nodeUrn, Optional<Long> timestamp);
+
+	DeviceConfigUpdatedEvent deviceConfigUpdatedEvent(NodeUrn nodeUrn, Optional<Long> timestamp);
+
+	DeviceConfigDeletedEvent deviceConfigDeletedEvent(NodeUrn nodeUrn, Optional<Long> timestamp);
+
+	DeviceConfigDeletedEvent deviceConfigDeletedEvent(Iterable<NodeUrn> nodeUrn, Optional<Long> timestamp);
 }

@@ -355,11 +355,11 @@ public class MessageFactoryImpl implements MessageFactory {
 	public SendDownstreamMessagesRequest sendDownstreamMessageRequest(Optional<String> reservationId,
 																	  Optional<Long> timestamp,
 																	  Iterable<NodeUrn> nodeUrns,
-																	  ByteString bytes) {
+																	  byte[] bytes) {
 		return SendDownstreamMessagesRequest
 				.newBuilder()
 				.setHeader(header(reservationId, timestamp, nodeUrns))
-				.setMessageBytes(bytes)
+				.setMessageBytes(ByteString.copyFrom(bytes))
 				.build();
 	}
 
@@ -367,11 +367,11 @@ public class MessageFactoryImpl implements MessageFactory {
 	public FlashImagesRequest flashImagesRequest(Optional<String> reservationId,
 												 Optional<Long> timestamp,
 												 Iterable<NodeUrn> nodeUrns,
-												 ByteString image) {
+												 byte[] image) {
 		return FlashImagesRequest
 				.newBuilder()
 				.setHeader(header(reservationId, timestamp, nodeUrns))
-				.setImage(image)
+				.setImage(ByteString.copyFrom(image))
 				.build();
 	}
 
@@ -458,6 +458,38 @@ public class MessageFactoryImpl implements MessageFactory {
 		return AreNodesAliveRequest
 				.newBuilder()
 				.setHeader(header(reservationId, timestamp, nodeUrns))
+				.build();
+	}
+
+	@Override
+	public DeviceConfigCreatedEvent deviceConfigCreatedEvent(NodeUrn nodeUrn, Optional<Long> timestamp) {
+		return  DeviceConfigCreatedEvent
+				.newBuilder()
+				.setHeader(eventHeader(timestamp, Optional.of(newArrayList(nodeUrn))))
+				.build();
+	}
+
+	@Override
+	public DeviceConfigUpdatedEvent deviceConfigUpdatedEvent(NodeUrn nodeUrn, Optional<Long> timestamp) {
+		return  DeviceConfigUpdatedEvent
+				.newBuilder()
+				.setHeader(eventHeader(timestamp, Optional.of(newArrayList(nodeUrn))))
+				.build();
+	}
+
+	@Override
+	public DeviceConfigDeletedEvent deviceConfigDeletedEvent(NodeUrn nodeUrn, Optional<Long> timestamp) {
+		return  DeviceConfigDeletedEvent
+				.newBuilder()
+				.setHeader(eventHeader(timestamp, Optional.of(newArrayList(nodeUrn))))
+				.build();
+	}
+
+	@Override
+	public DeviceConfigDeletedEvent deviceConfigDeletedEvent(Iterable<NodeUrn> nodeUrns, Optional<Long> timestamp) {
+		return  DeviceConfigDeletedEvent
+				.newBuilder()
+				.setHeader(eventHeader(timestamp, Optional.of(nodeUrns)))
 				.build();
 	}
 

@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.devicedb;
 
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.util.concurrent.AbstractService;
@@ -10,9 +9,7 @@ import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.NodeUrnHelper;
 import de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity;
-import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.transform;
@@ -32,6 +26,7 @@ import static com.google.common.collect.Maps.uniqueIndex;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.devicedb.DeviceConfigHelper.fromEntity;
 import static de.uniluebeck.itm.tr.devicedb.DeviceConfigHelper.toEntity;
+import static java.util.Optional.empty;
 
 public class DeviceDBJpa extends AbstractService implements
 		DeviceDBService {
@@ -39,31 +34,19 @@ public class DeviceDBJpa extends AbstractService implements
 	@SuppressWarnings("unused")
 	private static final Logger log = LoggerFactory.getLogger(DeviceDBJpa.class);
 
-	private static final Function<DeviceConfig, NodeUrn> CONFIG_NODE_URN_FUNCTION =
-			new Function<DeviceConfig, NodeUrn>() {
-				@Override
-				public NodeUrn apply(DeviceConfig config) {
-					return config.getNodeUrn();
-				}
-			};
-
-	private static final Function<DeviceConfigEntity, DeviceConfig> ENTITY_TO_CONFIG_FUNCTION =
-			new Function<DeviceConfigEntity, DeviceConfig>() {
-				@Override
-				public DeviceConfig apply(DeviceConfigEntity config) {
-					return fromEntity(config);
-				}
-			};
-
 	private final Provider<EntityManager> entityManager;
 
 	private final EventBusService eventBusService;
 
+	private final MessageFactory messageFactory;
+
 	@Inject
 	public DeviceDBJpa(final Provider<EntityManager> entityManager,
-					   final EventBusService eventBusService) {
+					   final EventBusService eventBusService,
+					   final MessageFactory messageFactory) {
 		this.entityManager = entityManager;
 		this.eventBusService = eventBusService;
+		this.messageFactory = messageFactory;
 	}
 
 	@Override
@@ -89,8 +72,8 @@ public class DeviceDBJpa extends AbstractService implements
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn IN (:urns)", DeviceConfigEntity.class)
 				.setParameter("urns", nodeUrnStrings).getResultList();
 
-		final Collection<DeviceConfig> configs = Collections2.transform(entities, ENTITY_TO_CONFIG_FUNCTION);
-		return uniqueIndex(configs, CONFIG_NODE_URN_FUNCTION);
+		final Collection<DeviceConfig> configs = Collections2.transform(entities, DeviceConfigHelper::fromEntity);
+		return uniqueIndex(configs, DeviceConfig::getNodeUrn);
 	}
 
 	@Override
@@ -161,7 +144,7 @@ public class DeviceDBJpa extends AbstractService implements
 				.createQuery("SELECT d FROM DeviceConfig d", DeviceConfigEntity.class)
 				.getResultList();
 
-		return Collections2.transform(list, ENTITY_TO_CONFIG_FUNCTION);
+		return Collections2.transform(list, DeviceConfigHelper::fromEntity);
 	}
 
 	@Override
@@ -170,11 +153,7 @@ public class DeviceDBJpa extends AbstractService implements
 		log.trace("DeviceDBJpa.add({})", deviceConfig);
 		checkState(isRunning());
 		entityManager.get().persist(toEntity(deviceConfig));
-		final DeviceConfigCreatedEvent event = DeviceConfigCreatedEvent
-				.newBuilder()
-				.setNodeUrn(deviceConfig.getNodeUrn().toString())
-				.build();
-		eventBusService.post(event);
+		eventBusService.post(messageFactory.deviceConfigCreatedEvent(deviceConfig.getNodeUrn(), empty()));
 	}
 
 	@Override
@@ -183,11 +162,7 @@ public class DeviceDBJpa extends AbstractService implements
 		log.trace("DeviceDBJpa.update({})", deviceConfig);
 		checkState(isRunning());
 		entityManager.get().merge(toEntity(deviceConfig));
-		final DeviceConfigUpdatedEvent event = DeviceConfigUpdatedEvent
-				.newBuilder()
-				.setNodeUrn(deviceConfig.getNodeUrn().toString())
-				.build();
-		eventBusService.post(event);
+		eventBusService.post(messageFactory.deviceConfigUpdatedEvent(deviceConfig.getNodeUrn(), empty()));
 	}
 
 	@Override
@@ -201,11 +176,7 @@ public class DeviceDBJpa extends AbstractService implements
 					.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn = :nodeUrn", DeviceConfigEntity.class)
 					.setParameter("nodeUrn", nodeUrn.toString()).getSingleResult();
 			entityManager.get().remove(config);
-			final DeviceConfigDeletedEvent event = DeviceConfigDeletedEvent
-					.newBuilder()
-					.setNodeUrn(nodeUrn.toString())
-					.build();
-			eventBusService.post(event);
+			eventBusService.post(messageFactory.deviceConfigDeletedEvent(nodeUrn, empty()));
 			return true;
 
 		} catch (IllegalArgumentException e) {
@@ -235,14 +206,7 @@ public class DeviceDBJpa extends AbstractService implements
 				.createQuery("DELETE FROM DeviceConfig")
 				.executeUpdate();
 
-		for (NodeUrn nodeUrn : nodeUrns) {
 
-			final DeviceConfigDeletedEvent event = DeviceConfigDeletedEvent
-					.newBuilder()
-					.setNodeUrn(nodeUrn.toString())
-					.build();
-
-			eventBusService.post(event);
-		}
+		eventBusService.post(messageFactory.deviceConfigDeletedEvent(nodeUrns, empty()));
 	}
 }
