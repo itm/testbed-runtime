@@ -10,7 +10,11 @@ public interface GetChannelPipelinesResponseOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
-  // repeated .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse pipelines = 2;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = GET_CHANNELPIPELINES_RESPONSE];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
+  // repeated .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse pipelines = 3;
   java.util.List<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> 
       getPipelinesList();
   de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse getPipelines(int index);

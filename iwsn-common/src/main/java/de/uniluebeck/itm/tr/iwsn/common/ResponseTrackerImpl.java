@@ -83,8 +83,8 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 				if (future.isDone()) {
 					log.warn(
-							"Received multiple responses for reservationId {} and requestId {}. Ignoring subsequent responses...",
-							requestHeader.getReservationId(), requestHeader.getRequestId()
+							"Received multiple responses for node URN \"{}\", reservationId \"{}\" and requestId \"{}\". Ignoring subsequent responses...",
+							responseNodeUrn, requestHeader.getReservationId(), requestHeader.getRequestId()
 					);
 				} else {
 					future.set(response);

@@ -10,7 +10,11 @@ public interface EnablePhysicalLinksRequestOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
-  // repeated .de.uniluebeck.itm.tr.iwsn.messages.Link links = 2;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_ENABLE_PHYSICAL_LINKS];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
+  // repeated .de.uniluebeck.itm.tr.iwsn.messages.Link links = 3;
   java.util.List<de.uniluebeck.itm.tr.iwsn.messages.Link> 
       getLinksList();
   de.uniluebeck.itm.tr.iwsn.messages.Link getLinks(int index);

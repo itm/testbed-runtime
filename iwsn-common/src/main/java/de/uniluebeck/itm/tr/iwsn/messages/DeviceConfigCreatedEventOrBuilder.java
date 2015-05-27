@@ -9,4 +9,8 @@ public interface DeviceConfigCreatedEventOrBuilder
   boolean hasHeader();
   de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_DEVICE_CONFIG_CREATED];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
 }

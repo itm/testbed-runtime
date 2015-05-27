@@ -44,11 +44,21 @@ public  final class GatewayConnectedEvent extends
     return header_;
   }
   
-  // required string hostname = 2;
-  public static final int HOSTNAME_FIELD_NUMBER = 2;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_GATEWAY_CONNECTED];
+  public static final int TYPE_FIELD_NUMBER = 2;
+  private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_;
+  public boolean hasType() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+    return type_;
+  }
+  
+  // required string hostname = 3;
+  public static final int HOSTNAME_FIELD_NUMBER = 3;
   private java.lang.Object hostname_;
   public boolean hasHostname() {
-    return ((bitField0_ & 0x00000002) == 0x00000002);
+    return ((bitField0_ & 0x00000004) == 0x00000004);
   }
   public String getHostname() {
     java.lang.Object ref = hostname_;
@@ -78,6 +88,7 @@ public  final class GatewayConnectedEvent extends
   
   private void initFields() {
     header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+    type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_GATEWAY_CONNECTED;
     hostname_ = "";
   }
   private byte memoizedIsInitialized = -1;
@@ -108,7 +119,10 @@ public  final class GatewayConnectedEvent extends
       output.writeMessage(1, header_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
-      output.writeBytes(2, getHostnameBytes());
+      output.writeEnum(2, type_.getNumber());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      output.writeBytes(3, getHostnameBytes());
     }
     getUnknownFields().writeTo(output);
   }
@@ -125,7 +139,11 @@ public  final class GatewayConnectedEvent extends
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(2, getHostnameBytes());
+        .computeEnumSize(2, type_.getNumber());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(3, getHostnameBytes());
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -258,8 +276,10 @@ public  final class GatewayConnectedEvent extends
         headerBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000001);
-      hostname_ = "";
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_GATEWAY_CONNECTED;
       bitField0_ = (bitField0_ & ~0x00000002);
+      hostname_ = "";
+      bitField0_ = (bitField0_ & ~0x00000004);
       return this;
     }
     
@@ -309,6 +329,10 @@ public  final class GatewayConnectedEvent extends
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000002;
       }
+      result.type_ = type_;
+      if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        to_bitField0_ |= 0x00000004;
+      }
       result.hostname_ = hostname_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
@@ -328,6 +352,9 @@ public  final class GatewayConnectedEvent extends
       if (other == de.uniluebeck.itm.tr.iwsn.messages.GatewayConnectedEvent.getDefaultInstance()) return this;
       if (other.hasHeader()) {
         mergeHeader(other.getHeader());
+      }
+      if (other.hasType()) {
+        setType(other.getType());
       }
       if (other.hasHostname()) {
         setHostname(other.getHostname());
@@ -384,8 +411,19 @@ public  final class GatewayConnectedEvent extends
             setHeader(subBuilder.buildPartial());
             break;
           }
-          case 18: {
-            bitField0_ |= 0x00000002;
+          case 16: {
+            int rawValue = input.readEnum();
+            de.uniluebeck.itm.tr.iwsn.messages.MessageType value = de.uniluebeck.itm.tr.iwsn.messages.MessageType.valueOf(rawValue);
+            if (value == null) {
+              unknownFields.mergeVarintField(2, rawValue);
+            } else {
+              bitField0_ |= 0x00000002;
+              type_ = value;
+            }
+            break;
+          }
+          case 26: {
+            bitField0_ |= 0x00000004;
             hostname_ = input.readBytes();
             break;
           }
@@ -485,10 +523,34 @@ public  final class GatewayConnectedEvent extends
       return headerBuilder_;
     }
     
-    // required string hostname = 2;
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_GATEWAY_CONNECTED];
+    private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_GATEWAY_CONNECTED;
+    public boolean hasType() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+      return type_;
+    }
+    public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.MessageType value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      bitField0_ |= 0x00000002;
+      type_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearType() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_GATEWAY_CONNECTED;
+      onChanged();
+      return this;
+    }
+    
+    // required string hostname = 3;
     private java.lang.Object hostname_ = "";
     public boolean hasHostname() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     public String getHostname() {
       java.lang.Object ref = hostname_;
@@ -504,19 +566,19 @@ public  final class GatewayConnectedEvent extends
       if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  bitField0_ |= 0x00000004;
       hostname_ = value;
       onChanged();
       return this;
     }
     public Builder clearHostname() {
-      bitField0_ = (bitField0_ & ~0x00000002);
+      bitField0_ = (bitField0_ & ~0x00000004);
       hostname_ = getDefaultInstance().getHostname();
       onChanged();
       return this;
     }
     void setHostname(com.google.protobuf.ByteString value) {
-      bitField0_ |= 0x00000002;
+      bitField0_ |= 0x00000004;
       hostname_ = value;
       onChanged();
     }

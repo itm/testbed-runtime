@@ -10,6 +10,10 @@ public interface SendDownstreamMessagesRequestOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_SEND_DOWNSTREAM_MESSAGES];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
   // required bytes messageBytes = 3;
   boolean hasMessageBytes();
   com.google.protobuf.ByteString getMessageBytes();

@@ -10,7 +10,11 @@ public interface GatewayConnectedEventOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
   
-  // required string hostname = 2;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_GATEWAY_CONNECTED];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
+  // required string hostname = 3;
   boolean hasHostname();
   String getHostname();
 }

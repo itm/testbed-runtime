@@ -9,4 +9,8 @@ public interface AreNodesAliveRequestOrBuilder
   boolean hasHeader();
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
+  
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_ARE_NODES_ALIVE];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
 }

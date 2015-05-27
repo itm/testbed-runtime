@@ -10,6 +10,10 @@ public interface UpstreamMessageEventOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
   
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_UPSTREAM_MESSAGE];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
   // required bytes messageBytes = 3;
   boolean hasMessageBytes();
   com.google.protobuf.ByteString getMessageBytes();

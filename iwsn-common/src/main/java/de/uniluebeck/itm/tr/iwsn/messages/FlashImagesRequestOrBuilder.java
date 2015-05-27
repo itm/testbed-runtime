@@ -10,6 +10,10 @@ public interface FlashImagesRequestOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_FLASH_IMAGES];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
   // required bytes image = 3;
   boolean hasImage();
   com.google.protobuf.ByteString getImage();

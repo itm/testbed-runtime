@@ -10,7 +10,11 @@ public interface NotificationEventOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
   
-  // required string message = 4;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_NOTIFICATION];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
+  // required string message = 3;
   boolean hasMessage();
   String getMessage();
 }

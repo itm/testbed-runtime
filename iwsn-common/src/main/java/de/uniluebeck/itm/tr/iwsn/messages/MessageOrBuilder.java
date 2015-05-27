@@ -74,15 +74,15 @@ public interface MessageOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequest getSetChannelPipelinesRequest();
   de.uniluebeck.itm.tr.iwsn.messages.SetChannelPipelinesRequestOrBuilder getSetChannelPipelinesRequestOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress progress = 130;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.Progress progress = 130;
   boolean hasProgress();
-  de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress getProgress();
-  de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgressOrBuilder getProgressOrBuilder();
+  de.uniluebeck.itm.tr.iwsn.messages.Progress getProgress();
+  de.uniluebeck.itm.tr.iwsn.messages.ProgressOrBuilder getProgressOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse response = 131;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.Response response = 131;
   boolean hasResponse();
-  de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse getResponse();
-  de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponseOrBuilder getResponseOrBuilder();
+  de.uniluebeck.itm.tr.iwsn.messages.Response getResponse();
+  de.uniluebeck.itm.tr.iwsn.messages.ResponseOrBuilder getResponseOrBuilder();
   
   // optional .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse getChannelPipelinesResponse = 132;
   boolean hasGetChannelPipelinesResponse();

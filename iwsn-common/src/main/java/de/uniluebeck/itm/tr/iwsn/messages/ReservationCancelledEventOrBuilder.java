@@ -10,7 +10,11 @@ public interface ReservationCancelledEventOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
   
-  // required string serializedKey = 2;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_RESERVATION_CANCELLED];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
+  // required string serializedKey = 3;
   boolean hasSerializedKey();
   String getSerializedKey();
 }

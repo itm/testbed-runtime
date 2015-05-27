@@ -44,11 +44,21 @@ public  final class NotificationEvent extends
     return header_;
   }
   
-  // required string message = 4;
-  public static final int MESSAGE_FIELD_NUMBER = 4;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_NOTIFICATION];
+  public static final int TYPE_FIELD_NUMBER = 2;
+  private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_;
+  public boolean hasType() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+    return type_;
+  }
+  
+  // required string message = 3;
+  public static final int MESSAGE_FIELD_NUMBER = 3;
   private java.lang.Object message_;
   public boolean hasMessage() {
-    return ((bitField0_ & 0x00000002) == 0x00000002);
+    return ((bitField0_ & 0x00000004) == 0x00000004);
   }
   public String getMessage() {
     java.lang.Object ref = message_;
@@ -78,6 +88,7 @@ public  final class NotificationEvent extends
   
   private void initFields() {
     header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+    type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_NOTIFICATION;
     message_ = "";
   }
   private byte memoizedIsInitialized = -1;
@@ -108,7 +119,10 @@ public  final class NotificationEvent extends
       output.writeMessage(1, header_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
-      output.writeBytes(4, getMessageBytes());
+      output.writeEnum(2, type_.getNumber());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      output.writeBytes(3, getMessageBytes());
     }
     getUnknownFields().writeTo(output);
   }
@@ -125,7 +139,11 @@ public  final class NotificationEvent extends
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(4, getMessageBytes());
+        .computeEnumSize(2, type_.getNumber());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(3, getMessageBytes());
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -258,8 +276,10 @@ public  final class NotificationEvent extends
         headerBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000001);
-      message_ = "";
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_NOTIFICATION;
       bitField0_ = (bitField0_ & ~0x00000002);
+      message_ = "";
+      bitField0_ = (bitField0_ & ~0x00000004);
       return this;
     }
     
@@ -309,6 +329,10 @@ public  final class NotificationEvent extends
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000002;
       }
+      result.type_ = type_;
+      if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        to_bitField0_ |= 0x00000004;
+      }
       result.message_ = message_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
@@ -328,6 +352,9 @@ public  final class NotificationEvent extends
       if (other == de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent.getDefaultInstance()) return this;
       if (other.hasHeader()) {
         mergeHeader(other.getHeader());
+      }
+      if (other.hasType()) {
+        setType(other.getType());
       }
       if (other.hasMessage()) {
         setMessage(other.getMessage());
@@ -384,8 +411,19 @@ public  final class NotificationEvent extends
             setHeader(subBuilder.buildPartial());
             break;
           }
-          case 34: {
-            bitField0_ |= 0x00000002;
+          case 16: {
+            int rawValue = input.readEnum();
+            de.uniluebeck.itm.tr.iwsn.messages.MessageType value = de.uniluebeck.itm.tr.iwsn.messages.MessageType.valueOf(rawValue);
+            if (value == null) {
+              unknownFields.mergeVarintField(2, rawValue);
+            } else {
+              bitField0_ |= 0x00000002;
+              type_ = value;
+            }
+            break;
+          }
+          case 26: {
+            bitField0_ |= 0x00000004;
             message_ = input.readBytes();
             break;
           }
@@ -485,10 +523,34 @@ public  final class NotificationEvent extends
       return headerBuilder_;
     }
     
-    // required string message = 4;
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_NOTIFICATION];
+    private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_NOTIFICATION;
+    public boolean hasType() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+      return type_;
+    }
+    public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.MessageType value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      bitField0_ |= 0x00000002;
+      type_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearType() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_NOTIFICATION;
+      onChanged();
+      return this;
+    }
+    
+    // required string message = 3;
     private java.lang.Object message_ = "";
     public boolean hasMessage() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     public String getMessage() {
       java.lang.Object ref = message_;
@@ -504,19 +566,19 @@ public  final class NotificationEvent extends
       if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  bitField0_ |= 0x00000004;
       message_ = value;
       onChanged();
       return this;
     }
     public Builder clearMessage() {
-      bitField0_ = (bitField0_ & ~0x00000002);
+      bitField0_ = (bitField0_ & ~0x00000004);
       message_ = getDefaultInstance().getMessage();
       onChanged();
       return this;
     }
     void setMessage(com.google.protobuf.ByteString value) {
-      bitField0_ |= 0x00000002;
+      bitField0_ |= 0x00000004;
       message_ = value;
       onChanged();
     }

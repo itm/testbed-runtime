@@ -10,6 +10,10 @@ public interface SetChannelPipelinesRequestOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_SET_CHANNEL_PIPELINES];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
   // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration channelHandlerConfigurations = 3;
   java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> 
       getChannelHandlerConfigurationsList();

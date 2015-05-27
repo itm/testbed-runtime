@@ -2,7 +2,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.messages;
 
-public interface SingleNodeProgressOrBuilder
+public interface ProgressOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
   // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
@@ -10,11 +10,15 @@ public interface SingleNodeProgressOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
-  // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType = 2;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = PROGRESS];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
+  // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType = 3;
   boolean hasRequestType();
   de.uniluebeck.itm.tr.iwsn.messages.MessageType getRequestType();
   
-  // required uint32 progressInPercent = 3;
+  // required uint32 progressInPercent = 4;
   boolean hasProgressInPercent();
   int getProgressInPercent();
 }

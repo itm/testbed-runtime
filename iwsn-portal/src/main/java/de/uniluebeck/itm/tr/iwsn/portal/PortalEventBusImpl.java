@@ -9,6 +9,7 @@ import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.messages.Request;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServer;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
+import de.uniluebeck.itm.tr.iwsn.portal.pipeline.*;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -102,23 +103,24 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
             portalChannelHandler.doStart();
 
-            final ChannelPipelineFactory pipelineFactory = new ChannelPipelineFactory() {
-                @Override
-                public ChannelPipeline getPipeline() throws Exception {
-                    //noinspection unchecked
-                    return Channels.pipeline(
-                            new ExceptionChannelHandler(ClosedChannelException.class),
-                            new IdleStateHandler(new HashedWheelTimer(), 30, 15, 0),
-                            new ProtobufVarint32FrameDecoder(),
-                            new ProtobufDecoder(Message.getDefaultInstance()),
-                            new ProtobufVarint32LengthFieldPrepender(),
-                            new ProtobufEncoder(),
-                            KEEP_ALIVE_HANDLER,
-                            //new KeepAliveHandler(schedulerService),
-                            portalChannelHandler
-                    );
-                }
-            };
+            final ChannelPipelineFactory pipelineFactory = () -> {
+				//noinspection unchecked
+				return Channels.pipeline(
+						new ExceptionChannelHandler(ClosedChannelException.class),
+						new IdleStateHandler(new HashedWheelTimer(), 30, 15, 0),
+						new ProtobufVarint32FrameDecoder(),
+						new ProtobufDecoder(Message.getDefaultInstance()),
+						new ProtobufVarint32LengthFieldPrepender(),
+						new ProtobufEncoder(),
+						new MessageWrapper(),
+						new MessageUnwrapper(),
+						new KeepAliveHandler(),
+						new ExternalPluginChannelHandler(),
+						new MessageMulticastHandler(),
+
+						portalChannelHandler
+				);
+			};
 
             nettyServer = nettyServerFactory.create(new InetSocketAddress(config.getGatewayPort()), pipelineFactory);
             nettyServer.startAsync().awaitRunning();

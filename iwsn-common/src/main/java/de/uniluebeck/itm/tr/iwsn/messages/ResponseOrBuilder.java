@@ -2,7 +2,7 @@
 
 package de.uniluebeck.itm.tr.iwsn.messages;
 
-public interface SingleNodeResponseOrBuilder
+public interface ResponseOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
   // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
@@ -10,19 +10,23 @@ public interface SingleNodeResponseOrBuilder
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
   de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
   
-  // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType = 2;
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = RESPONSE];
+  boolean hasType();
+  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  
+  // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType requestType = 3;
   boolean hasRequestType();
   de.uniluebeck.itm.tr.iwsn.messages.MessageType getRequestType();
   
-  // optional bytes response = 3;
+  // optional bytes response = 4;
   boolean hasResponse();
   com.google.protobuf.ByteString getResponse();
   
-  // optional int32 statusCode = 4;
+  // optional int32 statusCode = 5;
   boolean hasStatusCode();
   int getStatusCode();
   
-  // optional string errorMessage = 5;
+  // optional string errorMessage = 6;
   boolean hasErrorMessage();
   String getErrorMessage();
 }

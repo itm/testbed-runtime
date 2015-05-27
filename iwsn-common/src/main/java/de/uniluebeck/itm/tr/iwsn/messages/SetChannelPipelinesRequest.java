@@ -44,6 +44,16 @@ public  final class SetChannelPipelinesRequest extends
     return header_;
   }
   
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_SET_CHANNEL_PIPELINES];
+  public static final int TYPE_FIELD_NUMBER = 2;
+  private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_;
+  public boolean hasType() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+    return type_;
+  }
+  
   // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration channelHandlerConfigurations = 3;
   public static final int CHANNELHANDLERCONFIGURATIONS_FIELD_NUMBER = 3;
   private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> channelHandlerConfigurations_;
@@ -67,6 +77,7 @@ public  final class SetChannelPipelinesRequest extends
   
   private void initFields() {
     header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+    type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_SET_CHANNEL_PIPELINES;
     channelHandlerConfigurations_ = java.util.Collections.emptyList();
   }
   private byte memoizedIsInitialized = -1;
@@ -98,6 +109,9 @@ public  final class SetChannelPipelinesRequest extends
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       output.writeMessage(1, header_);
     }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeEnum(2, type_.getNumber());
+    }
     for (int i = 0; i < channelHandlerConfigurations_.size(); i++) {
       output.writeMessage(3, channelHandlerConfigurations_.get(i));
     }
@@ -113,6 +127,10 @@ public  final class SetChannelPipelinesRequest extends
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(1, header_);
+    }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeEnumSize(2, type_.getNumber());
     }
     for (int i = 0; i < channelHandlerConfigurations_.size(); i++) {
       size += com.google.protobuf.CodedOutputStream
@@ -250,9 +268,11 @@ public  final class SetChannelPipelinesRequest extends
         headerBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000001);
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_SET_CHANNEL_PIPELINES;
+      bitField0_ = (bitField0_ & ~0x00000002);
       if (channelHandlerConfigurationsBuilder_ == null) {
         channelHandlerConfigurations_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000004);
       } else {
         channelHandlerConfigurationsBuilder_.clear();
       }
@@ -302,10 +322,14 @@ public  final class SetChannelPipelinesRequest extends
       } else {
         result.header_ = headerBuilder_.build();
       }
+      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        to_bitField0_ |= 0x00000002;
+      }
+      result.type_ = type_;
       if (channelHandlerConfigurationsBuilder_ == null) {
-        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        if (((bitField0_ & 0x00000004) == 0x00000004)) {
           channelHandlerConfigurations_ = java.util.Collections.unmodifiableList(channelHandlerConfigurations_);
-          bitField0_ = (bitField0_ & ~0x00000002);
+          bitField0_ = (bitField0_ & ~0x00000004);
         }
         result.channelHandlerConfigurations_ = channelHandlerConfigurations_;
       } else {
@@ -330,11 +354,14 @@ public  final class SetChannelPipelinesRequest extends
       if (other.hasHeader()) {
         mergeHeader(other.getHeader());
       }
+      if (other.hasType()) {
+        setType(other.getType());
+      }
       if (channelHandlerConfigurationsBuilder_ == null) {
         if (!other.channelHandlerConfigurations_.isEmpty()) {
           if (channelHandlerConfigurations_.isEmpty()) {
             channelHandlerConfigurations_ = other.channelHandlerConfigurations_;
-            bitField0_ = (bitField0_ & ~0x00000002);
+            bitField0_ = (bitField0_ & ~0x00000004);
           } else {
             ensureChannelHandlerConfigurationsIsMutable();
             channelHandlerConfigurations_.addAll(other.channelHandlerConfigurations_);
@@ -347,7 +374,7 @@ public  final class SetChannelPipelinesRequest extends
             channelHandlerConfigurationsBuilder_.dispose();
             channelHandlerConfigurationsBuilder_ = null;
             channelHandlerConfigurations_ = other.channelHandlerConfigurations_;
-            bitField0_ = (bitField0_ & ~0x00000002);
+            bitField0_ = (bitField0_ & ~0x00000004);
             channelHandlerConfigurationsBuilder_ = 
               com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                  getChannelHandlerConfigurationsFieldBuilder() : null;
@@ -408,6 +435,17 @@ public  final class SetChannelPipelinesRequest extends
             }
             input.readMessage(subBuilder, extensionRegistry);
             setHeader(subBuilder.buildPartial());
+            break;
+          }
+          case 16: {
+            int rawValue = input.readEnum();
+            de.uniluebeck.itm.tr.iwsn.messages.MessageType value = de.uniluebeck.itm.tr.iwsn.messages.MessageType.valueOf(rawValue);
+            if (value == null) {
+              unknownFields.mergeVarintField(2, rawValue);
+            } else {
+              bitField0_ |= 0x00000002;
+              type_ = value;
+            }
             break;
           }
           case 26: {
@@ -512,13 +550,37 @@ public  final class SetChannelPipelinesRequest extends
       return headerBuilder_;
     }
     
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_SET_CHANNEL_PIPELINES];
+    private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_SET_CHANNEL_PIPELINES;
+    public boolean hasType() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+      return type_;
+    }
+    public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.MessageType value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      bitField0_ |= 0x00000002;
+      type_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearType() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_SET_CHANNEL_PIPELINES;
+      onChanged();
+      return this;
+    }
+    
     // repeated .de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration channelHandlerConfigurations = 3;
     private java.util.List<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration> channelHandlerConfigurations_ =
       java.util.Collections.emptyList();
     private void ensureChannelHandlerConfigurationsIsMutable() {
-      if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (!((bitField0_ & 0x00000004) == 0x00000004)) {
         channelHandlerConfigurations_ = new java.util.ArrayList<de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration>(channelHandlerConfigurations_);
-        bitField0_ |= 0x00000002;
+        bitField0_ |= 0x00000004;
        }
     }
     
@@ -634,7 +696,7 @@ public  final class SetChannelPipelinesRequest extends
     public Builder clearChannelHandlerConfigurations() {
       if (channelHandlerConfigurationsBuilder_ == null) {
         channelHandlerConfigurations_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000004);
         onChanged();
       } else {
         channelHandlerConfigurationsBuilder_.clear();
@@ -690,7 +752,7 @@ public  final class SetChannelPipelinesRequest extends
         channelHandlerConfigurationsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
             de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration.Builder, de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfigurationOrBuilder>(
                 channelHandlerConfigurations_,
-                ((bitField0_ & 0x00000002) == 0x00000002),
+                ((bitField0_ & 0x00000004) == 0x00000004),
                 getParentForChildren(),
                 isClean());
         channelHandlerConfigurations_ = null;

@@ -7,8 +7,11 @@ import com.google.common.collect.Sets;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
+import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginService;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
@@ -17,6 +20,7 @@ import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.nio.channels.ClosedChannelException;
 import java.util.Collection;
 import java.util.List;
@@ -64,45 +68,195 @@ public class PortalChannelHandler extends SimpleChannelHandler {
         portalEventBus.unregister(this);
     }
 
-    @Subscribe
-    public void on(final DeviceConfigCreatedEvent deviceConfigCreatedEvent) {
-        forward(newEvent(idProvider.get(), deviceConfigCreatedEvent));
-    }
+	@Subscribe
+	public void on(final AreNodesAliveRequest message) {
+		forward(message, message.getHeader());
+	}
 
-    @Subscribe
-    public void on(final DeviceConfigUpdatedEvent deviceConfigUpdatedEvent) {
-        forward(newEvent(idProvider.get(), deviceConfigUpdatedEvent));
-    }
+	@Subscribe
+	public void on(final AreNodesConnectedRequest message) {
+		forward(message, message.getHeader());
+	}
 
-    @Subscribe
-    public void on(final DeviceConfigDeletedEvent deviceConfigDeletedEvent) {
-        forward(newEvent(idProvider.get(), deviceConfigDeletedEvent));
-    }
+	@Subscribe
+	public void on(final DisableNodesRequest message) {
+		forward(message, message.getHeader());
+	}
 
-    @Subscribe
-    public void on(final ReservationStartedEvent reservationStartedEvent) {
-        forward(newEvent(idProvider.get(), reservationStartedEvent));
-    }
+	@Subscribe
+	public void on(final DisableVirtualLinksRequest message) {
+		forward(message, message.getHeader());
+	}
 
-    @Subscribe
-    public void on(final ReservationEndedEvent reservationEndedEvent) {
-        forward(newEvent(idProvider.get(), reservationEndedEvent));
-    }
+	@Subscribe
+	public void on(final DisablePhysicalLinksRequest message) {
+		forward(message, message.getHeader());
+	}
 
-    @Subscribe
-    public void on(final ReservationMadeEvent reservationMadeEvent) {
-        forward(newEvent(idProvider.get(), reservationMadeEvent));
-    }
+	@Subscribe
+	public void on(final EnableNodesRequest message) {
+		forward(message, message.getHeader());
+	}
 
-    @Subscribe
-    public void on(final ReservationCancelledEvent reservationCancelledEvent) {
-        forward(newEvent(idProvider.get(), reservationCancelledEvent));
-    }
+	@Subscribe
+	public void on(final EnablePhysicalLinksRequest message) {
+		forward(message, message.getHeader());
+	}
 
-    private void forward(final Event event) {
-        sendToExternalPlugins(event);
-        sendToGateways(event);
-    }
+	@Subscribe
+	public void on(final EnableVirtualLinksRequest message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final FlashImagesRequest message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final GetChannelPipelinesRequest message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final ResetNodesRequest message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final SendDownstreamMessagesRequest message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final SetChannelPipelinesRequest message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final Progress message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final Response message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final GetChannelPipelinesResponse message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final UpstreamMessageEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final DevicesAttachedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final DevicesDetachedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final GatewayConnectedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final GatewayDisconnectedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final NotificationEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final ReservationStartedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final ReservationEndedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final ReservationMadeEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final ReservationCancelledEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final ReservationOpenedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final ReservationClosedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final ReservationFinalizedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final DeviceConfigCreatedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final DeviceConfigUpdatedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final DeviceConfigDeletedEvent message) {
+		forward(message, message.getHeader());
+	}
+
+	@Subscribe
+	public void on(final EventAck message) {
+		klajflkdsajflkasj
+		forward(message, message.getHeader());
+	}
+
+	private void forward(final MessageLite message, EventHeader header) {
+
+		if (header.getDownstream()) {
+			sendToExternalPlugins(message);
+			sendToGateways(message);
+		}
+
+		if (header.getUpstream()) {
+			portalEventBus.post(message);
+		}
+	}
+
+    private void forward(final MessageLite message, RequestResponseHeader header) {
+
+		if (header.getDownstream()) {
+			sendToExternalPlugins(message);
+			sendToGateways(message);
+		}
+
+		if (header.getUpstream()) {
+			portalEventBus.post(message);
+		}
+	}
 
     @Subscribe
     public void onRequest(final Request request) {
@@ -550,36 +704,12 @@ public class PortalChannelHandler extends SimpleChannelHandler {
         write(ctx, channelFuture, message);
     }
 
-    private void sendToGateways(final Event event) {
-        allChannels.write(newMessage(event));
+    private void sendToGateways(final MessageLite message) {
+        allChannels.write(message);
     }
 
     @Override
     public String toString() {
         return "PortalChannelHandler";
-    }
-
-    private void sendToExternalPlugins(final Request request) {
-        externalPluginService.onRequest(request);
-    }
-
-    private void sendToExternalPlugins(final SingleNodeProgress progress) {
-        externalPluginService.onSingleNodeProgress(progress);
-    }
-
-    private void sendToExternalPlugins(final SingleNodeResponse response) {
-        externalPluginService.onSingleNodeResponse(response);
-    }
-
-    private void sendToExternalPlugins(final GetChannelPipelinesResponse getChannelPipelinesResponse) {
-        externalPluginService.onGetChannelPipelinesResponse(getChannelPipelinesResponse);
-    }
-
-    private void sendToExternalPlugins(final Event event) {
-        externalPluginService.onEvent(event);
-    }
-
-    private void sendToExternalPlugins(final EventAck eventAck) {
-        externalPluginService.onEventAck(eventAck);
     }
 }

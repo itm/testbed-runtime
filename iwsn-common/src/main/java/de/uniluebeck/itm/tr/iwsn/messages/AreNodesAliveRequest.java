@@ -44,8 +44,19 @@ public  final class AreNodesAliveRequest extends
     return header_;
   }
   
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_ARE_NODES_ALIVE];
+  public static final int TYPE_FIELD_NUMBER = 2;
+  private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_;
+  public boolean hasType() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+    return type_;
+  }
+  
   private void initFields() {
     header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+    type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_ARE_NODES_ALIVE;
   }
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
@@ -70,6 +81,9 @@ public  final class AreNodesAliveRequest extends
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       output.writeMessage(1, header_);
     }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeEnum(2, type_.getNumber());
+    }
     getUnknownFields().writeTo(output);
   }
   
@@ -82,6 +96,10 @@ public  final class AreNodesAliveRequest extends
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(1, header_);
+    }
+    if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeEnumSize(2, type_.getNumber());
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -214,6 +232,8 @@ public  final class AreNodesAliveRequest extends
         headerBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000001);
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_ARE_NODES_ALIVE;
+      bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
     
@@ -260,6 +280,10 @@ public  final class AreNodesAliveRequest extends
       } else {
         result.header_ = headerBuilder_.build();
       }
+      if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+        to_bitField0_ |= 0x00000002;
+      }
+      result.type_ = type_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
@@ -278,6 +302,9 @@ public  final class AreNodesAliveRequest extends
       if (other == de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest.getDefaultInstance()) return this;
       if (other.hasHeader()) {
         mergeHeader(other.getHeader());
+      }
+      if (other.hasType()) {
+        setType(other.getType());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
@@ -325,6 +352,17 @@ public  final class AreNodesAliveRequest extends
             }
             input.readMessage(subBuilder, extensionRegistry);
             setHeader(subBuilder.buildPartial());
+            break;
+          }
+          case 16: {
+            int rawValue = input.readEnum();
+            de.uniluebeck.itm.tr.iwsn.messages.MessageType value = de.uniluebeck.itm.tr.iwsn.messages.MessageType.valueOf(rawValue);
+            if (value == null) {
+              unknownFields.mergeVarintField(2, rawValue);
+            } else {
+              bitField0_ |= 0x00000002;
+              type_ = value;
+            }
             break;
           }
         }
@@ -421,6 +459,30 @@ public  final class AreNodesAliveRequest extends
         header_ = null;
       }
       return headerBuilder_;
+    }
+    
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_ARE_NODES_ALIVE];
+    private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_ARE_NODES_ALIVE;
+    public boolean hasType() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+      return type_;
+    }
+    public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.MessageType value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      bitField0_ |= 0x00000002;
+      type_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearType() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_ARE_NODES_ALIVE;
+      onChanged();
+      return this;
     }
     
     // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.AreNodesAliveRequest)

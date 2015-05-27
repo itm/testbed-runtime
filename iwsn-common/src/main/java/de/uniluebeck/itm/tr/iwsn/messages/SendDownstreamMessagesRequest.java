@@ -44,11 +44,21 @@ public  final class SendDownstreamMessagesRequest extends
     return header_;
   }
   
+  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_SEND_DOWNSTREAM_MESSAGES];
+  public static final int TYPE_FIELD_NUMBER = 2;
+  private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_;
+  public boolean hasType() {
+    return ((bitField0_ & 0x00000002) == 0x00000002);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+    return type_;
+  }
+  
   // required bytes messageBytes = 3;
   public static final int MESSAGEBYTES_FIELD_NUMBER = 3;
   private com.google.protobuf.ByteString messageBytes_;
   public boolean hasMessageBytes() {
-    return ((bitField0_ & 0x00000002) == 0x00000002);
+    return ((bitField0_ & 0x00000004) == 0x00000004);
   }
   public com.google.protobuf.ByteString getMessageBytes() {
     return messageBytes_;
@@ -56,6 +66,7 @@ public  final class SendDownstreamMessagesRequest extends
   
   private void initFields() {
     header_ = de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+    type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_SEND_DOWNSTREAM_MESSAGES;
     messageBytes_ = com.google.protobuf.ByteString.EMPTY;
   }
   private byte memoizedIsInitialized = -1;
@@ -86,6 +97,9 @@ public  final class SendDownstreamMessagesRequest extends
       output.writeMessage(1, header_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      output.writeEnum(2, type_.getNumber());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
       output.writeBytes(3, messageBytes_);
     }
     getUnknownFields().writeTo(output);
@@ -102,6 +116,10 @@ public  final class SendDownstreamMessagesRequest extends
         .computeMessageSize(1, header_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeEnumSize(2, type_.getNumber());
+    }
+    if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
         .computeBytesSize(3, messageBytes_);
     }
@@ -236,8 +254,10 @@ public  final class SendDownstreamMessagesRequest extends
         headerBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000001);
-      messageBytes_ = com.google.protobuf.ByteString.EMPTY;
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_SEND_DOWNSTREAM_MESSAGES;
       bitField0_ = (bitField0_ & ~0x00000002);
+      messageBytes_ = com.google.protobuf.ByteString.EMPTY;
+      bitField0_ = (bitField0_ & ~0x00000004);
       return this;
     }
     
@@ -287,6 +307,10 @@ public  final class SendDownstreamMessagesRequest extends
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000002;
       }
+      result.type_ = type_;
+      if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+        to_bitField0_ |= 0x00000004;
+      }
       result.messageBytes_ = messageBytes_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
@@ -306,6 +330,9 @@ public  final class SendDownstreamMessagesRequest extends
       if (other == de.uniluebeck.itm.tr.iwsn.messages.SendDownstreamMessagesRequest.getDefaultInstance()) return this;
       if (other.hasHeader()) {
         mergeHeader(other.getHeader());
+      }
+      if (other.hasType()) {
+        setType(other.getType());
       }
       if (other.hasMessageBytes()) {
         setMessageBytes(other.getMessageBytes());
@@ -362,8 +389,19 @@ public  final class SendDownstreamMessagesRequest extends
             setHeader(subBuilder.buildPartial());
             break;
           }
+          case 16: {
+            int rawValue = input.readEnum();
+            de.uniluebeck.itm.tr.iwsn.messages.MessageType value = de.uniluebeck.itm.tr.iwsn.messages.MessageType.valueOf(rawValue);
+            if (value == null) {
+              unknownFields.mergeVarintField(2, rawValue);
+            } else {
+              bitField0_ |= 0x00000002;
+              type_ = value;
+            }
+            break;
+          }
           case 26: {
-            bitField0_ |= 0x00000002;
+            bitField0_ |= 0x00000004;
             messageBytes_ = input.readBytes();
             break;
           }
@@ -463,10 +501,34 @@ public  final class SendDownstreamMessagesRequest extends
       return headerBuilder_;
     }
     
+    // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_SEND_DOWNSTREAM_MESSAGES];
+    private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_SEND_DOWNSTREAM_MESSAGES;
+    public boolean hasType() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+      return type_;
+    }
+    public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.MessageType value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      bitField0_ |= 0x00000002;
+      type_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearType() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.REQUEST_SEND_DOWNSTREAM_MESSAGES;
+      onChanged();
+      return this;
+    }
+    
     // required bytes messageBytes = 3;
     private com.google.protobuf.ByteString messageBytes_ = com.google.protobuf.ByteString.EMPTY;
     public boolean hasMessageBytes() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     public com.google.protobuf.ByteString getMessageBytes() {
       return messageBytes_;
@@ -475,13 +537,13 @@ public  final class SendDownstreamMessagesRequest extends
       if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000002;
+  bitField0_ |= 0x00000004;
       messageBytes_ = value;
       onChanged();
       return this;
     }
     public Builder clearMessageBytes() {
-      bitField0_ = (bitField0_ & ~0x00000002);
+      bitField0_ = (bitField0_ & ~0x00000004);
       messageBytes_ = getDefaultInstance().getMessageBytes();
       onChanged();
       return this;
