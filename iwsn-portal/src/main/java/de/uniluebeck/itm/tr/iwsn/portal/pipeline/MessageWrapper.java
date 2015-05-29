@@ -2,16 +2,15 @@ package de.uniluebeck.itm.tr.iwsn.portal.pipeline;
 
 import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.DownstreamMessageEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelDownstreamHandler;
+import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
+import org.jboss.netty.channel.*;
+import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public class MessageWrapper extends SimpleChannelDownstreamHandler {
+public class MessageWrapper extends OneToOneEncoder {
 
 	private static final Map<Class, Function<MessageLite, Message>> map = new HashMap<>();
 
@@ -190,23 +189,26 @@ public class MessageWrapper extends SimpleChannelDownstreamHandler {
 	}
 
 	@Override
-	public void writeRequested(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+	protected Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 
-		final Class<?> msgClass = e.getMessage().getClass();
+		if (!(msg instanceof EventMessageEvent) && !(msg instanceof RequestResponseMessageEvent)) {
+			throw new IllegalArgumentException("MessageWrapper handler only consumes events, requests and response " +
+					"message events. Pipeline seems to be misconfigured.");
+		}
+
+		final Class<?> msgClass;
+		if (msg instanceof EventMessageEvent) {
+			msgClass = ((EventMessageEvent) msg).message.getClass();
+		} else {
+			msgClass = ((RequestResponseMessageEvent) msg).message.getClass();
+		}
+
 		final Function<MessageLite, Message> wrapperFunction = map.get(msgClass);
 
 		if (wrapperFunction == null) {
 			throw new IllegalArgumentException("Unknown message type \"" + msgClass + "\"");
 		}
 
-		final Message wrappedMessage = wrapperFunction.apply((MessageLite) e.getMessage());
-		final DownstreamMessageEvent dme = new DownstreamMessageEvent(
-				e.getChannel(),
-				e.getFuture(),
-				wrappedMessage,
-				e.getRemoteAddress()
-		);
-
-		ctx.sendDownstream(dme);
+		return wrapperFunction.apply((MessageLite) msg);
 	}
 }

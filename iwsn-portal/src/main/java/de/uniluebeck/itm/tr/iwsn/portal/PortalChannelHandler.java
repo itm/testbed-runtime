@@ -33,37 +33,27 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.jboss.netty.channel.Channels.write;
 
-public class PortalChannelHandler extends SimpleChannelHandler {
+public class PortalChannelHandler extends SimpleChannelHandler implements LifeCycleAwareChannelHandler {
 
     private static final Logger log = LoggerFactory.getLogger(PortalChannelHandler.class);
 
     private final PortalEventBus portalEventBus;
-
-    private final IdProvider idProvider;
-
-    private final ExternalPluginService externalPluginService;
 
     private final Multimap<ChannelHandlerContext, NodeUrn> contextToNodeUrnsMap = HashMultimap.create();
 
     private final ChannelGroup allChannels = new DefaultChannelGroup();
 
     @Inject
-    public PortalChannelHandler(final PortalEventBus portalEventBus,
-                                final IdProvider idProvider,
-                                final ExternalPluginService externalPluginService) {
+    public PortalChannelHandler(final PortalEventBus portalEventBus) {
         this.portalEventBus = portalEventBus;
-        this.idProvider = idProvider;
-        this.externalPluginService = externalPluginService;
     }
 
     public void doStart() {
         log.debug("Subscribing to the event bus.");
         portalEventBus.register(this);
-        externalPluginService.startAsync().awaitRunning();
     }
 
     public void doStop() {
-        externalPluginService.stopAsync().awaitTerminated();
         log.debug("Unsubscribing from the event bus.");
         portalEventBus.unregister(this);
     }
@@ -237,7 +227,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	private void forward(final MessageLite message, EventHeader header) {
 
 		if (header.getDownstream()) {
-			sendToExternalPlugins(message);
 			sendToGateways(message);
 		}
 
@@ -249,7 +238,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
     private void forward(final MessageLite message, RequestResponseHeader header) {
 
 		if (header.getDownstream()) {
-			sendToExternalPlugins(message);
 			sendToGateways(message);
 		}
 
