@@ -171,7 +171,7 @@ public class EventStoreResourceImpl implements EventStoreResource {
             final Reservation reservation = reservationManager.getReservation(serializedKey);
             return toJSON(new ReservationCancelledMessage(reservation), true);
 
-        } else if (event instanceof SingleNodeResponse) {
+        } else if (event instanceof Response) {
 
             return toJSON(new SingleNodeResponseMessage((SingleNodeResponse) event, DateTime.now()), true);
 

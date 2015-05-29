@@ -131,13 +131,13 @@ public class EventStoreAdminResource {
                     long diff;
                     if (first) {
                         first = false;
-                        lastTimestamp = ume.getTimestamp();
+                        lastTimestamp = ume.getHeader().getTimestamp();
                         diff = 0;
                     } else {
-                        diff = Math.abs(ume.getTimestamp() - lastTimestamp);
-                        lastTimestamp = ume.getTimestamp();
+                        diff = Math.abs(ume.getHeader().getTimestamp() - lastTimestamp);
+                        lastTimestamp = ume.getHeader().getTimestamp();
                     }
-                    upstreamMessageTimestampStats.addValue(ume.getTimestamp());
+                    upstreamMessageTimestampStats.addValue(ume.getHeader().getTimestamp());
                     upstreamMessageTimestampDiffStats.addValue(diff);
                 }
             }

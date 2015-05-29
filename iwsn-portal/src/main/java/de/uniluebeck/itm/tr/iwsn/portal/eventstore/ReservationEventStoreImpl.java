@@ -70,69 +70,12 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
         }
     }
 
-
     @Subscribe
-    public void onEvent(final DevicesAttachedEvent event) {
-        storeEvent(event, event.getTimestamp());
-    }
-
-    @Subscribe
-    public void onEvent(final DevicesDetachedEvent event) {
-        storeEvent(event, event.getTimestamp());
-    }
-
-    @Subscribe
-    public void onEvent(final UpstreamMessageEvent event) {
-        storeEvent(event, event.getTimestamp());
-    }
-
-    @Subscribe
-    public void onEvent(final NotificationEvent event) {
-        storeEvent(event, event.getTimestamp());
-    }
-
-    @Subscribe
-    public void onEvent(final SingleNodeResponse response) {
-        storeEvent(response);
-    }
-
-    @Subscribe
-    public void onEvent(final GetChannelPipelinesResponse response) {
-        storeEvent(response);
-    }
-
-    @Subscribe
-    public void onRequest(final Request request) {
-        storeEvent(request);
-    }
-
-    @Subscribe
-    public void on(final ReservationStartedEvent reservationStartedEvent) {
-        storeEvent(reservationStartedEvent, reservation.getInterval().getStartMillis());
-    }
-
-    @Subscribe
-    public void on(final ReservationEndedEvent reservationEndedEvent) {
-        storeEvent(reservationEndedEvent, reservation.getInterval().getEndMillis());
-    }
-
-    @Subscribe
-    public void on(final ReservationCancelledEvent reservationCancelledEvent) {
-        if (reservation.getCancelled() != null) {
-            storeEvent(reservationCancelledEvent, reservation.getCancelled().getMillis());
-        } else {
-            log.error("the reservation has not set any cancelled date. Hence the occurrence of the ReservationCancelledEvent ist wrong!");
-        }
-    }
-
-    private void storeEvent(final MessageLite event) {
-        log.trace("ReservationEventStoreImpl.storeEvent({})", event);
-        try {
-            storeEvent(event, event.getClass());
-        } catch (IOException e) {
-            log.error("Failed to store event", e);
-        }
-    }
+	public void onObject(final Object obj) {
+		if (MessageHeaderPair.isUnwrappedMessageEvent(obj)) {
+			storeEvent((MessageLite) obj, MessageHeaderPair.fromUnwrapped(obj).header.getTimestamp());
+		}
+	}
 
     private void storeEvent(final MessageLite event, long timestamp) {
         log.trace("ReservationEventStoreImpl.storeEvent({})", event);
