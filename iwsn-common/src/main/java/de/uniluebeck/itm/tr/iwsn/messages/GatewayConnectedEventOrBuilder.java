@@ -5,16 +5,12 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface GatewayConnectedEventOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.Header header = 1;
   boolean hasHeader();
-  de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
-  de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
+  de.uniluebeck.itm.tr.iwsn.messages.Header getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder getHeaderOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_GATEWAY_CONNECTED];
-  boolean hasType();
-  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
-  
-  // required string hostname = 3;
+  // required string hostname = 2;
   boolean hasHostname();
   String getHostname();
 }

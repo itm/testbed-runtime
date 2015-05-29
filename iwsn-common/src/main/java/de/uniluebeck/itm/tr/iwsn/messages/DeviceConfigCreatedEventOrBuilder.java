@@ -5,12 +5,8 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface DeviceConfigCreatedEventOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.Header header = 1;
   boolean hasHeader();
-  de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader();
-  de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder();
-  
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_DEVICE_CONFIG_CREATED];
-  boolean hasType();
-  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  de.uniluebeck.itm.tr.iwsn.messages.Header getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder getHeaderOrBuilder();
 }

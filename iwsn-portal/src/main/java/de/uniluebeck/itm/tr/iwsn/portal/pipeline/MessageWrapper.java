@@ -191,18 +191,12 @@ public class MessageWrapper extends OneToOneEncoder {
 	@Override
 	protected Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 
-		if (!(msg instanceof EventMessageEvent) && !(msg instanceof RequestResponseMessageEvent)) {
+		if (!(msg instanceof MessageHeaderPair)) {
 			throw new IllegalArgumentException("MessageWrapper handler only consumes events, requests and response " +
 					"message events. Pipeline seems to be misconfigured.");
 		}
 
-		final Class<?> msgClass;
-		if (msg instanceof EventMessageEvent) {
-			msgClass = ((EventMessageEvent) msg).message.getClass();
-		} else {
-			msgClass = ((RequestResponseMessageEvent) msg).message.getClass();
-		}
-
+		final Class<?> msgClass = ((MessageHeaderPair) msg).message.getClass();
 		final Function<MessageLite, Message> wrapperFunction = map.get(msgClass);
 
 		if (wrapperFunction == null) {

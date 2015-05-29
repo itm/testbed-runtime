@@ -31,34 +31,24 @@ public  final class GatewayDisconnectedEvent extends
   }
   
   private int bitField0_;
-  // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.Header header = 1;
   public static final int HEADER_FIELD_NUMBER = 1;
-  private de.uniluebeck.itm.tr.iwsn.messages.EventHeader header_;
+  private de.uniluebeck.itm.tr.iwsn.messages.Header header_;
   public boolean hasHeader() {
     return ((bitField0_ & 0x00000001) == 0x00000001);
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader() {
+  public de.uniluebeck.itm.tr.iwsn.messages.Header getHeader() {
     return header_;
   }
-  public de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder() {
+  public de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder getHeaderOrBuilder() {
     return header_;
   }
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_GATEWAY_DISCONNECTED];
-  public static final int TYPE_FIELD_NUMBER = 2;
-  private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_;
-  public boolean hasType() {
-    return ((bitField0_ & 0x00000002) == 0x00000002);
-  }
-  public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
-    return type_;
-  }
-  
-  // required string hostname = 3;
-  public static final int HOSTNAME_FIELD_NUMBER = 3;
+  // required string hostname = 2;
+  public static final int HOSTNAME_FIELD_NUMBER = 2;
   private java.lang.Object hostname_;
   public boolean hasHostname() {
-    return ((bitField0_ & 0x00000004) == 0x00000004);
+    return ((bitField0_ & 0x00000002) == 0x00000002);
   }
   public String getHostname() {
     java.lang.Object ref = hostname_;
@@ -87,8 +77,7 @@ public  final class GatewayDisconnectedEvent extends
   }
   
   private void initFields() {
-    header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
-    type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_GATEWAY_DISCONNECTED;
+    header_ = de.uniluebeck.itm.tr.iwsn.messages.Header.getDefaultInstance();
     hostname_ = "";
   }
   private byte memoizedIsInitialized = -1;
@@ -119,10 +108,7 @@ public  final class GatewayDisconnectedEvent extends
       output.writeMessage(1, header_);
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
-      output.writeEnum(2, type_.getNumber());
-    }
-    if (((bitField0_ & 0x00000004) == 0x00000004)) {
-      output.writeBytes(3, getHostnameBytes());
+      output.writeBytes(2, getHostnameBytes());
     }
     getUnknownFields().writeTo(output);
   }
@@ -139,11 +125,7 @@ public  final class GatewayDisconnectedEvent extends
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeEnumSize(2, type_.getNumber());
-    }
-    if (((bitField0_ & 0x00000004) == 0x00000004)) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(3, getHostnameBytes());
+        .computeBytesSize(2, getHostnameBytes());
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
@@ -271,15 +253,13 @@ public  final class GatewayDisconnectedEvent extends
     public Builder clear() {
       super.clear();
       if (headerBuilder_ == null) {
-        header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.Header.getDefaultInstance();
       } else {
         headerBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000001);
-      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_GATEWAY_DISCONNECTED;
-      bitField0_ = (bitField0_ & ~0x00000002);
       hostname_ = "";
-      bitField0_ = (bitField0_ & ~0x00000004);
+      bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
     
@@ -329,10 +309,6 @@ public  final class GatewayDisconnectedEvent extends
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000002;
       }
-      result.type_ = type_;
-      if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
-        to_bitField0_ |= 0x00000004;
-      }
       result.hostname_ = hostname_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
@@ -352,9 +328,6 @@ public  final class GatewayDisconnectedEvent extends
       if (other == de.uniluebeck.itm.tr.iwsn.messages.GatewayDisconnectedEvent.getDefaultInstance()) return this;
       if (other.hasHeader()) {
         mergeHeader(other.getHeader());
-      }
-      if (other.hasType()) {
-        setType(other.getType());
       }
       if (other.hasHostname()) {
         setHostname(other.getHostname());
@@ -403,7 +376,7 @@ public  final class GatewayDisconnectedEvent extends
             break;
           }
           case 10: {
-            de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.newBuilder();
+            de.uniluebeck.itm.tr.iwsn.messages.Header.Builder subBuilder = de.uniluebeck.itm.tr.iwsn.messages.Header.newBuilder();
             if (hasHeader()) {
               subBuilder.mergeFrom(getHeader());
             }
@@ -411,19 +384,8 @@ public  final class GatewayDisconnectedEvent extends
             setHeader(subBuilder.buildPartial());
             break;
           }
-          case 16: {
-            int rawValue = input.readEnum();
-            de.uniluebeck.itm.tr.iwsn.messages.MessageType value = de.uniluebeck.itm.tr.iwsn.messages.MessageType.valueOf(rawValue);
-            if (value == null) {
-              unknownFields.mergeVarintField(2, rawValue);
-            } else {
-              bitField0_ |= 0x00000002;
-              type_ = value;
-            }
-            break;
-          }
-          case 26: {
-            bitField0_ |= 0x00000004;
+          case 18: {
+            bitField0_ |= 0x00000002;
             hostname_ = input.readBytes();
             break;
           }
@@ -433,21 +395,21 @@ public  final class GatewayDisconnectedEvent extends
     
     private int bitField0_;
     
-    // required .de.uniluebeck.itm.tr.iwsn.messages.EventHeader header = 1;
-    private de.uniluebeck.itm.tr.iwsn.messages.EventHeader header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+    // required .de.uniluebeck.itm.tr.iwsn.messages.Header header = 1;
+    private de.uniluebeck.itm.tr.iwsn.messages.Header header_ = de.uniluebeck.itm.tr.iwsn.messages.Header.getDefaultInstance();
     private com.google.protobuf.SingleFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder> headerBuilder_;
+        de.uniluebeck.itm.tr.iwsn.messages.Header, de.uniluebeck.itm.tr.iwsn.messages.Header.Builder, de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder> headerBuilder_;
     public boolean hasHeader() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.EventHeader getHeader() {
+    public de.uniluebeck.itm.tr.iwsn.messages.Header getHeader() {
       if (headerBuilder_ == null) {
         return header_;
       } else {
         return headerBuilder_.getMessage();
       }
     }
-    public Builder setHeader(de.uniluebeck.itm.tr.iwsn.messages.EventHeader value) {
+    public Builder setHeader(de.uniluebeck.itm.tr.iwsn.messages.Header value) {
       if (headerBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -461,7 +423,7 @@ public  final class GatewayDisconnectedEvent extends
       return this;
     }
     public Builder setHeader(
-        de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder builderForValue) {
+        de.uniluebeck.itm.tr.iwsn.messages.Header.Builder builderForValue) {
       if (headerBuilder_ == null) {
         header_ = builderForValue.build();
         onChanged();
@@ -471,12 +433,12 @@ public  final class GatewayDisconnectedEvent extends
       bitField0_ |= 0x00000001;
       return this;
     }
-    public Builder mergeHeader(de.uniluebeck.itm.tr.iwsn.messages.EventHeader value) {
+    public Builder mergeHeader(de.uniluebeck.itm.tr.iwsn.messages.Header value) {
       if (headerBuilder_ == null) {
         if (((bitField0_ & 0x00000001) == 0x00000001) &&
-            header_ != de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance()) {
+            header_ != de.uniluebeck.itm.tr.iwsn.messages.Header.getDefaultInstance()) {
           header_ =
-            de.uniluebeck.itm.tr.iwsn.messages.EventHeader.newBuilder(header_).mergeFrom(value).buildPartial();
+            de.uniluebeck.itm.tr.iwsn.messages.Header.newBuilder(header_).mergeFrom(value).buildPartial();
         } else {
           header_ = value;
         }
@@ -489,7 +451,7 @@ public  final class GatewayDisconnectedEvent extends
     }
     public Builder clearHeader() {
       if (headerBuilder_ == null) {
-        header_ = de.uniluebeck.itm.tr.iwsn.messages.EventHeader.getDefaultInstance();
+        header_ = de.uniluebeck.itm.tr.iwsn.messages.Header.getDefaultInstance();
         onChanged();
       } else {
         headerBuilder_.clear();
@@ -497,12 +459,12 @@ public  final class GatewayDisconnectedEvent extends
       bitField0_ = (bitField0_ & ~0x00000001);
       return this;
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder getHeaderBuilder() {
+    public de.uniluebeck.itm.tr.iwsn.messages.Header.Builder getHeaderBuilder() {
       bitField0_ |= 0x00000001;
       onChanged();
       return getHeaderFieldBuilder().getBuilder();
     }
-    public de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder getHeaderOrBuilder() {
+    public de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder getHeaderOrBuilder() {
       if (headerBuilder_ != null) {
         return headerBuilder_.getMessageOrBuilder();
       } else {
@@ -510,11 +472,11 @@ public  final class GatewayDisconnectedEvent extends
       }
     }
     private com.google.protobuf.SingleFieldBuilder<
-        de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder> 
+        de.uniluebeck.itm.tr.iwsn.messages.Header, de.uniluebeck.itm.tr.iwsn.messages.Header.Builder, de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder> 
         getHeaderFieldBuilder() {
       if (headerBuilder_ == null) {
         headerBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-            de.uniluebeck.itm.tr.iwsn.messages.EventHeader, de.uniluebeck.itm.tr.iwsn.messages.EventHeader.Builder, de.uniluebeck.itm.tr.iwsn.messages.EventHeaderOrBuilder>(
+            de.uniluebeck.itm.tr.iwsn.messages.Header, de.uniluebeck.itm.tr.iwsn.messages.Header.Builder, de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder>(
                 header_,
                 getParentForChildren(),
                 isClean());
@@ -523,34 +485,10 @@ public  final class GatewayDisconnectedEvent extends
       return headerBuilder_;
     }
     
-    // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = EVENT_GATEWAY_DISCONNECTED];
-    private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_GATEWAY_DISCONNECTED;
-    public boolean hasType() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
-    }
-    public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
-      return type_;
-    }
-    public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.MessageType value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-      bitField0_ |= 0x00000002;
-      type_ = value;
-      onChanged();
-      return this;
-    }
-    public Builder clearType() {
-      bitField0_ = (bitField0_ & ~0x00000002);
-      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.EVENT_GATEWAY_DISCONNECTED;
-      onChanged();
-      return this;
-    }
-    
-    // required string hostname = 3;
+    // required string hostname = 2;
     private java.lang.Object hostname_ = "";
     public boolean hasHostname() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     public String getHostname() {
       java.lang.Object ref = hostname_;
@@ -566,19 +504,19 @@ public  final class GatewayDisconnectedEvent extends
       if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000004;
+  bitField0_ |= 0x00000002;
       hostname_ = value;
       onChanged();
       return this;
     }
     public Builder clearHostname() {
-      bitField0_ = (bitField0_ & ~0x00000004);
+      bitField0_ = (bitField0_ & ~0x00000002);
       hostname_ = getDefaultInstance().getHostname();
       onChanged();
       return this;
     }
     void setHostname(com.google.protobuf.ByteString value) {
-      bitField0_ |= 0x00000004;
+      bitField0_ |= 0x00000002;
       hostname_ = value;
       onChanged();
     }

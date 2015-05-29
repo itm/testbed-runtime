@@ -5,16 +5,12 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface FlashImagesRequestOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.Header header = 1;
   boolean hasHeader();
-  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
-  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
+  de.uniluebeck.itm.tr.iwsn.messages.Header getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder getHeaderOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_FLASH_IMAGES];
-  boolean hasType();
-  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
-  
-  // required bytes image = 3;
+  // required bytes image = 2;
   boolean hasImage();
   com.google.protobuf.ByteString getImage();
 }

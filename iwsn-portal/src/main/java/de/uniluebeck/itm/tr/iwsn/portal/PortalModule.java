@@ -22,6 +22,8 @@ import de.uniluebeck.itm.tr.devicedb.DeviceDBRestServiceModule;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerModule;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.SoapApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.PortalEventStoreModule;
@@ -116,6 +118,8 @@ public class PortalModule extends AbstractModule {
 		bind(EndpointManager.class).to(EndpointManagerImpl.class).in(Singleton.class);
 
         bind(PortalEventDispatcher.class).to(PortalEventDispatcherImpl.class).in(Singleton.class);
+
+		bind(MessageFactory.class).to(MessageFactoryImpl.class).in(Singleton.class);
 
 		install(new SNAAServiceModule(commonConfig, snaaServiceConfig));
 		install(new RSServiceModule(commonConfig, rsServiceConfig));

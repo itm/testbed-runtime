@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal.pipeline;
 
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageHeaderPair;
 import de.uniluebeck.itm.tr.iwsn.messages.MessageType;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -13,16 +14,15 @@ public class MessageUnwrapper extends OneToOneDecoder {
 	public static final Function<Message, Object> MESSAGE_UNWRAP_FUNCTION = msg -> {
 
 		if (msg.getType() == MessageType.KEEP_ALIVE || msg.getType() == MessageType.KEEP_ALIVE_ACK){
-			throw new IllegalArgumentException("Keep alive messages contain nothing to unwrap");
+			throw new IllegalArgumentException("Keep alive messages contain nothing to unwrap and must be handled " +
+					"earlier in the pipeline");
 		}
 
-		if (EventMessageEvent.isWrappedEventMessageEvent(msg)) {
-			return EventMessageEvent.fromWrapped(msg);
-		} else if (RequestResponseMessageEvent.isWrappedRequestResponseMessage(msg)) {
-			return RequestResponseMessageEvent.fromWrapped(msg);
+		if (!MessageHeaderPair.isWrappedMessageEvent(msg)) {
+			throw new IllegalArgumentException("Unknown message type \"" + msg.getType() + "\"!");
 		}
 
-		throw new IllegalArgumentException("Unknown message type \"" + msg.getType() + "\"!");
+		return MessageHeaderPair.fromWrapped(msg);
 	};
 
 	@Override

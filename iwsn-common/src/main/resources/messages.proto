@@ -28,16 +28,18 @@ option java_multiple_files = true;
 
 /////////////////////// REQUESTS /////////////////////// 
 
-message RequestResponseHeader {
+message Header {
 
-	optional string reservationId = 1; // an (optional) reservation ID, if request is associated with a reservation
-	required int64  requestId     = 2; // an ID to match requests and responses, should be unique for given time window
-	required uint64 timestamp     = 3; // a timestamp in Unix format
-	repeated string nodeUrns      = 4; // node URN(s) to which this request goes to / this response comes from
+	optional string      serializedReservationKey = 1; // an (optional) reservation ID, if request / event is associated with a reservation
+	required int64       correlationId            = 2; // an ID to match requests and responses or events and event acks, should be unique for given time window
+	required uint64      timestamp                = 3; // a timestamp in Unix format (ms since 1970 UTC)
+	repeated string      nodeUrns                 = 4; // node URN(s) to which this request goes to / this response comes from / this event is about
 
-	// routing directions, not serialized if not set or equal to default value
-	optional bool   downstream    = 5 [default = true];  // true if message should be forwarded towards nodes
-	optional bool   upstream      = 6 [default = false]; // true if message should be forwarded towards user
+	// routing directions
+	required bool        downstream               = 5; // true if message should be forwarded towards nodes
+	required bool        upstream                 = 6; // true if message should be forwarded towards user
+	optional bool        broadcast                = 7 [default = false]; // true if message should be broadcastet towards all gateways (e.g., DeviceConfigUpdatedEvent)
+	required MessageType type                     = 8; // type of the message that wraps this header (allows cleaner uniform code for handling messages of different types without type casting etc.)
 }
 
 message Link {
@@ -46,69 +48,57 @@ message Link {
 }
 
 message AreNodesAliveRequest {
-	required RequestResponseHeader header     = 1;
-	optional MessageType           type       = 2 [default = REQUEST_ARE_NODES_ALIVE];
+	required Header      header = 1;
 }
 
 message AreNodesConnectedRequest {
-	required RequestResponseHeader header     = 1;
-	optional MessageType           type       = 2 [default = REQUEST_ARE_NODES_CONNECTED];
+	required Header      header = 1;
 }
 
 message DisableNodesRequest {
-	required RequestResponseHeader header   = 1;
-	optional MessageType           type     = 2 [default = REQUEST_DISABLE_NODES];
+	required Header      header = 1;
 }
 
 message DisableVirtualLinksRequest {
-	required RequestResponseHeader header = 1;
-	optional MessageType           type   = 2 [default = REQUEST_DISABLE_VIRTUAL_LINKS];
-	repeated Link                  links  = 3;
+	required Header      header = 1;
+	repeated Link        links  = 2;
 }
 
 message DisablePhysicalLinksRequest {
-	required RequestResponseHeader header = 1;
-	optional MessageType           type   = 2 [default = REQUEST_DISABLE_PHYSICAL_LINKS];
-	repeated Link                  links  = 3;
+	required Header      header = 1;
+	repeated Link        links  = 2;
 }
 
 message EnableNodesRequest {
-	required RequestResponseHeader header = 1;
-	optional MessageType           type   = 2 [default = REQUEST_ENABLE_NODES];
+	required Header      header = 1;
 }
 
 message EnablePhysicalLinksRequest {
-	required RequestResponseHeader header = 1;
-	optional MessageType           type   = 2 [default = REQUEST_ENABLE_PHYSICAL_LINKS];
-	repeated Link                  links  = 3;
+	required Header      header = 1;
+	repeated Link        links  = 2;
 }
 
 message EnableVirtualLinksRequest {
-	required RequestResponseHeader header = 1;
-	optional MessageType           type   = 2 [default = REQUEST_ENABLE_VIRTUAL_LINKS];
-	repeated Link                  links  = 3;
+	required Header      header = 1;
+	repeated Link        links  = 2;
 }
 
 message FlashImagesRequest {
-	required RequestResponseHeader header   = 1;
-	optional MessageType           type     = 2 [default = REQUEST_FLASH_IMAGES];
-	required bytes                 image    = 3;
+	required Header      header = 1;
+	required bytes       image  = 2;
 }
 
 message GetChannelPipelinesRequest {
-	required RequestResponseHeader header   = 1;
-	optional MessageType           type     = 2 [default = REQUEST_GET_CHANNEL_PIPELINES];
+	required Header      header = 1;
 }
 
 message ResetNodesRequest {
-	required RequestResponseHeader header   = 1;
-	optional MessageType           type     = 2 [default = REQUEST_RESET_NODES];
+	required Header      header = 1;
 }
 
 message SendDownstreamMessagesRequest {
-	required RequestResponseHeader header       = 1;
-	optional MessageType           type         = 2 [default = REQUEST_SEND_DOWNSTREAM_MESSAGES];
-	required bytes                 messageBytes = 3;
+	required Header      header       = 1;
+	required bytes       messageBytes = 2;
 }
 
 message ChannelHandlerConfiguration {
@@ -121,25 +111,20 @@ message ChannelHandlerConfiguration {
 }
 
 message SetChannelPipelinesRequest {
-	required RequestResponseHeader       header                       = 1;
-	optional MessageType                 type                         = 2 [default = REQUEST_SET_CHANNEL_PIPELINES];
-	repeated ChannelHandlerConfiguration channelHandlerConfigurations = 3;
+	required Header                      header                       = 1;
+	repeated ChannelHandlerConfiguration channelHandlerConfigurations = 2;
 }
 
 message Progress {
-	required RequestResponseHeader header            = 1;
-	optional MessageType           type              = 2 [default = PROGRESS];
-	required MessageType           requestType       = 3;
-	required uint32                progressInPercent = 4;
+	required Header      header            = 1;
+	required uint32      progressInPercent = 2;
 }
 
 message Response {
-	required RequestResponseHeader header        = 1;
-	optional MessageType           type          = 2 [default = RESPONSE];
-	required MessageType           requestType   = 3;
-	optional bytes                 response      = 4;
-	optional int32                 statusCode    = 5;
-	optional string                errorMessage  = 6;
+	required Header      header        = 1;
+	optional bytes       response      = 2;
+	optional int32       statusCode    = 3;
+	optional string      errorMessage  = 4;
 }
 
 message GetChannelPipelinesResponse {
@@ -147,118 +132,82 @@ message GetChannelPipelinesResponse {
 		required string                      nodeUrn               = 1;
 		repeated ChannelHandlerConfiguration handlerConfigurations = 2;
 	}
-	required RequestResponseHeader      header        = 1;
-	optional MessageType                type          = 2 [default = GET_CHANNELPIPELINES_RESPONSE];
-	repeated GetChannelPipelineResponse pipelines     = 3;
+	required Header                     header        = 1;
+	repeated GetChannelPipelineResponse pipelines     = 2;
 }
 
 /////////////////////// EVENTS /////////////////////// 
 
 message UpstreamMessageEvent {
-	required EventHeader header       = 1;
-	optional MessageType type         = 2 [default = EVENT_UPSTREAM_MESSAGE];
-	required bytes       messageBytes = 3;
+	required Header      header       = 1;
+	required bytes       messageBytes = 2;
 }
 
 message DevicesAttachedEvent {
-	required EventHeader header   = 1;
-	optional MessageType type     = 2 [default = EVENT_DEVICES_ATTACHED];
+	required Header      header   = 1;
 }
 
 message DevicesDetachedEvent {
-	required EventHeader header   = 1;
-	optional MessageType type     = 2 [default = EVENT_DEVICES_DETACHED];
+	required Header      header   = 1;
 }
 
 message GatewayConnectedEvent {
-	required EventHeader header   = 1;
-	optional MessageType type     = 2 [default = EVENT_GATEWAY_CONNECTED];
-	required string      hostname = 3;
+	required Header      header   = 1;
+	required string      hostname = 2;
 }
 
 message GatewayDisconnectedEvent {
-	required EventHeader header   = 1;
-	optional MessageType type     = 2 [default = EVENT_GATEWAY_DISCONNECTED];
-	required string      hostname = 3;
+	required Header      header   = 1;
+	required string      hostname = 2;
 }
 
 message NotificationEvent {
-	required EventHeader header  = 1;
-	optional MessageType type    = 2 [default = EVENT_NOTIFICATION];
-	required string      message = 3;
+	required Header      header  = 1;
+	required string      message = 2;
 }
 
 message ReservationStartedEvent {
-	required EventHeader header        = 1;
-	optional MessageType type          = 2 [default = EVENT_RESERVATION_STARTED];
-	required string      serializedKey = 3;
+	required Header      header        = 1;
 }
 
 message ReservationEndedEvent {
-	required EventHeader header        = 1;
-	optional MessageType type          = 2 [default = EVENT_RESERVATION_ENDED];
-	required string      serializedKey = 3;
+	required Header      header        = 1;
 }
 
 message ReservationMadeEvent {
-	required EventHeader header        = 1;
-	optional MessageType type          = 2 [default = EVENT_RESERVATION_MADE];
-	required string      serializedKey = 3;
+	required Header      header        = 1;
 }
 
 message ReservationCancelledEvent {
-	required EventHeader header        = 1;
-	optional MessageType type          = 2 [default = EVENT_RESERVATION_CANCELLED];
-	required string      serializedKey = 3;
+	required Header      header        = 1;
 }
 
 message ReservationClosedEvent {
-	required EventHeader header        = 1;
-	optional MessageType type          = 2 [default = EVENT_RESERVATION_CLOSED];
-	required string      serializedKey = 3;
+	required Header      header        = 1;
 }
 
 message ReservationFinalizedEvent {
-	required EventHeader header        = 1;
-	optional MessageType type          = 2 [default = EVENT_RESERVATION_FINALIZED];
-	required string      serializedKey = 3;
+	required Header      header        = 1;
 }
 
 message ReservationOpenedEvent {
-	required EventHeader header        = 1;
-	optional MessageType type          = 2 [default = EVENT_RESERVATION_OPENED];
-	required string      serializedKey = 3;
+	required Header      header        = 1;
 }
 
 message DeviceConfigCreatedEvent {
-	required EventHeader header  = 1;
-	optional MessageType type    = 2 [default = EVENT_DEVICE_CONFIG_CREATED];
+	required Header      header  = 1;
 }
 
 message DeviceConfigUpdatedEvent {
-	required EventHeader header  = 1;
-	optional MessageType type    = 2 [default = EVENT_DEVICE_CONFIG_UPDATED];
+	required Header      header  = 1;
 }
 
 message DeviceConfigDeletedEvent {
-	required EventHeader header  = 1;
-	optional MessageType type    = 2 [default = EVENT_DEVICE_CONFIG_DELETED];
-}
-
-message EventHeader {
-
-	required int64  eventId   = 1; // an ID to identify events, should be unique for given time window
-	required uint64 timestamp = 2; // a timestamp in Unix format
-	repeated string nodeUrns  = 3; // zero or more node URNs (if this event originated from / is about node(s))
-
-	// routing directions, not serialized if not set or equal to default value
-	optional bool   downstream    = 5 [default = false]; // true if message should be forwarded towards nodes
-	optional bool   upstream      = 6 [default = true];  // true if message should be forwarded towards user
+	required Header      header  = 1;
 }
 
 message EventAck {
-	required EventHeader header = 1;
-	optional MessageType type   = 2 [default = EVENT_ACK];
+	required Header      header = 1;
 }
 
 /////////////////////// MESSAGE ENVELOPE /////////////////////// 
@@ -284,7 +233,7 @@ enum MessageType {
 
 	PROGRESS                         = 30;
 	RESPONSE                         = 31;
-	GET_CHANNELPIPELINES_RESPONSE    = 32;
+	RESPONSE_GET_CHANNELPIPELINES    = 32;
 
 	EVENT_UPSTREAM_MESSAGE           = 40;
 

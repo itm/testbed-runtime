@@ -1,12 +1,12 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
 import com.google.common.collect.Multimap;
-import com.google.protobuf.ByteString;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface MessageFactory {
 
@@ -14,7 +14,7 @@ public interface MessageFactory {
 											  NodeUrn nodeUrn,
 											  byte[] bytes);
 
-	NotificationEvent notificationEvent(Optional<NodeUrn> nodeUrn,
+	NotificationEvent notificationEvent(Optional<Iterable<NodeUrn>> nodeUrn,
 										Optional<Long> timestamp,
 										String message);
 
@@ -37,34 +37,34 @@ public interface MessageFactory {
 														  Iterable<NodeUrn> nodeUrns,
 														  Iterable<? extends ChannelHandlerConfiguration> channelHandlerConfigurations);
 
-	SingleNodeProgress singleNodeProgress(Optional<String> reservationId,
-										  Optional<Long> timestamp,
-										  MessageType requestType,
-										  long requestId,
-										  NodeUrn nodeUrn,
-										  int progressInPercent);
+	Progress progress(Optional<String> reservationId,
+					  Optional<Long> timestamp,
+					  MessageType requestType,
+					  long requestId,
+					  Iterable<NodeUrn> nodeUrn,
+					  int progressInPercent);
 
-	SingleNodeResponse singleNodeResponse(Optional<String> reservationId,
-										  Optional<Long> timestamp,
-										  MessageType requestType,
-										  long requestId,
-										  NodeUrn nodeUrn,
-										  int statusCode,
-										  Optional<String> errorMessage);
+	Response response(Optional<String> reservationId,
+					  Optional<Long> timestamp,
+					  MessageType requestType,
+					  long requestId,
+					  Iterable<NodeUrn> nodeUrn,
+					  int statusCode,
+					  Optional<String> errorMessage);
 
-	ReservationStartedEvent reservationStartedEvent(Optional<Long> timestamp, String serializedKey);
+	ReservationStartedEvent reservationStartedEvent(Optional<Long> timestamp, String serializedReservationKey);
 
-	ReservationEndedEvent reservationEndedEvent(Optional<Long> timestamp, String serializedKey);
+	ReservationEndedEvent reservationEndedEvent(Optional<Long> timestamp, String serializedReservationKey);
 
-	ReservationMadeEvent reservationMadeEvent(Optional<Long> timestamp, String serializedKey);
+	ReservationMadeEvent reservationMadeEvent(Optional<Long> timestamp, String serializedReservationKey);
 
-	ReservationOpenedEvent reservationOpenedEvent(Optional<Long> timestamp, String serializedKey);
+	ReservationOpenedEvent reservationOpenedEvent(Optional<Long> timestamp, String serializedReservationKey);
 
-	ReservationClosedEvent reservationClosedEvent(Optional<Long> timestamp, String serializedKey);
+	ReservationClosedEvent reservationClosedEvent(Optional<Long> timestamp, String serializedReservationKey);
 
-	ReservationFinalizedEvent reservationFinalizedEvent(Optional<Long> timestamp, String serializedKey);
+	ReservationFinalizedEvent reservationFinalizedEvent(Optional<Long> timestamp, String serializedReservationKey);
 
-	EventAck eventAck(long eventId, Optional<Long> timestamp);
+	EventAck eventAck(Header eventHeader, Optional<Long> timestamp);
 
 	AreNodesConnectedRequest areNodesConnectedRequest(Optional<String> reservationId,
 													  Optional<Long> timestamp,
@@ -127,4 +127,26 @@ public interface MessageFactory {
 	DeviceConfigDeletedEvent deviceConfigDeletedEvent(NodeUrn nodeUrn, Optional<Long> timestamp);
 
 	DeviceConfigDeletedEvent deviceConfigDeletedEvent(Iterable<NodeUrn> nodeUrn, Optional<Long> timestamp);
+
+	/**
+	 * Creates a new message intended for a subset of nodes of the original node set. Consider e.g., a
+	 * FlashImagesRequest for nodes A,B,C,D containing one flash image x for node A and a flash image y for nodes B,C,D.
+	 * <p/>
+	 * <ul>
+	 * <li>Calling split(requestMessage, {A}) will return a FlashImagesRequest to A with only one image x.</li>
+	 * <li>Calling split(requestMessage, {B,C}) will return a FlashImagesRequest to B,C with only one image y.</li>
+	 * <li>Calling split(requestMessage, {A,D}) will return a FlashImagesRequest to A,D with images x and y.</li>
+	 * </ul>
+	 * <p/>
+	 * This method can be used for all message types to constrain the message to a given subset of nodes. It adapts the
+	 * payload to leave only what is necessary while keeping the original request (correlation) ID so the client can
+	 * match the respones coming from individual endpoints.
+	 *
+	 * @param pair               the original (message, header) pair to be "split up"
+	 * @param subRequestNodeUrns the subset of nodes
+	 * @return a new (message, header) pair
+	 * @throws IllegalArgumentException if called with a (message, header) pair for which it does not "make sense" to
+	 *                                  split up, i.e. for non-downstream  messages and messages that are brodcasts
+	 */
+	MessageHeaderPair split(MessageHeaderPair pair, Set<NodeUrn> subRequestNodeUrns);
 }

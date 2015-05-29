@@ -5,12 +5,8 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface AreNodesAliveRequestOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.Header header = 1;
   boolean hasHeader();
-  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
-  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
-  
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = REQUEST_ARE_NODES_ALIVE];
-  boolean hasType();
-  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
+  de.uniluebeck.itm.tr.iwsn.messages.Header getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder getHeaderOrBuilder();
 }

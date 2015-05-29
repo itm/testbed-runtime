@@ -5,16 +5,12 @@ package de.uniluebeck.itm.tr.iwsn.messages;
 public interface GetChannelPipelinesResponseOrBuilder
     extends com.google.protobuf.MessageOrBuilder {
   
-  // required .de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader header = 1;
+  // required .de.uniluebeck.itm.tr.iwsn.messages.Header header = 1;
   boolean hasHeader();
-  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getHeader();
-  de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder getHeaderOrBuilder();
+  de.uniluebeck.itm.tr.iwsn.messages.Header getHeader();
+  de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder getHeaderOrBuilder();
   
-  // optional .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 2 [default = GET_CHANNELPIPELINES_RESPONSE];
-  boolean hasType();
-  de.uniluebeck.itm.tr.iwsn.messages.MessageType getType();
-  
-  // repeated .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse pipelines = 3;
+  // repeated .de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse pipelines = 2;
   java.util.List<de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse> 
       getPipelinesList();
   de.uniluebeck.itm.tr.iwsn.messages.GetChannelPipelinesResponse.GetChannelPipelineResponse getPipelines(int index);

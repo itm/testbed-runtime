@@ -2,43 +2,43 @@
 
 package de.uniluebeck.itm.tr.iwsn.messages;
 
-public  final class RequestResponseHeader extends
+public  final class Header extends
     com.google.protobuf.GeneratedMessage
-    implements RequestResponseHeaderOrBuilder {
-  // Use RequestResponseHeader.newBuilder() to construct.
-  private RequestResponseHeader(Builder builder) {
+    implements HeaderOrBuilder {
+  // Use Header.newBuilder() to construct.
+  private Header(Builder builder) {
     super(builder);
   }
-  private RequestResponseHeader(boolean noInit) {}
+  private Header(boolean noInit) {}
   
-  private static final RequestResponseHeader defaultInstance;
-  public static RequestResponseHeader getDefaultInstance() {
+  private static final Header defaultInstance;
+  public static Header getDefaultInstance() {
     return defaultInstance;
   }
   
-  public RequestResponseHeader getDefaultInstanceForType() {
+  public Header getDefaultInstanceForType() {
     return defaultInstance;
   }
   
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_RequestResponseHeader_descriptor;
+    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_Header_descriptor;
   }
   
   protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_RequestResponseHeader_fieldAccessorTable;
+    return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_Header_fieldAccessorTable;
   }
   
   private int bitField0_;
-  // optional string reservationId = 1;
-  public static final int RESERVATIONID_FIELD_NUMBER = 1;
-  private java.lang.Object reservationId_;
-  public boolean hasReservationId() {
+  // optional string serializedReservationKey = 1;
+  public static final int SERIALIZEDRESERVATIONKEY_FIELD_NUMBER = 1;
+  private java.lang.Object serializedReservationKey_;
+  public boolean hasSerializedReservationKey() {
     return ((bitField0_ & 0x00000001) == 0x00000001);
   }
-  public String getReservationId() {
-    java.lang.Object ref = reservationId_;
+  public String getSerializedReservationKey() {
+    java.lang.Object ref = serializedReservationKey_;
     if (ref instanceof String) {
       return (String) ref;
     } else {
@@ -46,31 +46,31 @@ public  final class RequestResponseHeader extends
           (com.google.protobuf.ByteString) ref;
       String s = bs.toStringUtf8();
       if (com.google.protobuf.Internal.isValidUtf8(bs)) {
-        reservationId_ = s;
+        serializedReservationKey_ = s;
       }
       return s;
     }
   }
-  private com.google.protobuf.ByteString getReservationIdBytes() {
-    java.lang.Object ref = reservationId_;
+  private com.google.protobuf.ByteString getSerializedReservationKeyBytes() {
+    java.lang.Object ref = serializedReservationKey_;
     if (ref instanceof String) {
       com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8((String) ref);
-      reservationId_ = b;
+      serializedReservationKey_ = b;
       return b;
     } else {
       return (com.google.protobuf.ByteString) ref;
     }
   }
   
-  // required int64 requestId = 2;
-  public static final int REQUESTID_FIELD_NUMBER = 2;
-  private long requestId_;
-  public boolean hasRequestId() {
+  // required int64 correlationId = 2;
+  public static final int CORRELATIONID_FIELD_NUMBER = 2;
+  private long correlationId_;
+  public boolean hasCorrelationId() {
     return ((bitField0_ & 0x00000002) == 0x00000002);
   }
-  public long getRequestId() {
-    return requestId_;
+  public long getCorrelationId() {
+    return correlationId_;
   }
   
   // required uint64 timestamp = 3;
@@ -97,7 +97,7 @@ public  final class RequestResponseHeader extends
     return nodeUrns_.get(index);
   }
   
-  // optional bool downstream = 5 [default = true];
+  // required bool downstream = 5;
   public static final int DOWNSTREAM_FIELD_NUMBER = 5;
   private boolean downstream_;
   public boolean hasDownstream() {
@@ -107,7 +107,7 @@ public  final class RequestResponseHeader extends
     return downstream_;
   }
   
-  // optional bool upstream = 6 [default = false];
+  // required bool upstream = 6;
   public static final int UPSTREAM_FIELD_NUMBER = 6;
   private boolean upstream_;
   public boolean hasUpstream() {
@@ -117,24 +117,58 @@ public  final class RequestResponseHeader extends
     return upstream_;
   }
   
+  // optional bool broadcast = 7 [default = false];
+  public static final int BROADCAST_FIELD_NUMBER = 7;
+  private boolean broadcast_;
+  public boolean hasBroadcast() {
+    return ((bitField0_ & 0x00000020) == 0x00000020);
+  }
+  public boolean getBroadcast() {
+    return broadcast_;
+  }
+  
+  // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 8;
+  public static final int TYPE_FIELD_NUMBER = 8;
+  private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_;
+  public boolean hasType() {
+    return ((bitField0_ & 0x00000040) == 0x00000040);
+  }
+  public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+    return type_;
+  }
+  
   private void initFields() {
-    reservationId_ = "";
-    requestId_ = 0L;
+    serializedReservationKey_ = "";
+    correlationId_ = 0L;
     timestamp_ = 0L;
     nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-    downstream_ = true;
+    downstream_ = false;
     upstream_ = false;
+    broadcast_ = false;
+    type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
   }
   private byte memoizedIsInitialized = -1;
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
     if (isInitialized != -1) return isInitialized == 1;
     
-    if (!hasRequestId()) {
+    if (!hasCorrelationId()) {
       memoizedIsInitialized = 0;
       return false;
     }
     if (!hasTimestamp()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasDownstream()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasUpstream()) {
+      memoizedIsInitialized = 0;
+      return false;
+    }
+    if (!hasType()) {
       memoizedIsInitialized = 0;
       return false;
     }
@@ -146,10 +180,10 @@ public  final class RequestResponseHeader extends
                       throws java.io.IOException {
     getSerializedSize();
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
-      output.writeBytes(1, getReservationIdBytes());
+      output.writeBytes(1, getSerializedReservationKeyBytes());
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
-      output.writeInt64(2, requestId_);
+      output.writeInt64(2, correlationId_);
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
       output.writeUInt64(3, timestamp_);
@@ -163,6 +197,12 @@ public  final class RequestResponseHeader extends
     if (((bitField0_ & 0x00000010) == 0x00000010)) {
       output.writeBool(6, upstream_);
     }
+    if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      output.writeBool(7, broadcast_);
+    }
+    if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      output.writeEnum(8, type_.getNumber());
+    }
     getUnknownFields().writeTo(output);
   }
   
@@ -174,11 +214,11 @@ public  final class RequestResponseHeader extends
     size = 0;
     if (((bitField0_ & 0x00000001) == 0x00000001)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(1, getReservationIdBytes());
+        .computeBytesSize(1, getSerializedReservationKeyBytes());
     }
     if (((bitField0_ & 0x00000002) == 0x00000002)) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(2, requestId_);
+        .computeInt64Size(2, correlationId_);
     }
     if (((bitField0_ & 0x00000004) == 0x00000004)) {
       size += com.google.protobuf.CodedOutputStream
@@ -201,6 +241,14 @@ public  final class RequestResponseHeader extends
       size += com.google.protobuf.CodedOutputStream
         .computeBoolSize(6, upstream_);
     }
+    if (((bitField0_ & 0x00000020) == 0x00000020)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBoolSize(7, broadcast_);
+    }
+    if (((bitField0_ & 0x00000040) == 0x00000040)) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeEnumSize(8, type_.getNumber());
+    }
     size += getUnknownFields().getSerializedSize();
     memoizedSerializedSize = size;
     return size;
@@ -213,41 +261,41 @@ public  final class RequestResponseHeader extends
     return super.writeReplace();
   }
   
-  public static de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.Header parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.Header parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader parseFrom(byte[] data)
+  public static de.uniluebeck.itm.tr.iwsn.messages.Header parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.Header parseFrom(
       byte[] data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return newBuilder().mergeFrom(data, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader parseFrom(java.io.InputStream input)
+  public static de.uniluebeck.itm.tr.iwsn.messages.Header parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.Header parseFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input, extensionRegistry)
              .buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader parseDelimitedFrom(java.io.InputStream input)
+  public static de.uniluebeck.itm.tr.iwsn.messages.Header parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
     Builder builder = newBuilder();
     if (builder.mergeDelimitedFrom(input)) {
@@ -256,7 +304,7 @@ public  final class RequestResponseHeader extends
       return null;
     }
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader parseDelimitedFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.Header parseDelimitedFrom(
       java.io.InputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -267,12 +315,12 @@ public  final class RequestResponseHeader extends
       return null;
     }
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.Header parseFrom(
       com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
     return newBuilder().mergeFrom(input).buildParsed();
   }
-  public static de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader parseFrom(
+  public static de.uniluebeck.itm.tr.iwsn.messages.Header parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -282,7 +330,7 @@ public  final class RequestResponseHeader extends
   
   public static Builder newBuilder() { return Builder.create(); }
   public Builder newBuilderForType() { return newBuilder(); }
-  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader prototype) {
+  public static Builder newBuilder(de.uniluebeck.itm.tr.iwsn.messages.Header prototype) {
     return newBuilder().mergeFrom(prototype);
   }
   public Builder toBuilder() { return newBuilder(this); }
@@ -295,18 +343,18 @@ public  final class RequestResponseHeader extends
   }
   public static final class Builder extends
       com.google.protobuf.GeneratedMessage.Builder<Builder>
-     implements de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeaderOrBuilder {
+     implements de.uniluebeck.itm.tr.iwsn.messages.HeaderOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_RequestResponseHeader_descriptor;
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_Header_descriptor;
     }
     
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_RequestResponseHeader_fieldAccessorTable;
+      return de.uniluebeck.itm.tr.iwsn.messages.Messages.internal_static_de_uniluebeck_itm_tr_iwsn_messages_Header_fieldAccessorTable;
     }
     
-    // Construct using de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.newBuilder()
+    // Construct using de.uniluebeck.itm.tr.iwsn.messages.Header.newBuilder()
     private Builder() {
       maybeForceBuilderInitialization();
     }
@@ -325,18 +373,22 @@ public  final class RequestResponseHeader extends
     
     public Builder clear() {
       super.clear();
-      reservationId_ = "";
+      serializedReservationKey_ = "";
       bitField0_ = (bitField0_ & ~0x00000001);
-      requestId_ = 0L;
+      correlationId_ = 0L;
       bitField0_ = (bitField0_ & ~0x00000002);
       timestamp_ = 0L;
       bitField0_ = (bitField0_ & ~0x00000004);
       nodeUrns_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       bitField0_ = (bitField0_ & ~0x00000008);
-      downstream_ = true;
+      downstream_ = false;
       bitField0_ = (bitField0_ & ~0x00000010);
       upstream_ = false;
       bitField0_ = (bitField0_ & ~0x00000020);
+      broadcast_ = false;
+      bitField0_ = (bitField0_ & ~0x00000040);
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
+      bitField0_ = (bitField0_ & ~0x00000080);
       return this;
     }
     
@@ -346,24 +398,24 @@ public  final class RequestResponseHeader extends
     
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDescriptor();
+      return de.uniluebeck.itm.tr.iwsn.messages.Header.getDescriptor();
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader getDefaultInstanceForType() {
-      return de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance();
+    public de.uniluebeck.itm.tr.iwsn.messages.Header getDefaultInstanceForType() {
+      return de.uniluebeck.itm.tr.iwsn.messages.Header.getDefaultInstance();
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader build() {
-      de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader result = buildPartial();
+    public de.uniluebeck.itm.tr.iwsn.messages.Header build() {
+      de.uniluebeck.itm.tr.iwsn.messages.Header result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
       return result;
     }
     
-    private de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader buildParsed()
+    private de.uniluebeck.itm.tr.iwsn.messages.Header buildParsed()
         throws com.google.protobuf.InvalidProtocolBufferException {
-      de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader result = buildPartial();
+      de.uniluebeck.itm.tr.iwsn.messages.Header result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(
           result).asInvalidProtocolBufferException();
@@ -371,18 +423,18 @@ public  final class RequestResponseHeader extends
       return result;
     }
     
-    public de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader buildPartial() {
-      de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader result = new de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader(this);
+    public de.uniluebeck.itm.tr.iwsn.messages.Header buildPartial() {
+      de.uniluebeck.itm.tr.iwsn.messages.Header result = new de.uniluebeck.itm.tr.iwsn.messages.Header(this);
       int from_bitField0_ = bitField0_;
       int to_bitField0_ = 0;
       if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
         to_bitField0_ |= 0x00000001;
       }
-      result.reservationId_ = reservationId_;
+      result.serializedReservationKey_ = serializedReservationKey_;
       if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
         to_bitField0_ |= 0x00000002;
       }
-      result.requestId_ = requestId_;
+      result.correlationId_ = correlationId_;
       if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
         to_bitField0_ |= 0x00000004;
       }
@@ -401,27 +453,35 @@ public  final class RequestResponseHeader extends
         to_bitField0_ |= 0x00000010;
       }
       result.upstream_ = upstream_;
+      if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+        to_bitField0_ |= 0x00000020;
+      }
+      result.broadcast_ = broadcast_;
+      if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+        to_bitField0_ |= 0x00000040;
+      }
+      result.type_ = type_;
       result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
     
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader) {
-        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader)other);
+      if (other instanceof de.uniluebeck.itm.tr.iwsn.messages.Header) {
+        return mergeFrom((de.uniluebeck.itm.tr.iwsn.messages.Header)other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
     
-    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader other) {
-      if (other == de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader.getDefaultInstance()) return this;
-      if (other.hasReservationId()) {
-        setReservationId(other.getReservationId());
+    public Builder mergeFrom(de.uniluebeck.itm.tr.iwsn.messages.Header other) {
+      if (other == de.uniluebeck.itm.tr.iwsn.messages.Header.getDefaultInstance()) return this;
+      if (other.hasSerializedReservationKey()) {
+        setSerializedReservationKey(other.getSerializedReservationKey());
       }
-      if (other.hasRequestId()) {
-        setRequestId(other.getRequestId());
+      if (other.hasCorrelationId()) {
+        setCorrelationId(other.getCorrelationId());
       }
       if (other.hasTimestamp()) {
         setTimestamp(other.getTimestamp());
@@ -442,16 +502,34 @@ public  final class RequestResponseHeader extends
       if (other.hasUpstream()) {
         setUpstream(other.getUpstream());
       }
+      if (other.hasBroadcast()) {
+        setBroadcast(other.getBroadcast());
+      }
+      if (other.hasType()) {
+        setType(other.getType());
+      }
       this.mergeUnknownFields(other.getUnknownFields());
       return this;
     }
     
     public final boolean isInitialized() {
-      if (!hasRequestId()) {
+      if (!hasCorrelationId()) {
         
         return false;
       }
       if (!hasTimestamp()) {
+        
+        return false;
+      }
+      if (!hasDownstream()) {
+        
+        return false;
+      }
+      if (!hasUpstream()) {
+        
+        return false;
+      }
+      if (!hasType()) {
         
         return false;
       }
@@ -483,12 +561,12 @@ public  final class RequestResponseHeader extends
           }
           case 10: {
             bitField0_ |= 0x00000001;
-            reservationId_ = input.readBytes();
+            serializedReservationKey_ = input.readBytes();
             break;
           }
           case 16: {
             bitField0_ |= 0x00000002;
-            requestId_ = input.readInt64();
+            correlationId_ = input.readInt64();
             break;
           }
           case 24: {
@@ -511,65 +589,81 @@ public  final class RequestResponseHeader extends
             upstream_ = input.readBool();
             break;
           }
+          case 56: {
+            bitField0_ |= 0x00000040;
+            broadcast_ = input.readBool();
+            break;
+          }
+          case 64: {
+            int rawValue = input.readEnum();
+            de.uniluebeck.itm.tr.iwsn.messages.MessageType value = de.uniluebeck.itm.tr.iwsn.messages.MessageType.valueOf(rawValue);
+            if (value == null) {
+              unknownFields.mergeVarintField(8, rawValue);
+            } else {
+              bitField0_ |= 0x00000080;
+              type_ = value;
+            }
+            break;
+          }
         }
       }
     }
     
     private int bitField0_;
     
-    // optional string reservationId = 1;
-    private java.lang.Object reservationId_ = "";
-    public boolean hasReservationId() {
+    // optional string serializedReservationKey = 1;
+    private java.lang.Object serializedReservationKey_ = "";
+    public boolean hasSerializedReservationKey() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-    public String getReservationId() {
-      java.lang.Object ref = reservationId_;
+    public String getSerializedReservationKey() {
+      java.lang.Object ref = serializedReservationKey_;
       if (!(ref instanceof String)) {
         String s = ((com.google.protobuf.ByteString) ref).toStringUtf8();
-        reservationId_ = s;
+        serializedReservationKey_ = s;
         return s;
       } else {
         return (String) ref;
       }
     }
-    public Builder setReservationId(String value) {
+    public Builder setSerializedReservationKey(String value) {
       if (value == null) {
     throw new NullPointerException();
   }
   bitField0_ |= 0x00000001;
-      reservationId_ = value;
+      serializedReservationKey_ = value;
       onChanged();
       return this;
     }
-    public Builder clearReservationId() {
+    public Builder clearSerializedReservationKey() {
       bitField0_ = (bitField0_ & ~0x00000001);
-      reservationId_ = getDefaultInstance().getReservationId();
+      serializedReservationKey_ = getDefaultInstance().getSerializedReservationKey();
       onChanged();
       return this;
     }
-    void setReservationId(com.google.protobuf.ByteString value) {
+    void setSerializedReservationKey(com.google.protobuf.ByteString value) {
       bitField0_ |= 0x00000001;
-      reservationId_ = value;
+      serializedReservationKey_ = value;
       onChanged();
     }
     
-    // required int64 requestId = 2;
-    private long requestId_ ;
-    public boolean hasRequestId() {
+    // required int64 correlationId = 2;
+    private long correlationId_ ;
+    public boolean hasCorrelationId() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
-    public long getRequestId() {
-      return requestId_;
+    public long getCorrelationId() {
+      return correlationId_;
     }
-    public Builder setRequestId(long value) {
+    public Builder setCorrelationId(long value) {
       bitField0_ |= 0x00000002;
-      requestId_ = value;
+      correlationId_ = value;
       onChanged();
       return this;
     }
-    public Builder clearRequestId() {
+    public Builder clearCorrelationId() {
       bitField0_ = (bitField0_ & ~0x00000002);
-      requestId_ = 0L;
+      correlationId_ = 0L;
       onChanged();
       return this;
     }
@@ -651,8 +745,8 @@ public  final class RequestResponseHeader extends
       onChanged();
     }
     
-    // optional bool downstream = 5 [default = true];
-    private boolean downstream_ = true;
+    // required bool downstream = 5;
+    private boolean downstream_ ;
     public boolean hasDownstream() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
@@ -667,12 +761,12 @@ public  final class RequestResponseHeader extends
     }
     public Builder clearDownstream() {
       bitField0_ = (bitField0_ & ~0x00000010);
-      downstream_ = true;
+      downstream_ = false;
       onChanged();
       return this;
     }
     
-    // optional bool upstream = 6 [default = false];
+    // required bool upstream = 6;
     private boolean upstream_ ;
     public boolean hasUpstream() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
@@ -693,14 +787,59 @@ public  final class RequestResponseHeader extends
       return this;
     }
     
-    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader)
+    // optional bool broadcast = 7 [default = false];
+    private boolean broadcast_ ;
+    public boolean hasBroadcast() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    public boolean getBroadcast() {
+      return broadcast_;
+    }
+    public Builder setBroadcast(boolean value) {
+      bitField0_ |= 0x00000040;
+      broadcast_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearBroadcast() {
+      bitField0_ = (bitField0_ & ~0x00000040);
+      broadcast_ = false;
+      onChanged();
+      return this;
+    }
+    
+    // required .de.uniluebeck.itm.tr.iwsn.messages.MessageType type = 8;
+    private de.uniluebeck.itm.tr.iwsn.messages.MessageType type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
+    public boolean hasType() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    public de.uniluebeck.itm.tr.iwsn.messages.MessageType getType() {
+      return type_;
+    }
+    public Builder setType(de.uniluebeck.itm.tr.iwsn.messages.MessageType value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      bitField0_ |= 0x00000080;
+      type_ = value;
+      onChanged();
+      return this;
+    }
+    public Builder clearType() {
+      bitField0_ = (bitField0_ & ~0x00000080);
+      type_ = de.uniluebeck.itm.tr.iwsn.messages.MessageType.KEEP_ALIVE;
+      onChanged();
+      return this;
+    }
+    
+    // @@protoc_insertion_point(builder_scope:de.uniluebeck.itm.tr.iwsn.messages.Header)
   }
   
   static {
-    defaultInstance = new RequestResponseHeader(true);
+    defaultInstance = new Header(true);
     defaultInstance.initFields();
   }
   
-  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader)
+  // @@protoc_insertion_point(class_scope:de.uniluebeck.itm.tr.iwsn.messages.Header)
 }
 

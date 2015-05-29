@@ -736,7 +736,7 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 								.append(getStackTraceAsString(t));
 
 						for (NodeUrn nodeUrn : nodeUrns) {
-							portalEventBus.post(messageFactory.singleNodeResponse(
+							portalEventBus.post(messageFactory.response(
 											Optional.of(reservation.getSerializedKey()),
 											Optional.empty(),
 											requestType,

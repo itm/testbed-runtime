@@ -1,14 +1,15 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.common.netty.ExceptionChannelHandler;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServer;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
-import de.uniluebeck.itm.tr.iwsn.portal.pipeline.*;
+import de.uniluebeck.itm.tr.iwsn.portal.pipeline.KeepAliveHandler;
+import de.uniluebeck.itm.tr.iwsn.portal.pipeline.MessageUnwrapper;
+import de.uniluebeck.itm.tr.iwsn.portal.pipeline.MessageWrapper;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
@@ -35,22 +36,14 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	private final PortalChannelHandler portalChannelHandler;
 
-	private final MessageMulticastHandler messageMulticastHandler;
-
-	private final PortalEventBusHandlerService portalEventBusHandlerService;
-
 	private NettyServer nettyServer;
 
 	@Inject
 	public PortalEventBusImpl(final PortalServerConfig config,
 							  final EventBusFactory eventBusFactory,
 							  final NettyServerFactory nettyServerFactory,
-							  final PortalChannelHandler portalChannelHandler,
-							  final MessageMulticastHandler messageMulticastHandler,
-							  final PortalEventBusHandlerService portalEventBusHandlerService) {
+							  final PortalChannelHandler portalChannelHandler) {
 		this.config = config;
-		this.messageMulticastHandler = messageMulticastHandler;
-		this.portalEventBusHandlerService = portalEventBusHandlerService;
 		this.eventBus = eventBusFactory.create("PortalEventBus");
 		this.nettyServerFactory = nettyServerFactory;
 		this.portalChannelHandler = portalChannelHandler;
@@ -69,11 +62,6 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 	@Override
 	public void post(final Object event) {
 		eventBus.post(event);
-	}
-
-	@Subscribe
-	public void onRequest(final Request request) {
-		eventBus.post(request);
 	}
 
 	@Override
@@ -97,8 +85,7 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 						new KeepAliveHandler(),
 						new MessageWrapper(),
 						new MessageUnwrapper(),
-						messageMulticastHandler,
-						portalEventBusHandlerService
+						portalChannelHandler
 				);
 			};
 

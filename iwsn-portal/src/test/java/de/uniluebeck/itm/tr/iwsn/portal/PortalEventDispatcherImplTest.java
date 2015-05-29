@@ -168,7 +168,7 @@ public class PortalEventDispatcherImplTest {
 	public void testSingleNodeProgressShouldBeForwardedIfHasSameReservationId() throws Exception {
 		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final SingleNodeProgress progress = mf.singleNodeProgress(
+			final SingleNodeProgress progress = mf.progress(
 					Optional.of(RESERVATION_ID),
 					Optional.of(RANDOM.nextLong()),
 					MessageType.REQUEST_ARE_NODES_ALIVE,
@@ -185,7 +185,7 @@ public class PortalEventDispatcherImplTest {
 	public void testSingleNodeProgressDetachedEventShouldNotBeForwardedIfHasOtherReservationId() throws Exception {
 		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeProgress progress = mf.singleNodeProgress(
+			final SingleNodeProgress progress = mf.progress(
 					Optional.of(OTHER_RESERVATION_ID),
 					Optional.of(RANDOM.nextLong()),
 					MessageType.REQUEST_ARE_NODES_ALIVE,
@@ -202,7 +202,7 @@ public class PortalEventDispatcherImplTest {
 	public void testSingleNodeProgressDetachedEventShouldBeStoredIfNotMatchingReservationFound() throws Exception {
 		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeProgress progress = mf.singleNodeProgress(
+			final SingleNodeProgress progress = mf.progress(
 					Optional.of(OTHER_RESERVATION_ID),
 					Optional.of(RANDOM.nextLong()),
 					MessageType.REQUEST_ARE_NODES_ALIVE,
@@ -220,7 +220,7 @@ public class PortalEventDispatcherImplTest {
 	public void testSingleNodeResponseShouldBeForwardedIfHasSameReservationId() throws Exception {
 		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final SingleNodeResponse response = mf.singleNodeResponse(
+			final SingleNodeResponse response = mf.response(
 					Optional.of(RESERVATION_ID),
 					Optional.of(RANDOM.nextLong()),
 					MessageType.REQUEST_ARE_NODES_ALIVE,
@@ -238,7 +238,7 @@ public class PortalEventDispatcherImplTest {
 	public void testSingleNodeResponseDetachedEventShouldNotBeForwardedIfHasOtherReservationId() throws Exception {
 		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeResponse response = mf.singleNodeResponse(
+			final SingleNodeResponse response = mf.response(
 					Optional.of(OTHER_RESERVATION_ID),
 					Optional.of(RANDOM.nextLong()),
 					MessageType.REQUEST_ARE_NODES_ALIVE,
@@ -256,7 +256,7 @@ public class PortalEventDispatcherImplTest {
 	public void testSingleNodeResponseDetachedEventShouldBeStoredIfNotMatchingAReservation() throws Exception {
 		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeResponse response = mf.singleNodeResponse(
+			final SingleNodeResponse response = mf.response(
 					Optional.of(OTHER_RESERVATION_ID),
 					Optional.of(RANDOM.nextLong()),
 					MessageType.REQUEST_ARE_NODES_ALIVE,

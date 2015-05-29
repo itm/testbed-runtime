@@ -14,12 +14,12 @@ public abstract class MessageUtils {
 				newHashSet(event1.getHeader().getNodeUrnsList()).equals(newHashSet(event2.getHeader().getNodeUrnsList()));
 	}
 
-	public static boolean isErrorStatusCode(final SingleNodeResponse response) {
-		return response.getStatusCode() == getUnconnectedStatusCode(response) || response.getStatusCode() < 0;
+	public static boolean isErrorStatusCode(final Response response) {
+		return response.getStatusCode() == getUnconnectedStatusCode(response.getHeader().getType()) || response.getStatusCode() < 0;
 	}
 
-	public static int getUnconnectedStatusCode(final SingleNodeResponse response) {
-		switch (response.getRequestType()) {
+	public static int getUnconnectedStatusCode(final MessageType messageType) {
+		switch (messageType) {
 			case REQUEST_ARE_NODES_ALIVE:
 				return 0;
 			case REQUEST_ARE_NODES_CONNECTED:
