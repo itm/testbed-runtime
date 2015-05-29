@@ -22,9 +22,9 @@ public class GatewayDisconnectedMessage {
 	}
 
 	public GatewayDisconnectedMessage(final GatewayDisconnectedEvent event) {
-		this.timestamp = new DateTime(event.getTimestamp());
+		this.timestamp = new DateTime(event.getHeader().getTimestamp());
 		this.hostname = event.getHostname();
-		this.nodeUrns = event.getNodeUrnsList();
+		this.nodeUrns = event.getHeader().getNodeUrnsList();
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto;
 
+import com.google.common.collect.Iterables;
 import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -18,7 +19,7 @@ public class DevicesAttachedMessage {
 	public String[] nodeUrns;
 
 	@XmlElement(name = "timestamp")
-	public String timestamp;
+	public DateTime timestamp;
 
 	@SuppressWarnings("unused")
 	public DevicesAttachedMessage() {
@@ -26,18 +27,19 @@ public class DevicesAttachedMessage {
 
 	public DevicesAttachedMessage(final DateTime timestamp, final String... nodeUrns) {
 		this.nodeUrns = nodeUrns;
-		this.timestamp = timestamp.toString(ISODateTimeFormat.dateTime());
+		this.timestamp = timestamp;
 	}
 
 	public DevicesAttachedMessage(final DevicesAttachedEvent event) {
-		this(new DateTime(event.getTimestamp()), event.getNodeUrnsList().toArray(new String[event.getNodeUrnsCount()]));
+		this.nodeUrns = Iterables.toArray(event.getHeader().getNodeUrnsList(), String.class);
+		this.timestamp = new DateTime(event.getHeader().getTimestamp());
 	}
 
 	@Override
 	public String toString() {
 		return "DevicesAttachedMessage{" +
 				"type='" + type + '\'' +
-				", timestamp='" + timestamp + '\'' +
+				", timestamp='" + timestamp.toString(ISODateTimeFormat.dateTime()) + '\'' +
 				", nodeUrns=" + Arrays.toString(nodeUrns) +
 				"} " + super.toString();
 	}

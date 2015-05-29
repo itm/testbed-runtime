@@ -19,7 +19,7 @@ public class GatewayConnectedMessage {
 	}
 
 	public GatewayConnectedMessage(final GatewayConnectedEvent event) {
-		this.timestamp = new DateTime(event.getTimestamp());
+		this.timestamp = new DateTime(event.getHeader().getTimestamp());
 		this.hostname = event.getHostname();
 	}
 

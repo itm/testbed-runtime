@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.util.HashMap;
@@ -268,7 +269,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 					extractByteArrayFromDataURL(flashTask.image)
 			);
 
-			requestIds.add(request.getHeader().getRequestId());
+			requestIds.add(request.getHeader().getCorrelationId());
 
 			// just create ResponseTracker, we can retrieve it using the reservation later
 			reservation.createResponseTracker(request.getHeader());
@@ -609,13 +610,14 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		for (long requestId : requestIdToResponseTrackerMap.keySet()) {
 
 			JobNodeStatus status;
+
 			final ResponseTracker responseTracker = requestIdToResponseTrackerMap.get(requestId);
 
 			for (NodeUrn nodeUrn : responseTracker.keySet()) {
 
 				if (responseTracker.get(nodeUrn).isDone()) {
 					try {
-						final SingleNodeResponse response = responseTracker.get(nodeUrn).get();
+						final de.uniluebeck.itm.tr.iwsn.messages.Response response = responseTracker.get(nodeUrn).get();
 						status = new JobNodeStatus(
 								isErrorStatusCode(response) ? JobState.FAILED : JobState.SUCCESS,
 								response.getStatusCode(),
@@ -640,14 +642,14 @@ public class ExperimentResourceImpl implements ExperimentResource {
 	}
 
 	private Response sendRequestAndGetOperationStatusMap(final MessageLite request,
-														 final RequestResponseHeader requestHeader,
+														 final Header requestHeader,
 														 final Duration timeout) {
 
 		final ResponseTracker responseTracker = responseTrackerFactory.create(requestHeader, portalEventBus);
 		portalEventBus.post(request);
 
 		final Map<Long, ResponseTracker> map = newHashMap();
-		map.put(requestHeader.getRequestId(), responseTracker);
+		map.put(requestHeader.getCorrelationId(), responseTracker);
 
 		try {
 			responseTracker.get(timeout.getMillis(), TimeUnit.MILLISECONDS);
@@ -662,7 +664,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 	private Response sendRequestAndGetOperationStatusMap(final Reservation reservation,
 														 final MessageLite request,
-														 final RequestResponseHeader requestHeader,
+														 final Header requestHeader,
 														 final Duration timeout)
 			throws ReservationNotRunningException {
 
@@ -677,12 +679,12 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		try {
 			responseTracker.get(timeout.getMillis(), TimeUnit.MILLISECONDS);
 		} catch (TimeoutException e) {
-			return Response.ok(buildOperationStatusMap(reservation, requestHeader.getRequestId())).build();
+			return Response.ok(buildOperationStatusMap(reservation, requestHeader.getCorrelationId())).build();
 		} catch (Exception e) {
 			throw propagate(e);
 		}
 
-		return Response.ok(buildOperationStatusMap(reservation, requestHeader.getRequestId())).build();
+		return Response.ok(buildOperationStatusMap(reservation, requestHeader.getCorrelationId())).build();
 	}
 
 	private Duration retrieveTimeout(final Operation op, final Iterable<NodeUrn> nodeUrns) {

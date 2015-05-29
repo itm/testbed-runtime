@@ -10,7 +10,7 @@ import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerCache;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.iwsn.messages.Header;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationEventBusFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.DeliveryManagerFactory;
@@ -193,22 +193,22 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 		throw new UnsupportedOperationException("isFinalized() not yet implemented");
 	}
 
-    @Override
-    public boolean isCancelled() {
-        throw new UnsupportedOperationException("getCancelled() not yet implemented");
-    }
+	@Override
+	public boolean isCancelled() {
+		throw new UnsupportedOperationException("getCancelled() not yet implemented");
+	}
 
-    @Override
+	@Override
 	public String getSerializedKey() {
 		return serialize(getSecretReservationKeys());
 	}
 
-    @Override
-    public List<MessageLite> getPastLifecycleEvents() {
-        throw new UnsupportedOperationException("getCancelled() not yet implemented");
-    }
+	@Override
+	public List<MessageLite> getPastLifecycleEvents() {
+		throw new UnsupportedOperationException("getCancelled() not yet implemented");
+	}
 
-    @Override
+	@Override
 	public Set<SecretReservationKey> getSecretReservationKeys() {
 		final ImmutableSet.Builder<SecretReservationKey> keys = ImmutableSet.builder();
 		for (ConfidentialReservationData crd : confidentialReservationDataList) {
@@ -223,9 +223,9 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 	}
 
 	@Override
-	public ResponseTracker createResponseTracker(final Request request) {
-		final ResponseTracker responseTracker = responseTrackerFactory.create(request, reservationEventBus);
-		responseTrackerCache.put(request.getRequestId(), responseTracker);
+	public ResponseTracker createResponseTracker(final Header requestHeader) {
+		final ResponseTracker responseTracker = responseTrackerFactory.create(requestHeader, reservationEventBus);
+		responseTrackerCache.put(requestHeader.getCorrelationId(), responseTracker);
 		return responseTracker;
 	}
 
@@ -254,12 +254,12 @@ public class FederatedReservationImpl extends AbstractService implements Federat
 		throw new RuntimeException("Not yet implemented!");
 	}
 
-    @Override
-    public boolean touch() {
-        throw new RuntimeException("Implement me!");
-    }
+	@Override
+	public boolean touch() {
+		throw new RuntimeException("Implement me!");
+	}
 
-    private Interval extractInterval(final List<ConfidentialReservationData> reservationDataList) {
+	private Interval extractInterval(final List<ConfidentialReservationData> reservationDataList) {
 
 		DateTime earliestEnd = null;
 		DateTime latestStart = null;

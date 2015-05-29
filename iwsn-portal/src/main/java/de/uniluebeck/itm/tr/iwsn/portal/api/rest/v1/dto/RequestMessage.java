@@ -25,7 +25,7 @@ public class RequestMessage {
 		public List<String> nodeUrns;
 
 		public AreNodesAlive(AreNodesAliveRequest request) {
-			nodeUrns = request.getNodeUrnsList();
+			nodeUrns = request.getHeader().getNodeUrnsList();
 		}
 	}
 
@@ -36,7 +36,7 @@ public class RequestMessage {
 		public List<String> nodeUrns;
 
 		public AreNodesConnected(AreNodesConnectedRequest request) {
-			nodeUrns = request.getNodeUrnsList();
+			nodeUrns = request.getHeader().getNodeUrnsList();
 		}
 	}
 
@@ -47,7 +47,7 @@ public class RequestMessage {
 		public List<String> nodeUrns;
 
 		public DisableNodes(DisableNodesRequest request) {
-			nodeUrns = request.getNodeUrnsList();
+			nodeUrns = request.getHeader().getNodeUrnsList();
 		}
 	}
 
@@ -58,7 +58,7 @@ public class RequestMessage {
 		public List<String> nodeUrns;
 
 		public EnableNodes(EnableNodesRequest request) {
-			nodeUrns = request.getNodeUrnsList();
+			nodeUrns = request.getHeader().getNodeUrnsList();
 		}
 	}
 
@@ -72,7 +72,7 @@ public class RequestMessage {
 		public String imageBase64;
 
 		public FlashImages(FlashImagesRequest request) {
-			nodeUrns = request.getNodeUrnsList();
+			nodeUrns = request.getHeader().getNodeUrnsList();
 			imageBase64 = "data:application/octet-stream;base64," + encode(request.getImage().toByteArray());
 		}
 	}
@@ -84,7 +84,7 @@ public class RequestMessage {
 		public List<String> nodeUrns;
 
 		public ResetNodes(ResetNodesRequest request) {
-			nodeUrns = request.getNodeUrnsList();
+			nodeUrns = request.getHeader().getNodeUrnsList();
 		}
 	}
 
@@ -169,7 +169,7 @@ public class RequestMessage {
 		public String messageBytesBase64;
 
 		public SendDownstream(SendDownstreamMessagesRequest request) {
-			nodeUrns = request.getTargetNodeUrnsList();
+			nodeUrns = request.getHeader().getTargetNodeUrnsList();
 			messageBytesBase64 = encode(request.getMessageBytes().toByteArray());
 		}
 	}
@@ -181,7 +181,7 @@ public class RequestMessage {
 		public List<String> nodeUrns;
 
 		public GetChannelPipelines(GetChannelPipelinesRequest request) {
-			nodeUrns = request.getNodeUrnsList();
+			nodeUrns = request.getHeader().getNodeUrnsList();
 		}
 	}
 
@@ -214,7 +214,7 @@ public class RequestMessage {
 		List<ChannelHandlerConfiguration> channelHandlerConfigurations;
 
 		public SetChannelPipelines(SetChannelPipelinesRequest request) {
-			nodeUrns = request.getNodeUrnsList();
+			nodeUrns = request.getHeader().getNodeUrnsList();
 			channelHandlerConfigurations = new ArrayList<ChannelHandlerConfiguration>();
 			for (de.uniluebeck.itm.tr.iwsn.messages.ChannelHandlerConfiguration config : request
 					.getChannelHandlerConfigurationsList()) {
@@ -271,18 +271,22 @@ public class RequestMessage {
 	@XmlElement(required = true)
 	public DateTime timestamp;
 
-	public RequestMessage(final Request request, final DateTime timestamp) throws IllegalArgumentException {
+	public RequestMessage(final MessageHeaderPair pair) throws IllegalArgumentException {
 
-		this.requestId = request.getRequestId();
-		this.timestamp = timestamp;
+		this.requestId = pair.header.getCorrelationId();
+		this.timestamp = new DateTime(pair.header.getTimestamp());
 
-		switch (request.getType()) {
-			case ARE_NODES_ALIVE:
-				areNodesAliveRequest = new AreNodesAlive(request.getAreNodesAliveRequest());
+		switch (pair.header.getType()) {
+			case KEEP_ALIVE:
+				break;
+			case KEEP_ALIVE_ACK:
+				break;
+			case REQUEST_ARE_NODES_ALIVE:
+				areNodesAliveRequest = new AreNodesAlive((AreNodesAliveRequest) pair.message);
 				type = "areNodesAliveRequest";
 				break;
-			case ARE_NODES_CONNECTED:
-				areNodesConnectedRequest = new AreNodesConnected(request.getAreNodesConnectedRequest());
+			case REQUEST_ARE_NODES_CONNECTED:
+				areNodesConnectedRequest = new AreNodesConnected((AreNodesConnectedRequest) pair.message);
 				type = "areNodesConnectedRequest";
 				break;
 			case DISABLE_NODES:
@@ -329,6 +333,37 @@ public class RequestMessage {
 				setChannelPipelinesRequest = new SetChannelPipelines(request.getSetChannelPipelinesRequest());
 				type = "setChannelPipelinesRequest";
 				break;
+			case REQUEST_DISABLE_NODES:
+			case REQUEST_DISABLE_VIRTUAL_LINKS:
+			case REQUEST_DISABLE_PHYSICAL_LINKS:
+			case REQUEST_ENABLE_NODES:
+			case REQUEST_ENABLE_PHYSICAL_LINKS:
+			case REQUEST_ENABLE_VIRTUAL_LINKS:
+			case REQUEST_FLASH_IMAGES:
+			case REQUEST_GET_CHANNEL_PIPELINES:
+			case REQUEST_RESET_NODES:
+			case REQUEST_SEND_DOWNSTREAM_MESSAGES:
+			case REQUEST_SET_CHANNEL_PIPELINES:
+			case PROGRESS:
+			case RESPONSE:
+			case RESPONSE_GET_CHANNELPIPELINES:
+			case EVENT_UPSTREAM_MESSAGE:
+			case EVENT_DEVICES_ATTACHED:
+			case EVENT_DEVICES_DETACHED:
+			case EVENT_GATEWAY_CONNECTED:
+			case EVENT_GATEWAY_DISCONNECTED:
+			case EVENT_NOTIFICATION:
+			case EVENT_RESERVATION_STARTED:
+			case EVENT_RESERVATION_ENDED:
+			case EVENT_RESERVATION_MADE:
+			case EVENT_RESERVATION_CANCELLED:
+			case EVENT_RESERVATION_OPENED:
+			case EVENT_RESERVATION_CLOSED:
+			case EVENT_RESERVATION_FINALIZED:
+			case EVENT_DEVICE_CONFIG_CREATED:
+			case EVENT_DEVICE_CONFIG_UPDATED:
+			case EVENT_DEVICE_CONFIG_DELETED:
+			case EVENT_ACK:
 			default:
 				throw new IllegalArgumentException("Unsupported request type can't be converted to XML message");
 		}
