@@ -16,7 +16,7 @@ public abstract class ListenableDeviceAdapter extends AbstractService implements
 	private static final Logger log = LoggerFactory.getLogger(SingleDeviceAdapterBase.class);
 
 	protected final ListenerManager<DeviceAdapterListener> listenerManager =
-			new ListenerManagerImpl<DeviceAdapterListener>();
+			new ListenerManagerImpl<>();
 
 	@Override
 	public void addListener(final DeviceAdapterListener listener) {

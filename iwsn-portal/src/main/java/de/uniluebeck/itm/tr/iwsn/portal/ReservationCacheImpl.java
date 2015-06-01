@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -69,13 +68,6 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
      */
     protected final Map<NodeUrn, List<CacheItem<Reservation>>> reservationsByNodeUrn = Maps.newHashMap();
 
-    private final Runnable cleanUpCacheRunnable = new Runnable() {
-        @Override
-        public void run() {
-            cleanUpCache();
-        }
-    };
-
     protected final Lock reservationsCacheLock = new ReentrantLock();
 
     protected final SchedulerService schedulerService;
@@ -94,7 +86,7 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
         log.trace("ReservationCacheImpl.doStart()");
         try {
             schedulerService.startAsync().awaitRunning();
-            cacheCleanupSchedule = schedulerService.scheduleAtFixedRate(cleanUpCacheRunnable, 1, 1, TimeUnit.MINUTES);
+            cacheCleanupSchedule = schedulerService.scheduleAtFixedRate((Runnable) this::cleanUpCache, 1, 1, TimeUnit.MINUTES);
             notifyStarted();
         } catch (Exception e) {
             notifyFailed(e);
@@ -135,13 +127,13 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
         CacheItem<Reservation> item = reservationsBySrk.get(srks);
         if (item != null) {
             if (item.isOutdated()) {
-                return Optional.absent();
+                return Optional.empty();
             }
             Reservation reservation = item.get();
             reservation.touch();
             return Optional.of(reservation);
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
@@ -156,7 +148,7 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
 
             if (entry == null) {
                 log.trace("ReservationManagerImpl.lookup() CACHE MISS");
-                return Optional.absent();
+                return Optional.empty();
             }
 
             for (CacheItem<Reservation> item : entry) {
@@ -185,7 +177,7 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
                 }
             }
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Override
@@ -197,7 +189,7 @@ public class ReservationCacheImpl extends AbstractService implements Reservation
         reservationsCacheLock.lock();
         try {
 
-            CacheItem<Reservation> item = new CacheItem<Reservation>(stopwatchProvider.get(), reservation);
+            CacheItem<Reservation> item = new CacheItem<>(stopwatchProvider.get(), reservation);
 
             reservationsBySrk.put(reservation.getSecretReservationKeys(), item);
 

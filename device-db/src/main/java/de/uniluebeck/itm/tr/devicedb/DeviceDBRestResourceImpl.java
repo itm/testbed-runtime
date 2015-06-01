@@ -13,7 +13,6 @@ import java.util.List;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static de.uniluebeck.itm.tr.devicedb.DeviceConfigHelper.toDto;
 
 public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
@@ -61,7 +60,7 @@ public class DeviceDBRestResourceImpl implements DeviceDBRestResource {
 
 		} else {
 
-			final Iterable<NodeUrn> nodeUrns = transform(nodeUrnStrings, STRING_TO_NODE_URN);
+			final Iterable<NodeUrn> nodeUrns = transform(nodeUrnStrings, NodeUrn::new);
 			final Iterable<DeviceConfig> configs = deviceDBService.getConfigsByNodeUrns(nodeUrns).values();
 			final Iterable<DeviceConfigDto> retList = transform(configs, new Function<DeviceConfig, DeviceConfigDto>() {
 				@Override

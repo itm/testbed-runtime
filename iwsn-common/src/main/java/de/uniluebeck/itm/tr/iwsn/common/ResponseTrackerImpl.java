@@ -4,9 +4,9 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.common.EventBusService;
-import de.uniluebeck.itm.tr.iwsn.messages.RequestResponseHeader;
-import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeProgress;
-import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
+import de.uniluebeck.itm.tr.iwsn.messages.Header;
+import de.uniluebeck.itm.tr.iwsn.messages.Progress;
+import de.uniluebeck.itm.tr.iwsn.messages.Response;
 import de.uniluebeck.itm.util.concurrent.ProgressListenableFuture;
 import de.uniluebeck.itm.util.concurrent.ProgressSettableFuture;
 import de.uniluebeck.itm.util.concurrent.ProgressSettableFutureMap;
@@ -32,14 +32,14 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 	private final static Logger log = LoggerFactory.getLogger(ResponseTrackerImpl.class);
 
-	private final RequestResponseHeader requestHeader;
+	private final Header requestHeader;
 
 	private final EventBusService eventBusService;
 
-	private final ProgressSettableFutureMap<NodeUrn, SingleNodeResponse> futureMap;
+	private final ProgressSettableFutureMap<NodeUrn, Response> futureMap;
 
 	@Inject
-	public ResponseTrackerImpl(@Assisted final RequestResponseHeader requestHeader,
+	public ResponseTrackerImpl(@Assisted final Header requestHeader,
 							   @Assisted final EventBusService eventBusService) {
 
 		this.requestHeader = checkNotNull(requestHeader);
@@ -47,10 +47,10 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 		checkArgument(!requestHeader.getNodeUrnsList().isEmpty());
 
-		final Map<NodeUrn, ProgressListenableFuture<SingleNodeResponse>> futureMapContent = newHashMap();
+		final Map<NodeUrn, ProgressListenableFuture<Response>> futureMapContent = newHashMap();
 
 		for (NodeUrn nodeUrn : transform(requestHeader.getNodeUrnsList(), NodeUrn::new)) {
-			futureMapContent.put(nodeUrn, ProgressSettableFuture.<SingleNodeResponse>create());
+			futureMapContent.put(nodeUrn, ProgressSettableFuture.<Response>create());
 		}
 
 		this.futureMap = new ProgressSettableFutureMap<>(futureMapContent);
@@ -58,33 +58,33 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Override
-	public RequestResponseHeader getRequestHeader() {
+	public Header getRequestHeader() {
 		return requestHeader;
 	}
 
 	@Subscribe
-	public void onSingleNodeResponse(final SingleNodeResponse response) {
+	public void onResponse(final Response response) {
 
-		log.trace("ResponseTrackerImpl.onSingleNodeResponse({})", response);
+		log.trace("ResponseTrackerImpl.onResponse({})", response);
 
-		final boolean reservationIdEquals = ((requestHeader.hasReservationId() && response.getHeader().hasReservationId()) ||
-				(!requestHeader.hasReservationId() && !response.getHeader().hasReservationId())) &&
-				requestHeader.getReservationId().equals(response.getHeader().getReservationId());
+		final boolean reservationIdEquals = ((requestHeader.hasSerializedReservationKey() && response.getHeader().hasSerializedReservationKey()) ||
+				(!requestHeader.hasSerializedReservationKey() && !response.getHeader().hasSerializedReservationKey())) &&
+				requestHeader.getSerializedReservationKey().equals(response.getHeader().getSerializedReservationKey());
 
-		final boolean requestIdEquals = requestHeader.getRequestId() == response.getHeader().getRequestId();
+		final boolean requestIdEquals = requestHeader.getCorrelationId() == response.getHeader().getCorrelationId();
 		final boolean forMe = reservationIdEquals && requestIdEquals;
 
 		if (forMe) {
 
 			response.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(responseNodeUrn -> {
 
-				final ProgressSettableFuture<SingleNodeResponse> future =
-						(ProgressSettableFuture<SingleNodeResponse>) futureMap.get(responseNodeUrn);
+				final ProgressSettableFuture<Response> future =
+						(ProgressSettableFuture<Response>) futureMap.get(responseNodeUrn);
 
 				if (future.isDone()) {
 					log.warn(
 							"Received multiple responses for node URN \"{}\", reservationId \"{}\" and requestId \"{}\". Ignoring subsequent responses...",
-							responseNodeUrn, requestHeader.getReservationId(), requestHeader.getRequestId()
+							responseNodeUrn, requestHeader.getSerializedReservationKey(), requestHeader.getCorrelationId()
 					);
 				} else {
 					future.set(response);
@@ -97,21 +97,21 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Subscribe
-	public void onSingleNodeProgress(final SingleNodeProgress progress) {
+	public void onSingleNodeProgress(final Progress progress) {
 
 		log.trace("ResponseTrackerImpl.onSingleNodeProgress({})", progress);
 
 		final boolean reservationIdEquals =
-				((requestHeader.hasReservationId() && progress.getHeader().hasReservationId()) ||
-						(!requestHeader.hasReservationId() && !progress.getHeader().hasReservationId())) &&
-						requestHeader.getReservationId().equals(progress.getHeader().getReservationId());
-		final boolean requestIdEquals = requestHeader.getRequestId() == progress.getHeader().getRequestId();
+				((requestHeader.hasSerializedReservationKey() && progress.getHeader().hasSerializedReservationKey()) ||
+						(!requestHeader.hasSerializedReservationKey() && !progress.getHeader().hasSerializedReservationKey())) &&
+						requestHeader.getSerializedReservationKey().equals(progress.getHeader().getSerializedReservationKey());
+		final boolean requestIdEquals = requestHeader.getCorrelationId() == progress.getHeader().getCorrelationId();
 		final boolean forMe = reservationIdEquals && requestIdEquals;
 
 		if (forMe) {
 
 			progress.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(progressNodeUrn -> {
-				((ProgressSettableFuture<SingleNodeResponse>) futureMap.get(progressNodeUrn)).setProgress(
+				((ProgressSettableFuture<Response>) futureMap.get(progressNodeUrn)).setProgress(
 						(float) progress.getProgressInPercent() / 100.0f
 				);
 			});
@@ -145,22 +145,22 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Override
-	public Set<Entry<NodeUrn, ProgressListenableFuture<SingleNodeResponse>>> entrySet() {
+	public Set<Entry<NodeUrn, ProgressListenableFuture<Response>>> entrySet() {
 		return futureMap.entrySet();
 	}
 
 	@Override
-	public Map<NodeUrn, SingleNodeResponse> get() throws InterruptedException, ExecutionException {
+	public Map<NodeUrn, Response> get() throws InterruptedException, ExecutionException {
 		return futureMap.get();
 	}
 
 	@Override
-	public ProgressListenableFuture<SingleNodeResponse> get(final Object key) {
+	public ProgressListenableFuture<Response> get(final Object key) {
 		return futureMap.get(key);
 	}
 
 	@Override
-	public Map<NodeUrn, SingleNodeResponse> get(final long timeout, final TimeUnit unit)
+	public Map<NodeUrn, Response> get(final long timeout, final TimeUnit unit)
 			throws InterruptedException, ExecutionException, TimeoutException {
 		return futureMap.get(timeout, unit);
 	}
@@ -186,19 +186,19 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Override
-	public ProgressListenableFuture<SingleNodeResponse> put(final NodeUrn key,
-															final ProgressListenableFuture<SingleNodeResponse> value) {
+	public ProgressListenableFuture<Response> put(final NodeUrn key,
+												  final ProgressListenableFuture<Response> value) {
 		return futureMap.put(key, value);
 	}
 
 	@Override
 	public void putAll(
-			final Map<? extends NodeUrn, ? extends ProgressListenableFuture<SingleNodeResponse>> m) {
+			final Map<? extends NodeUrn, ? extends ProgressListenableFuture<Response>> m) {
 		futureMap.putAll(m);
 	}
 
 	@Override
-	public ProgressListenableFuture<SingleNodeResponse> remove(final Object key) {
+	public ProgressListenableFuture<Response> remove(final Object key) {
 		return futureMap.remove(key);
 	}
 
@@ -208,7 +208,7 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Override
-	public Collection<ProgressListenableFuture<SingleNodeResponse>> values() {
+	public Collection<ProgressListenableFuture<Response>> values() {
 		return futureMap.values();
 	}
 
@@ -224,7 +224,9 @@ class ResponseTrackerImpl implements ResponseTracker {
 
 	@Override
 	public String toString() {
-		return "ResponseTrackerImpl[requestId=" + requestHeader.getRequestId() + ",reservationId=" + requestHeader
-				.getReservationId() + "]@" + Integer.toHexString(hashCode());
+		return "ResponseTrackerImpl[" +
+				"correlationId=" + requestHeader.getCorrelationId() +
+				",reservationId=" + requestHeader.getSerializedReservationKey() +
+				"]@" + Integer.toHexString(hashCode());
 	}
 }

@@ -1,9 +1,13 @@
 package de.uniluebeck.itm.tr.iwsn.gateway.eventqueue;
 
+import de.uniluebeck.itm.tr.common.IncrementalIdProvider;
+import de.uniluebeck.itm.tr.common.UnixTimestampProvider;
+import de.uniluebeck.itm.tr.iwsn.common.MessageWrapper;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayConfig;
 import de.uniluebeck.itm.tr.iwsn.messages.DevicesAttachedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.Event;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl;
 import de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
@@ -13,39 +17,39 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
+
+import static java.util.Optional.of;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UpstreamMessageQueueHelperImplTest {
 
-    @Mock
-    private GatewayConfig config;
-    private UpstreamMessageQueueHelperImpl helper;
-    private MultiClassSerializationHelper<Message> serializer;
+	private static final NodeUrn NODE_URN = new NodeUrn("urn:unit:test:0x1");
 
-    @Before
-    public void setUp() throws Exception {
+	private static final Optional<Long> NOW = of(DateTime.now().getMillis());
 
-        when(config.getEventQueuePath()).thenReturn("./event-queue");
+	private static final MessageFactory MESSAGE_FACTORY = new MessageFactoryImpl(
+			new IncrementalIdProvider(), new UnixTimestampProvider()
+	);
 
-        helper = new UpstreamMessageQueueHelperImpl(config);
-        serializer = helper.configureEventSerializationHelper();
-    }
+	@Mock
+	private GatewayConfig config;
 
-    @Test
-    public void testSerializationHelper() throws Exception {
+	private MultiClassSerializationHelper<Message> serializer;
 
-        NodeUrn nodeUrn = new NodeUrn("urn:unit:test:0x1");
-        long timestamp = DateTime.now().getMillis();
-        DevicesAttachedEvent devicesAttachedEvent = newDevicesAttachedEvent(timestamp, nodeUrn);
-        Event event = newEvent(123, devicesAttachedEvent);
-        Message message = newMessage(event);
+	@Before
+	public void setUp() throws Exception {
+		when(config.getEventQueuePath()).thenReturn("./event-queue");
+		UpstreamMessageQueueHelperImpl helper = new UpstreamMessageQueueHelperImpl(config);
+		serializer = helper.configureEventSerializationHelper();
+	}
 
-        byte[] serialized = serializer.serialize(message);
-
-        Message deserialized = serializer.deserialize(serialized);
-
-        assertEquals(message, deserialized);
-    }
+	@Test
+	public void testSerializationHelper() throws Exception {
+		DevicesAttachedEvent devicesAttachedEvent = MESSAGE_FACTORY.devicesAttachedEvent(NOW, NODE_URN);
+		Message message = MessageWrapper.WRAP_FUNCTION.apply(devicesAttachedEvent);
+		assertEquals(message, serializer.deserialize(serializer.serialize(message)));
+	}
 }

@@ -11,7 +11,7 @@ public interface UpstreamMessageQueue extends Service {
 
     void channelDisconnected();
 
-    void enqueue(Message message);
+    void enqueue(Object message);
 
 
 }

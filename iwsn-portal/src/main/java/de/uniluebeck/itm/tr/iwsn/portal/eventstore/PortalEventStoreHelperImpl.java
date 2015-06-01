@@ -24,12 +24,7 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
     private static final Logger log = LoggerFactory.getLogger(PortalEventStoreHelperImpl.class);
 
     private static final Function<MessageLite, byte[]> PROTOBUF_MESSAGE_SERIALIZER =
-            new Function<MessageLite, byte[]>() {
-                @Override
-                public byte[] apply(final MessageLite input) {
-                    return input.toByteArray();
-                }
-            };
+            MessageLite::toByteArray;
 
     private final PortalServerConfig portalServerConfig;
 

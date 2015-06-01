@@ -1,6 +1,5 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
@@ -16,271 +15,300 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newDevicesAttachedEvent;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newDevicesDetachedEvent;
+import static java.util.Optional.of;
 
 public class PortalEventDispatcherImpl extends AbstractService implements PortalEventDispatcher {
 
+	private static final Logger log = LoggerFactory.getLogger(PortalEventDispatcherImpl.class);
 
-    private static final Logger log = LoggerFactory.getLogger(PortalEventDispatcherImpl.class);
-    private final PortalEventBus portalEventBus;
-    private final ReservationManager reservationManager;
-    private final PortalEventStore eventStore;
+	private final PortalEventBus portalEventBus;
+	private final ReservationManager reservationManager;
+	private final PortalEventStore eventStore;
+	private final MessageFactory messageFactory;
 
-    @Inject
-    public PortalEventDispatcherImpl(final PortalEventBus portalEventBus, final ReservationManager reservationManager, final PortalEventStore eventStore) {
-        this.portalEventBus = checkNotNull(portalEventBus);
-        this.reservationManager = checkNotNull(reservationManager);
-        this.eventStore = checkNotNull(eventStore);
-    }
+	@Inject
+	public PortalEventDispatcherImpl(final PortalEventBus portalEventBus,
+									 final ReservationManager reservationManager,
+									 final PortalEventStore eventStore,
+									 final MessageFactory messageFactory) {
+		this.portalEventBus = checkNotNull(portalEventBus);
+		this.reservationManager = checkNotNull(reservationManager);
+		this.eventStore = checkNotNull(eventStore);
+		this.messageFactory = checkNotNull(messageFactory);
+	}
 
-    @Override
-    protected void doStart() {
-        log.trace("PortalEventDispatcherImpl.doStart()");
-        try {
-            portalEventBus.register(this);
-            notifyStarted();
-        } catch (Exception e) {
-            notifyFailed(e);
-        }
-    }
-
-
-    @Override
-    protected void doStop() {
-        try {
-            portalEventBus.unregister(this);
-            notifyStopped();
-        } catch (Exception e) {
-            notifyFailed(e);
-        }
-    }
-
-    @Subscribe
-    public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
-
-        log.trace("PortalEventDispatcherImpl.onDevicesAttachedEventFromPortalEventBus({})", event);
-
-        final DateTime time = new DateTime(event.getTimestamp());
-
-        Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
-        Set<NodeUrn> nodeUrnsWithoutReservation = new HashSet<NodeUrn>();
-        Optional<Reservation> reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
-
-        while (reservation.isPresent()) {
-            reservation.get().touch();
-
-            final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.get().getNodeUrns()));
-
-            if (!reservedNodeUrnsOfEvent.isEmpty()) {
-                reservation.get().getEventBus().post(newDevicesAttachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
-            }
-            eventNodeUrns.removeAll(Sets.newHashSet(reservedNodeUrnsOfEvent));
-            reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
-        }
-
-        if (!nodeUrnsWithoutReservation.isEmpty()) {
-            storeEventToPortalEventStore(event, event.getTimestamp());
-        }
-    }
+	@Override
+	protected void doStart() {
+		log.trace("PortalEventDispatcherImpl.doStart()");
+		try {
+			portalEventBus.register(this);
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 
 
-    @Subscribe
-    public void onUpstreamMessageEventFromPortalEventBus(final UpstreamMessageEvent event) {
+	@Override
+	protected void doStop() {
+		try {
+			portalEventBus.unregister(this);
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 
-        log.trace("PortalEventDispatcherImpl.onUpstreamMessageEventFromPortalEventBus({})", event);
+	@Subscribe
+	public void onDevicesAttachedEventFromPortalEventBus(final DevicesAttachedEvent event) {
 
-        final NodeUrn sourceNodeUrn = new NodeUrn(event.getSourceNodeUrn());
-        final Optional<Reservation> reservation = reservationManager.getReservation(sourceNodeUrn, new DateTime(event.getTimestamp()));
+		log.trace("PortalEventDispatcherImpl.onDevicesAttachedEventFromPortalEventBus({})", event);
 
-        if (reservation.isPresent()) {
-            reservation.get().touch();
-            reservation.get().getEventBus().post(event);
-        } else {
-            storeEventToPortalEventStore(event, event.getTimestamp());
-        }
-    }
+		final DateTime time = new DateTime(event.getHeader().getTimestamp());
 
-    @Subscribe
-    public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
+		Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getHeader().getNodeUrnsList(), NodeUrn::new));
+		Set<NodeUrn> nodeUrnsWithoutReservation = new HashSet<>();
+		Optional<Reservation> reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
 
-        log.trace("PortalEventDispatcherImpl.onDevicesDetachedEventFromPortalEventBus({})", event);
+		while (reservation.isPresent()) {
+			reservation.get().touch();
 
-        final DateTime time = new DateTime(event.getTimestamp());
+			final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.get().getNodeUrns()));
 
-        Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
-        Set<NodeUrn> nodeUrnsWithoutReservation = new HashSet<NodeUrn>();
-        Optional<Reservation> reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
+			if (!reservedNodeUrnsOfEvent.isEmpty()) {
+				reservation.get().getEventBus().post(messageFactory.devicesAttachedEvent(
+						of(event.getHeader().getTimestamp()),
+						reservedNodeUrnsOfEvent
+				));
+			}
+			eventNodeUrns.removeAll(Sets.newHashSet(reservedNodeUrnsOfEvent));
+			reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
+		}
 
-        while (reservation.isPresent()) {
-            reservation.get().touch();
-            final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.get().getNodeUrns()));
+		if (!nodeUrnsWithoutReservation.isEmpty()) {
+			storeEventToPortalEventStore(event, event.getHeader().getTimestamp());
+		}
+	}
 
-            if (!reservedNodeUrnsOfEvent.isEmpty()) {
-                reservation.get().getEventBus().post(newDevicesDetachedEvent(event.getTimestamp(), reservedNodeUrnsOfEvent));
-            }
 
-            eventNodeUrns.removeAll(Sets.newHashSet(reservedNodeUrnsOfEvent));
-            reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
+	@Subscribe
+	public void onUpstreamMessageEventFromPortalEventBus(final UpstreamMessageEvent event) {
 
-        }
-        if (!nodeUrnsWithoutReservation.isEmpty()) {
-            storeEventToPortalEventStore(event, event.getTimestamp());
-        }
+		log.trace("PortalEventDispatcherImpl.onUpstreamMessageEventFromPortalEventBus({})", event);
 
-    }
+		final NodeUrn sourceNodeUrn = new NodeUrn(event.getHeader().getNodeUrns(0));
+		final Optional<Reservation> reservation = reservationManager.getReservation(
+				sourceNodeUrn,
+				new DateTime(event.getHeader().getTimestamp())
+		);
 
-    @Subscribe
-    public void onNotificationEventFromPortalEventBus(final NotificationEvent event) {
+		if (reservation.isPresent()) {
+			reservation.get().touch();
+			reservation.get().getEventBus().post(event);
+		} else {
+			storeEventToPortalEventStore(event, event.getHeader().getTimestamp());
+		}
+	}
 
-        log.trace("PortalEventDispatcherImpl.onNotificationEventFromPortalEventBus({})", event);
+	@Subscribe
+	public void onDevicesDetachedEventFromPortalEventBus(final DevicesDetachedEvent event) {
 
-        if (event.hasNodeUrn()) {
-            Optional<Reservation> reservation = reservationManager.getReservation(new NodeUrn(event.getNodeUrn()), new DateTime(event.getTimestamp()));
-            if (reservation.isPresent()) {
-                reservation.get();
-                reservation.get().getEventBus().post(event);
-            } else {
-                storeEventToPortalEventStore(event, event.getTimestamp());
-            }
-        } else {
-            List<Reservation> reservations = reservationManager.getReservations(new DateTime(event.getTimestamp()));
-            for (Reservation reservation : reservations) {
-                reservation.touch();
-                reservation.getEventBus().post(event);
-            }
+		log.trace("PortalEventDispatcherImpl.onDevicesDetachedEventFromPortalEventBus({})", event);
 
-            if (reservations.isEmpty()) {
-                storeEventToPortalEventStore(event, event.getTimestamp());
-            }
-        }
-    }
+		final DateTime time = new DateTime(event.getHeader().getTimestamp());
 
-    @Subscribe
-    public void onSingleNodeProgressFromPortalEventBus(final SingleNodeProgress progress) {
-        log.trace("PortalEventDispatcherImpl.onSingleNodeProgressFromPortalEventBus({})", progress);
+		Set<NodeUrn> eventNodeUrns = newHashSet(transform(event.getHeader().getNodeUrnsList(), NodeUrn::new));
+		Set<NodeUrn> nodeUrnsWithoutReservation = new HashSet<>();
+		Optional<Reservation> reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
 
-        Reservation reservation = reservationManager.getReservation(progress.getReservationId());
-        if (reservation != null) {
-            reservation.touch();
-            reservation.getEventBus().post(progress);
-        } else {
-            storeEventToPortalEventStore(progress);
-        }
-    }
+		while (reservation.isPresent()) {
+			reservation.get().touch();
+			final Set<NodeUrn> reservedNodeUrnsOfEvent = Sets.filter(eventNodeUrns, in(reservation.get().getNodeUrns()));
 
-    @Subscribe
-    public void onSingleNodeResponseFromPortalEventBus(final SingleNodeResponse response) {
-        log.trace("PortalEventDispatcherImpl.onSingleNodeResponseFromPortalEventBus({})", response);
+			if (!reservedNodeUrnsOfEvent.isEmpty()) {
+				reservation.get().getEventBus().post(messageFactory.devicesDetachedEvent(
+						of(event.getHeader().getTimestamp()),
+						reservedNodeUrnsOfEvent
+				));
+			}
 
-        Reservation reservation = reservationManager.getReservation(response.getReservationId());
-        if (reservation != null) {
-            reservation.touch();
-            reservation.getEventBus().post(response);
-        } else {
-            storeEventToPortalEventStore(response);
-        }
-    }
+			eventNodeUrns.removeAll(Sets.newHashSet(reservedNodeUrnsOfEvent));
+			reservation = findNextReservation(eventNodeUrns, nodeUrnsWithoutReservation, time);
 
-    @Subscribe
-    public void onReservationStartedEventFromPortalEventBus(final ReservationStartedEvent event) {
-        log.trace("PortalEventDispatcherImpl.onReservationStartedEventFromPortalEventBus({})", event);
+		}
+		if (!nodeUrnsWithoutReservation.isEmpty()) {
+			storeEventToPortalEventStore(event, event.getHeader().getTimestamp());
+		}
 
-        Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
-        if (reservation != null) {
-            reservation.touch();
-            reservation.getEventBus().post(event);
-        } else {
-            storeEventToPortalEventStore(event);
-        }
-    }
+	}
 
-    @Subscribe
-    public void onReservationEndedEventFromPortalEventBus(final ReservationEndedEvent event) {
-        log.trace("PortalEventDispatcherImpl.onReservationEndedEventFromPortalEventBus({})", event);
-        Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
-        if (reservation != null) {
-            reservation.touch();
-            reservation.getEventBus().post(event);
-        } else {
-            storeEventToPortalEventStore(event);
-        }
-    }
+	@Subscribe
+	public void onNotificationEventFromPortalEventBus(final NotificationEvent event) {
 
-    @Subscribe
-    public void onReservationCancelledEventFromPortalEventBus(final ReservationCancelledEvent event) {
-        log.trace("PortalEventDispatcherImpl.onReservationCancelledEventFromPortalEventBus({})", event);
-        Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
-        if (reservation != null) {
-            reservation.touch();
-            reservation.getEventBus().post(event);
-        } else {
-            storeEventToPortalEventStore(event);
-        }
-    }
+		log.trace("PortalEventDispatcherImpl.onNotificationEventFromPortalEventBus({})", event);
 
-    @Subscribe
-    public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
+		final DateTime timestamp = new DateTime(event.getHeader().getTimestamp());
 
-        log.trace("PortalEventDispatcherImpl.onGetChannelPipelinesResponse({})", response);
+		if (!event.getHeader().getNodeUrnsList().isEmpty()) {
 
-        Reservation reservation = reservationManager.getReservation(response.getReservationId());
-        if (reservation != null) {
-            reservation.touch();
-            reservation.getEventBus().post(response);
-        } else {
-            storeEventToPortalEventStore(response);
-        }
-    }
+			event.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(nodeUrn -> {
 
-    private void storeEventToPortalEventStore(final MessageLite event, long timestamp) {
-        log.trace("PortalEventDispatcherImpl.storeEventToPortalEventStore({})", event);
-        try {
-            //noinspection unchecked
-            eventStore.storeEvent(event, event.getClass(), timestamp);
-        } catch (IOException e) {
-            log.error("Failed to store event", e);
-        }
-    }
+				Optional<Reservation> reservation = reservationManager.getReservation(nodeUrn, timestamp);
 
-    private void storeEventToPortalEventStore(final MessageLite event) {
-        log.trace("PortalEventDispatcherImpl.storeEventToPortalEventStore({})", event);
-        try {
-            //noinspection unchecked
-            eventStore.storeEvent(event, event.getClass());
-        } catch (IOException e) {
-            log.error("Failed to store event", e);
-        }
-    }
+				if (reservation.isPresent()) {
+					reservation.get();
+					reservation.get().getEventBus().post(event);
+				} else {
+					storeEventToPortalEventStore(event, event.getHeader().getTimestamp());
+				}
+			});
 
-    /**
-     * Given a set of nodes contained in an event, this methods iterates through the node urns searching a reservation for each node until a reservation is found. All nodes, for which no reservation was found are added to the nodeUrnsWithoutReservation set
-     *
-     * @param eventNodeUrns              the nodes from the event not yet checked
-     * @param nodeUrnsWithoutReservation nodes checked but not part of a reservation
-     * @param time                       the time at which the nodes should have been part of a reservation
-     * @return the first reservation found if any
-     */
-    private Optional<Reservation> findNextReservation(Set<NodeUrn> eventNodeUrns, Set<NodeUrn> nodeUrnsWithoutReservation, DateTime time) {
-        eventNodeUrns.removeAll(nodeUrnsWithoutReservation);
+		} else {
 
-        for (NodeUrn urn : eventNodeUrns) {
-            Optional<Reservation> reservation = reservationManager.getReservation(urn, time);
-            if (reservation.isPresent()) {
-                return reservation;
-            } else {
-                nodeUrnsWithoutReservation.add(urn);
-            }
-        }
-        return Optional.absent();
+			List<Reservation> reservations = reservationManager.getReservations(timestamp);
 
-    }
+			for (Reservation reservation : reservations) {
+				reservation.touch();
+				reservation.getEventBus().post(event);
+			}
+
+			if (reservations.isEmpty()) {
+				storeEventToPortalEventStore(event, event.getHeader().getTimestamp());
+			}
+		}
+	}
+
+	@Subscribe
+	public void onSingleNodeProgressFromPortalEventBus(final Progress progress) {
+
+		log.trace("PortalEventDispatcherImpl.onSingleNodeProgressFromPortalEventBus({})", progress);
+
+		Reservation reservation = reservationManager.getReservation(progress.getHeader().getSerializedReservationKey());
+		if (reservation != null) {
+			reservation.touch();
+			reservation.getEventBus().post(progress);
+		} else {
+			storeEventToPortalEventStore(progress);
+		}
+	}
+
+	@Subscribe
+	public void onSingleNodeResponseFromPortalEventBus(final Response response) {
+		log.trace("PortalEventDispatcherImpl.onSingleNodeResponseFromPortalEventBus({})", response);
+
+		Reservation reservation = reservationManager.getReservation(response.getHeader().getSerializedReservationKey());
+		if (reservation != null) {
+			reservation.touch();
+			reservation.getEventBus().post(response);
+		} else {
+			storeEventToPortalEventStore(response);
+		}
+	}
+
+	@Subscribe
+	public void onReservationStartedEventFromPortalEventBus(final ReservationStartedEvent event) {
+		log.trace("PortalEventDispatcherImpl.onReservationStartedEventFromPortalEventBus({})", event);
+
+		Reservation reservation = reservationManager.getReservation(event.getHeader().getSerializedReservationKey());
+		if (reservation != null) {
+			reservation.touch();
+			reservation.getEventBus().post(event);
+		} else {
+			storeEventToPortalEventStore(event);
+		}
+	}
+
+	@Subscribe
+	public void onReservationEndedEventFromPortalEventBus(final ReservationEndedEvent event) {
+		log.trace("PortalEventDispatcherImpl.onReservationEndedEventFromPortalEventBus({})", event);
+		Reservation reservation = reservationManager.getReservation(event.getHeader().getSerializedReservationKey());
+		if (reservation != null) {
+			reservation.touch();
+			reservation.getEventBus().post(event);
+		} else {
+			storeEventToPortalEventStore(event);
+		}
+	}
+
+	@Subscribe
+	public void onReservationCancelledEventFromPortalEventBus(final ReservationCancelledEvent event) {
+		log.trace("PortalEventDispatcherImpl.onReservationCancelledEventFromPortalEventBus({})", event);
+		Reservation reservation = reservationManager.getReservation(event.getHeader().getSerializedReservationKey());
+		if (reservation != null) {
+			reservation.touch();
+			reservation.getEventBus().post(event);
+		} else {
+			storeEventToPortalEventStore(event);
+		}
+	}
+
+	@Subscribe
+	public void onGetChannelPipelinesResponse(final GetChannelPipelinesResponse response) {
+
+		log.trace("PortalEventDispatcherImpl.onGetChannelPipelinesResponse({})", response);
+
+		Reservation reservation = reservationManager.getReservation(response.getHeader().getSerializedReservationKey());
+		if (reservation != null) {
+			reservation.touch();
+			reservation.getEventBus().post(response);
+		} else {
+			storeEventToPortalEventStore(response);
+		}
+	}
+
+	private void storeEventToPortalEventStore(final MessageLite event, long timestamp) {
+		log.trace("PortalEventDispatcherImpl.storeEventToPortalEventStore({})", event);
+		try {
+			//noinspection unchecked
+			eventStore.storeEvent(event, event.getClass(), timestamp);
+		} catch (IOException e) {
+			log.error("Failed to store event", e);
+		}
+	}
+
+	private void storeEventToPortalEventStore(final MessageLite event) {
+		log.trace("PortalEventDispatcherImpl.storeEventToPortalEventStore({})", event);
+		try {
+			//noinspection unchecked
+			eventStore.storeEvent(event, event.getClass());
+		} catch (IOException e) {
+			log.error("Failed to store event", e);
+		}
+	}
+
+	/**
+	 * Given a set of nodes contained in an event, this methods iterates through the node urns searching a reservation
+	 * for each node until a reservation is found. All nodes, for which no reservation was found are added to the
+	 * nodeUrnsWithoutReservation set.
+	 *
+	 * @param eventNodeUrns              the nodes from the event not yet checked
+	 * @param nodeUrnsWithoutReservation nodes checked but not part of a reservation
+	 * @param time                       the time at which the nodes should have been part of a reservation
+	 * @return the first reservation found if any
+	 */
+	private Optional<Reservation> findNextReservation(Set<NodeUrn> eventNodeUrns,
+													  Set<NodeUrn> nodeUrnsWithoutReservation,
+													  DateTime time) {
+
+		eventNodeUrns.removeAll(nodeUrnsWithoutReservation);
+
+		for (NodeUrn urn : eventNodeUrns) {
+			Optional<Reservation> reservation = reservationManager.getReservation(urn, time);
+			if (reservation.isPresent()) {
+				return reservation;
+			} else {
+				nodeUrnsWithoutReservation.add(urn);
+			}
+		}
+		return Optional.empty();
+
+	}
 
 }

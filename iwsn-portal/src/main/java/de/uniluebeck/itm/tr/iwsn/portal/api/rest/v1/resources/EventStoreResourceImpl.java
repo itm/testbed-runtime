@@ -155,25 +155,25 @@ public class EventStoreResourceImpl implements EventStoreResource {
         }
         if (event instanceof ReservationStartedEvent) {
 
-            final String serializedKey = ((ReservationStartedEvent) event).getSerializedKey();
+            final String serializedKey = ((ReservationStartedEvent) event).getHeader().getSerializedReservationKey();
             final Reservation reservation = reservationManager.getReservation(serializedKey);
             return toJSON(new ReservationStartedMessage(reservation), true);
 
         } else if (event instanceof ReservationEndedEvent) {
 
-            final String serializedKey = ((ReservationEndedEvent) event).getSerializedKey();
+            final String serializedKey = ((ReservationEndedEvent) event).getHeader().getSerializedReservationKey();
             final Reservation reservation = reservationManager.getReservation(serializedKey);
             return toJSON(new ReservationEndedMessage(reservation), true);
 
         } else if (event instanceof ReservationCancelledEvent) {
 
-            final String serializedKey = ((ReservationCancelledEvent) event).getSerializedKey();
+            final String serializedKey = ((ReservationCancelledEvent) event).getHeader().getSerializedReservationKey();
             final Reservation reservation = reservationManager.getReservation(serializedKey);
             return toJSON(new ReservationCancelledMessage(reservation), true);
 
         } else if (event instanceof Response) {
 
-            return toJSON(new SingleNodeResponseMessage((SingleNodeResponse) event, DateTime.now()), true);
+            return toJSON(new SingleNodeResponseMessage((Response) event, DateTime.now()), true);
 
         } else if (event instanceof Request) {
 

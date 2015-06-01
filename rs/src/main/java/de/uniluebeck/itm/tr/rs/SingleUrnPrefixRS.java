@@ -8,11 +8,11 @@ import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
-import eu.wisebed.api.v3.common.KeyValuePair;
-import eu.wisebed.api.v3.common.NodeUrn;
-import eu.wisebed.api.v3.common.SecretAuthenticationKey;
-import eu.wisebed.api.v3.common.SecretReservationKey;
+import eu.wisebed.api.v3.common.*;
 import eu.wisebed.api.v3.rs.*;
+import eu.wisebed.api.v3.rs.AuthenticationFault;
+import eu.wisebed.api.v3.rs.AuthorizationFault;
+import eu.wisebed.api.v3.rs.UnknownSecretReservationKeyFault;
 import eu.wisebed.api.v3.snaa.SNAA;
 import eu.wisebed.api.v3.snaa.SNAAFault_Exception;
 import eu.wisebed.api.v3.snaa.ValidationResult;
@@ -32,8 +32,6 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.common.NodeUrnPrefixHelper.SAK_TO_NODE_URN_PREFIX;
-import static de.uniluebeck.itm.tr.common.NodeUrnPrefixHelper.SRK_TO_NODE_URN_PREFIX;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReservationKeyFault;
 
 /**
@@ -208,7 +206,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 
 		final String prefixes =
-				Joiner.on(",").join(newHashSet(transform(authenticationData, SAK_TO_NODE_URN_PREFIX)));
+				Joiner.on(",").join(newHashSet(transform(authenticationData, SecretAuthenticationKey::getUrnPrefix)));
 		final String msg;
 		if (relevantSAKs.size() > 1) {
 			msg = "Too many SecretAuthenticationKeys with the same URN prefix given ("
@@ -322,7 +320,7 @@ public class SingleUrnPrefixRS implements RS {
 		}
 
 		final String prefixes =
-				Joiner.on(",").join(newHashSet(transform(secretReservationKeys, SRK_TO_NODE_URN_PREFIX)));
+				Joiner.on(",").join(newHashSet(transform(secretReservationKeys, SecretReservationKey::getUrnPrefix)));
 		final String msg = "The supplied secret reservation keys (" + prefixes + ") don't contain keys for this "
 				+ "testbed (URN prefix \"" + commonConfig.getUrnPrefix() + "\").";
 

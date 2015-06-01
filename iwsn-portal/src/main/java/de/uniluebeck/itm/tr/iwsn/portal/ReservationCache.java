@@ -1,11 +1,11 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Service;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
 import org.joda.time.DateTime;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface ReservationCache extends Service {

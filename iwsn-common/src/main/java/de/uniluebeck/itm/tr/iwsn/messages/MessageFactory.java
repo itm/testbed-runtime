@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
 import com.google.common.collect.Multimap;
+import com.google.protobuf.MessageLite;
 import eu.wisebed.api.v3.common.NodeUrn;
 
 import java.util.List;
@@ -39,24 +40,25 @@ public interface MessageFactory {
 
 	Progress progress(Optional<String> reservationId,
 					  Optional<Long> timestamp,
-					  MessageType requestType,
 					  long requestId,
 					  Iterable<NodeUrn> nodeUrn,
 					  int progressInPercent);
 
 	Response response(Optional<String> reservationId,
 					  Optional<Long> timestamp,
-					  MessageType requestType,
 					  long requestId,
 					  Iterable<NodeUrn> nodeUrn,
 					  int statusCode,
-					  Optional<String> errorMessage);
+					  Optional<String> errorMessage,
+					  Optional<byte[]> response);
 
 	ReservationStartedEvent reservationStartedEvent(Optional<Long> timestamp, String serializedReservationKey);
 
 	ReservationEndedEvent reservationEndedEvent(Optional<Long> timestamp, String serializedReservationKey);
 
 	ReservationMadeEvent reservationMadeEvent(Optional<Long> timestamp, String serializedReservationKey);
+
+	ReservationCancelledEvent reservationCancelledEvent(Optional<Long> millis, String serializedReservationKey);
 
 	ReservationOpenedEvent reservationOpenedEvent(Optional<Long> timestamp, String serializedReservationKey);
 

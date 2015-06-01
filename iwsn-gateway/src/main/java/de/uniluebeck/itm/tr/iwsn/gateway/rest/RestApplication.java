@@ -17,6 +17,6 @@ public class RestApplication extends Application {
 
 	@Override
 	public Set<Object> getSingletons() {
-		return Sets.<Object>newHashSet(restService);
+		return Sets.newHashSet(restService);
 	}
 }

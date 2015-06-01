@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -185,7 +184,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     }
 
     /**
-     * Only call when synchronized on reservationsBySrk. Creates a new reservation and puts a reference into the map.
+     * Only call when synchronized on reservationsBySrk. Creates a new reservation, starts it and puts a reference into
+     * the map.
      */
     private Reservation initReservation(final List<ConfidentialReservationData> confidentialReservationDataList) {
 
@@ -233,7 +233,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
                     rsPersistence.get().getReservation(nodeUrn, timestamp);
 
             if (!reservationData.isPresent()) {
-                return Optional.absent();
+                return Optional.empty();
             }
 
             reservation = Optional.of(initReservation(newArrayList(reservationData.get())));
@@ -252,7 +252,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
             final List<ConfidentialReservationData> reservationDataList =
                     rsPersistence.get().getReservations(timestamp, timestamp, null, null, null);
 
-            final List<Reservation> reservations = new ArrayList<Reservation>(reservationDataList.size());
+            final List<Reservation> reservations = new ArrayList<>(reservationDataList.size());
             for (ConfidentialReservationData crd : reservationDataList) {
                 reservations.add(getReservation(newHashSet(crd.getSecretReservationKey())));
             }

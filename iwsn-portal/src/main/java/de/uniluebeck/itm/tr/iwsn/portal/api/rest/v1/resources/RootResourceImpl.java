@@ -8,6 +8,7 @@ import de.uniluebeck.itm.tr.common.ServedNodeUrnPrefixesProvider;
 import de.uniluebeck.itm.tr.iwsn.portal.WiseGuiServiceConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.RestApiModule;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.TestbedDescription;
+import eu.wisebed.api.v3.common.NodeUrnPrefix;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.common.NodeUrnPrefixHelper.NODE_URN_PREFIX_TO_STRING;
 
 @Path("/")
 public class RootResourceImpl implements RootResource {
@@ -71,7 +71,7 @@ public class RootResourceImpl implements RootResource {
 
 		desc.name = wiseGuiServiceConfig.getWiseguiTestbedName();
 		desc.sessionManagementEndpointUrl = endpointManager.getSmEndpointUri().toString();
-		desc.urnPrefixes = newArrayList(transform(servedNodeUrnPrefixesProvider.get(), NODE_URN_PREFIX_TO_STRING));
+		desc.urnPrefixes = newArrayList(transform(servedNodeUrnPrefixesProvider.get(), NodeUrnPrefix::toString));
 		desc.isFederator = federator;
 		desc.apiVersion = apiVersion;
 		desc.appName = appName;

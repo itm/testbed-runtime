@@ -15,7 +15,6 @@ import static com.google.common.base.Throwables.getStackTraceAsString;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static eu.wisebed.wiseml.WiseMLHelper.getNodeUrns;
 
 public class FederationManagerServedNodeUrnsProvider implements ServedNodeUrnsProvider {
@@ -34,7 +33,7 @@ public class FederationManagerServedNodeUrnsProvider implements ServedNodeUrnsPr
 		final Set<NodeUrn> set = newHashSet();
 		for (final Map.Entry<SessionManagement, URI> entry : federatedEndpoints.getEndpointsURIMap().entrySet()) {
 			try {
-				set.addAll(transform(getNodeUrns(entry.getKey().getNetwork()), STRING_TO_NODE_URN));
+				set.addAll(transform(getNodeUrns(entry.getKey().getNetwork()), NodeUrn::new));
 			} catch (Exception e) {
 				log.error("Exception while fetching node URNs from endpoint URI {}: {}",
 						entry.getValue(),

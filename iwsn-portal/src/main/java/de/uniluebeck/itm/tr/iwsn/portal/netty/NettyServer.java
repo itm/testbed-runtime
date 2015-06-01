@@ -40,12 +40,10 @@ public class NettyServer extends AbstractService {
 	}
 
 	private ChannelPipelineFactory addConnectionsHandler(final ChannelPipelineFactory pipelineFactory) {
-		return new ChannelPipelineFactory() {
-			public ChannelPipeline getPipeline() throws Exception {
-				final ChannelPipeline pipeline = pipelineFactory.getPipeline();
-				pipeline.addFirst("NettyServer.connectionsHandler", connectionsHandler);
-				return pipeline;
-			}
+		return () -> {
+			final ChannelPipeline pipeline = pipelineFactory.getPipeline();
+			pipeline.addFirst("NettyServer.connectionsHandler", connectionsHandler);
+			return pipeline;
 		};
 	}
 

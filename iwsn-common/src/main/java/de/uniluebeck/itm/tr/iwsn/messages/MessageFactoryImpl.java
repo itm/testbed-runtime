@@ -170,7 +170,6 @@ public class MessageFactoryImpl implements MessageFactory {
 	@Override
 	public Progress progress(Optional<String> serializedReservationKey,
 							 Optional<Long> timestamp,
-							 MessageType requestType,
 							 long requestId,
 							 Iterable<NodeUrn> nodeUrn,
 							 int progressInPercent) {
@@ -189,11 +188,11 @@ public class MessageFactoryImpl implements MessageFactory {
 	@Override
 	public Response response(Optional<String> serializedReservationKey,
 							 Optional<Long> timestamp,
-							 MessageType requestType,
 							 long requestId,
 							 Iterable<NodeUrn> nodeUrn,
 							 int statusCode,
-							 Optional<String> errorMessage) {
+							 Optional<String> errorMessage,
+							 Optional<byte[]> response) {
 
 		final Response.Builder builder = Response.newBuilder()
 				.setHeader(header(serializedReservationKey, of(requestId), timestamp, RESPONSE, of(newArrayList(nodeUrn)), true, false))
@@ -201,6 +200,10 @@ public class MessageFactoryImpl implements MessageFactory {
 
 		if (errorMessage.isPresent()) {
 			builder.setErrorMessage(errorMessage.get());
+		}
+
+		if (response.isPresent()) {
+			builder.setResponse(ByteString.copyFrom(response.get()));
 		}
 
 		return builder.build();
@@ -231,6 +234,15 @@ public class MessageFactoryImpl implements MessageFactory {
 				.setBroadcast(true);
 
 		return ReservationMadeEvent.newBuilder().setHeader(header).build();
+	}
+
+	@Override
+	public ReservationCancelledEvent reservationCancelledEvent(Optional<Long> timestamp, String serializedReservationKey) {
+
+		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_CANCELLED, empty(), true, true)
+				.setBroadcast(true);
+
+		return ReservationCancelledEvent.newBuilder().setHeader(header).build();
 	}
 
 	@Override

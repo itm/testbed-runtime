@@ -4,14 +4,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
 import de.uniluebeck.itm.tr.common.EventBusService;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
+import de.uniluebeck.itm.tr.common.ServedNodeUrnsProvider;
+import de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.rs.RSHelper;
 import de.uniluebeck.itm.util.Tuple;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -77,7 +77,7 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 
 	@Subscribe
 	public void onReservationStartedEvent(final ReservationStartedEvent event) {
-		final Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
+		final Reservation reservation = reservationManager.getReservation(event.getHeader().getSerializedReservationKey());
 		synchronized (reservationStatusMap) {
 			for (NodeUrn nodeUrn : reservation.getNodeUrns()) {
 				reservationStatusMap.put(nodeUrn, ReservationStatus.RESERVED);
@@ -87,7 +87,7 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 
 	@Subscribe
 	public void onReservationEndedEvent(final ReservationEndedEvent event) {
-		final Reservation reservation = reservationManager.getReservation(event.getSerializedKey());
+		final Reservation reservation = reservationManager.getReservation(event.getHeader().getSerializedReservationKey());
 		synchronized (reservationStatusMap) {
 			for (NodeUrn nodeUrn : reservation.getNodeUrns()) {
 				reservationStatusMap.put(nodeUrn, ReservationStatus.UNRESERVED);
@@ -96,12 +96,10 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 	}
 
 	@Subscribe
-	public void onFlashImagesRequest(final Request request) {
-		if (Request.Type.FLASH_IMAGES.equals(request.getType())) {
-			synchronized (flashStatusMap) {
-				for (String nodeUrnString : request.getFlashImagesRequest().getNodeUrnsList()) {
-					flashStatusMap.put(new NodeUrn(nodeUrnString), FlashStatus.USER_IMAGE);
-				}
+	public void onFlashImagesRequest(final FlashImagesRequest request) {
+		synchronized (flashStatusMap) {
+			for (String nodeUrnString : request.getHeader().getNodeUrnsList()) {
+				flashStatusMap.put(new NodeUrn(nodeUrnString), FlashStatus.USER_IMAGE);
 			}
 		}
 	}
@@ -136,7 +134,7 @@ public class NodeStatusTrackerImpl extends AbstractService implements NodeStatus
 		synchronized (flashStatusMap) {
 			synchronized (reservationStatusMap) {
 				for (NodeUrn nodeUrn : nodeUrns) {
-					mapBuilder.put(nodeUrn, new Tuple<FlashStatus, ReservationStatus>(
+					mapBuilder.put(nodeUrn, new Tuple<>(
 									getFlashStatus(nodeUrn),
 									getReservationStatus(nodeUrn)
 							)

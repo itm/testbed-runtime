@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.net.URI;
@@ -36,20 +35,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class SmartSantanderEventBrokerObserverTest {
 
-	static {
-		Logging.setLoggingDefaults(LogLevel.ERROR);
-	}
-
 	private static final String NODE_URN_STRING = "urn:smartsantander:testbed:70";
-
 	private static final NodeUrn NODE_URN = new NodeUrn(NODE_URN_STRING);
-
 	private static final String NODE_URN_PREFIX_STRING = "urn:smartsantander:testbed:";
-
 	private static final String NODE_PORT = "/dev/ttyTestbedRuntime";
-
 	private static final String NODE_TYPE = "waspmote";
-
 	private static final DeviceConfig NODE_DEVICE_CONFIG = new DeviceConfig(
 			NODE_URN,
 			NODE_TYPE,
@@ -57,18 +47,20 @@ public class SmartSantanderEventBrokerObserverTest {
 			NODE_PORT,
 			null, null, null, null, null, null, null, null, null, null
 	);
-
 	private static final String GATEWAY_ID = "testbed-test-gw.smartsantander.eu";
-
 	private static final String INCORRECT_GATEWAY_ID = "testbed-test-gw2.smartsantander.eu";
 
-	@MockitoAnnotations.Mock
+	static {
+		Logging.setLoggingDefaults(LogLevel.ERROR);
+	}
+
+	@Mock
 	private IEventReceiver eventReceiver;
 
-	@MockitoAnnotations.Mock
+	@Mock
 	private IEventPublisher eventPublisher;
 
-	@MockitoAnnotations.Mock
+	@Mock
 	private GatewayEventBus gatewayEventBus;
 
 	private SmartSantanderEventBrokerObserver smartSantanderEventBrokerObserver;
@@ -90,6 +82,66 @@ public class SmartSantanderEventBrokerObserverTest {
 
 	@Mock
 	private Function<NodeOperationsEvents.AddSensorNode, DeviceConfig> conversionFunction;
+
+	private static EventObject createAndGetAddSensorNodeEvent(String gatewayID,
+															  String nodeID,
+															  String urnPrefixString,
+															  String nodePort) {
+
+		RegistrationEvents.EventHeader header = RegistrationEvents.EventHeader.newBuilder()
+				.setEventTypeId(IEventFactory.EventType.ADD_SENSOR_NODE.id())
+				.setRequestId(-1)
+				.build();
+
+		RegistrationEvents.Capability temperature = RegistrationEvents.Capability.newBuilder()
+				.setName("temperature")
+				.setUnit("kelvin")
+				.setDatatype("float")
+				.setData(false)
+				.build();
+
+		RegistrationEvents.Position position = RegistrationEvents.Position.newBuilder()
+				.setType(RegistrationEvents.Position.PositionType.INDOOR)
+				.setXcoor(24)
+				.setYcoor(35)
+				.setZcoor(56)
+				.build();
+
+		RegistrationEvents.KeyValue digi_mac = RegistrationEvents.KeyValue.newBuilder()
+				.setKey("DigiMacAddress")
+				.setValue("00:00:00:00:00:00:00:00")
+				.build();
+
+		RegistrationEvents.KeyValue exp_mac = RegistrationEvents.KeyValue.newBuilder()
+				.setKey("ExperimentMacAddress")
+				.setValue("00:00:00:00:00:00:00:00")
+				.build();
+
+		RegistrationEvents.KeyValue urn_prefix = RegistrationEvents.KeyValue.newBuilder()
+				.setKey("UrnPrefix")
+				.setValue(urnPrefixString)
+				.build();
+
+		RegistrationEvents.NodeTRConfig tr_config = RegistrationEvents.NodeTRConfig.newBuilder()
+				.setNodeType(NODE_TYPE)
+				.setNodePort(nodePort)
+				.addNodeConfig(digi_mac)
+				.addNodeConfig(exp_mac)
+				.addNodeConfig(urn_prefix)
+				.build();
+
+		NodeOperationsEvents.AddSensorNode add_sensor = NodeOperationsEvents.AddSensorNode.newBuilder()
+				.setHeader(header)
+				.setIotNodeType(RegistrationEvents.RegRequestHeader.IoTNodeType.SENSOR_NODE)
+				.setNodeId(nodeID)
+				.setParentId(gatewayID)
+				.setNodeTrConfig(tr_config)
+				.addSensorCapability(temperature)
+				.setPosition(position)
+				.build();
+
+		return new EventObject(IEventFactory.EventType.ADD_SENSOR_NODE, add_sensor.toByteArray());
+	}
 
 	@Before
 	public void setUp() throws EventBrokerException {
@@ -241,67 +293,6 @@ public class SmartSantanderEventBrokerObserverTest {
 		} catch (EventBrokerException e) {
 			e.printStackTrace();
 		}
-	}
-
-
-	private static EventObject createAndGetAddSensorNodeEvent(String gatewayID,
-															  String nodeID,
-															  String urnPrefixString,
-															  String nodePort) {
-
-		RegistrationEvents.EventHeader header = RegistrationEvents.EventHeader.newBuilder()
-				.setEventTypeId(IEventFactory.EventType.ADD_SENSOR_NODE.id())
-				.setRequestId(-1)
-				.build();
-
-		RegistrationEvents.Capability temperature = RegistrationEvents.Capability.newBuilder()
-				.setName("temperature")
-				.setUnit("kelvin")
-				.setDatatype("float")
-				.setData(false)
-				.build();
-
-		RegistrationEvents.Position position = RegistrationEvents.Position.newBuilder()
-				.setType(RegistrationEvents.Position.PositionType.INDOOR)
-				.setXcoor(24)
-				.setYcoor(35)
-				.setZcoor(56)
-				.build();
-
-		RegistrationEvents.KeyValue digi_mac = RegistrationEvents.KeyValue.newBuilder()
-				.setKey("DigiMacAddress")
-				.setValue("00:00:00:00:00:00:00:00")
-				.build();
-
-		RegistrationEvents.KeyValue exp_mac = RegistrationEvents.KeyValue.newBuilder()
-				.setKey("ExperimentMacAddress")
-				.setValue("00:00:00:00:00:00:00:00")
-				.build();
-
-		RegistrationEvents.KeyValue urn_prefix = RegistrationEvents.KeyValue.newBuilder()
-				.setKey("UrnPrefix")
-				.setValue(urnPrefixString)
-				.build();
-
-		RegistrationEvents.NodeTRConfig tr_config = RegistrationEvents.NodeTRConfig.newBuilder()
-				.setNodeType(NODE_TYPE)
-				.setNodePort(nodePort)
-				.addNodeConfig(digi_mac)
-				.addNodeConfig(exp_mac)
-				.addNodeConfig(urn_prefix)
-				.build();
-
-		NodeOperationsEvents.AddSensorNode add_sensor = NodeOperationsEvents.AddSensorNode.newBuilder()
-				.setHeader(header)
-				.setIotNodeType(RegistrationEvents.RegRequestHeader.IoTNodeType.SENSOR_NODE)
-				.setNodeId(nodeID)
-				.setParentId(gatewayID)
-				.setNodeTrConfig(tr_config)
-				.addSensorCapability(temperature)
-				.setPosition(position)
-				.build();
-
-		return new EventObject(IEventFactory.EventType.ADD_SENSOR_NODE, add_sensor.toByteArray());
 	}
 
 	private EventObject createAndGetDelSensorNodeEvent(String gatewayID, String nodeID) {

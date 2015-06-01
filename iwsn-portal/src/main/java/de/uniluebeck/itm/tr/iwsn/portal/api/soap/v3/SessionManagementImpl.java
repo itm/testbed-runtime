@@ -14,10 +14,7 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.*;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -51,9 +48,9 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newAreNodesConnectedRequest;
 import static eu.wisebed.api.v3.WisebedServiceHelper.createSMUnknownSecretReservationKeyFault;
 import static eu.wisebed.wiseml.WiseMLHelper.serialize;
+import static java.util.Optional.empty;
 
 @WebService(
 		name = "SessionManagement",
@@ -98,6 +95,8 @@ public class SessionManagementImpl implements SessionManagement {
 
 	private final EndpointManager endpointManager;
 
+	private final MessageFactory messageFactory;
+
 	@Inject
 	public SessionManagementImpl(final CommonConfig commonConfig,
 								 final PortalServerConfig portalServerConfig,
@@ -112,7 +111,8 @@ public class SessionManagementImpl implements SessionManagement {
 								 final IdProvider requestIdProvider,
 								 final Provider<SessionManagementPreconditions> preconditions,
 								 final Provider<Wiseml> wisemlProvider,
-								 final EndpointManager endpointManager) {
+								 final EndpointManager endpointManager,
+								 final MessageFactory messageFactory) {
 		this.commonConfig = checkNotNull(commonConfig);
 		this.portalServerConfig = checkNotNull(portalServerConfig);
 		this.portalEventBus = checkNotNull(portalEventBus);
@@ -127,6 +127,7 @@ public class SessionManagementImpl implements SessionManagement {
 		this.preconditions = checkNotNull(preconditions);
 		this.wisemlProvider = checkNotNull(wisemlProvider);
 		this.endpointManager = checkNotNull(endpointManager);
+		this.messageFactory = checkNotNull(messageFactory);
 	}
 
 	@Override
@@ -144,17 +145,17 @@ public class SessionManagementImpl implements SessionManagement {
 	public List<NodeConnectionStatus> areNodesConnected(
 			@WebParam(name = "nodeUrns", targetNamespace = "") List<NodeUrn> nodeUrns) {
 
-		final Request request = newAreNodesConnectedRequest(null, requestIdProvider.get(), nodeUrns);
-		final ResponseTracker responseTracker = responseTrackerFactory.create(request, portalEventBus);
+		final AreNodesConnectedRequest request = messageFactory.areNodesConnectedRequest(empty(), empty(), nodeUrns);
+		final ResponseTracker responseTracker = responseTrackerFactory.create(request.getHeader(), portalEventBus);
 
 		portalEventBus.post(request);
 
 		try {
 
-			final Map<NodeUrn, SingleNodeResponse> responseMap = responseTracker.get(20, TimeUnit.SECONDS);
+			final Map<NodeUrn, Response> responseMap = responseTracker.get(20, TimeUnit.SECONDS);
 			final List<NodeConnectionStatus> connectionStatusList = newLinkedList();
 
-			for (Map.Entry<NodeUrn, SingleNodeResponse> entry : responseMap.entrySet()) {
+			for (Map.Entry<NodeUrn, Response> entry : responseMap.entrySet()) {
 				final NodeConnectionStatus status = new NodeConnectionStatus();
 				status.setNodeUrn(entry.getKey());
 				status.setConnected(entry.getValue().getStatusCode() == 1);
@@ -290,12 +291,12 @@ public class SessionManagementImpl implements SessionManagement {
 		synchronized (wsnInstances) {
 			synchronized (deliveryManagers) {
 
-				final WSNService wsnService = wsnInstances.get(event.getSerializedKey());
+				final WSNService wsnService = wsnInstances.get(event.getHeader().getSerializedReservationKey());
 				if (wsnService != null && !wsnService.isRunning()) {
 					wsnService.startAsync().awaitRunning();
 				}
 
-				final DeliveryManager deliveryManager = deliveryManagers.get(event.getSerializedKey());
+				final DeliveryManager deliveryManager = deliveryManagers.get(event.getHeader().getSerializedReservationKey());
 				if (deliveryManager != null && !deliveryManager.isRunning()) {
 					deliveryManager.startAsync().awaitRunning();
 				}
@@ -309,12 +310,12 @@ public class SessionManagementImpl implements SessionManagement {
 		synchronized (wsnInstances) {
 			synchronized (deliveryManagers) {
 
-				final WSNService wsnService = wsnInstances.get(event.getSerializedKey());
+				final WSNService wsnService = wsnInstances.get(event.getHeader().getSerializedReservationKey());
 				if (wsnService != null && wsnService.isRunning()) {
 					wsnService.stopAsync().awaitTerminated();
 				}
 
-				final DeliveryManager deliveryManager = deliveryManagers.get(event.getSerializedKey());
+				final DeliveryManager deliveryManager = deliveryManagers.get(event.getHeader().getSerializedReservationKey());
 				if (deliveryManager != null && deliveryManager.isRunning()) {
 					deliveryManager.stopAsync().awaitTerminated();
 				}

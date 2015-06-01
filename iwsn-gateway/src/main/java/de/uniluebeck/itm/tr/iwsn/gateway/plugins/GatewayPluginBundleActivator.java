@@ -93,20 +93,4 @@ public abstract class GatewayPluginBundleActivator implements BundleActivator {
 	}
 
 	protected abstract void doStop() throws Exception;
-
-	protected Injector createInjector(final Module... modules) {
-		return Guice.createInjector(new AbstractModule() {
-			@Override
-			protected void configure() {
-
-				bind(PluginContainer.class).toProvider(of(pluginContainer));
-
-				bind(GatewayEventBus.class).toProvider(of(gatewayEventBus));
-				bind(DeviceDBService.class).toProvider(of(deviceDBService));
-				bind(DeviceAdapterRegistry.class).toProvider(of(deviceAdapterRegistry));
-				bind(SchedulerService.class).toProvider(of(schedulerService));
-			}
-		}
-		).createChildInjector(modules);
-	}
 }

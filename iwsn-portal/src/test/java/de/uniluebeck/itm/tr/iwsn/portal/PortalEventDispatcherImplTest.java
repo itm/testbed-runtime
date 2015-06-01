@@ -103,7 +103,7 @@ public class PortalEventDispatcherImplTest {
 		when(reservationManager.getReservation(RESERVATION_ID)).thenReturn(reservation);
 		when(reservationManager.getReservations(any(DateTime.class))).thenReturn(newArrayList(reservation));
 
-		portalEventDispatcher = new PortalEventDispatcherImpl(portalEventBus, reservationManager, portalEventStore);
+		portalEventDispatcher = new PortalEventDispatcherImpl(portalEventBus, reservationManager, portalEventStore, messageFactory);
 		mf = new MessageFactoryImpl(new IncrementalIdProvider(), new UnixTimestampProvider());
 	}
 

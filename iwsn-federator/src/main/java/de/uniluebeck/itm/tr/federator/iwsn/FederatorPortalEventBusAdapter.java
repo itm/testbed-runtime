@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.federator.iwsn;
 
+import com.google.common.base.Function;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
@@ -15,7 +16,6 @@ import java.util.List;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 
 public class FederatorPortalEventBusAdapter extends AbstractService {
 
@@ -60,7 +60,7 @@ public class FederatorPortalEventBusAdapter extends AbstractService {
 		switch (request.getType()) {
 			case ARE_NODES_CONNECTED:
 				final List<NodeUrn> nodeUrns = newArrayList(
-						transform(request.getAreNodesConnectedRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
+						transform(request.getAreNodesConnectedRequest().getNodeUrnsList(), (Function<String, NodeUrn>) NodeUrn::new)
 				);
 				final List<NodeConnectionStatus> response = smFederatorService.areNodesConnected(nodeUrns);
 				for (NodeConnectionStatus status : response) {

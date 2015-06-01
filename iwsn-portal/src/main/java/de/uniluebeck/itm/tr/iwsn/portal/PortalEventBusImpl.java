@@ -5,11 +5,12 @@ import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.iwsn.common.netty.ExceptionChannelHandler;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageHeaderPair;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServer;
 import de.uniluebeck.itm.tr.iwsn.portal.netty.NettyServerFactory;
-import de.uniluebeck.itm.tr.iwsn.portal.pipeline.KeepAliveHandler;
-import de.uniluebeck.itm.tr.iwsn.portal.pipeline.MessageUnwrapper;
-import de.uniluebeck.itm.tr.iwsn.portal.pipeline.MessageWrapper;
+import de.uniluebeck.itm.tr.iwsn.common.KeepAliveHandler;
+import de.uniluebeck.itm.tr.iwsn.common.MessageUnwrapper;
+import de.uniluebeck.itm.tr.iwsn.common.MessageWrapper;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
@@ -61,6 +62,9 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 
 	@Override
 	public void post(final Object event) {
+		if (MessageHeaderPair.isWrappedMessageEvent(event)) {
+			throw new IllegalArgumentException("Posting wrapped messages is not allowed. Please use a concrete event / request / response type!");
+		}
 		eventBus.post(event);
 	}
 
@@ -84,7 +88,6 @@ class PortalEventBusImpl extends AbstractService implements PortalEventBus {
 						new ProtobufEncoder(),
 						new KeepAliveHandler(),
 						new MessageWrapper(),
-						new MessageUnwrapper(),
 						portalChannelHandler
 				);
 			};

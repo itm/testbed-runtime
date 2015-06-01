@@ -4,7 +4,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import com.google.protobuf.MessageLite;
-import de.uniluebeck.itm.tr.common.NodeUrnHelper;
 import de.uniluebeck.itm.tr.common.WisemlProvider;
 import de.uniluebeck.itm.tr.devicedb.CachedDeviceDBService;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
@@ -46,7 +45,6 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static de.uniluebeck.itm.tr.common.Base64Helper.*;
-import static de.uniluebeck.itm.tr.common.NodeUrnHelper.NODE_URN_TO_STRING;
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.fromJSON;
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessageUtils.isErrorStatusCode;
@@ -242,7 +240,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 				newArrayList(
 						transform(
 								getReservationOrThrow(secretReservationKeysBase64).getNodeUrns(),
-								NODE_URN_TO_STRING
+								NodeUrn::toString
 						)
 				)
 		);
@@ -316,7 +314,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		log.trace("ExperimentResourceImpl.resetNodes({}, {})", secretReservationKeysBase64, nodeUrnList);
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
-		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrn::new);
 		final ResetNodesRequest request = mf.resetNodesRequest(of(secretReservationKeysBase64), empty(), nodeUrns);
 
 		return sendRequestAndGetOperationStatusMap(
@@ -342,7 +340,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		}
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
-		final Iterable<NodeUrn> nodeUrns = transform(chcl.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(chcl.nodeUrns, NodeUrn::new);
 
 		final SetChannelPipelinesRequest request = mf.setChannelPipelinesRequest(
 				of(secretReservationKeysBase64),
@@ -371,7 +369,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		log.trace("ExperimentResourceImpl.getChannelPipelines({}, {})", secretReservationKeysBase64, nodeUrnList);
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
-		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrn::new);
 		final ReservationEventBus reservationEventBus = reservation.getEventBus();
 
 		return requestHelper.getChannelPipelines(nodeUrns, secretReservationKeysBase64, reservationEventBus);
@@ -386,7 +384,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 
 		log.trace("ExperimentResourceImpl.areNodesConnected({})", nodeUrnList);
 
-		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrn::new);
 		final AreNodesConnectedRequest request = mf.areNodesConnectedRequest(empty(), empty(), nodeUrns);
 		final Duration timeout = retrieveTimeout(Operation.CONNECTED, nodeUrns);
 
@@ -404,7 +402,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		log.trace("ExperimentResourceImpl.areNodesAlive({}, {})", secretReservationKeysBase64, nodeUrnList);
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
-		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(nodeUrnList.nodeUrns, NodeUrn::new);
 		final AreNodesAliveRequest request = mf.areNodesAliveRequest(of(secretReservationKeysBase64), empty(), nodeUrns);
 		final Duration timeout = retrieveTimeout(Operation.ALIVE, nodeUrns);
 
@@ -422,7 +420,7 @@ public class ExperimentResourceImpl implements ExperimentResource {
 		log.trace("ExperimentResourceImpl.send({}, {})", secretReservationKeysBase64, data);
 
 		final Reservation reservation = getReservationOrThrow(secretReservationKeysBase64);
-		final Iterable<NodeUrn> nodeUrns = transform(data.targetNodeUrns, NodeUrnHelper.STRING_TO_NODE_URN);
+		final Iterable<NodeUrn> nodeUrns = transform(data.targetNodeUrns, NodeUrn::new);
 		final Duration timeout = retrieveTimeout(Operation.SEND, nodeUrns);
 		final SendDownstreamMessagesRequest request = mf.sendDownstreamMessageRequest(
 				of(secretReservationKeysBase64),

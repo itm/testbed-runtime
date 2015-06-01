@@ -55,7 +55,7 @@ public class RequestHelper {
 		final Object eventBusListener = new Object() {
 
 			@Subscribe
-			public void onResponse(SingleNodeResponse response) {
+			public void onResponse(Response response) {
 
 				if (responseMatchesRequest(response.getHeader(), request.getHeader())) {
 					response.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(nodeUrn -> {
@@ -92,9 +92,11 @@ public class RequestHelper {
 		}
 	}
 
-	private boolean responseMatchesRequest(RequestResponseHeader responseHeader, RequestResponseHeader requestHeader) {
-		return responseHeader.getRequestId() == requestHeader.getRequestId() &&
-				requestHeader.getReservationId().equals(responseHeader.getReservationId());
+	private boolean responseMatchesRequest(Header responseHeader, Header requestHeader) {
+		return responseHeader.getCorrelationId() == requestHeader.getCorrelationId() &&
+				requestHeader.hasSerializedReservationKey() &&
+				responseHeader.hasSerializedReservationKey() &&
+				requestHeader.getSerializedReservationKey().equals(responseHeader.getSerializedReservationKey());
 	}
 
 }

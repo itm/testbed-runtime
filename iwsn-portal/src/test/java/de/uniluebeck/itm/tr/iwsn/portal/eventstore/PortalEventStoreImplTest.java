@@ -1,6 +1,10 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
 import de.uniluebeck.itm.eventstore.EventStore;
+import de.uniluebeck.itm.tr.common.IncrementalIdProvider;
+import de.uniluebeck.itm.tr.common.UnixTimestampProvider;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
@@ -14,25 +18,24 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PortalEventStoreImplTest {
 
+    private static final MessageFactory MESSAGE_FACTORY = new MessageFactoryImpl(new IncrementalIdProvider(), new UnixTimestampProvider());
+
     private static final String SERIALIZED_KEY = "BLABLABLA";
 
-    private static final ReservationEndedEvent RESERVATION_ENDED_EVENT = ReservationEndedEvent
-            .newBuilder()
-            .setSerializedKey(SERIALIZED_KEY)
-            .setTimestamp(DateTime.now().getMillis())
-            .build();
+    private static final ReservationEndedEvent RESERVATION_ENDED_EVENT = MESSAGE_FACTORY.reservationEndedEvent(
+            Optional.empty(), SERIALIZED_KEY
+    );
 
-    private static final ReservationStartedEvent RESERVATION_STARTED_EVENT = ReservationStartedEvent
-            .newBuilder()
-            .setSerializedKey(SERIALIZED_KEY)
-            .setTimestamp(DateTime.now().getMillis())
-            .build();
-
+    private static final ReservationStartedEvent RESERVATION_STARTED_EVENT = MESSAGE_FACTORY.reservationStartedEvent(
+            Optional.empty(), SERIALIZED_KEY
+    );
 
     @Mock
     private ReservationEventStoreFactory reservationEventStoreFactory;
@@ -59,7 +62,6 @@ public class PortalEventStoreImplTest {
     private EventStoreAdminService eventStoreAdminService;
 
     private PortalEventStoreImpl store;
-
 
     @Before
     public void setUp() throws Exception {

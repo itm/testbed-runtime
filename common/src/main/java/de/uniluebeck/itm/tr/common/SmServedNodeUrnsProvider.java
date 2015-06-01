@@ -15,7 +15,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Sets.newHashSet;
-import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static eu.wisebed.wiseml.WiseMLHelper.getNodeUrns;
 
 public class SmServedNodeUrnsProvider implements ServedNodeUrnsProvider {
@@ -40,7 +39,7 @@ public class SmServedNodeUrnsProvider implements ServedNodeUrnsProvider {
 			return timeLimiter.callWithTimeout(new Callable<Set<NodeUrn>>() {
 				@Override
 				public Set<NodeUrn> call() throws Exception {
-					return newHashSet(transform(getNodeUrns(sessionManagement.getNetwork()), STRING_TO_NODE_URN));
+					return newHashSet(transform(getNodeUrns(sessionManagement.getNetwork()), NodeUrn::new));
 				}
 			}, 5, TimeUnit.SECONDS, true
 			);

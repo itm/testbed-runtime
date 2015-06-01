@@ -6,8 +6,6 @@ import com.google.inject.assistedinject.Assisted;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
 import eu.wisebed.api.v3.common.Message;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.controller.Notification;
@@ -15,8 +13,10 @@ import eu.wisebed.api.v3.controller.RequestStatus;
 import eu.wisebed.api.v3.controller.SingleNodeRequestStatus;
 import org.joda.time.DateTime;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static com.google.common.collect.Iterables.transform;
-import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 
 public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 
@@ -48,13 +48,13 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 	@Subscribe
 	public void onDevicesAttachedEvent(final DevicesAttachedEvent event) {
 		log.trace("DeliveryManagerAdapter.onDevicesAttachedEvent({})", event);
-		nodesAttached(new DateTime(event.getTimestamp()), transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
+		nodesAttached(new DateTime(event.getHeader().getTimestamp()), transform(event.getHeader().getNodeUrnsList(), NodeUrn::new));
 	}
 
 	@Subscribe
 	public void onDevicesDetachedEvent(final DevicesDetachedEvent event) {
 		log.trace("DeliveryManagerAdapter.onDevicesDetachedEvent({})", event);
-		nodesDetached(new DateTime(event.getTimestamp()), transform(event.getNodeUrnsList(), STRING_TO_NODE_URN));
+		nodesDetached(new DateTime(event.getHeader().getTimestamp()), transform(event.getHeader().getNodeUrnsList(), NodeUrn::new));
 	}
 
 	@Subscribe
@@ -64,13 +64,14 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 	}
 
 	@Subscribe
-	public void onSingleNodeResponse(final SingleNodeResponse response) {
+	public void onSingleNodeResponse(final Response response) {
 		log.trace("DeliveryManagerAdapter.onSingleNodeResponse({})", response);
-		receiveStatus(convert(response));
+		convert(response);
+		receiveStatus();
 	}
 
 	@Subscribe
-	public void onSingleNodeProgress(final SingleNodeProgress progress) {
+	public void onSingleNodeProgress(final Progress progress) {
 		log.trace("DeliveryManagerAdapter.onSingleNodeProgress({})", progress);
 		receiveStatus(convert(progress));
 	}
@@ -78,7 +79,7 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 	@Subscribe
 	public void onReservationStartedEvent(final ReservationStartedEvent event) {
 		log.trace("DeliveryManagerAdapter.onReservationStartedEvent({})", event);
-		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+		if (!event.getHeader().getSerializedReservationKey().equals(reservation.getSerializedKey())) {
 			throw new RuntimeException("This should not be possible!");
 		}
 		reservationStarted(reservation.getInterval().getStart());
@@ -87,62 +88,78 @@ public class DeliveryManagerAdapter extends DeliveryManagerImpl {
 	@Subscribe
 	public void onReservationEndedEvent(final ReservationEndedEvent event) {
 		log.trace("DeliveryManagerAdapter.onReservationEndedEvent({})", event);
-		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+		if (!event.getHeader().getSerializedReservationKey().equals(reservation.getSerializedKey())) {
 			throw new RuntimeException("This should not be possible!");
 		}
 		reservationEnded(reservation.getInterval().getEnd());
 	}
 
-	private RequestStatus convert(final SingleNodeProgress progress) {
+	private List<RequestStatus> convert(final Progress progress) {
 
-		final SingleNodeRequestStatus status = new SingleNodeRequestStatus();
-		status.setNodeUrn(new NodeUrn(progress.getNodeUrn()));
-		status.setValue(progress.getProgressInPercent());
-		status.setCompleted(false);
-		status.setSuccess(false);
+		return progress.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).map(n -> {
 
-		final RequestStatus requestStatus = new RequestStatus();
-		requestStatus.setRequestId(progress.getRequestId());
-		requestStatus.getSingleNodeRequestStatus().add(status);
+			final SingleNodeRequestStatus status = new SingleNodeRequestStatus();
+			status.setNodeUrn(n);
+			status.setValue(progress.getProgressInPercent());
+			status.setCompleted(false);
+			status.setSuccess(false);
 
-		return requestStatus;
+			final RequestStatus requestStatus = new RequestStatus();
+			requestStatus.setRequestId(progress.getHeader().getCorrelationId());
+			requestStatus.getSingleNodeRequestStatus().add(status);
+
+			return requestStatus;
+
+		}).collect(Collectors.toList());
 	}
 
-	private RequestStatus convert(final SingleNodeResponse response) {
+	private List<RequestStatus> convert(final Response response) {
 
-		final SingleNodeRequestStatus status = new SingleNodeRequestStatus();
-		status.setNodeUrn(new NodeUrn(response.getNodeUrn()));
-		status.setValue(response.getStatusCode());
-		status.setCompleted(true);
-		status.setSuccess(!response.hasErrorMessage());
-		if (response.hasErrorMessage()) {
-			status.setMsg(response.getErrorMessage());
-		}
+		return response.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).map(n -> {
 
-		final RequestStatus requestStatus = new RequestStatus();
-		requestStatus.setRequestId(response.getRequestId());
-		requestStatus.getSingleNodeRequestStatus().add(status);
+			final SingleNodeRequestStatus status = new SingleNodeRequestStatus();
+			status.setNodeUrn(n);
+			status.setValue(response.getStatusCode());
+			status.setCompleted(true);
+			status.setSuccess(!response.hasErrorMessage());
+			if (response.hasErrorMessage()) {
+				status.setMsg(response.getErrorMessage());
+			}
 
-		return requestStatus;
+			final RequestStatus requestStatus = new RequestStatus();
+			requestStatus.setRequestId(response.getHeader().getCorrelationId());
+			requestStatus.getSingleNodeRequestStatus().add(status);
+
+			return requestStatus;
+
+		}).collect(Collectors.toList());
 	}
 
-	private Notification convert(final NotificationEvent event) {
+	private List<Notification> convert(final NotificationEvent event) {
 
-		final Notification notification = new Notification();
-		notification.setNodeUrn(new NodeUrn(event.getNodeUrn()));
-		notification.setTimestamp(new DateTime(event.getTimestamp()));
-		notification.setMsg(event.getMessage());
+		return event.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).map(n -> {
 
-		return notification;
+			final Notification notification = new Notification();
+			notification.setNodeUrn(n);
+			notification.setTimestamp(new DateTime(event.getHeader().getTimestamp()));
+			notification.setMsg(event.getMessage());
+
+			return notification;
+
+		}).collect(Collectors.toList());
 	}
 
-	private Message convert(final UpstreamMessageEvent event) {
+	private List<Message> convert(final UpstreamMessageEvent event) {
 
-		final Message msg = new Message();
-		msg.setSourceNodeUrn(new NodeUrn(event.getSourceNodeUrn()));
-		msg.setTimestamp(new DateTime(event.getTimestamp()));
-		msg.setBinaryData(event.getMessageBytes().toByteArray());
+		return event.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).map(n -> {
 
-		return msg;
+			final Message msg = new Message();
+			msg.setSourceNodeUrn(n);
+			msg.setTimestamp(new DateTime(event.getHeader().getTimestamp()));
+			msg.setBinaryData(event.getMessageBytes().toByteArray());
+
+			return msg;
+
+		}).collect(Collectors.toList());
 	}
 }

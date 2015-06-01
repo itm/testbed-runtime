@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.federator.iwsn;
 
+import com.google.common.base.Function;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
@@ -18,7 +19,6 @@ import java.util.Map;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static de.uniluebeck.itm.tr.common.NodeUrnHelper.STRING_TO_NODE_URN;
 import static de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3.Converters.convertToSOAP;
 
 public class FederatedReservationEventBusAdapter extends AbstractService {
@@ -82,7 +82,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 
 				case ARE_NODES_ALIVE:
 					nodeUrns = newArrayList(
-							transform(request.getAreNodesAliveRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
+							transform(request.getAreNodesAliveRequest().getNodeUrnsList(), (Function<String, NodeUrn>) NodeUrn::new)
 					);
 					reservation.getWsnFederatorService().areNodesAlive(requestId, nodeUrns);
 					break;
@@ -93,7 +93,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 
 				case DISABLE_NODES:
 					nodeUrns = newArrayList(
-							transform(request.getDisableNodesRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
+							transform(request.getDisableNodesRequest().getNodeUrnsList(), (Function<String, NodeUrn>) NodeUrn::new)
 					);
 					reservation.getWsnFederatorService().disableNodes(requestId, nodeUrns);
 					break;
@@ -126,7 +126,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 
 				case ENABLE_NODES:
 					nodeUrns = newArrayList(
-							transform(request.getEnableNodesRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
+							transform(request.getEnableNodesRequest().getNodeUrnsList(), (Function<String, NodeUrn>) NodeUrn::new)
 					);
 					reservation.getWsnFederatorService().enableNodes(requestId, nodeUrns);
 					break;
@@ -163,7 +163,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 				case FLASH_IMAGES:
 					final byte[] image = request.getFlashImagesRequest().getImage().toByteArray();
 					nodeUrns = newArrayList(
-							transform(request.getFlashImagesRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
+							transform(request.getFlashImagesRequest().getNodeUrnsList(), (Function<String, NodeUrn>) NodeUrn::new)
 					);
 					final FlashProgramsConfiguration configuration = new FlashProgramsConfiguration()
 							.withNodeUrns(nodeUrns)
@@ -174,7 +174,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 
 				case GET_CHANNEL_PIPELINES:
 					nodeUrns = newArrayList(
-							transform(request.getGetChannelPipelinesRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
+							transform(request.getGetChannelPipelinesRequest().getNodeUrnsList(), (Function<String, NodeUrn>) NodeUrn::new)
 					);
 					final List<ChannelPipelinesMap> pipelines =
 							reservation.getWsnFederatorService().getChannelPipelines(nodeUrns);
@@ -189,7 +189,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 
 				case RESET_NODES:
 					nodeUrns = newArrayList(
-							transform(request.getResetNodesRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
+							transform(request.getResetNodesRequest().getNodeUrnsList(), (Function<String, NodeUrn>) NodeUrn::new)
 					);
 					reservation.getWsnFederatorService().resetNodes(requestId, nodeUrns);
 					break;
@@ -197,8 +197,8 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 				case SEND_DOWNSTREAM_MESSAGES:
 					nodeUrns = newArrayList(transform(
 							request.getSendDownstreamMessagesRequest().getTargetNodeUrnsList(),
-							STRING_TO_NODE_URN
-					)
+									(Function<String, NodeUrn>) NodeUrn::new
+							)
 					);
 					reservation.getWsnFederatorService().send(requestId, nodeUrns,
 							request.getSendDownstreamMessagesRequest().getMessageBytes().toByteArray()
@@ -207,7 +207,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 
 				case SET_CHANNEL_PIPELINES:
 					nodeUrns = newArrayList(
-							transform(request.getSetChannelPipelinesRequest().getNodeUrnsList(), STRING_TO_NODE_URN)
+							transform(request.getSetChannelPipelinesRequest().getNodeUrnsList(), (Function<String, NodeUrn>) NodeUrn::new)
 					);
 					reservation.getWsnFederatorService().setChannelPipeline(
 							requestId,

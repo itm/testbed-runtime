@@ -15,7 +15,7 @@ public class FederatorPortalEventDispatcherImpl extends PortalEventDispatcherImp
 
 
     public FederatorPortalEventDispatcherImpl(PortalEventBus portalEventBus, ReservationManager reservationManager, PortalEventStore eventStore) {
-        super(portalEventBus, reservationManager, eventStore);
+        super(portalEventBus, reservationManager, eventStore, messageFactory);
     }
 
     @Subscribe

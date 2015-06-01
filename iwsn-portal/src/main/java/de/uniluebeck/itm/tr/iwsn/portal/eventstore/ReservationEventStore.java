@@ -7,8 +7,7 @@ import de.uniluebeck.itm.eventstore.EventStore;
 
 import java.io.IOException;
 
-public interface
-        ReservationEventStore extends EventStore, Service {
+public interface ReservationEventStore extends EventStore, Service {
 
     /**
      * Returns all events belonging to the associated reservation. If the operation has not yet started the iterator
@@ -18,7 +17,7 @@ public interface
      * @return an iterator over the contents of the ReservationEventStore
      * @throws java.io.IOException if the underlying persistence layer is broken
      */
-    public CloseableIterator<EventContainer> getEvents() throws IOException;
+    CloseableIterator<EventContainer> getEvents() throws IOException;
 
     /**
      * Returns all events of the associated reservation that fall within the given time span between {@code startTime}
@@ -31,5 +30,5 @@ public interface
      * @return an iterator over the contents of the ReservationEventStore between startTime and endTime
      * @throws IOException if the underlying persistence layer is broken
      */
-    public CloseableIterator<EventContainer> getEventsBetween(long startTime, long endTime) throws IOException;
+    CloseableIterator<EventContainer> getEventsBetween(long startTime, long endTime) throws IOException;
 }

@@ -1,9 +1,13 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.common.base.Joiner;
+import de.uniluebeck.itm.tr.common.IncrementalIdProvider;
+import de.uniluebeck.itm.tr.common.UnixTimestampProvider;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.wsn.drivers.core.MacAddress;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -23,6 +27,10 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceManagerImplTest {
+
+	private static final MessageFactory MESSAGE_FACTORY = new MessageFactoryImpl(
+			new IncrementalIdProvider(), new UnixTimestampProvider()
+	);
 
     private static final NodeUrn NODE_URN_1 = new NodeUrn("urn:unit:test:0x1");
     private static final NodeUrn NODE_URN_2 = new NodeUrn("urn:unit:test:0x2");
@@ -84,7 +92,8 @@ public class DeviceManagerImplTest {
                 deviceAdapterRegistry,
                 deviceDBService,
                 deviceFoundEvents,
-                mf);
+                MESSAGE_FACTORY
+        );
     }
 
     @Test

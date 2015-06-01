@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.portal.pipeline;
+package de.uniluebeck.itm.tr.iwsn.common;
 
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.messages.MessageHeaderPair;
@@ -36,7 +36,7 @@ public class MessageUnwrapper extends OneToOneDecoder {
 		final Message msg = (Message) obj;
 
 		if (msg.getType() == MessageType.KEEP_ALIVE || msg.getType() == MessageType.KEEP_ALIVE_ACK) {
-			// handled by de.uniluebeck.itm.tr.iwsn.portal.pipeline.KeepAliveHandler
+			// handled by de.uniluebeck.itm.tr.iwsn.common.KeepAliveHandler
 			throw new IllegalArgumentException("Keep alive message should have been handled before!");
 		}
 

@@ -7,7 +7,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.persist.Transactional;
 import de.uniluebeck.itm.tr.common.EventBusService;
-import de.uniluebeck.itm.tr.common.NodeUrnHelper;
 import de.uniluebeck.itm.tr.devicedb.entity.DeviceConfigEntity;
 import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -67,7 +66,7 @@ public class DeviceDBJpa extends AbstractService implements
 		log.trace("DeviceDBJpa.getConfigsByNodeUrns({})", nodeUrns);
 		checkState(isRunning());
 
-		final List<String> nodeUrnStrings = newArrayList(transform(nodeUrns, NodeUrnHelper.NODE_URN_TO_STRING));
+		final List<String> nodeUrnStrings = newArrayList(transform(nodeUrns, NodeUrn::toString));
 		final List<DeviceConfigEntity> entities = entityManager.get()
 				.createQuery("SELECT d FROM DeviceConfig d WHERE d.nodeUrn IN (:urns)", DeviceConfigEntity.class)
 				.setParameter("urns", nodeUrnStrings).getResultList();

@@ -1,4 +1,4 @@
-package de.uniluebeck.itm.tr.iwsn.portal.pipeline;
+package de.uniluebeck.itm.tr.iwsn.common;
 
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.messages.MessageType;

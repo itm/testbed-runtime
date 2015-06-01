@@ -228,6 +228,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 			return false;
 		}
 	};
+
 	@Nullable
 	protected ScheduledFuture<?> tryToConnectToDetectedButUnconnectedDevicesSchedule;
 
@@ -326,9 +327,9 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 	@Subscribe
 	public void onDeviceConfigDeletedEvent(final DeviceConfigDeletedEvent deletedEvent) {
 		log.trace("DeviceManagerImpl.onDeviceConfigDeletedEvent({})", deletedEvent);
-		deletedEvent.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(nodeUrn -> {
-			disconnectAndScheduleReconnect(nodeUrn, false);
-		});
+		deletedEvent.getHeader().getNodeUrnsList().stream()
+				.map(NodeUrn::new)
+				.forEach(nodeUrn -> disconnectAndScheduleReconnect(nodeUrn, false));
 	}
 
 	@Subscribe
@@ -770,7 +771,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 		@Override
 		public void onNotification(final DeviceAdapter deviceAdapter, final NodeUrn nodeUrn,
 								   final String notification) {
-			gatewayEventBus.post(mf.notificationEvent(Optional.of(nodeUrn), Optional.empty(), notification));
+			gatewayEventBus.post(mf.notificationEvent(Optional.of(newArrayList(nodeUrn)), Optional.empty(), notification));
 		}
 	}
 

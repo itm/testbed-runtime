@@ -30,10 +30,7 @@ import de.uniluebeck.itm.servicepublisher.ServicePublisher;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherService;
 import de.uniluebeck.itm.tr.common.EndpointManager;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
-import de.uniluebeck.itm.tr.iwsn.messages.NotificationEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import eu.wisebed.api.v3.common.Message;
@@ -54,8 +51,12 @@ import javax.xml.ws.RequestWrapper;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 @WebService(
 		name = "Controller",
@@ -78,16 +79,16 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 	private final PortalEventBus portalEventBus;
 
-	private final EndpointManager endpointManager;
+	private final MessageFactory messageFactory;
 
 	private ServicePublisherService jaxWsService;
 
 	@Inject
 	public FederatorControllerImpl(final ServicePublisher servicePublisher,
-								   final IWSNFederatorServiceConfig config,
 								   final SecureIdGenerator secureIdGenerator,
 								   final PortalEventBus portalEventBus,
 								   final EndpointManager endpointManager,
+								   final MessageFactory messageFactory,
 								   @Assisted final FederatedReservation reservation,
 								   @Assisted final FederatedEndpoints<WSN> wsnFederatedEndpoints) {
 
@@ -95,7 +96,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		this.servicePublisher = checkNotNull(servicePublisher);
 		this.wsnFederatedEndpoints = checkNotNull(wsnFederatedEndpoints);
 		this.portalEventBus = checkNotNull(portalEventBus);
-		this.endpointManager = checkNotNull(endpointManager);
+		this.messageFactory = checkNotNull(messageFactory);
 
 		String uriString;
 		uriString = endpointManager.getWsnEndpointUriBase().toString();
@@ -185,7 +186,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		portalEventBus.post(scope(newDevicesAttachedEvent(timestamp.getMillis(), nodeUrns)));
+		portalEventBus.post(scope(messageFactory.devicesAttachedEvent(of(timestamp.getMillis()), nodeUrns)));
 	}
 
 	@Override
@@ -199,7 +200,7 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		portalEventBus.post(scope(newDevicesDetachedEvent(timestamp.getMillis(), nodeUrns)));
+		portalEventBus.post(scope(messageFactory.devicesDetachedEvent(of(timestamp.getMillis()), nodeUrns)));
 	}
 
 	@Override
@@ -210,13 +211,10 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		final ReservationStartedEvent event = ReservationStartedEvent
-				.newBuilder()
-				.setSerializedKey(reservation.getSerializedKey())
-                .setTimestamp(timestamp.getMillis())
-				.build();
-
-		portalEventBus.post(scope(event));
+		portalEventBus.post(scope(messageFactory.reservationStartedEvent(
+				of(timestamp.getMillis()),
+				reservation.getSerializedKey()
+		)));
 	}
 
 	@Override
@@ -227,13 +225,10 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		// this call comes from a federated testbed (through the WSN federator controller) and results in posting an
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
-		final ReservationEndedEvent event = ReservationEndedEvent
-				.newBuilder()
-				.setSerializedKey(reservation.getSerializedKey())
-                .setTimestamp(timestamp.getMillis())
-				.build();
-
-		portalEventBus.post(scope(event));
+		portalEventBus.post(scope(messageFactory.reservationEndedEvent(
+				of(timestamp.getMillis()),
+				reservation.getSerializedKey()
+		)));
 	}
 
 	@Override
@@ -249,12 +244,11 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
 		for (Message msg : messages) {
-			final UpstreamMessageEvent event = newUpstreamMessageEvent(
+			portalEventBus.post(scope(messageFactory.upstreamMessageEvent(
+					of(msg.getTimestamp().getMillis()),
 					msg.getSourceNodeUrn(),
-					msg.getBinaryData(),
-					msg.getTimestamp()
-			);
-			portalEventBus.post(scope(event));
+					msg.getBinaryData()
+			)));
 		}
 	}
 
@@ -268,12 +262,11 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 		// event to the federators internal event bus which is then consumed by e.g., the REST API
 
 		for (Notification notification : notifications) {
-			final NotificationEvent event = newNotificationEvent(
-					notification.getNodeUrn(),
-					notification.getTimestamp().getMillis(),
+			portalEventBus.post(scope(messageFactory.notificationEvent(
+					of(newArrayList(notification.getNodeUrn())),
+					of(notification.getTimestamp().getMillis()),
 					notification.getMsg()
-			);
-			portalEventBus.post(scope(event));
+			)));
 		}
 	}
 
@@ -295,8 +288,8 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 				final String msg = singleNodeRequestStatus.getMsg();
 
 				final Object event = singleNodeRequestStatus.isCompleted() ?
-						newSingleNodeResponse(reservationId, requestId, nodeUrn, value, msg) :
-						newSingleNodeProgress(reservationId, requestId, nodeUrn, value);
+						messageFactory.response(of(reservationId), empty(), requestId, newArrayList(nodeUrn), value, of(msg)) :
+						messageFactory.progress(of(reservationId), empty(), requestId, newArrayList(nodeUrn), value);
 
 				portalEventBus.post(scope(event));
 			}

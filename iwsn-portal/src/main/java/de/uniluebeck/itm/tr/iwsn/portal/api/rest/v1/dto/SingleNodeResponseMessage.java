@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto;
 
+import de.uniluebeck.itm.tr.iwsn.messages.Response;
 import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
 import org.joda.time.DateTime;
 
@@ -30,10 +31,10 @@ public class SingleNodeResponseMessage {
 	@XmlElement(required = false)
 	public String errorMessage;
 
-	public SingleNodeResponseMessage(final SingleNodeResponse response, final DateTime timestamp) {
+	public SingleNodeResponseMessage(final Response response, final DateTime timestamp) {
 		this.timestamp = timestamp;
-		this.requestId = response.getRequestId();
-		this.nodeUrn = response.getNodeUrn();
+		this.requestId = response.getHeader().getCorrelationId();
+		this.nodeUrn = response.getHeader().get;
 		this.response = response.hasResponse() ? new String(response.getResponse().toByteArray()) : null;
 		this.statusCode = response.getStatusCode();
 		this.errorMessage = response.getErrorMessage();

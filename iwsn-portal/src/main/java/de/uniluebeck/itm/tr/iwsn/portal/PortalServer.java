@@ -96,7 +96,9 @@ public class PortalServer extends AbstractService {
                         final NodeStatusTracker nodeStatusTracker,
                         final EndpointManager endpointManager,
                         final CommonConfig commonConfig,
-                        final PortalEventDispatcher portalEventDispatcher, final PortalServerConfig portalServerConfig) {
+                        final PortalEventDispatcher portalEventDispatcher,
+                        final PortalServerConfig portalServerConfig) {
+
         this.portalServerConfig = portalServerConfig;
         this.portalEventDispatcher = checkNotNull(portalEventDispatcher);
 

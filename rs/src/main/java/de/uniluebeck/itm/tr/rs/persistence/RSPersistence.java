@@ -23,7 +23,6 @@
 
 package de.uniluebeck.itm.tr.rs.persistence;
 
-import com.google.common.base.Optional;
 import eu.wisebed.api.v3.common.KeyValuePair;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.NodeUrnPrefix;
@@ -35,6 +34,7 @@ import org.joda.time.DateTime;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 
 public interface RSPersistence {
 

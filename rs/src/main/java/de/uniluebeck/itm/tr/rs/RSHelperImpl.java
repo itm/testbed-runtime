@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.rs;
 
 import com.google.inject.Inject;
-import de.uniluebeck.itm.tr.common.NodeUrnHelper;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.rs.PublicReservationData;
 import eu.wisebed.api.v3.rs.RS;
@@ -34,7 +33,7 @@ public class RSHelperImpl implements RSHelper {
 
 	@Override
 	public Set<NodeUrn> getNodes() {
-		return newHashSet(transform(getNodeUrns(sm.getNetwork()), NodeUrnHelper.STRING_TO_NODE_URN));
+		return newHashSet(transform(getNodeUrns(sm.getNetwork()), NodeUrn::new));
 	}
 
 	@Override
