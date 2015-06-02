@@ -34,6 +34,10 @@ class ReservationEventStoreImpl extends AbstractService implements ReservationEv
 
     @Override
     protected void doStart() {
+		// TODO subscribe to ReservationEventBus and store all events
+		// TODO remove non-timestamp store method
+		// TODO don't implement EventStore interface, just do the glue
+		fdlaskjdflkakjsldkfjalskdj
         log.trace("ReservationEventStoreImpl.doStart()");
         try {
             // if service is restarted while a reservation is running (or after the store has been created but the

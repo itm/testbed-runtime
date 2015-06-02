@@ -28,7 +28,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PortalEventDispatcherImplTest {
+public class ReservationEventDispatcherImplTest {
 
 	private static final NodeUrn GW1_N1 = new NodeUrn("urn:unit-test:gw1:0x0001");
 	private static final NodeUrn GW1_N2 = new NodeUrn("urn:unit-test:gw1:0x0002");
@@ -82,7 +82,7 @@ public class PortalEventDispatcherImplTest {
 	@Mock
 	private PortalEventStore portalEventStore;
 
-	private PortalEventDispatcherImpl portalEventDispatcher;
+	private ReservationEventDispatcherImpl portalEventDispatcher;
 
 	private MessageFactory mf;
 
@@ -103,7 +103,7 @@ public class PortalEventDispatcherImplTest {
 		when(reservationManager.getReservation(RESERVATION_ID)).thenReturn(reservation);
 		when(reservationManager.getReservations(any(DateTime.class))).thenReturn(newArrayList(reservation));
 
-		portalEventDispatcher = new PortalEventDispatcherImpl(portalEventBus, reservationManager, portalEventStore, messageFactory);
+		portalEventDispatcher = new ReservationEventDispatcherImpl(portalEventBus, reservationManager, portalEventStore, messageFactory);
 		mf = new MessageFactoryImpl(new IncrementalIdProvider(), new UnixTimestampProvider());
 	}
 

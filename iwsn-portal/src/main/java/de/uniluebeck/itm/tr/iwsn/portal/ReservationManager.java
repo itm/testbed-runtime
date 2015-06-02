@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.Service;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.api.v3.common.SecretReservationKey;
@@ -16,13 +17,9 @@ public interface ReservationManager extends Service {
 	 * Returns a Reservation instance belonging to the given {@code secretReservationKeys} or {@code null} if no
 	 * reservation with the given key is known.
 	 *
-	 * @param secretReservationKeys
-	 * 		the reservation key
-	 *
+	 * @param secretReservationKeys the reservation key
 	 * @return a {@link Reservation} instance
-	 *
-	 * @throws ReservationUnknownException
-	 * 		if the reservation key is unknown
+	 * @throws ReservationUnknownException if the reservation key is unknown
 	 */
 	Reservation getReservation(Set<SecretReservationKey> secretReservationKeys) throws ReservationUnknownException;
 
@@ -32,11 +29,8 @@ public interface ReservationManager extends Service {
 	 * if no reservation with the given key is known. The serialization format follows the one specified in {@link
 	 * de.uniluebeck.itm.tr.iwsn.portal.Reservation#getSerializedKey()}.
 	 *
-	 * @param jsonSerializedSecretReservationKeys
-	 * 		the serialized set of secret reservation keys
-	 *
+	 * @param jsonSerializedSecretReservationKeys the serialized set of secret reservation keys
 	 * @return a reservation instance of {@code null} if not found
-	 *
 	 * @throws ReservationUnknownException
 	 */
 	Reservation getReservation(String jsonSerializedSecretReservationKeys) throws ReservationUnknownException;
@@ -45,25 +39,33 @@ public interface ReservationManager extends Service {
 	 * Returns a reservation instance of a reservation that is or was active during {@code timestamp} and that
 	 * contains / contained {@code nodeUrn} as reserved node.
 	 *
-	 * @param nodeUrn
-	 * 		a node URN that must be part of the reservation
-	 * @param timestamp
-	 * 		an instant in time for at which the reservation is active
-	 *
+	 * @param nodeUrn   a node URN that must be part of the reservation
+	 * @param timestamp an instant in time for at which the reservation is active
 	 * @return a reservation instance or none if no reservation matching the criteria is found
 	 */
 	Optional<Reservation> getReservation(NodeUrn nodeUrn, DateTime timestamp);
 
+	/**
+	 * Returns a map in which keys are reservations mapping to all node URNs that are part of the reservation
+	 * (out of the given nodeUrns parameter) at timestamp point of time. For nodes in nodeUrns that are not reserved
+	 * at time timestamp there's no corresponding entry in the map.
+	 *
+	 * @param nodeUrns  the node URNs to restrict to
+	 * @param timestamp the timestamp at which the nodes should be reserved
+	 * @return a map
+	 */
+	Multimap<Reservation, NodeUrn> getReservationMapping(Iterable<NodeUrn> nodeUrns, DateTime timestamp);
 
-    /**
-     * Returns a list of reservation instance that are or were active during {@code timestamp}
-     * @param timestamp an instant in time for at which the reservations are active
-     *
-     * @return a list of reservation instances matching the criteria
-     */
-    List<Reservation> getReservations(DateTime timestamp);
+
+	/**
+	 * Returns a list of reservation instance that are or were active during {@code timestamp}
+	 *
+	 * @param timestamp an instant in time for at which the reservations are active
+	 * @return a list of reservation instances matching the criteria
+	 */
+	List<Reservation> getReservations(DateTime timestamp);
 
 
-    Collection<Reservation> getNonFinalizedReservations();
+	Collection<Reservation> getNonFinalizedReservations();
 
 }

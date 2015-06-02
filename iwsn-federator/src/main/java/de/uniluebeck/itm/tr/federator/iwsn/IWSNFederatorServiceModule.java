@@ -72,7 +72,7 @@ public class IWSNFederatorServiceModule extends AbstractModule {
 		bind(ReservationManager.class).to(FederatedReservationManager.class).in(Scopes.SINGLETON);
 		bind(IdProvider.class).to(IncrementalIdProvider.class).in(Scopes.SINGLETON);
 		bind(WisemlProvider.class).to(FederatorWiseMLProvider.class);
-        bind(PortalEventDispatcher.class).to(FederatorPortalEventDispatcherImpl.class).in(Scopes.SINGLETON);
+        bind(ReservationEventDispatcher.class).to(FederatorReservationEventDispatcherImpl.class).in(Scopes.SINGLETON);
 
 		install(new FactoryModuleBuilder()
 				.implement(FederatorController.class, FederatorControllerImpl.class)

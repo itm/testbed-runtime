@@ -33,6 +33,10 @@ class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
 
     @Override
     protected void doStart() {
+        // TODO subscribe to PortalEventBus and store all events that are not part of a reservation
+        // TODO remove non-timestamp store method
+        // TODO don't implement EventStore interface, just do the glue
+        dlkasjfölkajsödlkfjas
         log.trace("PortalEventStoreServiceImpl.doStart()");
         try {
             if (portalEventStoreHelper.eventStoreExistsForReservation(portalServerConfig.getPortalEventstoreName())) {

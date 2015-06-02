@@ -79,7 +79,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 					for (ChannelHandlerContext ctx : mapping.keySet()) {
 
 						gatewayNodeUrns = newHashSet(mapping.get(ctx));
-						gatewayPair = messageFactory.split(pair, gatewayNodeUrns);
+						gatewayPair = messageFactory.splitRequest(pair, gatewayNodeUrns);
 
 						messagesToBeSent.put(ctx, gatewayPair);
 						sendMessages(messagesToBeSent);

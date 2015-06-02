@@ -1,13 +1,9 @@
 package de.uniluebeck.itm.tr.iwsn.messages;
 
 import com.google.common.collect.Multimap;
-import com.google.protobuf.MessageLite;
 import eu.wisebed.api.v3.common.NodeUrn;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public interface MessageFactory {
 
@@ -135,9 +131,9 @@ public interface MessageFactory {
 	 * FlashImagesRequest for nodes A,B,C,D containing one flash image x for node A and a flash image y for nodes B,C,D.
 	 * <p/>
 	 * <ul>
-	 * <li>Calling split(requestMessage, {A}) will return a FlashImagesRequest to A with only one image x.</li>
-	 * <li>Calling split(requestMessage, {B,C}) will return a FlashImagesRequest to B,C with only one image y.</li>
-	 * <li>Calling split(requestMessage, {A,D}) will return a FlashImagesRequest to A,D with images x and y.</li>
+	 * <li>Calling splitRequest(requestMessage, {A}) will return a FlashImagesRequest to A with only one image x.</li>
+	 * <li>Calling splitRequest(requestMessage, {B,C}) will return a FlashImagesRequest to B,C with only one image y.</li>
+	 * <li>Calling splitRequest(requestMessage, {A,D}) will return a FlashImagesRequest to A,D with images x and y.</li>
 	 * </ul>
 	 * <p/>
 	 * This method can be used for all message types to constrain the message to a given subset of nodes. It adapts the
@@ -148,7 +144,23 @@ public interface MessageFactory {
 	 * @param subRequestNodeUrns the subset of nodes
 	 * @return a new (message, header) pair
 	 * @throws IllegalArgumentException if called with a (message, header) pair for which it does not "make sense" to
-	 *                                  split up, i.e. for non-downstream  messages and messages that are brodcasts
+	 *                                  splitRequest up, i.e. for non-downstream  messages and messages that are brodcasts
+	 *
+	 * @see MessageHeaderPair#isRequest(MessageType)
 	 */
-	MessageHeaderPair split(MessageHeaderPair pair, Set<NodeUrn> subRequestNodeUrns);
+	MessageHeaderPair splitRequest(MessageHeaderPair pair, Set<NodeUrn> subRequestNodeUrns);
+
+	/**
+	 * Scopes an event message to a subset of the original node set. Consider e.g., a DevicesAttachedEvent for 4 nodes
+	 * of which only 2 are part of an ongoing reservation. Calling scopeEvent with the 2 reserved nodes will result in
+	 * a new DevicesAttachedEvent for these two nodes. This method can be used for all event message types.
+	 *
+	 * @param pair             the original (message, header) pair to be scoped
+	 * @param subEventNodeUrns the subset of nodes to scope it to
+	 * @return a new (message, header) pair
+	 * @throws IllegalArgumentException if called with a non-event message type
+	 *
+	 * @see MessageHeaderPair#isScopeableEvent(MessageType)
+	 */
+	MessageHeaderPair scopeEvent(MessageHeaderPair pair, Collection<NodeUrn> subEventNodeUrns);
 }

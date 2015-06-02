@@ -1,6 +1,8 @@
 package de.uniluebeck.itm.tr.iwsn.portal;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -162,8 +164,8 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     private Reservation createAndInitReservation(final Set<SecretReservationKey> srkSet) {
 
         checkArgument(srkSet.size() == 1,
-                "There must be exactly one secret reservation key as this is a single URN-prefix implementation."
-        );
+				"There must be exactly one secret reservation key as this is a single URN-prefix implementation."
+		);
 
         final SecretReservationKey srk = srkSet.iterator().next();
         final ConfidentialReservationData crd;
@@ -245,7 +247,19 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
         }
     }
 
-    @Override
+	@Override
+	public Multimap<Reservation, NodeUrn> getReservationMapping(Iterable<NodeUrn> nodeUrns, DateTime timestamp) {
+		HashMultimap<Reservation, NodeUrn> map = HashMultimap.create();
+		nodeUrns.forEach(n -> {
+			Optional<Reservation> reservation = getReservation(n, timestamp);
+			if (reservation.isPresent()) {
+				map.put(reservation.get(), n);
+			}
+		});
+		return map;
+	}
+
+	@Override
     public List<Reservation> getReservations(DateTime timestamp) {
         try {
 

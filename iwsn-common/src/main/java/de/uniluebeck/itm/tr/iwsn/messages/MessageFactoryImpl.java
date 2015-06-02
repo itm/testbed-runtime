@@ -9,11 +9,7 @@ import eu.wisebed.api.v3.common.NodeUrn;
 import org.joda.time.DateTime;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -559,26 +555,19 @@ public class MessageFactoryImpl implements MessageFactory {
 	}
 
 	@Override
-	public MessageHeaderPair split(MessageHeaderPair pair, Set<NodeUrn> subRequestNodeUrns) {
-
-		Consumer<MessageType> throwUp = (MessageType type) -> {
-			throw new IllegalArgumentException("It does not make sense to split a message of type \"" + type + "\"!");
-		};
+	public MessageHeaderPair splitRequest(MessageHeaderPair pair, Set<NodeUrn> subRequestNodeUrns) {
 
 		final Header header = pair.header;
 		final MessageLite message = pair.message;
+
+		if (!MessageHeaderPair.isRequest(header.getType())) {
+			throw new IllegalArgumentException("Only request types are allowed, got \"" + header.getType() + "\".");
+		}
 
 		List<Link> originalLinks;
 		List<Link> subRequestLinks;
 
 		switch (header.getType()) {
-
-			case KEEP_ALIVE:
-				throwUp.accept(KEEP_ALIVE);
-				break;
-			case KEEP_ALIVE_ACK:
-				throwUp.accept(KEEP_ALIVE_ACK);
-				break;
 
 			case REQUEST_ARE_NODES_ALIVE:
 				final AreNodesAliveRequest areNodesAliveRequest = areNodesAliveRequestBuilder(
@@ -719,67 +708,37 @@ public class MessageFactoryImpl implements MessageFactory {
 						((SetChannelPipelinesRequest) message).getChannelHandlerConfigurationsList()
 				).build();
 				return new MessageHeaderPair(setChannelPipelinesRequest.getHeader(), setChannelPipelinesRequest);
+		}
 
-			case PROGRESS:
-				throwUp.accept(PROGRESS);
-				break;
-			case RESPONSE:
-				throwUp.accept(RESPONSE);
-				break;
-			case RESPONSE_GET_CHANNELPIPELINES:
-				throwUp.accept(RESPONSE_GET_CHANNELPIPELINES);
-				break;
-			case EVENT_UPSTREAM_MESSAGE:
-				throwUp.accept(EVENT_UPSTREAM_MESSAGE);
-				break;
+		throw new IllegalArgumentException("Unknown message type \"" + header.getType() + "\"!");
+	}
+
+	@Override
+	public MessageHeaderPair scopeEvent(MessageHeaderPair pair, Collection<NodeUrn> subEventNodeUrns) {
+
+		final Header header = pair.header;
+		final MessageLite message = pair.message;
+
+		if (!MessageHeaderPair.isScopeableEvent(header.getType())) {
+			throw new IllegalArgumentException("Only scopeable event types are allowed, got \"" + header.getType());
+		}
+
+
+		switch (header.getType()) {
 			case EVENT_DEVICES_ATTACHED:
-				throwUp.accept(EVENT_DEVICES_ATTACHED);
-				break;
+				return MessageHeaderPair.fromUnwrapped(
+						devicesAttachedEventBuilder(of(pair.header.getTimestamp()), subEventNodeUrns)
+				);
 			case EVENT_DEVICES_DETACHED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_GATEWAY_CONNECTED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_GATEWAY_DISCONNECTED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
+				return MessageHeaderPair.fromUnwrapped(
+						devicesDetachedEvent(of(pair.header.getTimestamp()), subEventNodeUrns)
+				);
 			case EVENT_NOTIFICATION:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_RESERVATION_STARTED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_RESERVATION_ENDED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_RESERVATION_MADE:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_RESERVATION_CANCELLED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_RESERVATION_OPENED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_RESERVATION_CLOSED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_RESERVATION_FINALIZED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_DEVICE_CONFIG_CREATED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_DEVICE_CONFIG_UPDATED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_DEVICE_CONFIG_DELETED:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
-			case EVENT_ACK:
-				throwUp.accept(EVENT_DEVICES_DETACHED);
-				break;
+				return MessageHeaderPair.fromUnwrapped(notificationEvent(
+						of(subEventNodeUrns),
+						of(header.getTimestamp()),
+						((NotificationEvent) message).getMessage()
+				));
 		}
 
 		throw new IllegalArgumentException("Unknown message type \"" + header.getType() + "\"!");

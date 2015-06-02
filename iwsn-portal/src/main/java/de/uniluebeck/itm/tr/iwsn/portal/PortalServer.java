@@ -75,7 +75,7 @@ public class PortalServer extends AbstractService {
     private final EndpointManager endpointManager;
 
     private final CommonConfig commonConfig;
-    private final PortalEventDispatcher portalEventDispatcher;
+    private final ReservationEventDispatcher reservationEventDispatcher;
     private final PortalServerConfig portalServerConfig;
 
     @Inject
@@ -96,11 +96,11 @@ public class PortalServer extends AbstractService {
                         final NodeStatusTracker nodeStatusTracker,
                         final EndpointManager endpointManager,
                         final CommonConfig commonConfig,
-                        final PortalEventDispatcher portalEventDispatcher,
+                        final ReservationEventDispatcher reservationEventDispatcher,
                         final PortalServerConfig portalServerConfig) {
 
         this.portalServerConfig = portalServerConfig;
-        this.portalEventDispatcher = checkNotNull(portalEventDispatcher);
+        this.reservationEventDispatcher = checkNotNull(reservationEventDispatcher);
 
         this.schedulerService = checkNotNull(schedulerService);
         this.servicePublisher = checkNotNull(servicePublisher);
@@ -227,7 +227,7 @@ public class PortalServer extends AbstractService {
             if (portalServerConfig.isPortalEventStoreEnabled()) {
                 portalEventStoreService.startAsync().awaitRunning();
             }
-            portalEventDispatcher.startAsync().awaitRunning();
+            reservationEventDispatcher.startAsync().awaitRunning();
             reservationManager.startAsync().awaitRunning();
             nodeStatusTracker.startAsync().awaitRunning();
 
@@ -263,7 +263,7 @@ public class PortalServer extends AbstractService {
             // internal components
             nodeStatusTracker.stopAsync().awaitTerminated();
             reservationManager.stopAsync().awaitTerminated();
-            portalEventDispatcher.stopAsync().awaitTerminated();
+            reservationEventDispatcher.stopAsync().awaitTerminated();
             if (portalServerConfig.isPortalEventStoreEnabled()) {
                 portalEventStoreService.stopAsync().awaitTerminated();
             }
