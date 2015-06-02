@@ -56,6 +56,19 @@ public class PortalServerConfig {
     private boolean portalEventStoreEnabled;
 
     @PropConf(
+            usage = "If set to true ALL events will be persisted, even those belonging to reserved nodes. If " +
+                    "reservation event store is active enabling this setting would lead to redundant persistence " +
+                    "of events related to reserved nodes (once in portal, once in reservation event store).",
+            example = "true",
+            defaultValue = "false"
+    )
+    public static final String PORTAL_EVENTSTORE_PERSIST_RESERVED = "portal.eventstore.persist_reserved";
+
+    @Inject
+    @Named(PORTAL_EVENTSTORE_PERSIST_RESERVED)
+    private boolean portalEventStorePersistReserved;
+
+    @PropConf(
             usage = "Enables / disables persistence for events belonging reservations (reservation event store)",
             example = "true",
             defaultValue = "true"
@@ -105,6 +118,10 @@ public class PortalServerConfig {
 
     public boolean isReservationEventStoreEnabled() {
         return reservationEventStoreEnabled;
+    }
+
+    public boolean isPortalEventStorePersistReserved() {
+        return portalEventStorePersistReserved;
     }
 
     public Multimap<String, String> getConfigurationOptions() {

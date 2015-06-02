@@ -209,4 +209,8 @@ public class MessageWrapper extends OneToOneEncoder {
 
 		return WRAP_FUNCTION.apply(((MessageHeaderPair) msg).message);
 	}
+
+	public static Message wrap(MessageLite message) {
+		return WRAP_FUNCTION.apply(message);
+	}
 }

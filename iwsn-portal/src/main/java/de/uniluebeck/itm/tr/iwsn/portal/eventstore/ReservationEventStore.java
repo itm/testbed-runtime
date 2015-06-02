@@ -4,10 +4,12 @@ import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
 import de.uniluebeck.itm.eventstore.EventContainer;
 import de.uniluebeck.itm.eventstore.EventStore;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageHeaderPair;
+import sun.net.www.MessageHeader;
 
 import java.io.IOException;
 
-public interface ReservationEventStore extends EventStore, Service {
+public interface ReservationEventStore extends Service {
 
     /**
      * Returns all events belonging to the associated reservation. If the operation has not yet started the iterator
@@ -17,7 +19,7 @@ public interface ReservationEventStore extends EventStore, Service {
      * @return an iterator over the contents of the ReservationEventStore
      * @throws java.io.IOException if the underlying persistence layer is broken
      */
-    CloseableIterator<EventContainer> getEvents() throws IOException;
+    CloseableIterator<MessageHeaderPair> getEvents() throws IOException;
 
     /**
      * Returns all events of the associated reservation that fall within the given time span between {@code startTime}
@@ -30,5 +32,5 @@ public interface ReservationEventStore extends EventStore, Service {
      * @return an iterator over the contents of the ReservationEventStore between startTime and endTime
      * @throws IOException if the underlying persistence layer is broken
      */
-    CloseableIterator<EventContainer> getEventsBetween(long startTime, long endTime) throws IOException;
+    CloseableIterator<MessageHeaderPair> getEventsBetween(long startTime, long endTime) throws IOException;
 }

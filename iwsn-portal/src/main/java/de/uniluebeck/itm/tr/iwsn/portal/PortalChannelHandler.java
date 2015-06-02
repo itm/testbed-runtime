@@ -96,13 +96,15 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		final Set<NodeUrn> unconnectedNodeUrns = getUnconnectedNodeUrns(requestNodeUrns);
 
 		final Response response = messageFactory.response(
-				header.hasSerializedReservationKey() ? Optional.of(header.getSerializedReservationKey()) : Optional.empty(),
+				header.hasSerializedReservationKey() ?
+						Optional.of(header.getSerializedReservationKey()) :
+						Optional.empty(),
 				Optional.empty(),
-				header.getType(),
 				header.getCorrelationId(),
 				unconnectedNodeUrns,
 				statusCode,
-				Optional.of("Node is not connected")
+				Optional.of("Node is not connected"),
+				Optional.empty()
 		);
 
 		portalEventBus.post(response);

@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
 import de.uniluebeck.itm.eventstore.EventStore;
+import de.uniluebeck.itm.tr.iwsn.messages.Message;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
@@ -11,9 +12,8 @@ import java.security.InvalidParameterException;
  */
 public interface PortalEventStoreHelper {
 
-    EventStore createAndConfigureEventStore(final String serializedReservationKey)
+    EventStore<Message> createAndConfigureEventStore(final String serializedReservationKey)
             throws IOException, ClassNotFoundException;
-
 
     /**
      * Loads the event store for the given reservation key if existing or throws an exception otherwise.
@@ -24,7 +24,7 @@ public interface PortalEventStoreHelper {
      * so write operations will fail.
      * @throws InvalidParameterException if there isn't an event store for the provided serializedReservationKey
      */
-    EventStore loadEventStore(final String serializedReservationKey, final boolean readOnly)
+    EventStore<Message> loadEventStore(final String serializedReservationKey, final boolean readOnly)
             throws InvalidParameterException;
 
     /**

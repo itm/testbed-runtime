@@ -36,283 +36,284 @@ import static de.uniluebeck.itm.util.propconf.PropConfBuilder.printDocumentation
 
 public class PortalServer extends AbstractService {
 
-    static {
-        Logging.setLoggingDefaults(LogLevel.WARN);
-    }
+	private static final Logger log = LoggerFactory.getLogger(PortalServer.class);
 
-    private static final Logger log = LoggerFactory.getLogger(PortalServer.class);
+	static {
+		Logging.setLoggingDefaults(LogLevel.WARN);
+	}
 
-    private final DeviceDBRestService deviceDBRestService;
+	private final DeviceDBRestService deviceDBRestService;
 
-    private final PortalEventBus portalEventBus;
+	private final PortalEventBus portalEventBus;
 
-    private final ReservationManager reservationManager;
+	private final ReservationManager reservationManager;
 
-    private final SoapApiService soapApiService;
+	private final SoapApiService soapApiService;
 
-    private final ServicePublisher servicePublisher;
+	private final ServicePublisher servicePublisher;
 
-    private final RestApiService restApiService;
+	private final RestApiService restApiService;
 
-    private final RSService rsService;
+	private final RSService rsService;
 
-    private final SNAAService snaaService;
+	private final SNAAService snaaService;
 
-    private final DeviceDBService deviceDBService;
+	private final DeviceDBService deviceDBService;
 
-    private final WiseGuiService wiseGuiService;
+	private final WiseGuiService wiseGuiService;
 
-    private final PortalPluginService portalPluginService;
+	private final PortalPluginService portalPluginService;
 
-    private final SchedulerService schedulerService;
+	private final SchedulerService schedulerService;
 
-    private final PortalEventStore portalEventStoreService;
+	private final PortalEventStore portalEventStoreService;
 
-    private final UserRegistrationWebAppService userRegistrationWebAppService;
+	private final UserRegistrationWebAppService userRegistrationWebAppService;
 
-    private final NodeStatusTracker nodeStatusTracker;
+	private final NodeStatusTracker nodeStatusTracker;
 
-    private final EndpointManager endpointManager;
+	private final EndpointManager endpointManager;
 
-    private final CommonConfig commonConfig;
-    private final ReservationEventDispatcher reservationEventDispatcher;
-    private final PortalServerConfig portalServerConfig;
+	private final CommonConfig commonConfig;
 
-    @Inject
-    public PortalServer(final SchedulerService schedulerService,
-                        final ServicePublisher servicePublisher,
-                        final DeviceDBService deviceDBService,
-                        final RSService rsService,
-                        final SNAAService snaaService,
-                        final PortalEventBus portalEventBus,
-                        final ReservationManager reservationManager,
-                        final DeviceDBRestService deviceDBRestService,
-                        final SoapApiService soapApiService,
-                        final RestApiService restApiService,
-                        final WiseGuiService wiseGuiService,
-                        final PortalPluginService portalPluginService,
-                        final PortalEventStore portalEventStoreService,
-                        final UserRegistrationWebAppService userRegistrationWebAppService,
-                        final NodeStatusTracker nodeStatusTracker,
-                        final EndpointManager endpointManager,
-                        final CommonConfig commonConfig,
-                        final ReservationEventDispatcher reservationEventDispatcher,
-                        final PortalServerConfig portalServerConfig) {
+	private final ReservationEventDispatcher reservationEventDispatcher;
 
-        this.portalServerConfig = portalServerConfig;
-        this.reservationEventDispatcher = checkNotNull(reservationEventDispatcher);
+	private final PortalServerConfig portalServerConfig;
 
-        this.schedulerService = checkNotNull(schedulerService);
-        this.servicePublisher = checkNotNull(servicePublisher);
+	@Inject
+	public PortalServer(final SchedulerService schedulerService,
+						final ServicePublisher servicePublisher,
+						final DeviceDBService deviceDBService,
+						final RSService rsService,
+						final SNAAService snaaService,
+						final PortalEventBus portalEventBus,
+						final ReservationManager reservationManager,
+						final DeviceDBRestService deviceDBRestService,
+						final SoapApiService soapApiService,
+						final RestApiService restApiService,
+						final WiseGuiService wiseGuiService,
+						final PortalPluginService portalPluginService,
+						final PortalEventStore portalEventStoreService,
+						final UserRegistrationWebAppService userRegistrationWebAppService,
+						final NodeStatusTracker nodeStatusTracker,
+						final EndpointManager endpointManager,
+						final CommonConfig commonConfig,
+						final ReservationEventDispatcher reservationEventDispatcher,
+						final PortalServerConfig portalServerConfig) {
 
-        this.rsService = checkNotNull(rsService);
-        this.snaaService = checkNotNull(snaaService);
-        this.deviceDBService = checkNotNull(deviceDBService);
+		this.portalServerConfig = portalServerConfig;
+		this.reservationEventDispatcher = checkNotNull(reservationEventDispatcher);
 
-        this.portalEventBus = checkNotNull(portalEventBus);
-        this.portalEventStoreService = checkNotNull(portalEventStoreService);
-        this.reservationManager = checkNotNull(reservationManager);
+		this.schedulerService = checkNotNull(schedulerService);
+		this.servicePublisher = checkNotNull(servicePublisher);
 
-        this.deviceDBRestService = checkNotNull(deviceDBRestService);
-        this.soapApiService = checkNotNull(soapApiService);
-        this.restApiService = checkNotNull(restApiService);
-        this.wiseGuiService = checkNotNull(wiseGuiService);
-        this.userRegistrationWebAppService = checkNotNull(userRegistrationWebAppService);
-        this.nodeStatusTracker = checkNotNull(nodeStatusTracker);
+		this.rsService = checkNotNull(rsService);
+		this.snaaService = checkNotNull(snaaService);
+		this.deviceDBService = checkNotNull(deviceDBService);
 
-        this.portalPluginService = checkNotNull(portalPluginService);
+		this.portalEventBus = checkNotNull(portalEventBus);
+		this.portalEventStoreService = checkNotNull(portalEventStoreService);
+		this.reservationManager = checkNotNull(reservationManager);
 
-        this.endpointManager = checkNotNull(endpointManager);
-        this.commonConfig = checkNotNull(commonConfig);
-    }
+		this.deviceDBRestService = checkNotNull(deviceDBRestService);
+		this.soapApiService = checkNotNull(soapApiService);
+		this.restApiService = checkNotNull(restApiService);
+		this.wiseGuiService = checkNotNull(wiseGuiService);
+		this.userRegistrationWebAppService = checkNotNull(userRegistrationWebAppService);
+		this.nodeStatusTracker = checkNotNull(nodeStatusTracker);
 
-    public static void main(String[] args) {
+		this.portalPluginService = checkNotNull(portalPluginService);
 
-        Thread.currentThread().setName("Portal-Main");
+		this.endpointManager = checkNotNull(endpointManager);
+		this.commonConfig = checkNotNull(commonConfig);
+	}
 
-        final ConfigWithLoggingAndProperties config = setLogLevel(
-                parseOrExit(new ConfigWithLoggingAndProperties(), PortalServer.class, args),
-                "de.uniluebeck.itm"
-        );
+	public static void main(String[] args) {
 
-        if (config.helpConfig) {
-            printDocumentationAndExit(
-                    System.out,
-                    CommonConfig.class,
-                    RSServiceConfig.class,
-                    DeviceDBConfig.class,
-                    PortalServerConfig.class,
-                    SNAAServiceConfig.class,
-                    WiseGuiServiceConfig.class
-            );
-        }
+		Thread.currentThread().setName("Portal-Main");
 
-        if (config.config == null) {
-            printHelpAndExit(config, PortalServer.class);
-        }
+		final ConfigWithLoggingAndProperties config = setLogLevel(
+				parseOrExit(new ConfigWithLoggingAndProperties(), PortalServer.class, args),
+				"de.uniluebeck.itm"
+		);
 
-        final Injector confInjector = createInjector(
-                new PropConfModule(
-                        config.config,
-                        CommonConfig.class,
-                        RSServiceConfig.class,
-                        DeviceDBConfig.class,
-                        PortalServerConfig.class,
-                        SNAAServiceConfig.class,
-                        WiseGuiServiceConfig.class,
-                        WisemlProviderConfig.class,
-                        ExternalPluginServiceConfig.class
-                )
-        );
+		if (config.helpConfig) {
+			printDocumentationAndExit(
+					System.out,
+					CommonConfig.class,
+					RSServiceConfig.class,
+					DeviceDBConfig.class,
+					PortalServerConfig.class,
+					SNAAServiceConfig.class,
+					WiseGuiServiceConfig.class
+			);
+		}
 
-        final CommonConfig commonConfig = confInjector.getInstance(CommonConfig.class);
-        final RSServiceConfig rsServiceConfig = confInjector.getInstance(RSServiceConfig.class);
-        final DeviceDBConfig deviceDBConfig = confInjector.getInstance(DeviceDBConfig.class);
-        final PortalServerConfig portalServerConfig = confInjector.getInstance(PortalServerConfig.class);
-        final SNAAServiceConfig snaaServiceConfig = confInjector.getInstance(SNAAServiceConfig.class);
-        final WiseGuiServiceConfig wiseGuiServiceConfig = confInjector.getInstance(WiseGuiServiceConfig.class);
-        final WisemlProviderConfig wisemlProviderConfig = confInjector.getInstance(WisemlProviderConfig.class);
-        final ExternalPluginServiceConfig externalPluginServiceConfig =
-                confInjector.getInstance(ExternalPluginServiceConfig.class);
+		if (config.config == null) {
+			printHelpAndExit(config, PortalServer.class);
+		}
 
-        final PortalModule portalModule = new PortalModule(
-                commonConfig,
-                deviceDBConfig,
-                portalServerConfig,
-                rsServiceConfig,
-                snaaServiceConfig,
-                wiseGuiServiceConfig,
-                wisemlProviderConfig,
-                externalPluginServiceConfig
-        );
+		final Injector confInjector = createInjector(
+				new PropConfModule(
+						config.config,
+						CommonConfig.class,
+						RSServiceConfig.class,
+						DeviceDBConfig.class,
+						PortalServerConfig.class,
+						SNAAServiceConfig.class,
+						WiseGuiServiceConfig.class,
+						WisemlProviderConfig.class,
+						ExternalPluginServiceConfig.class
+				)
+		);
 
-        final Injector portalInjector = createInjector(portalModule);
-        final PortalServer portalServer = portalInjector.getInstance(PortalServer.class);
+		final CommonConfig commonConfig = confInjector.getInstance(CommonConfig.class);
+		final RSServiceConfig rsServiceConfig = confInjector.getInstance(RSServiceConfig.class);
+		final DeviceDBConfig deviceDBConfig = confInjector.getInstance(DeviceDBConfig.class);
+		final PortalServerConfig portalServerConfig = confInjector.getInstance(PortalServerConfig.class);
+		final SNAAServiceConfig snaaServiceConfig = confInjector.getInstance(SNAAServiceConfig.class);
+		final WiseGuiServiceConfig wiseGuiServiceConfig = confInjector.getInstance(WiseGuiServiceConfig.class);
+		final WisemlProviderConfig wisemlProviderConfig = confInjector.getInstance(WisemlProviderConfig.class);
+		final ExternalPluginServiceConfig externalPluginServiceConfig = confInjector.getInstance(ExternalPluginServiceConfig.class);
 
-        try {
-            portalServer.startAsync().awaitRunning();
-            portalServer.printEndpointInfo();
-        } catch (Exception e) {
-            log.error("Could not start iWSN portal: {}", e.getMessage(), e);
-            System.exit(1);
-        }
+		final PortalModule portalModule = new PortalModule(
+				commonConfig,
+				deviceDBConfig,
+				portalServerConfig,
+				rsServiceConfig,
+				snaaServiceConfig,
+				wiseGuiServiceConfig,
+				wisemlProviderConfig,
+				externalPluginServiceConfig
+		);
 
-        Runtime.getRuntime().addShutdownHook(new Thread("Portal-Shutdown") {
-                                                 @Override
-                                                 public void run() {
-                                                     log.info("Received KILL signal. Shutting down iWSN Portal...");
-                                                     portalServer.stopAsync().awaitTerminated();
-                                                     log.info("Over and out.");
-                                                 }
-                                             }
-        );
-    }
+		final Injector portalInjector = createInjector(portalModule);
+		final PortalServer portalServer = portalInjector.getInstance(PortalServer.class);
 
-    @Override
-    protected void doStart() {
-        try {
+		try {
+			portalServer.startAsync().awaitRunning();
+			portalServer.printEndpointInfo();
+		} catch (Exception e) {
+			log.error("Could not start iWSN portal: {}", e.getMessage(), e);
+			System.exit(1);
+		}
 
-            schedulerService.startAsync().awaitRunning();
+		Runtime.getRuntime().addShutdownHook(new Thread("Portal-Shutdown") {
+												 @Override
+												 public void run() {
+													 log.info("Received KILL signal. Shutting down iWSN Portal...");
+													 portalServer.stopAsync().awaitTerminated();
+													 log.info("Over and out.");
+												 }
+											 }
+		);
+	}
 
-            // the web server
-            servicePublisher.startAsync().awaitRunning();
+	@Override
+	protected void doStart() {
+		try {
 
-            // services that the portal depends on (either embedded or remote, depends on binding)
-            rsService.startAsync().awaitRunning();
-            snaaService.startAsync().awaitRunning();
-            deviceDBService.startAsync().awaitRunning();
+			schedulerService.startAsync().awaitRunning();
 
-            // internal components of the portal server
-            portalEventBus.startAsync().awaitRunning();
-            if (portalServerConfig.isPortalEventStoreEnabled()) {
-                portalEventStoreService.startAsync().awaitRunning();
-            }
-            reservationEventDispatcher.startAsync().awaitRunning();
-            reservationManager.startAsync().awaitRunning();
-            nodeStatusTracker.startAsync().awaitRunning();
+			// the web server
+			servicePublisher.startAsync().awaitRunning();
 
-            // services that the portal exposes to clients
-            deviceDBRestService.startAsync().awaitRunning();
-            soapApiService.startAsync().awaitRunning();
-            restApiService.startAsync().awaitRunning();
-            wiseGuiService.startAsync().awaitRunning();
-            userRegistrationWebAppService.startAsync().awaitRunning();
+			// services that the portal depends on (either embedded or remote, depends on binding)
+			rsService.startAsync().awaitRunning();
+			snaaService.startAsync().awaitRunning();
+			deviceDBService.startAsync().awaitRunning();
 
-            portalPluginService.startAsync().awaitRunning();
+			// internal components of the portal server
+			portalEventBus.startAsync().awaitRunning();
+			if (portalServerConfig.isPortalEventStoreEnabled()) {
+				portalEventStoreService.startAsync().awaitRunning();
+			}
+			reservationEventDispatcher.startAsync().awaitRunning();
+			reservationManager.startAsync().awaitRunning();
+			nodeStatusTracker.startAsync().awaitRunning();
 
-            notifyStarted();
+			// services that the portal exposes to clients
+			deviceDBRestService.startAsync().awaitRunning();
+			soapApiService.startAsync().awaitRunning();
+			restApiService.startAsync().awaitRunning();
+			wiseGuiService.startAsync().awaitRunning();
+			userRegistrationWebAppService.startAsync().awaitRunning();
 
-        } catch (Exception e) {
-            notifyFailed(e);
-        }
-    }
+			portalPluginService.startAsync().awaitRunning();
 
-    @Override
-    protected void doStop() {
-        try {
+			notifyStarted();
 
-            portalPluginService.stopAsync().awaitTerminated();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 
-            // services that the portal server exposes to clients
-            userRegistrationWebAppService.stopAsync().awaitTerminated();
-            wiseGuiService.stopAsync().awaitTerminated();
-            restApiService.stopAsync().awaitTerminated();
-            soapApiService.stopAsync().awaitTerminated();
-            deviceDBRestService.stopAsync().awaitTerminated();
+	@Override
+	protected void doStop() {
+		try {
 
-            // internal components
-            nodeStatusTracker.stopAsync().awaitTerminated();
-            reservationManager.stopAsync().awaitTerminated();
-            reservationEventDispatcher.stopAsync().awaitTerminated();
-            if (portalServerConfig.isPortalEventStoreEnabled()) {
-                portalEventStoreService.stopAsync().awaitTerminated();
-            }
-            portalEventBus.stopAsync().awaitTerminated();
+			portalPluginService.stopAsync().awaitTerminated();
 
-            // services that the portal depends on (either embedded or remote, depends on binding)
-            deviceDBService.stopAsync().awaitTerminated();
-            rsService.stopAsync().awaitTerminated();
-            snaaService.stopAsync().awaitTerminated();
+			// services that the portal server exposes to clients
+			userRegistrationWebAppService.stopAsync().awaitTerminated();
+			wiseGuiService.stopAsync().awaitTerminated();
+			restApiService.stopAsync().awaitTerminated();
+			soapApiService.stopAsync().awaitTerminated();
+			deviceDBRestService.stopAsync().awaitTerminated();
 
-            // the web server
-            servicePublisher.stopAsync().awaitTerminated();
+			// internal components
+			nodeStatusTracker.stopAsync().awaitTerminated();
+			reservationManager.stopAsync().awaitTerminated();
+			reservationEventDispatcher.stopAsync().awaitTerminated();
+			if (portalServerConfig.isPortalEventStoreEnabled()) {
+				portalEventStoreService.stopAsync().awaitTerminated();
+			}
+			portalEventBus.stopAsync().awaitTerminated();
 
-            schedulerService.stopAsync().awaitTerminated();
+			// services that the portal depends on (either embedded or remote, depends on binding)
+			deviceDBService.stopAsync().awaitTerminated();
+			rsService.stopAsync().awaitTerminated();
+			snaaService.stopAsync().awaitTerminated();
 
-            notifyStopped();
+			// the web server
+			servicePublisher.stopAsync().awaitTerminated();
 
-        } catch (Exception e) {
-            notifyFailed(e);
-        }
-    }
+			schedulerService.stopAsync().awaitTerminated();
 
-    private void printEndpointInfo() {
+			notifyStopped();
 
-        final String hostname = commonConfig.getHostname();
-        final int port = commonConfig.getPort();
-        final String baseUri = "http://" + hostname + ":" + port;
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 
-        log.info("------------------------------------");
-        log.info("TESTBED RUNTIME SUCCESSFULLY STARTED");
-        log.info("------------------------------------");
-        log.info("             SOAP API               ");
-        log.info("SNAA Endpoint URL:       {}", endpointManager.getSnaaEndpointUri());
-        log.info("RS   Endpoint URL:       {}", endpointManager.getRsEndpointUri());
-        log.info("SM   Endpoint URL:       {}", endpointManager.getSmEndpointUri());
-        log.info("------------------------------------");
-        log.info("             REST API               ");
-        log.info("REST API Base:           {}", baseUri + Constants.REST_API_V1.REST_API_CONTEXT_PATH_VALUE);
-        log.info("WebSocket API Base:      {}", "ws://" + hostname + ":" + port + Constants.REST_API_V1.WEBSOCKET_CONTEXT_PATH_VALUE);
-        log.info("DeviceDB REST API:       {}", baseUri + Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE);
-        log.info("DeviceDB Admin REST API: {}", baseUri + Constants.DEVICE_DB.DEVICEDB_REST_ADMIN_API_CONTEXT_PATH_VALUE);
-        log.info("------------------------------------");
-        log.info("             ADMIN UI               ");
-        log.info("DeviceDB:                {}", baseUri + Constants.DEVICE_DB.DEVICEDB_WEBAPP_CONTEXT_PATH_VALUE);
-        log.info("ShiroSNAA (if used):     {}", baseUri + Constants.SHIRO_SNAA.ADMIN_WEB_APP_CONTEXT_PATH_VALUE);
-        log.info("------------------------------------");
-        log.info("              USER UI               ");
-        log.info("WiseGui:                 {}", baseUri + Constants.WISEGUI.CONTEXT_PATH_VALUE);
-        log.info("User Registration:       {}", baseUri + Constants.USER_REG.WEB_APP_CONTEXT_PATH);
-        log.info("------------------------------------");
-    }
+	private void printEndpointInfo() {
+
+		final String hostname = commonConfig.getHostname();
+		final int port = commonConfig.getPort();
+		final String baseUri = "http://" + hostname + ":" + port;
+
+		log.info("------------------------------------");
+		log.info("TESTBED RUNTIME SUCCESSFULLY STARTED");
+		log.info("------------------------------------");
+		log.info("             SOAP API               ");
+		log.info("SNAA Endpoint URL:       {}", endpointManager.getSnaaEndpointUri());
+		log.info("RS   Endpoint URL:       {}", endpointManager.getRsEndpointUri());
+		log.info("SM   Endpoint URL:       {}", endpointManager.getSmEndpointUri());
+		log.info("------------------------------------");
+		log.info("             REST API               ");
+		log.info("REST API Base:           {}", baseUri + Constants.REST_API_V1.REST_API_CONTEXT_PATH_VALUE);
+		log.info("WebSocket API Base:      {}", "ws://" + hostname + ":" + port + Constants.REST_API_V1.WEBSOCKET_CONTEXT_PATH_VALUE);
+		log.info("DeviceDB REST API:       {}", baseUri + Constants.DEVICE_DB.DEVICEDB_REST_API_CONTEXT_PATH_VALUE);
+		log.info("DeviceDB Admin REST API: {}", baseUri + Constants.DEVICE_DB.DEVICEDB_REST_ADMIN_API_CONTEXT_PATH_VALUE);
+		log.info("------------------------------------");
+		log.info("             ADMIN UI               ");
+		log.info("DeviceDB:                {}", baseUri + Constants.DEVICE_DB.DEVICEDB_WEBAPP_CONTEXT_PATH_VALUE);
+		log.info("ShiroSNAA (if used):     {}", baseUri + Constants.SHIRO_SNAA.ADMIN_WEB_APP_CONTEXT_PATH_VALUE);
+		log.info("------------------------------------");
+		log.info("              USER UI               ");
+		log.info("WiseGui:                 {}", baseUri + Constants.WISEGUI.CONTEXT_PATH_VALUE);
+		log.info("User Registration:       {}", baseUri + Constants.USER_REG.WEB_APP_CONTEXT_PATH);
+		log.info("------------------------------------");
+	}
 }

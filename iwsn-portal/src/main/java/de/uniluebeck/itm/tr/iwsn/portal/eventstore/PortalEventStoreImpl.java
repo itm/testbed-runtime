@@ -1,150 +1,126 @@
 package de.uniluebeck.itm.tr.iwsn.portal.eventstore;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.eventstore.CloseableIterator;
-import de.uniluebeck.itm.eventstore.EventContainer;
 import de.uniluebeck.itm.eventstore.EventStore;
+import de.uniluebeck.itm.tr.iwsn.common.MessageWrapper;
+import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageHeaderPair;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
+import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.adminui.EventStoreAdminService;
+import eu.wisebed.api.v3.common.NodeUrn;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
+
+import static com.google.common.collect.Iterables.transform;
 
 class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
 
-    private static final Logger log = LoggerFactory.getLogger(PortalEventStoreImpl.class);
-    private final PortalEventStoreHelper portalEventStoreHelper;
-    private final PortalServerConfig portalServerConfig;
-    private final EventStoreAdminService eventStoreAdminService;
-    private EventStore eventStore;
+	private static final Logger log = LoggerFactory.getLogger(PortalEventStoreImpl.class);
 
+	private final PortalEventBus portalEventBus;
+	private final ReservationManager reservationManager;
+	private final PortalEventStoreHelper portalEventStoreHelper;
+	private final PortalServerConfig portalServerConfig;
+	private final EventStoreAdminService eventStoreAdminService;
 
-    @Inject
-    public PortalEventStoreImpl(final PortalEventStoreHelper portalEventStoreHelper,
-                                final PortalServerConfig portalServerConfig,
-                                final EventStoreAdminService eventStoreAdminService) {
-        this.portalEventStoreHelper = portalEventStoreHelper;
-        this.portalServerConfig = portalServerConfig;
-        this.eventStoreAdminService = eventStoreAdminService;
-    }
+	private EventStore<Message> eventStore;
 
-    @Override
-    protected void doStart() {
-        // TODO subscribe to PortalEventBus and store all events that are not part of a reservation
-        // TODO remove non-timestamp store method
-        // TODO don't implement EventStore interface, just do the glue
-        dlkasjfölkajsödlkfjas
-        log.trace("PortalEventStoreServiceImpl.doStart()");
-        try {
-            if (portalEventStoreHelper.eventStoreExistsForReservation(portalServerConfig.getPortalEventstoreName())) {
-                eventStore = portalEventStoreHelper.loadEventStore(portalServerConfig.getPortalEventstoreName(), false);
-            } else {
-                eventStore = portalEventStoreHelper.createAndConfigureEventStore(portalServerConfig.getPortalEventstoreName());
-            }
-            eventStoreAdminService.startAsync().awaitRunning();
-            notifyStarted();
-        } catch (Exception e) {
-            notifyFailed(e);
-        }
-    }
+	@Inject
+	public PortalEventStoreImpl(final PortalEventBus portalEventBus,
+								final ReservationManager reservationManager,
+								final PortalEventStoreHelper portalEventStoreHelper,
+								final PortalServerConfig portalServerConfig,
+								final EventStoreAdminService eventStoreAdminService) {
+		this.portalEventBus = portalEventBus;
+		this.reservationManager = reservationManager;
+		this.portalEventStoreHelper = portalEventStoreHelper;
+		this.portalServerConfig = portalServerConfig;
+		this.eventStoreAdminService = eventStoreAdminService;
+	}
 
-    @Override
-    protected void doStop() {
-        log.trace("PortalEventStoreServiceImpl.doStop()");
-        try {
-            eventStoreAdminService.stopAsync().awaitTerminated();
-        } catch (Exception e) {
-            notifyFailed(e);
-        }
-        try {
-            close();
-        } catch (IOException e) {
-            log.warn("Exception on closing event store.", e);
-        }
-        try {
-            notifyStopped();
-        } catch (Exception e) {
-            notifyFailed(e);
-        }
-    }
+	@Override
+	protected void doStart() {
+		log.trace("PortalEventStoreServiceImpl.doStart()");
+		try {
+			if (portalEventStoreHelper.eventStoreExistsForReservation(portalServerConfig.getPortalEventstoreName())) {
+				eventStore = portalEventStoreHelper.loadEventStore(portalServerConfig.getPortalEventstoreName(), false);
+			} else {
+				eventStore = portalEventStoreHelper.createAndConfigureEventStore(portalServerConfig.getPortalEventstoreName());
+			}
+			eventStoreAdminService.startAsync().awaitRunning();
+			portalEventBus.register(this);
+			notifyStarted();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 
-    @Override
-    public void storeEvent(@Nonnull Object o) throws IOException, UnsupportedOperationException, IllegalArgumentException {
-        if (!isRunning()) {
-            return;
-        }
-        //noinspection unchecked
-        eventStore.storeEvent(o);
-    }
+	@Override
+	protected void doStop() {
+		log.trace("PortalEventStoreServiceImpl.doStop()");
+		portalEventBus.unregister(this);
+		try {
+			eventStoreAdminService.stopAsync().awaitTerminated();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+		try {
+			eventStore.close();
+		} catch (IOException e) {
+			log.warn("Exception on closing event store.", e);
+		}
+		try {
+			notifyStopped();
+		} catch (Exception e) {
+			notifyFailed(e);
+		}
+	}
 
-    @Override
-    public void storeEvent(@Nonnull Object object, long timestamp) throws IOException, UnsupportedOperationException, IllegalArgumentException {
-        if (!isRunning()) {
-            return;
-        }
-        //noinspection unchecked
-        eventStore.storeEvent(object, timestamp);
-    }
+	@Subscribe
+	public void onEvent(final Object obj) {
+		if (MessageHeaderPair.isUnwrappedMessageEvent(obj)) {
+			MessageHeaderPair pair = MessageHeaderPair.fromUnwrapped(obj);
 
-    @Override
-    public void storeEvent(@Nonnull Object o, Class aClass) throws IOException, UnsupportedOperationException, IllegalArgumentException {
-        if (!isRunning()) {
-            return;
-        }
-        //noinspection unchecked
-        eventStore.storeEvent(o, aClass);
-    }
+			if (portalServerConfig.isPortalEventStorePersistReserved() || !partOfReservation(pair)) {
+				try {
+					log.trace("Storing {} event to portal event store.", pair.header.getType());
+					eventStore.storeEvent(MessageWrapper.wrap(pair.message), Message.class, pair.header.getTimestamp());
+				} catch (IOException e) {
+					log.error("IOException while trying to store an event into PortalEventStore: ", e);
+				}
+			}
+		}
+	}
 
-    @Override
-    public void storeEvent(@Nonnull Object object, Class type, long timestamp) throws IOException, UnsupportedOperationException, IllegalArgumentException {
-        if (!isRunning()) {
-            return;
-        }
-        //noinspection unchecked
-        eventStore.storeEvent(object, type, timestamp);
-    }
+	private boolean partOfReservation(MessageHeaderPair pair) {
+		return !reservationManager.getReservationMapping(
+				transform(pair.header.getNodeUrnsList(), NodeUrn::new),
+				new DateTime(pair.header.getTimestamp())
+		).isEmpty();
+	}
 
+	@Override
+	public CloseableIterator<MessageHeaderPair> getEventsBetweenTimestamps(long from, long to) throws IOException {
+		return new CloseableMessageHeaderPairIterator(eventStore.getEventsBetweenTimestamps(from, to));
+	}
 
-    @Override
-    public CloseableIterator<EventContainer> getEventsBetweenTimestamps(long from, long to) throws IOException {
-        //noinspection unchecked
-        return eventStore.getEventsBetweenTimestamps(from, to);
-    }
+	@Override
+	public CloseableIterator<MessageHeaderPair> getEventsFromTimestamp(long from) throws IOException {
+		return new CloseableMessageHeaderPairIterator(eventStore.getEventsFromTimestamp(from));
+	}
 
-    @Override
-    public CloseableIterator<EventContainer> getEventsFromTimestamp(long from) throws IOException {
-        //noinspection unchecked
-        return eventStore.getEventsFromTimestamp(from);
-    }
-
-    @Override
-    public CloseableIterator<EventContainer> getAllEvents() throws IOException {
-        //noinspection unchecked
-        return eventStore.getAllEvents();
-    }
-
-    @Override
-    public long actualPayloadByteSize() throws IOException {
-        return eventStore.actualPayloadByteSize();
-    }
-
-    @Override
-    public long size() {
-        return eventStore.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return eventStore.isEmpty();
-    }
-
-    @Override
-    public void close() throws IOException {
-        eventStore.close();
-    }
+	@Override
+	public CloseableIterator<MessageHeaderPair> getAllEvents() throws IOException {
+		return new CloseableMessageHeaderPairIterator(eventStore.getAllEvents());
+	}
 }
 
 
