@@ -11,9 +11,9 @@ import java.util.function.Function;
 
 public class MessageUnwrapper extends OneToOneDecoder {
 
-	public static final Function<Message, Object> MESSAGE_UNWRAP_FUNCTION = msg -> {
+	public static final Function<Message, MessageHeaderPair> MESSAGE_UNWRAP_FUNCTION = msg -> {
 
-		if (msg.getType() == MessageType.KEEP_ALIVE || msg.getType() == MessageType.KEEP_ALIVE_ACK){
+		if (msg.getType() == MessageType.KEEP_ALIVE || msg.getType() == MessageType.KEEP_ALIVE_ACK) {
 			throw new IllegalArgumentException("Keep alive messages contain nothing to unwrap and must be handled " +
 					"earlier in the pipeline");
 		}

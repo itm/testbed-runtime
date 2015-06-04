@@ -8,9 +8,7 @@ import com.google.inject.multibindings.Multibinder;
 import de.uniluebeck.itm.nettyprotocols.NettyProtocolsModule;
 import de.uniluebeck.itm.servicepublisher.ServicePublisherConfig;
 import de.uniluebeck.itm.servicepublisher.cxf.ServicePublisherCxfModule;
-import de.uniluebeck.itm.tr.common.EventBusService;
-import de.uniluebeck.itm.tr.common.IdProvider;
-import de.uniluebeck.itm.tr.common.IncrementalIdProvider;
+import de.uniluebeck.itm.tr.common.*;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
@@ -20,6 +18,8 @@ import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.UpstreamMessageQueueHelper;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.plugins.GatewayPluginModule;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl;
 import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiModule;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
@@ -64,8 +64,11 @@ public class GatewayModule extends AbstractModule {
 
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);
 		bind(IdProvider.class).to(IncrementalIdProvider.class).in(Scopes.SINGLETON);
+		bind(TimestampProvider.class).to(UnixTimestampProvider.class).in(Scopes.SINGLETON);
+		bind(MessageFactory.class).to(MessageFactoryImpl.class).in(Scopes.SINGLETON);
 		bind(RequestHandler.class).to(RequestHandlerImpl.class).in(Scopes.SINGLETON);
 		bind(DeviceAdapterRegistry.class).to(DeviceAdapterRegistryImpl.class).in(Scopes.SINGLETON);
+
 
 		Multibinder<DeviceAdapterFactory> gatewayDeviceAdapterFactoryMultibinder =
 				Multibinder.newSetBinder(binder(), DeviceAdapterFactory.class);

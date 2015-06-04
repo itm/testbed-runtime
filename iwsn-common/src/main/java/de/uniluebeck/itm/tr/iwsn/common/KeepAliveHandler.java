@@ -3,6 +3,9 @@ package de.uniluebeck.itm.tr.iwsn.common;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
 import de.uniluebeck.itm.tr.iwsn.messages.MessageType;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.DefaultChannelFuture;
+import org.jboss.netty.channel.DownstreamMessageEvent;
+import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.handler.timeout.IdleState;
 import org.jboss.netty.handler.timeout.IdleStateAwareChannelHandler;
 import org.jboss.netty.handler.timeout.IdleStateEvent;
@@ -31,7 +34,27 @@ public class KeepAliveHandler extends IdleStateAwareChannelHandler {
 					.setType(MessageType.KEEP_ALIVE_ACK)
 					.build();
 
-			e.getChannel().write(keepAlive);
+			ctx.sendDownstream(new DownstreamMessageEvent(
+					ctx.getChannel(),
+					new DefaultChannelFuture(ctx.getChannel(), false),
+					keepAlive,
+					ctx.getChannel().getRemoteAddress()
+			));
+		}
+	}
+
+	@Override
+	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		boolean isKeepAliveOrAck = e.getMessage() instanceof Message &&
+				(
+						((Message) e.getMessage()).getType() == MessageType.KEEP_ALIVE ||
+						((Message) e.getMessage()).getType() == MessageType.KEEP_ALIVE_ACK
+				);
+		if (isKeepAliveOrAck) {
+			// do nothing
+		} else {
+			// send upstream
+			super.messageReceived(ctx, e);
 		}
 	}
 }

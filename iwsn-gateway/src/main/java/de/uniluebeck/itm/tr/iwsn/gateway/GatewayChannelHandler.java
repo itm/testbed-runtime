@@ -44,7 +44,8 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 	public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
 
 		if (!(e.getMessage() instanceof MessageHeaderPair)) {
-			throw new IllegalArgumentException("Expected MessageHeaderPair, got " + e.getMessage().getClass() +
+			throw new IllegalArgumentException("Expected " + MessageHeaderPair.class.getCanonicalName() +
+					", got " + e.getMessage().getClass().getCanonicalName() +
 					". Pipeline seems to be misconfigured!");
 		}
 
@@ -69,8 +70,6 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 			}
 		}
 
-		gatewayEventBus.register(this);
-
 		channel = e.getChannel();
 		upstreamMessageQueue.channelConnected(channel);
 
@@ -89,7 +88,6 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 	@Override
 	public void channelDisconnected(final ChannelHandlerContext ctx, final ChannelStateEvent e) throws Exception {
 		log.trace("GatewayChannelHandler.channelDisconnected(ctx={}, event={}", ctx, e);
-		gatewayEventBus.unregister(this);
 		upstreamMessageQueue.channelDisconnected();
 		channel = null;
 		super.channelDisconnected(ctx, e);

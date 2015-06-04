@@ -21,8 +21,7 @@ import static de.uniluebeck.itm.util.serialization.MultiClassSerializationHelper
 
 public class UpstreamMessageQueueHelperImpl implements UpstreamMessageQueueHelper {
 
-	private static final Function<Message, byte[]> PROTOBUF_MESSAGE_SERIALIZER =
-			AbstractMessageLite::toByteArray;
+	private static final Function<Message, byte[]> PROTOBUF_MESSAGE_SERIALIZER = Message::toByteArray;
 
 	private final GatewayConfig gatewayConfig;
 

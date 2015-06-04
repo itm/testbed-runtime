@@ -6,7 +6,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.jboss.netty.channel.*;
@@ -73,7 +72,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 				if (pair.header.getBroadcast()) {
 
-					allChannels.write(pair.message);
+					allChannels.write(pair);
 
 				} else {
 
@@ -115,7 +114,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 					}
 				}
 		);
-		Channels.write(ctx, future, pair.message);
+		Channels.write(ctx, future, pair);
 	}
 
 	private Set<NodeUrn> getUnconnectedNodeUrns(final Set<NodeUrn> nodeUrns) {
@@ -146,13 +145,13 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	@Override
 	public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
 
-		if (!MessageHeaderPair.isWrappedMessageEvent(e.getMessage())) {
+		if (!(e.getMessage() instanceof MessageHeaderPair)) {
 			throw new IllegalStateException("Expected only messages of type " + Message.class.getCanonicalName()
 					+ ", got " + e.getMessage().getClass().getCanonicalName()
 					+ ". Probably the pipeline is misconfigured!");
 		}
 
-		final MessageHeaderPair pair = MessageHeaderPair.fromWrapped(e.getMessage());
+		final MessageHeaderPair pair = (MessageHeaderPair) e.getMessage();
 
 		if (pair.header.getUpstream()) {
 
@@ -236,7 +235,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 	private void sendEventAck(final ChannelHandlerContext ctx, final MessageHeaderPair pair) {
 		final EventAck ack = messageFactory.eventAck(pair.header, Optional.empty());
-		write(ctx, new DefaultChannelFuture(ctx.getChannel(), true), ack);
+		write(ctx, new DefaultChannelFuture(ctx.getChannel(), true), MessageHeaderPair.fromUnwrapped(ack));
 	}
 
 	@Override

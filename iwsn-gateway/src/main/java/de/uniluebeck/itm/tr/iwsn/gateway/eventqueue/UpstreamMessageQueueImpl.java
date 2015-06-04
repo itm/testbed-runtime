@@ -169,6 +169,8 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 
 			if (pair.header.getUpstream()) {
 				enqueue(pair);
+			} else if (pair.header.getDownstream()) {
+				gatewayEventBus.post(pair.message);
 			}
 		}
 	}

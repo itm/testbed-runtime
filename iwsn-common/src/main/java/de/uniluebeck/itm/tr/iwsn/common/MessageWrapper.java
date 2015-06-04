@@ -2,8 +2,8 @@ package de.uniluebeck.itm.tr.iwsn.common;
 
 import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
-import de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 import java.util.HashMap;
@@ -13,6 +13,17 @@ import java.util.function.Function;
 public class MessageWrapper extends OneToOneEncoder {
 
 	private static final Map<Class, Function<MessageLite, Message>> MAP = new HashMap<>();
+
+	public static final Function<MessageLite, Message> WRAP_FUNCTION = (msg) -> {
+
+		final Function<MessageLite, Message> wrapperFunction = MAP.get(msg.getClass());
+
+		if (wrapperFunction == null) {
+			throw new IllegalArgumentException("Unknown message type \"" + msg.getClass() + "\"");
+		}
+
+		return wrapperFunction.apply(msg);
+	};
 
 	static {
 
@@ -188,29 +199,19 @@ public class MessageWrapper extends OneToOneEncoder {
 				.build());
 	}
 
-	public static final Function<MessageLite, Message> WRAP_FUNCTION = (msg) -> {
-
-		final Function<MessageLite, Message> wrapperFunction = MAP.get(msg.getClass());
-
-		if (wrapperFunction == null) {
-			throw new IllegalArgumentException("Unknown message type \"" + msg.getClass() + "\"");
-		}
-
-		return wrapperFunction.apply(msg);
-	};
+	public static Message wrap(MessageLite message) {
+		return WRAP_FUNCTION.apply(message);
+	}
 
 	@Override
 	protected Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
 
 		if (!(msg instanceof MessageHeaderPair)) {
-			throw new IllegalArgumentException("MessageWrapper handler only consumes events, requests and response " +
-					"message events. Pipeline seems to be misconfigured.");
+			throw new IllegalArgumentException("MessageWrapper expected " + MessageHeaderPair.class.getCanonicalName() +
+					", got " + msg.getClass().getCanonicalName() +
+					". Pipeline seems to be misconfigured.");
 		}
 
 		return WRAP_FUNCTION.apply(((MessageHeaderPair) msg).message);
-	}
-
-	public static Message wrap(MessageLite message) {
-		return WRAP_FUNCTION.apply(message);
 	}
 }
