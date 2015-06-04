@@ -7,6 +7,9 @@ import java.util.List;
 @XmlRootElement
 public class FlashProgramsRequest {
 
+	@XmlElement(name = "configurations")
+	public List<FlashTask> configurations;
+
 	public static class FlashTask {
 
 		@XmlElement(name = "nodeUrns")
@@ -15,8 +18,5 @@ public class FlashProgramsRequest {
 		@XmlElement(name = "image")
 		public String image;
 	}
-
-	@XmlElement(name = "configurations")
-	public List<FlashTask> configurations;
 
 }

@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Sets.newHashSet;
 
 class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
 
@@ -102,7 +103,7 @@ class PortalEventStoreImpl extends AbstractService implements PortalEventStore {
 
 	private boolean partOfReservation(MessageHeaderPair pair) {
 		return !reservationManager.getReservationMapping(
-				transform(pair.header.getNodeUrnsList(), NodeUrn::new),
+				newHashSet(transform(pair.header.getNodeUrnsList(), NodeUrn::new)),
 				new DateTime(pair.header.getTimestamp())
 		).isEmpty();
 	}

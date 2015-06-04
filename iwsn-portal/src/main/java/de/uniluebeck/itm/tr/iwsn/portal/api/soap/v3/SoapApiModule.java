@@ -8,6 +8,7 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.tr.common.*;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManagerImpl;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
 import eu.wisebed.api.v3.sm.SessionManagement;
 import eu.wisebed.api.v3.wsn.WSN;
 
@@ -16,6 +17,7 @@ public class SoapApiModule extends AbstractModule {
 	@Override
 	protected void configure() {
 
+		requireBinding(MessageFactory.class);
 		requireBinding(ServedNodeUrnsProvider.class);
 		requireBinding(ServedNodeUrnPrefixesProvider.class);
 		requireBinding(WisemlProvider.class);
@@ -23,23 +25,23 @@ public class SoapApiModule extends AbstractModule {
 		install(new PreconditionsModule());
 
 		install(new FactoryModuleBuilder()
-				.implement(WSNService.class, WSNServiceImpl.class)
-				.build(WSNServiceFactory.class)
+						.implement(WSNService.class, WSNServiceImpl.class)
+						.build(WSNServiceFactory.class)
 		);
 
 		install(new FactoryModuleBuilder()
-				.implement(WSN.class, WSNImpl.class)
-				.build(WSNFactory.class)
+						.implement(WSN.class, WSNImpl.class)
+						.build(WSNFactory.class)
 		);
 
 		install(new FactoryModuleBuilder()
-				.implement(AuthorizingWSN.class, AuthorizingWSNImpl.class)
-				.build(AuthorizingWSNFactory.class)
+						.implement(AuthorizingWSN.class, AuthorizingWSNImpl.class)
+						.build(AuthorizingWSNFactory.class)
 		);
 
 		install(new FactoryModuleBuilder()
-				.implement(DeliveryManager.class, DeliveryManagerAdapter.class)
-				.build(DeliveryManagerFactory.class)
+						.implement(DeliveryManager.class, DeliveryManagerAdapter.class)
+						.build(DeliveryManagerFactory.class)
 		);
 
 		bind(DeliveryManager.class).to(DeliveryManagerImpl.class);

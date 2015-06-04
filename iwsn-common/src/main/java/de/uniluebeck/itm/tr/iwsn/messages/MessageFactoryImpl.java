@@ -71,57 +71,104 @@ public class MessageFactoryImpl implements MessageFactory {
 	public NotificationEvent notificationEvent(Optional<Iterable<NodeUrn>> nodeUrns,
 											   Optional<Long> timestamp,
 											   String message) {
+		return notificationEventBuilder(nodeUrns, empty(), timestamp, message).build();
+	}
+
+	@Override
+	public NotificationEvent notificationEvent(Optional<Iterable<NodeUrn>> nodeUrns,
+											   long correlationId,
+											   Optional<Long> timestamp,
+											   String message) {
+		return notificationEventBuilder(nodeUrns, of(correlationId), timestamp, message).build();
+	}
+
+	private NotificationEvent.Builder notificationEventBuilder(Optional<Iterable<NodeUrn>> nodeUrns,
+															   Optional<Long> correlationId,
+															   Optional<Long> timestamp,
+															   String message) {
+
+		Header.Builder header = header(empty(), correlationId, timestamp, EVENT_NOTIFICATION, nodeUrns, true, false);
+
+		// if a notification is not for a specific node URN it is to be broadcasted to all users
+		if (!nodeUrns.isPresent() || isEmpty(nodeUrns.get())) {
+			header.setBroadcast(true);
+		}
+
 		return NotificationEvent
 				.newBuilder()
-				.setHeader(header(empty(), empty(), timestamp, EVENT_NOTIFICATION, nodeUrns, true, false))
-				.setMessage(message)
-				.build();
+				.setHeader(header)
+				.setMessage(message);
 	}
 
 	@Override
 	public DevicesAttachedEvent devicesAttachedEvent(Optional<Long> timestamp, Iterable<NodeUrn> nodeUrns) {
-
 		checkArgument(!isEmpty(nodeUrns));
+		return devicesAttachedEventBuilder(timestamp, empty(), nodeUrns).build();
+	}
 
-		return devicesAttachedEventBuilder(timestamp, nodeUrns)
-				.build();
+	@Override
+	public DevicesAttachedEvent devicesAttachedEvent(Optional<Long> timestamp,
+													 long correlationId,
+													 Iterable<NodeUrn> nodeUrns) {
+		checkArgument(!isEmpty(nodeUrns));
+		return devicesAttachedEventBuilder(timestamp, of(correlationId), nodeUrns).build();
 	}
 
 	@Override
 	public DevicesAttachedEvent devicesAttachedEvent(Optional<Long> timestamp, NodeUrn... nodeUrns) {
-
 		checkNotNull(nodeUrns);
 		checkArgument(nodeUrns.length > 0);
-
-		return devicesAttachedEventBuilder(timestamp, newArrayList(nodeUrns)).build();
+		return devicesAttachedEventBuilder(timestamp, empty(), newArrayList(nodeUrns)).build();
 	}
 
-	private DevicesAttachedEvent.Builder devicesAttachedEventBuilder(Optional<Long> timestamp, Iterable<NodeUrn> nodeUrns) {
+	@Override
+	public DevicesAttachedEvent devicesAttachedEvent(Optional<Long> timestamp,
+													 long correlationId,
+													 NodeUrn... nodeUrns) {
+		checkNotNull(nodeUrns);
+		checkArgument(nodeUrns.length > 0);
+		return devicesAttachedEventBuilder(timestamp, of(correlationId), newArrayList(nodeUrns)).build();
+	}
+
+	private DevicesAttachedEvent.Builder devicesAttachedEventBuilder(Optional<Long> timestamp,
+																	 Optional<Long> correlationId,
+																	 Iterable<NodeUrn> nodeUrns) {
 		return DevicesAttachedEvent.newBuilder()
-				.setHeader(header(empty(), empty(), timestamp, EVENT_DEVICES_ATTACHED, of(nodeUrns), true, false));
+				.setHeader(header(empty(), correlationId, timestamp, EVENT_DEVICES_ATTACHED, of(nodeUrns), true, false));
 	}
 
 	@Override
 	public DevicesDetachedEvent devicesDetachedEvent(Optional<Long> timestamp, Iterable<NodeUrn> nodeUrns) {
-
 		checkArgument(!isEmpty(nodeUrns));
+		return devicesDetachedEventBuilder(timestamp, empty(), nodeUrns).build();
+	}
 
-		return devicesDetachedEventBuilder(timestamp, nodeUrns).build();
+	@Override
+	public DevicesDetachedEvent devicesDetachedEvent(Optional<Long> timestamp, long correlationId, Iterable<NodeUrn> nodeUrns) {
+		checkArgument(!isEmpty(nodeUrns));
+		return devicesDetachedEventBuilder(timestamp, of(correlationId), nodeUrns).build();
 	}
 
 	@Override
 	public DevicesDetachedEvent devicesDetachedEvent(Optional<Long> timestamp, NodeUrn... nodeUrns) {
-
 		checkNotNull(nodeUrns);
 		checkArgument(nodeUrns.length > 0);
-
-		return devicesDetachedEventBuilder(timestamp, newArrayList(nodeUrns)).build();
+		return devicesDetachedEventBuilder(timestamp, empty(), newArrayList(nodeUrns)).build();
 	}
 
-	private DevicesDetachedEvent.Builder devicesDetachedEventBuilder(Optional<Long> timestamp, Iterable<NodeUrn> value) {
+	@Override
+	public DevicesDetachedEvent devicesDetachedEvent(Optional<Long> timestamp, long correlationId, NodeUrn... nodeUrns) {
+		checkNotNull(nodeUrns);
+		checkArgument(nodeUrns.length > 0);
+		return devicesDetachedEventBuilder(timestamp, of(correlationId), newArrayList(nodeUrns)).build();
+	}
+
+	private DevicesDetachedEvent.Builder devicesDetachedEventBuilder(Optional<Long> timestamp,
+																	 Optional<Long> correlationId,
+																	 Iterable<NodeUrn> value) {
 		return DevicesDetachedEvent
 				.newBuilder()
-				.setHeader(header(empty(), empty(), timestamp, EVENT_DEVICES_DETACHED, of(value), true, false));
+				.setHeader(header(empty(), correlationId, timestamp, EVENT_DEVICES_DETACHED, of(value), true, false));
 	}
 
 	@Override
@@ -150,6 +197,15 @@ public class MessageFactoryImpl implements MessageFactory {
 																 Iterable<NodeUrn> nodeUrns,
 																 Iterable<? extends ChannelHandlerConfiguration> channelHandlerConfigurations) {
 		return setChannelPipelinesRequestBuilder(serializedReservationKey, empty(), timestamp, nodeUrns, channelHandlerConfigurations).build();
+	}
+
+	@Override
+	public SetChannelPipelinesRequest setChannelPipelinesRequest(Optional<String> serializedReservationKey,
+																 long requestId,
+																 Optional<Long> timestamp,
+																 Iterable<NodeUrn> nodeUrns,
+																 Iterable<? extends ChannelHandlerConfiguration> channelHandlerConfigurations) {
+		return setChannelPipelinesRequestBuilder(serializedReservationKey, of(requestId), timestamp, nodeUrns, channelHandlerConfigurations).build();
 	}
 
 	private SetChannelPipelinesRequest.Builder setChannelPipelinesRequestBuilder(Optional<String> serializedReservationKey,
@@ -272,6 +328,7 @@ public class MessageFactoryImpl implements MessageFactory {
 	public EventAck eventAck(Header eventHeader, Optional<Long> timestamp) {
 
 		Header.Builder header = Header.newBuilder()
+				.setType(MessageType.EVENT_ACK)
 				.setCorrelationId(eventHeader.getCorrelationId())
 				.setTimestamp(timestamp.orElse(timestampProvider.get()))
 				.setDownstream(!eventHeader.getDownstream()) // inverse direction
@@ -303,6 +360,14 @@ public class MessageFactoryImpl implements MessageFactory {
 		return disableNodesRequestBuilder(serializedReservationKey, empty(), timestamp, nodeUrns).build();
 	}
 
+	@Override
+	public DisableNodesRequest disableNodesRequest(Optional<String> serializedReservationKey,
+												   long requestId,
+												   Optional<Long> timestamp,
+												   Iterable<NodeUrn> nodeUrns) {
+		return disableNodesRequestBuilder(serializedReservationKey, of(requestId), timestamp, nodeUrns).build();
+	}
+
 	private DisableNodesRequest.Builder disableNodesRequestBuilder(Optional<String> serializedReservationKey,
 																   Optional<Long> correlationId,
 																   Optional<Long> timestamp,
@@ -319,6 +384,14 @@ public class MessageFactoryImpl implements MessageFactory {
 		return enableNodesRequestBuilder(serializedReservationKey, empty(), timestamp, nodeUrns).build();
 	}
 
+	@Override
+	public EnableNodesRequest enableNodesRequest(Optional<String> serializedReservationKey,
+												 long requestId,
+												 Optional<Long> timestamp,
+												 Iterable<NodeUrn> nodeUrns) {
+		return enableNodesRequestBuilder(serializedReservationKey, of(requestId), timestamp, nodeUrns).build();
+	}
+
 	private EnableNodesRequest.Builder enableNodesRequestBuilder(Optional<String> serializedReservationKey,
 																 Optional<Long> correlationId,
 																 Optional<Long> timestamp,
@@ -330,6 +403,14 @@ public class MessageFactoryImpl implements MessageFactory {
 
 	@Override
 	public ResetNodesRequest resetNodesRequest(Optional<String> serializedReservationKey,
+											   Optional<Long> timestamp,
+											   Iterable<NodeUrn> nodeUrns) {
+		return resetNodesRequestBuilder(serializedReservationKey, empty(), timestamp, nodeUrns).build();
+	}
+
+	@Override
+	public ResetNodesRequest resetNodesRequest(Optional<String> serializedReservationKey,
+											   long requestId,
 											   Optional<Long> timestamp,
 											   Iterable<NodeUrn> nodeUrns) {
 		return resetNodesRequestBuilder(serializedReservationKey, empty(), timestamp, nodeUrns).build();
@@ -352,6 +433,15 @@ public class MessageFactoryImpl implements MessageFactory {
 		return sendDownstreamMessageRequestBuilder(serializedReservationKey, empty(), timestamp, nodeUrns, ByteString.copyFrom(bytes)).build();
 	}
 
+	@Override
+	public SendDownstreamMessagesRequest sendDownstreamMessageRequest(Optional<String> serializedReservationKey,
+																	  long requestId,
+																	  Optional<Long> timestamp,
+																	  Iterable<NodeUrn> nodeUrns,
+																	  byte[] bytes) {
+		return sendDownstreamMessageRequestBuilder(serializedReservationKey, of(requestId), timestamp, nodeUrns, ByteString.copyFrom(bytes)).build();
+	}
+
 	private SendDownstreamMessagesRequest.Builder sendDownstreamMessageRequestBuilder(Optional<String> serializedReservationKey,
 																					  Optional<Long> correlationId,
 																					  Optional<Long> timestamp,
@@ -369,6 +459,15 @@ public class MessageFactoryImpl implements MessageFactory {
 												 Iterable<NodeUrn> nodeUrns,
 												 byte[] image) {
 		return flashImagesRequestBuilder(serializedReservationKey, empty(), timestamp, nodeUrns, ByteString.copyFrom(image)).build();
+	}
+
+	@Override
+	public FlashImagesRequest flashImagesRequest(Optional<String> serializedReservationKey,
+												 long requestId,
+												 Optional<Long> timestamp,
+												 Iterable<NodeUrn> nodeUrns,
+												 byte[] image) {
+		return flashImagesRequestBuilder(serializedReservationKey, of(requestId), timestamp, nodeUrns, ByteString.copyFrom(image)).build();
 	}
 
 	private FlashImagesRequest.Builder flashImagesRequestBuilder(Optional<String> serializedReservationKey,
@@ -389,6 +488,14 @@ public class MessageFactoryImpl implements MessageFactory {
 		return disableVirtualLinksRequestBuilder(serializedReservationKey, empty(), timestamp, links.keySet(), toLinks(links)).build();
 	}
 
+	@Override
+	public DisableVirtualLinksRequest disableVirtualLinksRequest(Optional<String> serializedReservationKey,
+																 long requestId,
+																 Optional<Long> timestamp,
+																 Multimap<NodeUrn, NodeUrn> links) {
+		return disableVirtualLinksRequestBuilder(serializedReservationKey, of(requestId), timestamp, links.keySet(), toLinks(links)).build();
+	}
+
 	private DisableVirtualLinksRequest.Builder disableVirtualLinksRequestBuilder(Optional<String> serializedReservationKey,
 																				 Optional<Long> correlationId,
 																				 Optional<Long> timestamp,
@@ -405,6 +512,14 @@ public class MessageFactoryImpl implements MessageFactory {
 															   Optional<Long> timestamp,
 															   Multimap<NodeUrn, NodeUrn> links) {
 		return enableVirtualLinksRequestBuilder(serializedReservationKey, empty(), timestamp, links.keySet(), toLinks(links)).build();
+	}
+
+	@Override
+	public EnableVirtualLinksRequest enableVirtualLinksRequest(Optional<String> serializedReservationKey,
+															   long requestId,
+															   Optional<Long> timestamp,
+															   Multimap<NodeUrn, NodeUrn> links) {
+		return enableVirtualLinksRequestBuilder(serializedReservationKey, of(requestId), timestamp, links.keySet(), toLinks(links)).build();
 	}
 
 	private EnableVirtualLinksRequest.Builder enableVirtualLinksRequestBuilder(Optional<String> serializedReservationKey,
@@ -425,6 +540,14 @@ public class MessageFactoryImpl implements MessageFactory {
 		return disablePhysicalLinksRequestBuilder(serializedReservationKey, empty(), timestamp, links.keySet(), toLinks(links)).build();
 	}
 
+	@Override
+	public DisablePhysicalLinksRequest disablePhysicalLinksRequest(Optional<String> serializedReservationKey,
+																   long requestId,
+																   Optional<Long> timestamp,
+																   Multimap<NodeUrn, NodeUrn> links) {
+		return disablePhysicalLinksRequestBuilder(serializedReservationKey, of(requestId), timestamp, links.keySet(), toLinks(links)).build();
+	}
+
 	private DisablePhysicalLinksRequest.Builder disablePhysicalLinksRequestBuilder(Optional<String> serializedReservationKey,
 																				   Optional<Long> correlationId,
 																				   Optional<Long> timestamp,
@@ -441,6 +564,14 @@ public class MessageFactoryImpl implements MessageFactory {
 																 Optional<Long> timestamp,
 																 Multimap<NodeUrn, NodeUrn> links) {
 		return enablePhysicalLinksRequestBuilder(serializedReservationKey, empty(), timestamp, links.keySet(), toLinks(links)).build();
+	}
+
+	@Override
+	public EnablePhysicalLinksRequest enablePhysicalLinksRequest(Optional<String> serializedReservationKey,
+																 long requestId,
+																 Optional<Long> timestamp,
+																 Multimap<NodeUrn, NodeUrn> links) {
+		return enablePhysicalLinksRequestBuilder(serializedReservationKey, of(requestId), timestamp, links.keySet(), toLinks(links)).build();
 	}
 
 	private EnablePhysicalLinksRequest.Builder enablePhysicalLinksRequestBuilder(Optional<String> serializedReservationKey,
@@ -507,6 +638,14 @@ public class MessageFactoryImpl implements MessageFactory {
 													 Optional<Long> timestamp,
 													 Iterable<NodeUrn> nodeUrns) {
 		return areNodesAliveRequestBuilder(serializedReservationKey, empty(), timestamp, nodeUrns).build();
+	}
+
+	@Override
+	public AreNodesAliveRequest areNodesAliveRequest(Optional<String> serializedReservationKey,
+													 long requestId,
+													 Optional<Long> timestamp,
+													 Iterable<NodeUrn> nodeUrns) {
+		return areNodesAliveRequestBuilder(serializedReservationKey, of(requestId), timestamp, nodeUrns).build();
 	}
 
 	private AreNodesAliveRequest.Builder areNodesAliveRequestBuilder(Optional<String> serializedReservationKey,
@@ -726,16 +865,21 @@ public class MessageFactoryImpl implements MessageFactory {
 
 		switch (header.getType()) {
 			case EVENT_DEVICES_ATTACHED:
-				return MessageHeaderPair.fromUnwrapped(
-						devicesAttachedEventBuilder(of(pair.header.getTimestamp()), subEventNodeUrns)
-				);
+				return MessageHeaderPair.fromUnwrapped(devicesAttachedEventBuilder(
+						of(pair.header.getTimestamp()),
+						of(pair.header.getCorrelationId()),
+						subEventNodeUrns
+				).build());
 			case EVENT_DEVICES_DETACHED:
-				return MessageHeaderPair.fromUnwrapped(
-						devicesDetachedEvent(of(pair.header.getTimestamp()), subEventNodeUrns)
-				);
+				return MessageHeaderPair.fromUnwrapped(devicesDetachedEventBuilder(
+						of(pair.header.getTimestamp()),
+						of(pair.header.getCorrelationId()),
+						subEventNodeUrns
+				).build());
 			case EVENT_NOTIFICATION:
 				return MessageHeaderPair.fromUnwrapped(notificationEvent(
 						of(subEventNodeUrns),
+						pair.header.getCorrelationId(),
 						of(header.getTimestamp()),
 						((NotificationEvent) message).getMessage()
 				));

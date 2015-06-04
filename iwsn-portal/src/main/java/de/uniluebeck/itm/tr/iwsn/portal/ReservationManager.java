@@ -54,7 +54,7 @@ public interface ReservationManager extends Service {
 	 * @param timestamp the timestamp at which the nodes should be reserved
 	 * @return a map
 	 */
-	Multimap<Reservation, NodeUrn> getReservationMapping(Iterable<NodeUrn> nodeUrns, DateTime timestamp);
+	Multimap<Reservation, NodeUrn> getReservationMapping(Set<NodeUrn> nodeUrns, DateTime timestamp);
 
 
 	/**

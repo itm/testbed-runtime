@@ -7,11 +7,11 @@ import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent;
 import de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent;
+import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.adminui.EventStoreAdminService;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,56 +25,68 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class PortalEventStoreImplTest {
 
-    private static final MessageFactory MESSAGE_FACTORY = new MessageFactoryImpl(new IncrementalIdProvider(), new UnixTimestampProvider());
+	private static final MessageFactory MESSAGE_FACTORY = new MessageFactoryImpl(
+			new IncrementalIdProvider(),
+			new UnixTimestampProvider()
+	);
 
-    private static final String SERIALIZED_KEY = "BLABLABLA";
+	private static final String SERIALIZED_KEY = "BLABLABLA";
 
-    private static final ReservationEndedEvent RESERVATION_ENDED_EVENT = MESSAGE_FACTORY.reservationEndedEvent(
-            Optional.empty(), SERIALIZED_KEY
-    );
+	private static final ReservationEndedEvent RESERVATION_ENDED_EVENT = MESSAGE_FACTORY.reservationEndedEvent(
+			Optional.empty(), SERIALIZED_KEY
+	);
 
-    private static final ReservationStartedEvent RESERVATION_STARTED_EVENT = MESSAGE_FACTORY.reservationStartedEvent(
-            Optional.empty(), SERIALIZED_KEY
-    );
+	private static final ReservationStartedEvent RESERVATION_STARTED_EVENT = MESSAGE_FACTORY.reservationStartedEvent(
+			Optional.empty(), SERIALIZED_KEY
+	);
 
-    @Mock
-    private ReservationEventStoreFactory reservationEventStoreFactory;
+	@Mock
+	private ReservationEventStoreFactory reservationEventStoreFactory;
 
-    @Mock
-    private ReservationManager reservationManager;
+	@Mock
+	private ReservationManager reservationManager;
 
-    @Mock
-    private Reservation reservation;
+	@Mock
+	private Reservation reservation;
 
-    @Mock
-    private ReservationEventStore reservationEventStore;
+	@Mock
+	private ReservationEventStore reservationEventStore;
 
-    @Mock
-    private PortalServerConfig portalServerConfig;
+	@Mock
+	private PortalServerConfig portalServerConfig;
 
-    @Mock
-    private PortalEventStoreHelper portalEventStoreHelper;
+	@Mock
+	private PortalEventStoreHelper portalEventStoreHelper;
 
-    @Mock
-    private EventStore eventStore;
+	@Mock
+	private EventStore eventStore;
 
-    @Mock
-    private EventStoreAdminService eventStoreAdminService;
+	@Mock
+	private EventStoreAdminService eventStoreAdminService;
 
-    private PortalEventStoreImpl store;
+	@Mock
+	private PortalEventBus portalEventBus;
 
-    @Before
-    public void setUp() throws Exception {
+	private PortalEventStoreImpl store;
 
-        when(eventStoreAdminService.startAsync()).thenReturn(eventStoreAdminService);
-        when(portalServerConfig.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
-        when(reservationEventStoreFactory.createOrLoad(reservation)).thenReturn(reservationEventStore);
+	@Before
+	public void setUp() throws Exception {
 
-        store = new PortalEventStoreImpl(portalEventStoreHelper, portalServerConfig, eventStoreAdminService);
-    }
+		when(eventStoreAdminService.startAsync()).thenReturn(eventStoreAdminService);
+		when(portalServerConfig.getEventStorePath()).thenReturn(System.getProperty("java.io.tmpdir"));
+		when(reservationEventStoreFactory.createOrLoad(reservation)).thenReturn(reservationEventStore);
 
-    @Test
-    public void testTodo() throws Exception {
+		store = new PortalEventStoreImpl(
+				portalEventBus,
+				reservationManager,
+				portalEventStoreHelper,
+				portalServerConfig,
+				eventStoreAdminService
+		);
+	}
 
-    }
+	@Test
+	public void testTodo() throws Exception {
+
+	}
 }

@@ -11,10 +11,10 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 @XmlRootElement
-public class ReservationCancelledMessage {
+public class ReservationOpenedMessage {
 
 	@XmlElement(name = "type")
-	public final String type = "reservationCancelled";
+	public final String type = "reservationOpened";
 
 	@XmlElement(name = "timestamp")
 	public String timestamp;
@@ -23,18 +23,17 @@ public class ReservationCancelledMessage {
 	public List<ConfidentialReservationData> reservationData;
 
 	@SuppressWarnings("unused")
-	public ReservationCancelledMessage() {
+	public ReservationOpenedMessage() {
 	}
 
-	public ReservationCancelledMessage(final Reservation reservation) {
-		assert reservation.getCancelled() != null;
-		this.timestamp = reservation.getCancelled().toString(ISODateTimeFormat.dateTime());
+	public ReservationOpenedMessage(final Reservation reservation) {
+		this.timestamp = reservation.getInterval().getStart().toString(ISODateTimeFormat.dateTime());
 		this.reservationData = newArrayList(reservation.getConfidentialReservationData());
 	}
 
 	@Override
 	public String toString() {
-		return "ReservationCancelledMessage{" +
+		return "ReservationOpenedMessage{" +
 				"type='" + type + '\'' +
 				", timestamp='" + timestamp + '\'' +
 				", reservationData=" + reservationData +

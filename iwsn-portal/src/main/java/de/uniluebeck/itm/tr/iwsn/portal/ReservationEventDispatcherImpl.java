@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Iterables.transform;
+import static com.google.common.collect.Sets.newHashSet;
 
 public class ReservationEventDispatcherImpl extends AbstractService implements ReservationEventDispatcher {
 
@@ -61,22 +62,31 @@ public class ReservationEventDispatcherImpl extends AbstractService implements R
 
 			if (pair.header.getUpstream()) {
 
-				Multimap<Reservation, NodeUrn> mapping = reservationManager.getReservationMapping(
-						transform(pair.header.getNodeUrnsList(), NodeUrn::new),
-						new DateTime(pair.header.getTimestamp())
-				);
+				if (pair.header.getBroadcast()) {
 
-				mapping.keySet().forEach(res -> {
+					reservationManager.getReservations(new DateTime(pair.header.getTimestamp())).forEach(res -> {
+						res.getEventBus().post(pair.message);
+					});
 
-					MessageHeaderPair scopedEvent;
-					if (MessageHeaderPair.isEvent(pair.header.getType())) {
-						scopedEvent = messageFactory.scopeEvent(pair, mapping.get(res));
-					} else {
-						scopedEvent = pair;
-					}
+				} else {
 
-					res.getEventBus().post(scopedEvent);
-				});
+					Multimap<Reservation, NodeUrn> mapping = reservationManager.getReservationMapping(
+							newHashSet(transform(pair.header.getNodeUrnsList(), NodeUrn::new)),
+							new DateTime(pair.header.getTimestamp())
+					);
+
+					mapping.keySet().forEach(res -> {
+
+						MessageHeaderPair scopedEvent;
+						if (MessageHeaderPair.isScopeableEvent(pair.header.getType())) {
+							scopedEvent = messageFactory.scopeEvent(pair, mapping.get(res));
+						} else {
+							scopedEvent = pair;
+						}
+
+						res.getEventBus().post(scopedEvent.message);
+					});
+				}
 			}
 		}
 	}

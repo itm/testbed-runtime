@@ -6,6 +6,8 @@ import com.google.inject.assistedinject.FactoryModuleBuilder;
 import de.uniluebeck.itm.tr.common.*;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.util.NetworkUtils;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
@@ -92,6 +94,7 @@ public class WSNServiceImplAuthorizationTest {
 				install(new SchedulerServiceModule());
 
 				bind(SNAA.class).toInstance(snaa);
+				bind(MessageFactory.class).to(MessageFactoryImpl.class).in(Scopes.SINGLETON);
 				bind(WisemlProvider.class).toProvider(of(wisemlProvider));
 				bind(CommonConfig.class).toProvider(of(commonConfig));
 				bind(IdProvider.class).to(IncrementalIdProvider.class).in(Scopes.SINGLETON);

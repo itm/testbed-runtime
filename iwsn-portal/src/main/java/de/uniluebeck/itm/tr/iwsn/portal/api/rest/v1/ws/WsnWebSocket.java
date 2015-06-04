@@ -4,7 +4,6 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.MessageLite;
-import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.*;
@@ -16,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +23,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static de.uniluebeck.itm.tr.common.Base64Helper.decodeBytes;
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.fromJSON;
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newSendDownstreamMessageRequest;
+import static java.util.Optional.of;
 
 public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
@@ -31,26 +31,25 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	private final Reservation reservation;
 
-	private final IdProvider requestIdProvider;
-
 	private final SchedulerService schedulerService;
 
 	private final String secretReservationKeysBase64;
 
 	private final String remoteAddress;
+	private final MessageFactory messageFactory;
 
 	private Connection connection;
 
 	private ScheduledFuture<?> keepAliveSchedule;
 
 	@Inject
-	public WsnWebSocket(final IdProvider requestIdProvider,
-						final SchedulerService schedulerService,
+	public WsnWebSocket(final SchedulerService schedulerService,
+						final MessageFactory messageFactory,
 						@Assisted final Reservation reservation,
 						@Assisted("secretReservationKeysBase64") final String secretReservationKeysBase64,
 						@Assisted("remoteAddress") final String remoteAddress) {
 		log.trace("WsnWebSocket.WsnWebSocket()");
-		this.requestIdProvider = requestIdProvider;
+		this.messageFactory = messageFactory;
 		this.schedulerService = schedulerService;
 		this.secretReservationKeysBase64 = secretReservationKeysBase64;
 		this.remoteAddress = remoteAddress;
@@ -65,12 +64,12 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 		try {
 			final WebSocketDownstreamMessage message = fromJSON(data, WebSocketDownstreamMessage.class);
 			byte[] decodedPayload = decodeBytes(message.payloadBase64);
-			reservation.getEventBus().post(newSendDownstreamMessageRequest(
-					secretReservationKeysBase64,
-					requestIdProvider.get(),
-					newArrayList(new NodeUrn(message.targetNodeUrn)),
-					decodedPayload
-			)
+			reservation.getEventBus().post(messageFactory.sendDownstreamMessageRequest(
+							of(secretReservationKeysBase64),
+							Optional.empty(),
+							newArrayList(new NodeUrn(message.targetNodeUrn)),
+							decodedPayload
+					)
 			);
 		} catch (Exception e) {
 			final WebSocketNotificationMessage notificationMessage = new WebSocketNotificationMessage(
@@ -104,7 +103,7 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	@Subscribe
 	public void on(final ReservationStartedEvent event) {
-		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+		if (!event.getHeader().getSerializedReservationKey().equals(reservation.getSerializedKey())) {
 			throw new RuntimeException("This should not be possible!");
 		}
 		sendMessage(toJSON(new ReservationStartedMessage(reservation)));
@@ -112,23 +111,23 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 
 	@Subscribe
 	public void on(final ReservationEndedEvent event) {
-		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+		if (!event.getHeader().getSerializedReservationKey().equals(reservation.getSerializedKey())) {
 			throw new RuntimeException("This should not be possible!");
 		}
 		sendMessage(toJSON(new ReservationEndedMessage(reservation)));
 	}
 
-    @Subscribe
-    public void on(final ReservationCancelledEvent event) {
-        if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
-            throw new RuntimeException("This should not be possible!");
-        }
-        sendMessage(toJSON(new ReservationCancelledMessage(reservation)));
-    }
+	@Subscribe
+	public void on(final ReservationCancelledEvent event) {
+		if (!event.getHeader().getSerializedReservationKey().equals(reservation.getSerializedKey())) {
+			throw new RuntimeException("This should not be possible!");
+		}
+		sendMessage(toJSON(new ReservationCancelledMessage(reservation)));
+	}
 
 	@Subscribe
 	public void on(final ReservationFinalizedEvent event) {
-		if (!event.getSerializedKey().equals(reservation.getSerializedKey())) {
+		if (!event.getHeader().getSerializedReservationKey().equals(reservation.getSerializedKey())) {
 			throw new RuntimeException("This should not be possible!");
 		}
 		sendMessage(toJSON(new ReservationFinalizedMessage(reservation)));
@@ -197,7 +196,7 @@ public class WsnWebSocket implements WebSocket, WebSocket.OnTextMessage {
 				connection.sendMessage(data);
 			} else {
 				log.warn("Trying to send message over closed WebSocket. Stopping keep alive thread and unregister "
-								+ "from the event bus");
+						+ "from the event bus");
 				stopKeepAliveAndUnregister();
 			}
 		} catch (IOException e) {

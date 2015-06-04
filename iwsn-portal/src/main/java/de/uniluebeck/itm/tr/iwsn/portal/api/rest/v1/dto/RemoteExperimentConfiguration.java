@@ -7,6 +7,9 @@ import java.util.List;
 @XmlRootElement
 public class RemoteExperimentConfiguration {
 
+	@XmlElement(name = "configurations")
+	public List<RemoteExperimentConfigurationEntry> configurations;
+
 	public static class RemoteExperimentConfigurationEntry {
 
 		@XmlElement(name = "nodeUrnsJsonFileUrl")
@@ -15,7 +18,4 @@ public class RemoteExperimentConfiguration {
 		@XmlElement(name = "binaryProgramUrl")
 		public String binaryProgramUrl;
 	}
-
-	@XmlElement(name = "configurations")
-	public List<RemoteExperimentConfigurationEntry> configurations;
 }

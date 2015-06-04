@@ -23,7 +23,6 @@
 
 package de.uniluebeck.itm.tr.rs.persistence.jpa;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -52,6 +51,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -428,7 +428,7 @@ public class RSPersistenceJPA implements RSPersistence {
 				.getResultList();
 
 		if (resultList.isEmpty()) {
-			return Optional.absent();
+			return Optional.empty();
 		}
 
 		if (resultList.size() > 1) {

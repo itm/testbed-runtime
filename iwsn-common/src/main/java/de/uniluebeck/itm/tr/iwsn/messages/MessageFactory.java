@@ -15,13 +15,26 @@ public interface MessageFactory {
 										Optional<Long> timestamp,
 										String message);
 
+	NotificationEvent notificationEvent(Optional<Iterable<NodeUrn>> nodeUrn,
+										long correlationId,
+										Optional<Long> timestamp,
+										String message);
+
 	DevicesAttachedEvent devicesAttachedEvent(Optional<Long> timestamp, Iterable<NodeUrn> nodeUrns);
+
+	DevicesAttachedEvent devicesAttachedEvent(Optional<Long> timestamp, long correlationId, Iterable<NodeUrn> nodeUrns);
 
 	DevicesAttachedEvent devicesAttachedEvent(Optional<Long> timestamp, NodeUrn... nodeUrns);
 
+	DevicesAttachedEvent devicesAttachedEvent(Optional<Long> timestamp, long correlationId, NodeUrn... nodeUrns);
+
 	DevicesDetachedEvent devicesDetachedEvent(Optional<Long> timestamp, Iterable<NodeUrn> nodeUrns);
 
+	DevicesDetachedEvent devicesDetachedEvent(Optional<Long> timestamp, long correlationId, Iterable<NodeUrn> nodeUrns);
+
 	DevicesDetachedEvent devicesDetachedEvent(Optional<Long> timestamp, NodeUrn... nodeUrns);
+
+	DevicesDetachedEvent devicesDetachedEvent(Optional<Long> timestamp, long correlationId, NodeUrn... nodeUrns);
 
 	GatewayConnectedEvent gatewayConnectedEvent(Optional<Long> timestamp, String hostname);
 
@@ -30,6 +43,12 @@ public interface MessageFactory {
 													  Iterable<NodeUrn> nodeUrns);
 
 	SetChannelPipelinesRequest setChannelPipelinesRequest(Optional<String> reservationId,
+														  Optional<Long> timestamp,
+														  Iterable<NodeUrn> nodeUrns,
+														  Iterable<? extends ChannelHandlerConfiguration> channelHandlerConfigurations);
+
+	SetChannelPipelinesRequest setChannelPipelinesRequest(Optional<String> reservationId,
+														  long requestId,
 														  Optional<Long> timestamp,
 														  Iterable<NodeUrn> nodeUrns,
 														  Iterable<? extends ChannelHandlerConfiguration> channelHandlerConfigurations);
@@ -72,7 +91,17 @@ public interface MessageFactory {
 											Optional<Long> timestamp,
 											Iterable<NodeUrn> nodeUrns);
 
+	DisableNodesRequest disableNodesRequest(Optional<String> reservationId,
+											long requestId,
+											Optional<Long> timestamp,
+											Iterable<NodeUrn> nodeUrns);
+
 	EnableNodesRequest enableNodesRequest(Optional<String> reservationId,
+										  Optional<Long> timestamp,
+										  Iterable<NodeUrn> nodeUrns);
+
+	EnableNodesRequest enableNodesRequest(Optional<String> reservationId,
+										  long requestId,
 										  Optional<Long> timestamp,
 										  Iterable<NodeUrn> nodeUrns);
 
@@ -80,7 +109,18 @@ public interface MessageFactory {
 										Optional<Long> timestamp,
 										Iterable<NodeUrn> nodeUrns);
 
+	ResetNodesRequest resetNodesRequest(Optional<String> reservationId,
+										long requestId,
+										Optional<Long> timestamp,
+										Iterable<NodeUrn> nodeUrns);
+
 	SendDownstreamMessagesRequest sendDownstreamMessageRequest(Optional<String> reservationId,
+															   Optional<Long> timestamp,
+															   Iterable<NodeUrn> nodeUrns,
+															   byte[] bytes);
+
+	SendDownstreamMessagesRequest sendDownstreamMessageRequest(Optional<String> reservationId,
+															   long requestId,
 															   Optional<Long> timestamp,
 															   Iterable<NodeUrn> nodeUrns,
 															   byte[] bytes);
@@ -90,7 +130,18 @@ public interface MessageFactory {
 										  Iterable<NodeUrn> nodeUrns,
 										  byte[] image);
 
+	FlashImagesRequest flashImagesRequest(Optional<String> reservationId,
+										  long requestId,
+										  Optional<Long> timestamp,
+										  Iterable<NodeUrn> nodeUrns,
+										  byte[] image);
+
 	DisableVirtualLinksRequest disableVirtualLinksRequest(Optional<String> reservationId,
+														  Optional<Long> timestamp,
+														  Multimap<NodeUrn, NodeUrn> links);
+
+	DisableVirtualLinksRequest disableVirtualLinksRequest(Optional<String> reservationId,
+														  long requestId,
 														  Optional<Long> timestamp,
 														  Multimap<NodeUrn, NodeUrn> links);
 
@@ -98,11 +149,26 @@ public interface MessageFactory {
 														Optional<Long> timestamp,
 														Multimap<NodeUrn, NodeUrn> links);
 
+	EnableVirtualLinksRequest enableVirtualLinksRequest(Optional<String> reservationId,
+														long requestId,
+														Optional<Long> timestamp,
+														Multimap<NodeUrn, NodeUrn> links);
+
 	DisablePhysicalLinksRequest disablePhysicalLinksRequest(Optional<String> reservationId,
 															Optional<Long> timestamp,
 															Multimap<NodeUrn, NodeUrn> links);
 
+	DisablePhysicalLinksRequest disablePhysicalLinksRequest(Optional<String> reservationId,
+															long requestId,
+															Optional<Long> timestamp,
+															Multimap<NodeUrn, NodeUrn> links);
+
 	EnablePhysicalLinksRequest enablePhysicalLinksRequest(Optional<String> reservationId,
+														  Optional<Long> timestamp,
+														  Multimap<NodeUrn, NodeUrn> links);
+
+	EnablePhysicalLinksRequest enablePhysicalLinksRequest(Optional<String> reservationId,
+														  long requestId,
 														  Optional<Long> timestamp,
 														  Multimap<NodeUrn, NodeUrn> links);
 
@@ -115,6 +181,11 @@ public interface MessageFactory {
 															Map<NodeUrn, List<ChannelHandlerConfiguration>> channelHandlerConfigurationMap);
 
 	AreNodesAliveRequest areNodesAliveRequest(Optional<String> reservationId,
+											  Optional<Long> timestamp,
+											  Iterable<NodeUrn> nodeUrns);
+
+	AreNodesAliveRequest areNodesAliveRequest(Optional<String> reservationId,
+											  long requestId,
 											  Optional<Long> timestamp,
 											  Iterable<NodeUrn> nodeUrns);
 

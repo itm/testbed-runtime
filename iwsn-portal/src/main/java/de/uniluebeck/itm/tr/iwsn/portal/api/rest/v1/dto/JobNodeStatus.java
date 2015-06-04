@@ -14,28 +14,28 @@ public class JobNodeStatus {
 		this.statusCode = statusCode;
 	}
 
-	void setMessage(final String message) {
-		this.message = message;
-	}
-
-	void setStatus(final JobState status) {
-		this.status = status;
-	}
-
-	void setStatusCode(final int statusCode) {
-		this.statusCode = statusCode;
-	}
-
 	public String getMessage() {
 		return message;
+	}
+
+	void setMessage(final String message) {
+		this.message = message;
 	}
 
 	public JobState getStatus() {
 		return status;
 	}
 
+	void setStatus(final JobState status) {
+		this.status = status;
+	}
+
 	public int getStatusCode() {
 		return statusCode;
+	}
+
+	void setStatusCode(final int statusCode) {
+		this.statusCode = statusCode;
 	}
 
 	@Override

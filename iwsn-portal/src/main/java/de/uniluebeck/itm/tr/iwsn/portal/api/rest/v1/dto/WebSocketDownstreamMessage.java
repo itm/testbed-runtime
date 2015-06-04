@@ -8,7 +8,7 @@ public class WebSocketDownstreamMessage {
 
 	@XmlElement(name = "type")
 	public final String type = "downstream";
-	
+
 	@XmlElement(name = "payloadBase64")
 	public String payloadBase64;
 

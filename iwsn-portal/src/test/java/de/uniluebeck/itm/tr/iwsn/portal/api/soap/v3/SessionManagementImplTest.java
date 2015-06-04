@@ -3,16 +3,12 @@ package de.uniluebeck.itm.tr.iwsn.portal.api.soap.v3;
 import com.google.common.collect.Sets;
 import com.google.inject.Provider;
 import de.uniluebeck.itm.nettyprotocols.HandlerFactory;
-import de.uniluebeck.itm.tr.common.EndpointManager;
-import de.uniluebeck.itm.tr.common.IdProvider;
-import de.uniluebeck.itm.tr.common.SessionManagementPreconditions;
+import de.uniluebeck.itm.tr.common.*;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
-import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalServerConfig;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
@@ -31,12 +27,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newSingleNodeResponse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.isA;
@@ -45,6 +41,11 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SessionManagementImplTest {
+
+	private static final MessageFactory MESSAGE_FACTORY = new MessageFactoryImpl(
+			new IncrementalIdProvider(),
+			new UnixTimestampProvider()
+	);
 
 	private static final String NODE_URN_1_STRING = "urn:unit-test:0x0001";
 
@@ -117,13 +118,13 @@ public class SessionManagementImplTest {
 
 		when(commonConfig.getUrnPrefix()).thenReturn(new NodeUrnPrefix("urn:unit-test:"));
 
-		final Map<NodeUrn, SingleNodeResponse> responseMap = newHashMap();
-		responseMap.put(NODE_URN_1, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_1, 1, null));
-		responseMap.put(NODE_URN_2, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_2, 0, null));
-		responseMap.put(NODE_URN_3, newSingleNodeResponse(null, REQUEST_ID, NODE_URN_3, 1, null));
+		final Map<NodeUrn, Response> responseMap = newHashMap();
+		responseMap.put(NODE_URN_1, MESSAGE_FACTORY.response(Optional.empty(), Optional.empty(), REQUEST_ID, newArrayList(NODE_URN_1), 1, Optional.empty(), Optional.empty()));
+		responseMap.put(NODE_URN_2, MESSAGE_FACTORY.response(Optional.empty(), Optional.empty(), REQUEST_ID, newArrayList(NODE_URN_2), 0, Optional.empty(), Optional.empty()));
+		responseMap.put(NODE_URN_3, MESSAGE_FACTORY.response(Optional.empty(), Optional.empty(), REQUEST_ID, newArrayList(NODE_URN_3), 1, Optional.empty(), Optional.empty()));
 
 		when(deliveryManagerFactory.create(isA(Reservation.class))).thenReturn(deliveryManager);
-		when(responseTrackerFactory.create(isA(Request.class), isA(EventBusService.class))).thenReturn(responseTracker);
+		when(responseTrackerFactory.create(isA(Header.class), isA(EventBusService.class))).thenReturn(responseTracker);
 		when(requestIdProvider.get()).thenReturn(REQUEST_ID);
 		when(responseTracker.get(anyLong(), Matchers.<TimeUnit>any())).thenReturn(responseMap);
 
@@ -141,7 +142,8 @@ public class SessionManagementImplTest {
 				requestIdProvider,
 				sessionManagementPreconditionsProvider,
 				wisemlProvider,
-				endpointManager
+				endpointManager,
+				MESSAGE_FACTORY
 		);
 	}
 
@@ -150,13 +152,13 @@ public class SessionManagementImplTest {
 
 		final List<NodeConnectionStatus> statusList = sessionManagement.areNodesConnected(NODE_URNS);
 
-		final ArgumentCaptor<Request> req1 = ArgumentCaptor.forClass(Request.class);
+		final ArgumentCaptor<Header> req1 = ArgumentCaptor.forClass(Header.class);
 		verify(responseTrackerFactory).create(req1.capture(), isA(EventBusService.class));
-		assertTrue(req1.getValue().getAreNodesConnectedRequest().getNodeUrnsList().equals(NODE_URN_STRINGS));
+		assertTrue(req1.getValue().getNodeUrnsList().equals(NODE_URN_STRINGS));
 
-		final ArgumentCaptor<Request> req2 = ArgumentCaptor.forClass(Request.class);
+		final ArgumentCaptor<AreNodesConnectedRequest> req2 = ArgumentCaptor.forClass(AreNodesConnectedRequest.class);
 		verify(portalEventBus).post(req2.capture());
-		assertTrue(req2.getValue().getAreNodesConnectedRequest().getNodeUrnsList().equals(NODE_URN_STRINGS));
+		assertTrue(req2.getValue().getHeader().getNodeUrnsList().equals(NODE_URN_STRINGS));
 
 		final NodeConnectionStatus node1Status = new NodeConnectionStatus();
 		node1Status.setNodeUrn(NODE_URN_1);

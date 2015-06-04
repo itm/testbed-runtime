@@ -17,18 +17,24 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.*;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReservationEventDispatcherImplTest {
+
+	private static final MessageFactory MESSAGE_FACTORY = new MessageFactoryImpl(
+			new IncrementalIdProvider(),
+			new UnixTimestampProvider()
+	);
 
 	private static final NodeUrn GW1_N1 = new NodeUrn("urn:unit-test:gw1:0x0001");
 	private static final NodeUrn GW1_N2 = new NodeUrn("urn:unit-test:gw1:0x0002");
@@ -54,7 +60,7 @@ public class ReservationEventDispatcherImplTest {
 	);
 	private static final String OTHER_RESERVATION_ID = "" + RANDOM.nextLong();
 
-	private static final java.util.Optional<Long> NOW = java.util.Optional.of(System.currentTimeMillis());
+	private static final java.util.Optional<Long> NOW = of(System.currentTimeMillis());
 
 	static {
 		LINKS_RESERVED.put(GW1_N1, GW1_N2);
@@ -93,9 +99,9 @@ public class ReservationEventDispatcherImplTest {
 		when(reservation.getSerializedKey()).thenReturn(RESERVATION_ID);
 		when(reservation.getEventBus()).thenReturn(eventBus);
 
-		when(reservationManager.getReservation(any(NodeUrn.class), any(DateTime.class))).thenReturn(com.google.common.base.Optional.<Reservation>absent());
+		when(reservationManager.getReservation(any(NodeUrn.class), any(DateTime.class))).thenReturn(empty());
 		for (NodeUrn node : RESERVED_NODES) {
-			when(reservationManager.getReservation(eq(node), any(DateTime.class))).thenReturn(com.google.common.base.Optional.of(reservation));
+			when(reservationManager.getReservation(eq(node), any(DateTime.class))).thenReturn(of(reservation));
 		}
 
 		//noinspection unchecked
@@ -103,61 +109,39 @@ public class ReservationEventDispatcherImplTest {
 		when(reservationManager.getReservation(RESERVATION_ID)).thenReturn(reservation);
 		when(reservationManager.getReservations(any(DateTime.class))).thenReturn(newArrayList(reservation));
 
-		portalEventDispatcher = new ReservationEventDispatcherImpl(portalEventBus, reservationManager, portalEventStore, messageFactory);
+		portalEventDispatcher = new ReservationEventDispatcherImpl(portalEventBus, reservationManager, MESSAGE_FACTORY);
 		mf = new MessageFactoryImpl(new IncrementalIdProvider(), new UnixTimestampProvider());
 	}
 
 	@Test
-	public void testUpstreamMessageEventShouldBeForwardedIfNodePartOfReservation() throws Exception {
+	public void testEventShouldBeForwardedIfNodePartOfReservation() throws Exception {
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
+			setUpMapping(nodeUrn);
 			final UpstreamMessageEvent event = mf.upstreamMessageEvent(NOW, nodeUrn, nodeUrn.toString().getBytes());
-			portalEventDispatcher.onUpstreamMessageEventFromPortalEventBus(event);
+			portalEventDispatcher.onEvent(event);
 			verify(eventBus).post(eq(event));
 		}
 	}
 
 	@Test
-	public void testUpstreamMessageEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
+	public void testEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
+			when(reservationManager.getReservationMapping(any(), any())).thenReturn(HashMultimap.create());
 			final UpstreamMessageEvent event = mf.upstreamMessageEvent(NOW, nodeUrn, nodeUrn.toString().getBytes());
-			portalEventDispatcher.onUpstreamMessageEventFromPortalEventBus(event);
+			portalEventDispatcher.onEvent(event);
 			verify(eventBus, never()).post(eq(event));
 		}
 	}
 
 	@Test
-	public void testDevicesAttachedEventShouldBeForwardedIfNodePartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final DevicesAttachedEvent event = mf.devicesAttachedEvent(NOW, nodeUrn);
-			portalEventDispatcher.onDevicesAttachedEventFromPortalEventBus(event);
-			verify(eventBus).post(eq(event));
-		}
-	}
+	public void testEventShouldBeFilteredIfSomeNodesArePartOfReservation() throws Exception {
 
-	@Test
-	public void testDevicesAttachedEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final DevicesAttachedEvent event = mf.devicesAttachedEvent(NOW, nodeUrn);
-			portalEventDispatcher.onDevicesAttachedEventFromPortalEventBus(event);
-			verify(eventBus, never()).post(eq(event));
-		}
-	}
-
-	@Test
-	public void testDevicesAttachedEventShouldBeStoredIfNotMatchingReservationFound() throws Exception {
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final DevicesAttachedEvent event = mf.devicesAttachedEvent(NOW, nodeUrn);
-			portalEventDispatcher.onDevicesAttachedEventFromPortalEventBus(event);
-			//noinspection unchecked
-			verify(portalEventStore).storeEvent(event, event.getClass(), event.getHeader().getTimestamp());
-		}
-	}
-
-	@Test
-	public void testDevicesAttachedEventShouldBeFilteredIfSomeNodesArePartOfReservation() throws Exception {
+		Multimap<Reservation, NodeUrn> mapping = HashMultimap.create();
+		mapping.putAll(reservation, RESERVED_NODES);
+		when(reservationManager.getReservationMapping(any(), eq(new DateTime(NOW.get())))).thenReturn(mapping);
 
 		final DevicesAttachedEvent event = mf.devicesAttachedEvent(NOW, ALL_NODES);
-		portalEventDispatcher.onDevicesAttachedEventFromPortalEventBus(event);
+		portalEventDispatcher.onEvent(event);
 
 		final ArgumentCaptor<DevicesAttachedEvent> captor = ArgumentCaptor.forClass(DevicesAttachedEvent.class);
 		verify(eventBus, times(1)).post(captor.capture());
@@ -165,187 +149,53 @@ public class ReservationEventDispatcherImplTest {
 	}
 
 	@Test
-	public void testSingleNodeProgressShouldBeForwardedIfHasSameReservationId() throws Exception {
+	public void testProgressShouldBeForwardedIfHasSameReservationId() throws Exception {
 		when(reservation.getEntries()).thenReturn(ENTRIES);
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final SingleNodeProgress progress = mf.progress(
-					Optional.of(RESERVATION_ID),
-					Optional.of(RANDOM.nextLong()),
-					MessageType.REQUEST_ARE_NODES_ALIVE,
+			setUpMapping(nodeUrn);
+			final Progress progress = mf.progress(
+					of(RESERVATION_ID),
+					of(RANDOM.nextLong()),
 					123,
-					nodeUrn,
+					newArrayList(nodeUrn),
 					37
 			);
-			portalEventDispatcher.onSingleNodeProgressFromPortalEventBus(progress);
+			portalEventDispatcher.onEvent(progress);
 			verify(eventBus).post(eq(progress));
 		}
 	}
 
 	@Test
-	public void testSingleNodeProgressDetachedEventShouldNotBeForwardedIfHasOtherReservationId() throws Exception {
-		when(reservation.getEntries()).thenReturn(ENTRIES);
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeProgress progress = mf.progress(
-					Optional.of(OTHER_RESERVATION_ID),
-					Optional.of(RANDOM.nextLong()),
-					MessageType.REQUEST_ARE_NODES_ALIVE,
-					123,
-					nodeUrn,
-					37
-			);
-			portalEventDispatcher.onSingleNodeProgressFromPortalEventBus(progress);
-			verify(eventBus, never()).post(eq(progress));
-		}
-	}
-
-	@Test
-	public void testSingleNodeProgressDetachedEventShouldBeStoredIfNotMatchingReservationFound() throws Exception {
-		when(reservation.getEntries()).thenReturn(ENTRIES);
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeProgress progress = mf.progress(
-					Optional.of(OTHER_RESERVATION_ID),
-					Optional.of(RANDOM.nextLong()),
-					MessageType.REQUEST_ARE_NODES_ALIVE,
-					123,
-					nodeUrn,
-					37
-			);
-			portalEventDispatcher.onSingleNodeProgressFromPortalEventBus(progress);
-			//noinspection unchecked
-			verify(portalEventStore).storeEvent(progress, progress.getClass());
-		}
-	}
-
-	@Test
-	public void testSingleNodeResponseShouldBeForwardedIfHasSameReservationId() throws Exception {
-		when(reservation.getEntries()).thenReturn(ENTRIES);
-		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final SingleNodeResponse response = mf.response(
-					Optional.of(RESERVATION_ID),
-					Optional.of(RANDOM.nextLong()),
-					MessageType.REQUEST_ARE_NODES_ALIVE,
-					123,
-					nodeUrn,
-					37,
-					Optional.empty()
-			);
-			portalEventDispatcher.onSingleNodeResponseFromPortalEventBus(response);
-			verify(eventBus).post(eq(response));
-		}
-	}
-
-	@Test
-	public void testSingleNodeResponseDetachedEventShouldNotBeForwardedIfHasOtherReservationId() throws Exception {
-		when(reservation.getEntries()).thenReturn(ENTRIES);
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeResponse response = mf.response(
-					Optional.of(OTHER_RESERVATION_ID),
-					Optional.of(RANDOM.nextLong()),
-					MessageType.REQUEST_ARE_NODES_ALIVE,
-					123,
-					nodeUrn,
-					37,
-					Optional.empty()
-			);
-			portalEventDispatcher.onSingleNodeResponseFromPortalEventBus(response);
-			verify(eventBus, never()).post(eq(response));
-		}
-	}
-
-	@Test
-	public void testSingleNodeResponseDetachedEventShouldBeStoredIfNotMatchingAReservation() throws Exception {
-		when(reservation.getEntries()).thenReturn(ENTRIES);
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final SingleNodeResponse response = mf.response(
-					Optional.of(OTHER_RESERVATION_ID),
-					Optional.of(RANDOM.nextLong()),
-					MessageType.REQUEST_ARE_NODES_ALIVE,
-					123,
-					nodeUrn,
-					37,
-					Optional.empty()
-			);
-			portalEventDispatcher.onSingleNodeResponseFromPortalEventBus(response);
-
-			//noinspection unchecked
-			verify(portalEventStore).storeEvent(response, response.getClass());
-		}
-	}
-
-	@Test
 	public void testNotificationShouldBeForwardedIfNoNodeIsSet() throws Exception {
-		final NotificationEvent event = mf.notificationEvent(Optional.empty(), NOW, "hello");
-		portalEventDispatcher.onNotificationEventFromPortalEventBus(event);
+		final NotificationEvent event = mf.notificationEvent(empty(), NOW, "hello");
+		portalEventDispatcher.onEvent(event);
 		verify(eventBus).post(eq(event));
 	}
 
 	@Test
 	public void testNotificationShouldBeForwardedIfNodeIsPartOfReservation() throws Exception {
 		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final NotificationEvent event = mf.notificationEvent(Optional.of(nodeUrn), NOW, nodeUrn.toString());
-			portalEventDispatcher.onNotificationEventFromPortalEventBus(event);
+			setUpMapping(nodeUrn);
+			final NotificationEvent event = mf.notificationEvent(of(newArrayList(nodeUrn)), NOW, nodeUrn.toString());
+			portalEventDispatcher.onEvent(event);
 			verify(eventBus).post(eq(event));
 		}
+	}
+
+	private void setUpMapping(NodeUrn nodeUrn) {
+		Multimap<Reservation, NodeUrn> mapping = HashMultimap.create();
+		mapping.put(reservation, nodeUrn);
+		when(reservationManager.getReservationMapping(any(), any())).thenReturn(mapping);
 	}
 
 	@Test
 	public void testNotificationShouldNotBeForwardedIfNodeIsNotPartOfReservation() throws Exception {
 		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final NotificationEvent event = mf.notificationEvent(Optional.of(nodeUrn), NOW, nodeUrn.toString());
-			portalEventDispatcher.onNotificationEventFromPortalEventBus(event);
+			when(reservationManager.getReservationMapping(any(), any())).thenReturn(HashMultimap.create());
+			final NotificationEvent event = mf.notificationEvent(of(newArrayList(nodeUrn)), NOW, nodeUrn.toString());
+			portalEventDispatcher.onEvent(event);
 			verify(eventBus, never()).post(eq(event));
 		}
-	}
-
-
-	@Test
-	public void testNotificationShouldBeStoredIfNoMatchingReservationFound() throws Exception {
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final NotificationEvent event = mf.notificationEvent(Optional.of(nodeUrn), NOW, nodeUrn.toString());
-			portalEventDispatcher.onNotificationEventFromPortalEventBus(event);
-			//noinspection unchecked
-			verify(portalEventStore).storeEvent(event, event.getClass(), event.getHeader().getTimestamp());
-		}
-	}
-
-	@Test
-	public void testDevicesDetachedEventShouldBeForwardedIfNodePartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : RESERVED_NODES) {
-			final DevicesDetachedEvent event = mf.devicesDetachedEvent(NOW, nodeUrn);
-			portalEventDispatcher.onDevicesDetachedEventFromPortalEventBus(event);
-			verify(eventBus).post(eq(event));
-		}
-	}
-
-	@Test
-	public void testDevicesDetachedEventShouldNotBeForwardedIfNodeNotPartOfReservation() throws Exception {
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final DevicesDetachedEvent event = mf.devicesDetachedEvent(NOW, nodeUrn);
-			portalEventDispatcher.onDevicesDetachedEventFromPortalEventBus(event);
-			verify(eventBus, never()).post(eq(event));
-		}
-	}
-
-	@Test
-	public void testDevicesDetachedEventShouldBeStoredIfNoMatchingReservationFound() throws Exception {
-		for (NodeUrn nodeUrn : UNRESERVED_NODES) {
-			final DevicesDetachedEvent event = mf.devicesDetachedEvent(NOW, nodeUrn);
-			portalEventDispatcher.onDevicesDetachedEventFromPortalEventBus(event);
-			//noinspection unchecked
-			verify(portalEventStore).storeEvent(event, event.getClass(), event.getHeader().getTimestamp());
-		}
-	}
-
-
-	@Test
-	public void testDevicesDetachedEventShouldBeFilteredIfSomeNodesArePartOfReservation() throws Exception {
-
-		final DevicesDetachedEvent event = mf.devicesDetachedEvent(NOW, ALL_NODES);
-		portalEventDispatcher.onDevicesDetachedEventFromPortalEventBus(event);
-
-		final ArgumentCaptor<DevicesDetachedEvent> captor = ArgumentCaptor.forClass(DevicesDetachedEvent.class);
-		verify(eventBus, times(1)).post(captor.capture());
-		assertTrue(MessageUtils.equals(captor.getValue(), mf.devicesDetachedEvent(NOW, RESERVED_NODES)));
 	}
 
 	@After

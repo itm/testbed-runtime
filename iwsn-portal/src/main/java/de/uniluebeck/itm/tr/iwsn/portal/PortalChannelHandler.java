@@ -63,12 +63,13 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 			if (pair.header.getDownstream()) {
 
+				sendUnconnectedResponses(pair.header, getUnconnectedStatusCode(pair.header.getType()));
+
 				final Set<NodeUrn> nodeUrns = newHashSet(transform(pair.header.getNodeUrnsList(), NodeUrn::new));
 				final Multimap<ChannelHandlerContext, NodeUrn> mapping = getMulticastMapping(nodeUrns);
 				final Map<ChannelHandlerContext, MessageHeaderPair> messagesToBeSent = newHashMap();
 
 				Set<NodeUrn> gatewayNodeUrns;
-				MessageHeaderPair gatewayPair;
 
 				if (pair.header.getBroadcast()) {
 
@@ -77,13 +78,8 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 				} else {
 
 					for (ChannelHandlerContext ctx : mapping.keySet()) {
-
 						gatewayNodeUrns = newHashSet(mapping.get(ctx));
-						gatewayPair = messageFactory.splitRequest(pair, gatewayNodeUrns);
-
-						messagesToBeSent.put(ctx, gatewayPair);
-						sendMessages(messagesToBeSent);
-						sendUnconnectedResponses(gatewayPair.header, getUnconnectedStatusCode(gatewayPair.header.getType()));
+						sendMessage(ctx, messageFactory.splitRequest(pair, gatewayNodeUrns));
 					}
 				}
 			}
@@ -110,24 +106,16 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 		portalEventBus.post(response);
 	}
 
-	private void sendMessages(final Map<ChannelHandlerContext, MessageHeaderPair> messagesToBeSent) {
-
-		for (Map.Entry<ChannelHandlerContext, MessageHeaderPair> entry : messagesToBeSent.entrySet()) {
-
-			final ChannelHandlerContext ctx = entry.getKey();
-			final MessageHeaderPair pair = entry.getValue();
-			final MessageLite message = pair.message;
-
-			final DefaultChannelFuture future = new DefaultChannelFuture(ctx.getChannel(), true);
-			future.addListener(channelFuture -> {
-						//noinspection ThrowableResultOfMethodCallIgnored
-						if (!channelFuture.isSuccess() && channelFuture.getCause() instanceof ClosedChannelException) {
-							sendUnconnectedResponses(pair.header, -1);
-						}
+	private void sendMessage(ChannelHandlerContext ctx, MessageHeaderPair pair) {
+		DefaultChannelFuture future = new DefaultChannelFuture(ctx.getChannel(), true);
+		future.addListener(channelFuture -> {
+					//noinspection ThrowableResultOfMethodCallIgnored
+					if (!channelFuture.isSuccess() && channelFuture.getCause() instanceof ClosedChannelException) {
+						sendUnconnectedResponses(pair.header, -1);
 					}
-			);
-			Channels.write(ctx, future, message);
-		}
+				}
+		);
+		Channels.write(ctx, future, pair.message);
 	}
 
 	private Set<NodeUrn> getUnconnectedNodeUrns(final Set<NodeUrn> nodeUrns) {

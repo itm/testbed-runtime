@@ -248,7 +248,7 @@ public class ReservationManagerImpl extends AbstractService implements Reservati
     }
 
 	@Override
-	public Multimap<Reservation, NodeUrn> getReservationMapping(Iterable<NodeUrn> nodeUrns, DateTime timestamp) {
+	public Multimap<Reservation, NodeUrn> getReservationMapping(Set<NodeUrn> nodeUrns, DateTime timestamp) {
 		HashMultimap<Reservation, NodeUrn> map = HashMultimap.create();
 		nodeUrns.forEach(n -> {
 			Optional<Reservation> reservation = getReservation(n, timestamp);

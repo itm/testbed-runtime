@@ -1,17 +1,18 @@
-/**********************************************************************************************************************
+/**
+ * *******************************************************************************************************************
  * Copyright (c) 2010, Institute of Telematics, University of Luebeck                                                 *
  * All rights reserved.                                                                                               *
- *                                                                                                                    *
+ * *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the   *
  * following conditions are met:                                                                                      *
- *                                                                                                                    *
+ * *
  * - Redistributions of source code must retain the above copyright notice, this list of conditions and the following *
- *   disclaimer.                                                                                                      *
+ * disclaimer.                                                                                                      *
  * - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the        *
- *   following disclaimer in the documentation and/or other materials provided with the distribution.                 *
+ * following disclaimer in the documentation and/or other materials provided with the distribution.                 *
  * - Neither the name of the University of Luebeck nor the names of its contributors may be used to endorse or promote*
- *   products derived from this software without specific prior written permission.                                   *
- *                                                                                                                    *
+ * products derived from this software without specific prior written permission.                                   *
+ * *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, *
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE      *
  * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,         *
@@ -19,11 +20,11 @@
  * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    *
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY   *
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                                *
- **********************************************************************************************************************/
+ * ********************************************************************************************************************
+ */
 
 package de.uniluebeck.itm.tr.rs.persistence.inmemory;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import de.uniluebeck.itm.tr.rs.persistence.ConfidentialReservationDataComparator;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
@@ -41,6 +42,7 @@ import org.joda.time.Interval;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -53,12 +55,10 @@ import static eu.wisebed.api.v3.WisebedServiceHelper.createRSUnknownSecretReserv
 public class InMemoryRSPersistence implements RSPersistence {
 
 	private final SecureIdGenerator secureIdGenerator = new SecureIdGenerator();
-
-	private ImmutableSet<RSPersistenceListener> listeners = ImmutableSet.of();
-
-	private final SortedSet<ConfidentialReservationData> reservations = new TreeSet<ConfidentialReservationData>(
+	private final SortedSet<ConfidentialReservationData> reservations = new TreeSet<>(
 			new ConfidentialReservationDataComparator()
 	);
+	private ImmutableSet<RSPersistenceListener> listeners = ImmutableSet.of();
 
 	@Override
 	public synchronized ConfidentialReservationData addReservation(final List<NodeUrn> nodeUrns,
@@ -124,18 +124,18 @@ public class InMemoryRSPersistence implements RSPersistence {
 		return limitResults(matchingReservations, offset, amount);
 	}
 
-    @Override
-    public List<ConfidentialReservationData> getNonFinalizedReservations() throws RSFault_Exception {
-        final List<ConfidentialReservationData> matchingReservations = newLinkedList();
-        for (ConfidentialReservationData reservation : reservations) {
-            if (reservation.getFinalized() == null)  {
-                matchingReservations.add(reservation);
-            }
-        }
-        return matchingReservations;
-    }
+	@Override
+	public List<ConfidentialReservationData> getNonFinalizedReservations() throws RSFault_Exception {
+		final List<ConfidentialReservationData> matchingReservations = newLinkedList();
+		for (ConfidentialReservationData reservation : reservations) {
+			if (reservation.getFinalized() == null) {
+				matchingReservations.add(reservation);
+			}
+		}
+		return matchingReservations;
+	}
 
-    @Override
+	@Override
 	public synchronized List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception {
 		final List<ConfidentialReservationData> matchingReservations = newLinkedList();
 		for (ConfidentialReservationData reservation : reservations) {
@@ -176,7 +176,7 @@ public class InMemoryRSPersistence implements RSPersistence {
 			}
 		}
 
-		return Optional.absent();
+		return Optional.empty();
 	}
 
 	@Override
@@ -192,34 +192,34 @@ public class InMemoryRSPersistence implements RSPersistence {
 		throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
 	}
 
-    @Override
-    public ConfidentialReservationData finalizeReservation(SecretReservationKey secretReservationKey) throws UnknownSecretReservationKeyFault, RSFault_Exception {
-        for (ConfidentialReservationData crd : reservations) {
-            if (crd.getSecretReservationKey().equals(secretReservationKey)) {
-                crd.setFinalized(DateTime.now());
-                for (RSPersistenceListener listener : listeners) {
-                    listener.onReservationFinalized(newArrayList(crd));
-                }
-                return crd;
-            }
-        }
+	@Override
+	public ConfidentialReservationData finalizeReservation(SecretReservationKey secretReservationKey) throws UnknownSecretReservationKeyFault, RSFault_Exception {
+		for (ConfidentialReservationData crd : reservations) {
+			if (crd.getSecretReservationKey().equals(secretReservationKey)) {
+				crd.setFinalized(DateTime.now());
+				for (RSPersistenceListener listener : listeners) {
+					listener.onReservationFinalized(newArrayList(crd));
+				}
+				return crd;
+			}
+		}
 
-        throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
-    }
+		throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
+	}
 
-    @Override
+	@Override
 	public synchronized ConfidentialReservationData cancelReservation(SecretReservationKey secretReservationKey) throws
 			UnknownSecretReservationKeyFault {
 
 		for (ConfidentialReservationData crd : reservations) {
 			if (crd.getSecretReservationKey().equals(secretReservationKey)) {
-                crd.setCancelled(DateTime.now());
-                for (RSPersistenceListener listener : listeners) {
-                    listener.onReservationCancelled(newArrayList(crd));
-                }
-                return crd;
-            }
-        }
+				crd.setCancelled(DateTime.now());
+				for (RSPersistenceListener listener : listeners) {
+					listener.onReservationCancelled(newArrayList(crd));
+				}
+				return crd;
+			}
+		}
 
 		throw createRSUnknownSecretReservationKeyFault("Reservation not found", secretReservationKey);
 	}
