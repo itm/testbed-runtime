@@ -3,10 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.common;
 import de.uniluebeck.itm.tr.common.EventBusService;
 import de.uniluebeck.itm.tr.common.IncrementalIdProvider;
 import de.uniluebeck.itm.tr.common.UnixTimestampProvider;
-import de.uniluebeck.itm.tr.iwsn.messages.Header;
-import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
-import de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl;
-import de.uniluebeck.itm.tr.iwsn.messages.Response;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,10 +35,16 @@ public class ResponseTrackerImplTest {
 
 	private static final NodeUrn NODE_URN_3 = new NodeUrn(NODE_URN_3_STRING);
 
+	private static final long NOW = System.currentTimeMillis();
+
 	private Header requestHeader = Header
 			.newBuilder()
 			.setSerializedReservationKey("" + new Random().nextLong())
 			.setCorrelationId(new Random().nextLong())
+			.setDownstream(true)
+			.setUpstream(false)
+			.setType(MessageType.REQUEST_ARE_NODES_ALIVE)
+			.setTimestamp(NOW)
 			.addNodeUrns(NODE_URN_1_STRING)
 			.addNodeUrns(NODE_URN_2_STRING)
 			.addNodeUrns(NODE_URN_3_STRING)
@@ -51,6 +54,10 @@ public class ResponseTrackerImplTest {
 			.newBuilder()
 			.setHeader(Header
 					.newBuilder()
+					.setDownstream(true)
+					.setUpstream(false)
+					.setType(MessageType.REQUEST_ARE_NODES_ALIVE)
+					.setTimestamp(NOW)
 					.setSerializedReservationKey(requestHeader.getSerializedReservationKey())
 					.setCorrelationId(requestHeader.getCorrelationId())
 					.addNodeUrns(NODE_URN_1_STRING))
@@ -61,6 +68,10 @@ public class ResponseTrackerImplTest {
 			.newBuilder()
 			.setHeader(Header
 					.newBuilder()
+					.setDownstream(true)
+					.setUpstream(false)
+					.setType(MessageType.REQUEST_ARE_NODES_ALIVE)
+					.setTimestamp(NOW)
 					.setSerializedReservationKey(requestHeader.getSerializedReservationKey())
 					.setCorrelationId(requestHeader.getCorrelationId())
 					.addNodeUrns(NODE_URN_2_STRING))
@@ -71,6 +82,10 @@ public class ResponseTrackerImplTest {
 			.newBuilder()
 			.setHeader(Header
 							.newBuilder()
+							.setDownstream(true)
+							.setUpstream(false)
+							.setType(MessageType.REQUEST_ARE_NODES_ALIVE)
+							.setTimestamp(NOW)
 							.setSerializedReservationKey(requestHeader.getSerializedReservationKey())
 							.setCorrelationId(requestHeader.getCorrelationId())
 							.addNodeUrns(NODE_URN_3_STRING)

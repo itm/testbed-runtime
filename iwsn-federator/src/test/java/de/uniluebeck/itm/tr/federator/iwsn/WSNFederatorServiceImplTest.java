@@ -5,11 +5,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import de.uniluebeck.itm.servicepublisher.ServicePublisher;
-import de.uniluebeck.itm.tr.common.EndpointManager;
-import de.uniluebeck.itm.tr.common.PreconditionsFactory;
-import de.uniluebeck.itm.tr.common.WSNPreconditions;
+import de.uniluebeck.itm.tr.common.*;
 import de.uniluebeck.itm.tr.federator.utils.FederatedEndpoints;
 import de.uniluebeck.itm.tr.iwsn.common.DeliveryManager;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.util.SecureIdGenerator;
 import de.uniluebeck.itm.util.concurrent.ExecutorUtils;
@@ -133,6 +133,8 @@ public class WSNFederatorServiceImplTest {
 	@Before
 	public void setUp() throws Exception {
 
+		MessageFactory messageFactory = new MessageFactoryImpl(new IncrementalIdProvider(), new UnixTimestampProvider());
+
 		when(preconditionsFactory.createWsnPreconditions(
 				Matchers.<Set<NodeUrnPrefix>>any(),
 				Matchers.<Set<NodeUrn>>any()
@@ -154,12 +156,12 @@ public class WSNFederatorServiceImplTest {
 
 		wsnFederatorServiceImpl = new WSNFederatorServiceImpl(
 				servicePublisher,
-				config,
 				executorService,
 				preconditionsFactory,
 				portalEventBus,
 				endpointManager,
-				messageFactory, federatedReservation,
+				messageFactory,
+				federatedReservation,
 				deliveryManager,
 				federatedEndpoints,
 				SERVED_NODE_URN_PREFIXES,

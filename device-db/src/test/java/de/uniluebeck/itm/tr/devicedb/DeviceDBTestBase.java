@@ -2,12 +2,12 @@ package de.uniluebeck.itm.tr.devicedb;
 
 import com.google.common.collect.*;
 import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
+import com.sun.tools.javac.tree.DCTree;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
-import de.uniluebeck.itm.tr.common.EventBusService;
-import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigCreatedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigDeletedEvent;
-import de.uniluebeck.itm.tr.iwsn.messages.DeviceConfigUpdatedEvent;
+import de.uniluebeck.itm.tr.common.*;
+import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.util.StringUtils;
 import eu.wisebed.api.v3.common.NodeUrn;
 import eu.wisebed.wiseml.Capability;
@@ -16,6 +16,7 @@ import eu.wisebed.wiseml.CoordinateType;
 import eu.wisebed.wiseml.OutdoorCoordinatesType;
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Map;
@@ -29,6 +30,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public abstract class DeviceDBTestBase {
@@ -68,6 +70,9 @@ public abstract class DeviceDBTestBase {
 		@Override
 		protected void configure() {
 			bind(EventBusService.class).toInstance(eventBusService);
+			bind(IdProvider.class).to(IncrementalIdProvider.class).in(Scopes.SINGLETON);
+			bind(TimestampProvider.class).to(UnixTimestampProvider.class).in(Scopes.SINGLETON);
+			bind(MessageFactory.class).to(MessageFactoryImpl.class).in(Scopes.SINGLETON);
 		}
 	};
 
@@ -317,7 +322,9 @@ public abstract class DeviceDBTestBase {
 		reset(eventBusService);
 
 		db.removeAll();
-		verify(eventBusService, times(2)).post(isA(DeviceConfigDeletedEvent.class));
+		ArgumentCaptor<DeviceConfigDeletedEvent> captor = ArgumentCaptor.forClass(DeviceConfigDeletedEvent.class);
+		verify(eventBusService).post(captor.capture());
+		assertTrue(captor.getValue().getHeader().getNodeUrnsList().containsAll(newArrayList(NODE_URN1.toString(), NODE_URN2.toString())));
 		verify(eventBusService, never()).post(isA(DeviceConfigCreatedEvent.class));
 		verify(eventBusService, never()).post(isA(DeviceConfigUpdatedEvent.class));
 	}

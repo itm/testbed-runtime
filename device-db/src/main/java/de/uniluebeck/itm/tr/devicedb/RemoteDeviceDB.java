@@ -223,14 +223,8 @@ public class RemoteDeviceDB extends AbstractService implements DeviceDBService {
 			for (DeviceConfig config : getAll()) {
 				nodeUrns.add(config.getNodeUrn());
 			}
-
 			adminClient().delete(Lists.<String>newArrayList());
-
-			for (NodeUrn nodeUrn : nodeUrns) {
-
-				final DeviceConfigDeletedEvent event = mf.deviceConfigDeletedEvent(nodeUrn, empty());
-				eventBusService.post(event);
-			}
+			eventBusService.post(mf.deviceConfigDeletedEvent(nodeUrns, empty()));
 
 		} catch (Exception e) {
 			throw propagate(e);

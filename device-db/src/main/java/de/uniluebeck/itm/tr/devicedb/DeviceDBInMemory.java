@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
@@ -183,11 +184,12 @@ public class DeviceDBInMemory extends AbstractService implements DeviceDBService
 		checkState(isRunning());
 
 		synchronized (configs) {
-			for (DeviceConfig config : configs) {
-				final DeviceConfigDeletedEvent event = mf.deviceConfigDeletedEvent(config.getNodeUrn(), empty());
-				eventBusService.post(event);
-			}
+			final DeviceConfigDeletedEvent event = mf.deviceConfigDeletedEvent(
+					configs.stream().map(c -> c.getNodeUrn()).collect(Collectors.toSet()),
+					empty()
+			);
 			configs.clear();
+			eventBusService.post(event);
 		}
 	}
 

@@ -1,6 +1,7 @@
 package de.uniluebeck.itm.tr.iwsn.gateway;
 
 import com.google.inject.Inject;
+import de.uniluebeck.itm.tr.iwsn.common.MessageWrapper;
 import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.UpstreamMessageQueue;
 import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
 import de.uniluebeck.itm.tr.iwsn.messages.MessageHeaderPair;
@@ -74,12 +75,12 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 		upstreamMessageQueue.channelConnected(channel);
 
 		final String hostname = InetAddress.getLocalHost().getHostAddress();
-		upstreamMessageQueue.enqueue(messageFactory.gatewayConnectedEvent(Optional.empty(), hostname));
+		upstreamMessageQueue.enqueue(MessageWrapper.wrap(messageFactory.gatewayConnectedEvent(Optional.empty(), hostname)));
 
 		final Set<NodeUrn> connectedNodeUrns = deviceManager.getConnectedNodeUrns();
 
 		if (!connectedNodeUrns.isEmpty()) {
-			upstreamMessageQueue.enqueue(messageFactory.devicesAttachedEvent(Optional.empty(), connectedNodeUrns));
+			upstreamMessageQueue.enqueue(MessageWrapper.wrap(messageFactory.devicesAttachedEvent(Optional.empty(), connectedNodeUrns)));
 		}
 
 		super.channelConnected(ctx, e);

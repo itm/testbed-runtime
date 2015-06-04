@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.gateway.eventqueue;
 
 import com.google.common.util.concurrent.Service;
 import de.uniluebeck.itm.tr.iwsn.messages.Message;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageHeaderPair;
 import org.jboss.netty.channel.Channel;
 
 public interface UpstreamMessageQueue extends Service {
@@ -11,7 +12,8 @@ public interface UpstreamMessageQueue extends Service {
 
     void channelDisconnected();
 
-    void enqueue(Object message);
+    void enqueue(MessageHeaderPair pair);
 
+    void enqueue(Message msg);
 
 }

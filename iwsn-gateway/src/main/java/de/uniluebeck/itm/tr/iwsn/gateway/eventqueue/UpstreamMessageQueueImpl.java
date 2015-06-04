@@ -5,7 +5,6 @@ import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.inject.Inject;
-import com.google.protobuf.MessageLite;
 import com.leansoft.bigqueue.IBigQueue;
 import de.uniluebeck.itm.tr.iwsn.common.MessageWrapper;
 import de.uniluebeck.itm.tr.iwsn.gateway.GatewayEventBus;
@@ -107,18 +106,17 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 	}
 
 	@Override
-	public void enqueue(Object obj) {
+	public void enqueue(MessageHeaderPair pair) {
+		enqueue(MessageWrapper.WRAP_FUNCTION.apply(pair.message));
+	}
+
+	@Override
+	public void enqueue(Message msg) {
 		try {
-
-			if (!MessageHeaderPair.isUnwrappedMessageEvent(obj)) {
-				throw new IllegalArgumentException("Only unwrapped messages can be enqueued!");
-			}
-
-			enqueue(serializationHelper.serialize(MessageWrapper.WRAP_FUNCTION.apply((MessageLite) obj)));
-
+			enqueue(serializationHelper.serialize(msg));
 		} catch (NotSerializableException e) {
 			log.error("NotSerializableException while trying to serialize. Exception: {}", e);
-			sendFailureEvent("The message " + obj + " is not serializable. An appropriate serializer is missing!", e);
+			sendFailureEvent("The message " + msg + " is not serializable. An appropriate serializer is missing!", e);
 		}
 	}
 
@@ -151,19 +149,24 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 		log.trace("UpstreamMessageQueueImpl.onEvent(): {}", obj);
 
 		if (obj instanceof DevicesConnectedEvent) {
+
 			DevicesConnectedEvent event = (DevicesConnectedEvent) obj;
 			log.info("Enqueuing DevicesAttachedEvent for {}", event.getNodeUrns());
 			final DevicesAttachedEvent dae = messageFactory.devicesAttachedEvent(Optional.empty(), event.getNodeUrns());
-			enqueue(MessageHeaderPair.fromUnwrapped(dae));
+			enqueue(MessageWrapper.wrap(dae));
+
 		} else if (obj instanceof DevicesDisconnectedEvent) {
+
 			DevicesDisconnectedEvent event = (DevicesDisconnectedEvent) obj;
 			log.info("Enqueuing DevicesDetachedEvent for {}", event.getNodeUrns());
 			DevicesDetachedEvent dde = messageFactory.devicesDetachedEvent(Optional.empty(), event.getNodeUrns());
-			enqueue(MessageHeaderPair.fromUnwrapped(dde));
+			enqueue(MessageWrapper.wrap(dde));
 		}
 
 		if (MessageHeaderPair.isUnwrappedMessageEvent(obj)) {
+
 			final MessageHeaderPair pair = MessageHeaderPair.fromUnwrapped(obj);
+
 			if (pair.header.getUpstream()) {
 				enqueue(pair);
 			}
