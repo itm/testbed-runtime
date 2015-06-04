@@ -1,7 +1,6 @@
 package de.uniluebeck.itm.tr.federator.iwsn;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AbstractService;
@@ -124,7 +123,12 @@ public class FederatedReservationManager extends AbstractService implements Rese
 		throw new RuntimeException("Not yet implemented!");
 	}
 
-    @Override
+	@Override
+	public Multimap<Reservation, NodeUrn> getReservationMapping(Set<NodeUrn> nodeUrns, DateTime timestamp) {
+		throw new RuntimeException("Not yet implemented!");
+	}
+
+	@Override
     public List<Reservation> getReservations(DateTime timestamp) {
         throw new RuntimeException("Not yet implemented!");
 
@@ -222,12 +226,7 @@ public class FederatedReservationManager extends AbstractService implements Rese
 		}
 
 		// construct FederatedEndpoints for retrieved WSN API endpoints
-		final Function<URI, WSN> endpointBuilderFunction = new Function<URI, WSN>() {
-			@Override
-			public WSN apply(final URI input) {
-				return WisebedServiceHelper.getWSNService(input.toString());
-			}
-		};
+		final Function<URI, WSN> endpointBuilderFunction = input -> WisebedServiceHelper.getWSNService(input.toString());
 
 		return federatedEndpointsFactory.create(
 				endpointBuilderFunction,

@@ -6,14 +6,16 @@ import com.google.common.collect.Multimap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.AbstractService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import de.uniluebeck.itm.tr.devicedb.DeviceConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBService;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTracker;
 import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
-import de.uniluebeck.itm.tr.iwsn.messages.Request;
-import de.uniluebeck.itm.tr.iwsn.messages.SingleNodeResponse;
+import de.uniluebeck.itm.tr.iwsn.messages.FlashImagesRequest;
+import de.uniluebeck.itm.tr.iwsn.messages.MessageFactory;
+import de.uniluebeck.itm.tr.iwsn.messages.Response;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.FlashStatus;
 import de.uniluebeck.itm.tr.iwsn.portal.nodestatustracker.NodeStatusTracker;
@@ -40,7 +42,7 @@ import static com.google.common.collect.Maps.filterValues;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.*;
 import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
-import static de.uniluebeck.itm.tr.iwsn.messages.MessageFactoryImpl.newFlashImagesRequest;
+import static java.util.Optional.empty;
 import static java.util.concurrent.Executors.newScheduledThreadPool;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -77,17 +79,15 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 	private final ResponseTrackerFactory responseTrackerFactory;
 
 	private final RSHelper rsHelper;
+	private final MessageFactory messageFactory;
 
 	private ScheduledExecutorService scheduler;
 
-	private Runnable defaultImageRunnable = new Runnable() {
-		@Override
-		public void run() {
-			try {
-				flashDefaultImages();
-			} catch (Exception e) {
-				log.error("Exception while flashing default images: ", e);
-			}
+	private Runnable defaultImageRunnable = () -> {
+		try {
+			flashDefaultImages();
+		} catch (Exception e) {
+			log.error("Exception while flashing default images: ", e);
 		}
 	};
 
@@ -98,12 +98,14 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 								  final PortalEventBus portalEventBus,
 								  final DeviceDBService deviceDBService,
 								  final ResponseTrackerFactory responseTrackerFactory,
-								  final RSHelper rsHelper) {
+								  final RSHelper rsHelper,
+								  final MessageFactory messageFactory) {
 		this.nodeStatusTracker = checkNotNull(nodeStatusTracker);
 		this.portalEventBus = checkNotNull(portalEventBus);
 		this.deviceDBService = checkNotNull(deviceDBService);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.rsHelper = checkNotNull(rsHelper);
+		this.messageFactory = checkNotNull(messageFactory);
 	}
 
 	@Override
@@ -157,27 +159,26 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 
 				final Set<NodeUrn> nodeUrns = entry.getKey();
 				final byte[] image = entry.getValue();
-				final Request request = newFlashImagesRequest(null, random.nextLong(), nodeUrns, image);
+				FlashImagesRequest request = messageFactory.flashImagesRequest(empty(), empty(), nodeUrns, image);
 
 				log.debug("Flashing {} with default image...", nodeUrns);
-				final ResponseTracker responseTracker = responseTrackerFactory.create(request, portalEventBus);
+				final ResponseTracker responseTracker = responseTrackerFactory.create(
+						request.getHeader(),
+						portalEventBus
+				);
 				portalEventBus.post(request);
 
-				responseTracker.addProgressListener(new Runnable() {
-					@Override
-					public void run() {
-						log.trace("Flashing progress: " + responseTracker.getProgress());
-					}
-				}, sameThreadExecutor()
-				);
+				responseTracker.addProgressListener(() -> {
+					log.trace("Flashing progress: " + responseTracker.getProgress());
+				}, MoreExecutors.directExecutor());
 
 				responseTrackers.add(responseTracker);
 			}
 
 			// join
 			for (ResponseTracker responseTracker : responseTrackers) {
-				final Map<NodeUrn, SingleNodeResponse> responseMap = responseTracker.get();
-				for (Map.Entry<NodeUrn, SingleNodeResponse> entry : responseMap.entrySet()) {
+				final Map<NodeUrn, Response> responseMap = responseTracker.get();
+				for (Map.Entry<NodeUrn, Response> entry : responseMap.entrySet()) {
 
 					// an error occurred
 					if (entry.getValue().getStatusCode() < 0) {
@@ -252,7 +253,7 @@ public class DefaultImagePluginImpl extends AbstractService implements DefaultIm
 			} else {
 				if (log.isErrorEnabled()) {
 					log.error("URI \"{}\" scheme configured as default image for node "
-							+ "\"{}\" is unsupported. Supported schemes: \"http\", \"https\" and \"file\""
+									+ "\"{}\" is unsupported. Supported schemes: \"http\", \"https\" and \"file\""
 					);
 				}
 				continue;

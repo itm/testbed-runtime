@@ -739,11 +739,11 @@ public class WSNFederatorServiceImpl extends AbstractService implements WSNFeder
 							portalEventBus.post(messageFactory.response(
 											Optional.of(reservation.getSerializedKey()),
 											Optional.empty(),
-											requestType,
 											requestId,
-											nodeUrn,
+											newArrayList(nodeUrn),
 											-1,
-											Optional.of(sb.toString())
+											Optional.of(sb.toString()),
+											Optional.empty()
 									)
 							);
 						}
