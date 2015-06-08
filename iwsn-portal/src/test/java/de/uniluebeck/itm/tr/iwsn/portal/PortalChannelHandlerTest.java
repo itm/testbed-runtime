@@ -6,9 +6,7 @@ import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.common.IdProvider;
 import de.uniluebeck.itm.tr.common.IncrementalIdProvider;
 import de.uniluebeck.itm.tr.common.UnixTimestampProvider;
-import de.uniluebeck.itm.tr.iwsn.common.MessageWrapper;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
-import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.RequestMessage;
 import de.uniluebeck.itm.tr.iwsn.portal.externalplugins.ExternalPluginService;
 import de.uniluebeck.itm.util.logging.Logging;
 import eu.wisebed.api.v3.common.NodeUrn;
@@ -175,7 +173,7 @@ public class PortalChannelHandlerTest {
 
 		portalChannelHandler.messageReceived(gateway1Context, new UpstreamMessageEvent(
 				gateway1Channel,
-				MessageWrapper.wrap(messageFactory.devicesAttachedEvent(empty(), GATEWAY1_NODE1)),
+				MessageHeaderPair.fromUnwrapped(messageFactory.devicesAttachedEvent(empty(), GATEWAY1_NODE1)),
 				null
 		));
 
@@ -188,7 +186,7 @@ public class PortalChannelHandlerTest {
 
 		portalChannelHandler.messageReceived(gateway2Context, new UpstreamMessageEvent(
 				gateway2Channel,
-				MessageWrapper.wrap(messageFactory.devicesAttachedEvent(empty(), GATEWAY2_NODE1, GATEWAY2_NODE2)),
+				MessageHeaderPair.fromUnwrapped(messageFactory.devicesAttachedEvent(empty(), GATEWAY2_NODE1, GATEWAY2_NODE2)),
 				null
 		));
 
@@ -228,8 +226,8 @@ public class PortalChannelHandlerTest {
 				GATEWAY2_NODE_URNS
 		);
 
-		assertEqualHeaders(expected1, (AreNodesAliveRequest) verifyAndCaptureMessage(gateway1Context, gateway1Channel));
-		assertEqualHeaders(expected2, (AreNodesAliveRequest) verifyAndCaptureMessage(gateway2Context, gateway2Channel));
+		assertEqualHeaders(expected1, (AreNodesAliveRequest) verifyAndCaptureMessage(gateway1Context, gateway1Channel).message);
+		assertEqualHeaders(expected2, (AreNodesAliveRequest) verifyAndCaptureMessage(gateway2Context, gateway2Channel).message);
 		verify(gateway3Context, never()).sendDownstream(Matchers.<ChannelEvent>any());
 	}
 
@@ -261,6 +259,19 @@ public class PortalChannelHandlerTest {
 		);
 	}
 
+	@Test
+	public void testIfUpstreamEventsAreAcknowledged() throws Exception {
+		de.uniluebeck.itm.tr.iwsn.messages.UpstreamMessageEvent event =
+				messageFactory.upstreamMessageEvent(of(System.currentTimeMillis()), GATEWAY1_NODE1, new byte[]{1, 2, 3});
+		portalChannelHandler.messageReceived(
+				gateway1Context,
+				new UpstreamMessageEvent(gateway1Channel, MessageHeaderPair.fromUnwrapped(event), gateway1Address)
+		);
+
+		EventAck eventAck = (EventAck) verifyAndCaptureMessage(gateway1Context, gateway1Channel).message;
+		assertEquals(event.getHeader().getCorrelationId(), eventAck.getHeader().getCorrelationId());
+	}
+
 	private void verifyThatNodeUnconnectedResponseIsPostedBack(final long expectedRequestId,
 															   final int expectedStatusCode,
 															   final NodeUrn expectedNodeUrn,
@@ -276,13 +287,13 @@ public class PortalChannelHandlerTest {
 		assertEquals(expectedErrorMessage, capturedResponse.getErrorMessage());
 	}
 
-	private MessageLite verifyAndCaptureMessage(final ChannelHandlerContext context, final Channel channel) {
+	private MessageHeaderPair verifyAndCaptureMessage(final ChannelHandlerContext context, final Channel channel) {
 
 		ArgumentCaptor<DownstreamMessageEvent> captor = ArgumentCaptor.forClass(DownstreamMessageEvent.class);
 		verify(context).sendDownstream(captor.capture());
 		DownstreamMessageEvent captured = captor.getValue();
 		assertSame(channel, captured.getChannel());
-		return (MessageLite) captured.getMessage();
+		return (MessageHeaderPair) captured.getMessage();
 	}
 
 	private void setUpGatewayAndChannelMockBehavior() {

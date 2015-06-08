@@ -15,16 +15,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.channels.ClosedChannelException;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Predicates.in;
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static de.uniluebeck.itm.tr.iwsn.messages.MessageUtils.getUnconnectedStatusCode;
 import static org.jboss.netty.channel.Channels.write;
 
+/**
+ * The PortalChannelHandler acts as the router for distributing downstream messages to individual gateways. When
+ * gateways connect to the portal and devices are attached to / detached from gateways they announce this by sending
+ * DevicesAttachedEvents and DevicesDetachedEvents upstream which is analysed and remembered by the PortalChannelHandler.
+ * This way the PortalChannelHandler learns which devices are attached to which gateway and can distributed downstream
+ * messages accordingly.
+ */
 public class PortalChannelHandler extends SimpleChannelHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(PortalChannelHandler.class);
@@ -66,7 +75,6 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 
 				final Set<NodeUrn> nodeUrns = newHashSet(transform(pair.header.getNodeUrnsList(), NodeUrn::new));
 				final Multimap<ChannelHandlerContext, NodeUrn> mapping = getMulticastMapping(nodeUrns);
-				final Map<ChannelHandlerContext, MessageHeaderPair> messagesToBeSent = newHashMap();
 
 				Set<NodeUrn> gatewayNodeUrns;
 
@@ -146,7 +154,7 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
 
 		if (!(e.getMessage() instanceof MessageHeaderPair)) {
-			throw new IllegalStateException("Expected only messages of type " + Message.class.getCanonicalName()
+			throw new IllegalStateException("Expected only messages of type " + MessageHeaderPair.class.getCanonicalName()
 					+ ", got " + e.getMessage().getClass().getCanonicalName()
 					+ ". Probably the pipeline is misconfigured!");
 		}
