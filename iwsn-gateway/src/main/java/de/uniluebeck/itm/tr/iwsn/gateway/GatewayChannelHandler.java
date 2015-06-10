@@ -55,6 +55,7 @@ public class GatewayChannelHandler extends SimpleChannelHandler {
 			throw new RuntimeException("Unexpected non-downstream message type: " + pair.header.getType());
 		}
 
+		log.trace("GatewayChannelHandler.messageReceived(): posting downstream message on GatewayEventBus: {}", pair.message);
 		gatewayEventBus.post(pair.message);
 	}
 

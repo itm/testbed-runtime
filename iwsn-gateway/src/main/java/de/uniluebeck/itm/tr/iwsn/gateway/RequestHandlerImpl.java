@@ -284,7 +284,7 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 	}
 
 	@Subscribe
-	private void onAreNodesConnectedRequest(final AreNodesConnectedRequest request) {
+	public void onAreNodesConnectedRequest(final AreNodesConnectedRequest request) {
 
 		log.trace("RequestHandlerImpl.onAreNodesConnectedRequest({})", request);
 

@@ -106,11 +106,6 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 	}
 
 	@Override
-	public void enqueue(MessageHeaderPair pair) {
-		enqueue(MessageWrapper.WRAP_FUNCTION.apply(pair.message));
-	}
-
-	@Override
 	public void enqueue(Message msg) {
 		try {
 			enqueue(serializationHelper.serialize(msg));
@@ -146,19 +141,17 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 	@Subscribe
 	public void onEvent(Object obj) {
 
-		log.trace("UpstreamMessageQueueImpl.onEvent(): {}", obj);
-
 		if (obj instanceof DevicesConnectedEvent) {
 
 			DevicesConnectedEvent event = (DevicesConnectedEvent) obj;
-			log.info("Enqueuing DevicesAttachedEvent for {}", event.getNodeUrns());
+			log.info("UpstreamMessageQueueImpl.onEvent(): enqueuing DevicesAttachedEvent for {}", event.getNodeUrns());
 			final DevicesAttachedEvent dae = messageFactory.devicesAttachedEvent(Optional.empty(), event.getNodeUrns());
 			enqueue(MessageWrapper.wrap(dae));
 
 		} else if (obj instanceof DevicesDisconnectedEvent) {
 
 			DevicesDisconnectedEvent event = (DevicesDisconnectedEvent) obj;
-			log.info("Enqueuing DevicesDetachedEvent for {}", event.getNodeUrns());
+			log.info("UpstreamMessageQueueImpl.onEvent(): enqueuing DevicesDetachedEvent for {}", event.getNodeUrns());
 			DevicesDetachedEvent dde = messageFactory.devicesDetachedEvent(Optional.empty(), event.getNodeUrns());
 			enqueue(MessageWrapper.wrap(dde));
 		}
@@ -166,11 +159,9 @@ public class UpstreamMessageQueueImpl extends AbstractService implements Upstrea
 		if (MessageHeaderPair.isUnwrappedMessageEvent(obj)) {
 
 			final MessageHeaderPair pair = MessageHeaderPair.fromUnwrapped(obj);
-
 			if (pair.header.getUpstream()) {
-				enqueue(pair);
-			} else if (pair.header.getDownstream()) {
-				gatewayEventBus.post(pair.message);
+				log.trace("UpstreamMessageQueueImpl.onEvent(): enqueuing upstream message {}", obj);
+				enqueue(MessageWrapper.WRAP_FUNCTION.apply(pair.message));
 			}
 		}
 	}
