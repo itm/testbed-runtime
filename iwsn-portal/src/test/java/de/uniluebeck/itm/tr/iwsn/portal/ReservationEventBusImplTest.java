@@ -112,7 +112,7 @@ public class ReservationEventBusImplTest {
 
 	private void postRequestAndVerifyForwarded(final MessageLite request) {
 		reservationEventBus.post(request);
-		verify(eventBus).post(eq(request));
+		verify(portalEventBus).post(eq(request));
 	}
 
 	private void postRequestAndVerifyException(final MessageLite request) {

@@ -3,7 +3,6 @@ package de.uniluebeck.itm.tr.devicedb;
 import com.google.common.collect.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-import com.sun.tools.javac.tree.DCTree;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfig;
 import de.uniluebeck.itm.nettyprotocols.ChannelHandlerConfigList;
 import de.uniluebeck.itm.tr.common.*;
@@ -28,14 +27,16 @@ import static com.google.common.collect.Iterables.get;
 import static com.google.common.collect.Iterables.size;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public abstract class DeviceDBTestBase {
 
 	protected static final Properties JPA_PROPERTIES = new Properties();
+	private static final NodeUrn NODE_URN1 = new NodeUrn("urn:wisebed:uzl1:0x2087");
+	private static final NodeUrn NODE_URN2 = new NodeUrn("urn:wisebed:uzl1:0x2088");
+	private static final NodeUrn NODE_URN3 = new NodeUrn("urn:wisebed:uzl1:0x2089");
+	private static final String NODE_CHIP_ID1 = "XBQTBYH2";
 
 	static {
 		/*
@@ -54,14 +55,6 @@ public abstract class DeviceDBTestBase {
 		JPA_PROPERTIES.put("hibernate.connection.username", "");
 		JPA_PROPERTIES.put("hibernate.connection.password", "");
 	}
-
-	private static final NodeUrn NODE_URN1 = new NodeUrn("urn:wisebed:uzl1:0x2087");
-
-	private static final NodeUrn NODE_URN2 = new NodeUrn("urn:wisebed:uzl1:0x2088");
-
-	private static final NodeUrn NODE_URN3 = new NodeUrn("urn:wisebed:uzl1:0x2089");
-
-	private static final String NODE_CHIP_ID1 = "XBQTBYH2";
 
 	@Mock
 	protected EventBusService eventBusService;
