@@ -3,6 +3,7 @@ package de.uniluebeck.itm.tr.iwsn.gateway;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
@@ -16,6 +17,7 @@ import de.uniluebeck.itm.tr.iwsn.nodeapi.NodeApiCallResult;
 import de.uniluebeck.itm.util.concurrent.ListenableFutureMap;
 import de.uniluebeck.itm.util.concurrent.ProgressListenableFuture;
 import de.uniluebeck.itm.util.concurrent.ProgressListenableFutureMap;
+import de.uniluebeck.itm.wsn.drivers.core.exception.ProgramChipMismatchException;
 import eu.wisebed.api.v3.common.NodeUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +34,7 @@ import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -379,7 +383,11 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 					future.get(); // check if exception occurred
 					postResponse(requestHeader, nodeUrn, completionStatusCode, null);
 				} catch (Exception e) {
-					postRequestFailureResponse(requestHeader, nodeUrn, e);
+					if (Throwables.getRootCause(e) instanceof ProgramChipMismatchException) {
+						postRequestFailureResponse(requestHeader, nodeUrn, "Program chip mismatch! Did you pick a compatible image for " + nodeUrn + "?");
+					} else {
+						postRequestFailureResponse(requestHeader, nodeUrn, e);
+					}
 				}
 			}
 		};
@@ -448,13 +456,19 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 	private void postRequestFailureResponse(final Header requestHeader,
 											final NodeUrn nodeUrn,
 											final Exception e) {
+		postRequestFailureResponse(requestHeader, nodeUrn, Throwables.getStackTraceAsString(e));
+	}
+
+	private void postRequestFailureResponse(final Header requestHeader,
+											final NodeUrn nodeUrn,
+											final String errorMessage) {
 		gatewayEventBus.post(messageFactory.response(
 				requestHeader.hasSerializedReservationKey() ? of(requestHeader.getSerializedReservationKey()) : empty(),
 				empty(),
 				requestHeader.getCorrelationId(),
 				newArrayList(nodeUrn),
 				-2,
-				of(Throwables.getStackTraceAsString(e)),
+				of(errorMessage),
 				empty()
 		));
 	}
@@ -514,10 +528,14 @@ public class RequestHandlerImpl extends AbstractService implements RequestHandle
 
 	private Multimap<DeviceAdapter, NodeUrn> handleUnconnectedAndReturnConnected(Header requestHeader) {
 
-		Iterable<NodeUrn> nodeUrns = transform(requestHeader.getNodeUrnsList(), NodeUrn::new);
-		Iterable<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
-		postNodeNotConnectedResponse(requestHeader, unconnectedSubset);
+		Set<NodeUrn> nodeUrns = newHashSet(transform(requestHeader.getNodeUrnsList(), NodeUrn::new));
+		Multimap<DeviceAdapter, NodeUrn> connectedSubset = deviceManager.getConnectedSubset(nodeUrns);
+		Set<NodeUrn> unconnectedSubset = deviceManager.getUnconnectedSubset(nodeUrns);
 
-		return deviceManager.getConnectedSubset(nodeUrns);
+		if (!Iterables.isEmpty(unconnectedSubset)) {
+			postNodeNotConnectedResponse(requestHeader, unconnectedSubset);
+		}
+
+		return connectedSubset;
 	}
 }

@@ -54,10 +54,10 @@ public class NodeStatusTrackerTest {
 	private static final String SERIALIZED_KEY = "BLABLABLA";
 
 	private static final de.uniluebeck.itm.tr.iwsn.messages.ReservationEndedEvent RESERVATION_ENDED_EVENT =
-			MESSAGE_FACTORY.reservationEndedEvent(of(DateTime.now().getMillis()), SERIALIZED_KEY);
+			MESSAGE_FACTORY.reservationEndedEvent(of(DateTime.now().getMillis()), SERIALIZED_KEY, true);
 
 	private static final de.uniluebeck.itm.tr.iwsn.messages.ReservationStartedEvent RESERVATION_STARTED_EVENT =
-			MESSAGE_FACTORY.reservationStartedEvent(of(DateTime.now().getMillis()), SERIALIZED_KEY);
+			MESSAGE_FACTORY.reservationStartedEvent(of(DateTime.now().getMillis()), SERIALIZED_KEY, true);
 
 	@Mock
 	private RSHelper rsHelper;

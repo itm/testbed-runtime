@@ -78,11 +78,10 @@ public class PortalEventStoreHelperImpl implements PortalEventStoreHelper {
 
         String basePath = getEventStoreBasePathForBaseName(baseName);
 
-        //noinspection unchecked
-        return EventStoreFactory.create()
+        return EventStoreFactory.<Message>create()
                 .eventStoreWithBasePath(basePath)
-                .withSerializers(serializers)
-                .andDeserializers(deserializers)
+                .setSerializer(MessageUtils.SERIALIZER)
+                .setDeserializer(MessageUtils.DESERIALIZER)
                 .inReadOnlyMode(readOnly)
                 .havingMonotonicEventOrder(false)
                 .build();

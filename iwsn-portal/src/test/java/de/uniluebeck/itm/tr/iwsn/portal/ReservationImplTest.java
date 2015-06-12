@@ -18,6 +18,7 @@ import org.joda.time.Interval;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -331,7 +332,12 @@ public class ReservationImplTest {
 		reservation.startAsync().awaitRunning();
 		verify(schedulerService).execute(refEq(reservation.startRunnable));
 		reservation.startRunnable.run();
-		verify(portalEventBus).post(isA(ReservationOpenedEvent.class));
+
+		// test if one upstream and one downstream event are send
+		ArgumentCaptor<ReservationOpenedEvent> events = ArgumentCaptor.forClass(ReservationOpenedEvent.class);
+		verify(portalEventBus, times(2)).post(events.capture());
+		assertTrue(events.getAllValues().get(0).getHeader().getUpstream());
+		assertTrue(events.getAllValues().get(1).getHeader().getDownstream());
 	}
 
 	@Test
@@ -339,7 +345,10 @@ public class ReservationImplTest {
 		setupReservationOngoing();
 		reservation.startAsync().awaitRunning();
 		reservation.stopAsync().awaitTerminated();
-		verify(portalEventBus).post(isA(ReservationClosedEvent.class));
+		ArgumentCaptor<ReservationClosedEvent> events = ArgumentCaptor.forClass(ReservationClosedEvent.class);
+		verify(portalEventBus, times(2)).post(events.capture());
+		assertTrue(events.getAllValues().get(0).getHeader().getUpstream());
+		assertTrue(events.getAllValues().get(1).getHeader().getDownstream());
 	}
 
 	@Test
@@ -426,7 +435,6 @@ public class ReservationImplTest {
 		assertTrue(pastLifecycleEvents.get(0) instanceof ReservationMadeEvent);
 		assertTrue(pastLifecycleEvents.get(1) instanceof ReservationStartedEvent);
 		assertTrue(pastLifecycleEvents.get(2) instanceof ReservationCancelledEvent);
-
 	}
 
 
@@ -436,7 +444,10 @@ public class ReservationImplTest {
 		ReservationImpl.ReservationMadeCallable callable = reservation.new ReservationMadeCallable();
 
 		callable.call();
-		verify(portalEventBus).post(isA(ReservationMadeEvent.class));
+		ArgumentCaptor<ReservationMadeEvent> events = ArgumentCaptor.forClass(ReservationMadeEvent.class);
+		verify(portalEventBus, times(2)).post(events.capture());
+		assertTrue(events.getAllValues().get(0).getHeader().getUpstream());
+		assertTrue(events.getAllValues().get(1).getHeader().getDownstream());
 		verify(schedulerService).schedule(isA(ReservationImpl.ReservationStartCallable.class), eq(0l), any(TimeUnit.class));
 	}
 
@@ -446,7 +457,10 @@ public class ReservationImplTest {
 		ReservationImpl.ReservationStartCallable callable = reservation.new ReservationStartCallable();
 
 		callable.call();
-		verify(portalEventBus).post(isA(ReservationStartedEvent.class));
+		ArgumentCaptor<ReservationStartedEvent> events = ArgumentCaptor.forClass(ReservationStartedEvent.class);
+		verify(portalEventBus, times(2)).post(events.capture());
+		assertTrue(events.getAllValues().get(0).getHeader().getUpstream());
+		assertTrue(events.getAllValues().get(1).getHeader().getDownstream());
 		verify(schedulerService).schedule(isA(ReservationImpl.ReservationEndCallable.class), eq(0l), any(TimeUnit.class));
 	}
 
@@ -456,7 +470,10 @@ public class ReservationImplTest {
 		ReservationImpl.ReservationStartCallable callable = reservation.new ReservationStartCallable();
 
 		callable.call();
-		verify(portalEventBus).post(isA(ReservationStartedEvent.class));
+		ArgumentCaptor<ReservationStartedEvent> events = ArgumentCaptor.forClass(ReservationStartedEvent.class);
+		verify(portalEventBus, times(2)).post(events.capture());
+		assertTrue(events.getAllValues().get(0).getHeader().getUpstream());
+		assertTrue(events.getAllValues().get(1).getHeader().getDownstream());
 		verify(schedulerService).schedule(isA(ReservationImpl.ReservationCancelCallable.class), anyLong(), any(TimeUnit.class));
 	}
 
@@ -466,7 +483,10 @@ public class ReservationImplTest {
 		ReservationImpl.ReservationStartCallable callable = reservation.new ReservationStartCallable();
 
 		callable.call();
-		verify(portalEventBus).post(isA(ReservationStartedEvent.class));
+		ArgumentCaptor<ReservationStartedEvent> events = ArgumentCaptor.forClass(ReservationStartedEvent.class);
+		verify(portalEventBus, times(2)).post(events.capture());
+		assertTrue(events.getAllValues().get(0).getHeader().getUpstream());
+		assertTrue(events.getAllValues().get(1).getHeader().getDownstream());
 		verify(schedulerService).schedule(isA(ReservationImpl.ReservationEndCallable.class), anyLong(), any(TimeUnit.class));
 		verify(schedulerService, never()).schedule(isA(ReservationImpl.ReservationCancelCallable.class), anyLong(), any(TimeUnit.class));
 	}
@@ -477,6 +497,7 @@ public class ReservationImplTest {
 		ReservationImpl.ReservationStartCallable callable = reservation.new ReservationStartCallable();
 
 		callable.call();
+
 		verify(portalEventBus, never()).post(isA(ReservationStartedEvent.class));
 		verify(schedulerService).schedule(isA(ReservationImpl.ReservationFinalizeCallable.class), anyLong(), any(TimeUnit.class));
 	}
@@ -487,7 +508,10 @@ public class ReservationImplTest {
 		ReservationImpl.ReservationEndCallable callable = reservation.new ReservationEndCallable();
 
 		callable.call();
-		verify(portalEventBus).post(isA(ReservationEndedEvent.class));
+		ArgumentCaptor<ReservationEndedEvent> events = ArgumentCaptor.forClass(ReservationEndedEvent.class);
+		verify(portalEventBus, times(2)).post(events.capture());
+		assertTrue(events.getAllValues().get(0).getHeader().getUpstream());
+		assertTrue(events.getAllValues().get(1).getHeader().getDownstream());
 		verify(schedulerService).schedule(isA(ReservationImpl.ReservationFinalizeCallable.class), anyLong(), any(TimeUnit.class));
 	}
 
@@ -498,7 +522,10 @@ public class ReservationImplTest {
 		ReservationImpl.ReservationFinalizeCallable callable = reservation.new ReservationFinalizeCallable();
 
 		callable.call();
-		verify(portalEventBus).post(isA(ReservationFinalizedEvent.class));
+		ArgumentCaptor<ReservationFinalizedEvent> events = ArgumentCaptor.forClass(ReservationFinalizedEvent.class);
+		verify(portalEventBus, times(2)).post(events.capture());
+		assertTrue(events.getAllValues().get(0).getHeader().getUpstream());
+		assertTrue(events.getAllValues().get(1).getHeader().getDownstream());
 		assertFalse(reservation.isRunning());
 	}
 }

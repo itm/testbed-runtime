@@ -687,7 +687,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 	}
 
 	@Override
-	public Multimap<DeviceAdapter, NodeUrn> getConnectedSubset(final Iterable<NodeUrn> nodeUrns) {
+	public Multimap<DeviceAdapter, NodeUrn> getConnectedSubset(final Set<NodeUrn> nodeUrns) {
 
 		final Multimap<DeviceAdapter, NodeUrn> map = HashMultimap.create();
 
@@ -697,7 +697,7 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 
 				final Sets.SetView<NodeUrn> connected = intersection(
 						deviceAdapter.getNodeUrns(),
-						newHashSet(nodeUrns)
+						nodeUrns
 				);
 
 				if (!connected.isEmpty()) {
@@ -710,8 +710,8 @@ class DeviceManagerImpl extends AbstractService implements DeviceManager {
 	}
 
 	@Override
-	public Iterable<NodeUrn> getUnconnectedSubset(final Iterable<NodeUrn> nodeUrns) {
-		return filter(nodeUrns, not(in(getConnectedNodeUrns())));
+	public Set<NodeUrn> getUnconnectedSubset(final Set<NodeUrn> nodeUrns) {
+		return Sets.filter(nodeUrns, not(in(getConnectedNodeUrns())));
 	}
 
 	/**

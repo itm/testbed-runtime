@@ -13,8 +13,8 @@ import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBConfig;
 import de.uniluebeck.itm.tr.devicedb.DeviceDBServiceModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.*;
-import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.UpstreamMessageQueueHelperImpl;
-import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.UpstreamMessageQueueHelper;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.UpstreamMessageQueueFactoryImpl;
+import de.uniluebeck.itm.tr.iwsn.gateway.eventqueue.UpstreamMessageQueueFactory;
 import de.uniluebeck.itm.tr.iwsn.gateway.events.DeviceFoundEvent;
 import de.uniluebeck.itm.tr.iwsn.gateway.netty.NettyClientModule;
 import de.uniluebeck.itm.tr.iwsn.gateway.plugins.GatewayPluginModule;
@@ -59,7 +59,7 @@ public class GatewayModule extends AbstractModule {
 		bind(GatewayEventBus.class).to(GatewayEventBusImpl.class);
 		bind(EventBusService.class).to(GatewayEventBusImpl.class); // for use in CachedDeviceDB
 
-        bind(UpstreamMessageQueueHelper.class).to(UpstreamMessageQueueHelperImpl.class).in(Scopes.SINGLETON);
+        bind(UpstreamMessageQueueFactory.class).to(UpstreamMessageQueueFactoryImpl.class).in(Scopes.SINGLETON);
         bind(UpstreamMessageQueue.class).to(UpstreamMessageQueueImpl.class).in(Scopes.SINGLETON);
 
 		bind(DeviceManager.class).to(DeviceManagerImpl.class).in(Scopes.SINGLETON);

@@ -217,7 +217,8 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 		portalEventBus.post(scope(messageFactory.reservationStartedEvent(
 				of(timestamp.getMillis()),
-				reservation.getSerializedKey()
+				reservation.getSerializedKey(),
+				true
 		)));
 	}
 
@@ -231,7 +232,8 @@ public class FederatorControllerImpl extends AbstractService implements Federato
 
 		portalEventBus.post(scope(messageFactory.reservationEndedEvent(
 				of(timestamp.getMillis()),
-				reservation.getSerializedKey()
+				reservation.getSerializedKey(),
+				true
 		)));
 	}
 

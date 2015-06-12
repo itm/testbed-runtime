@@ -128,7 +128,8 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		@Override
 		public void run() {
 			try {
-				portalEventBus.post(messageFactory.reservationOpenedEvent(empty(), getSerializedKey()));
+				portalEventBus.post(messageFactory.reservationOpenedEvent(empty(), getSerializedKey(), true));
+				portalEventBus.post(messageFactory.reservationOpenedEvent(empty(), getSerializedKey(), false));
 				scheduleFirstLifecycleCallable();
 			} catch (Exception e) {
 				log.error("Exception while posting ReservationOpenedEvent before scheduling lifecycle events: ", e);
@@ -162,17 +163,17 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		this.responseTrackerCache = checkNotNull(responseTrackerCache);
 		this.responseTrackerFactory = checkNotNull(responseTrackerFactory);
 		this.confidentialReservationData = newHashSet(checkNotNull(confidentialReservationDataList));
+		this.serializedKey = serialize(getSecretReservationKey());
 		this.key = checkNotNull(key);
 		this.username = checkNotNull(username);
 		this.cancelled = cancelled;
 		this.finalized = finalized;
 		this.nodeUrns = checkNotNull(nodeUrns);
 		this.interval = checkNotNull(interval);
-		this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));
-		this.reservationEventStore = reservationEventStoreFactory.createOrLoad(this);
 		this.schedulerService = checkNotNull(schedulerService);
 
-		this.serializedKey = serialize(getSecretReservationKey());
+		this.reservationEventBus = checkNotNull(reservationEventBusFactory.create(this));
+		this.reservationEventStore = reservationEventStoreFactory.createOrLoad(this);
 	}
 
 	private static Duration calculateDurationFromNow(ReadableInstant to) {
@@ -208,7 +209,8 @@ public class ReservationImpl extends AbstractService implements Reservation {
 	protected void doStop() {
 		log.trace("ReservationImpl.doStop()");
 		try {
-			portalEventBus.post(messageFactory.reservationClosedEvent(Optional.<Long>empty(), getSerializedKey()));
+			portalEventBus.post(messageFactory.reservationClosedEvent(Optional.<Long>empty(), getSerializedKey(), true));
+			portalEventBus.post(messageFactory.reservationClosedEvent(Optional.<Long>empty(), getSerializedKey(), false));
 		} catch (Exception e) {
 			log.error("Exception while posting ReservationClosedEvent: ", e);
 		}
@@ -287,13 +289,13 @@ public class ReservationImpl extends AbstractService implements Reservation {
 
 		final List<MessageLite> events = newLinkedList();
 
-		events.add(messageFactory.reservationMadeEvent(empty(), serializedKey));
+		events.add(messageFactory.reservationMadeEvent(empty(), serializedKey, true));
 
 		final boolean started = getInterval().getStart().isBeforeNow() &&
 				(getCancelled() == null || getCancelled().isAfter(getInterval().getStart()));
 
 		if (started) {
-			events.add(messageFactory.reservationStartedEvent(of(getInterval().getStartMillis()), serializedKey));
+			events.add(messageFactory.reservationStartedEvent(of(getInterval().getStartMillis()), serializedKey, true));
 		}
 
 		final boolean ended = getInterval().isBeforeNow();
@@ -301,17 +303,17 @@ public class ReservationImpl extends AbstractService implements Reservation {
 		if (isCancelled()) {
 
 			assert getCancelled() != null;
-			events.add(messageFactory.reservationCancelledEvent(of(getCancelled().getMillis()), serializedKey));
+			events.add(messageFactory.reservationCancelledEvent(of(getCancelled().getMillis()), serializedKey, true));
 
 		} else if (ended) {
 
-			events.add(messageFactory.reservationEndedEvent(of(getInterval().getEndMillis()), serializedKey));
+			events.add(messageFactory.reservationEndedEvent(of(getInterval().getEndMillis()), serializedKey, true));
 		}
 
 		if (isFinalized()) {
 
 			assert getFinalized() != null;
-			events.add(messageFactory.reservationFinalizedEvent(of(getFinalized().getMillis()), serializedKey));
+			events.add(messageFactory.reservationFinalizedEvent(of(getFinalized().getMillis()), serializedKey, true));
 		}
 
 		return events;
@@ -432,7 +434,8 @@ public class ReservationImpl extends AbstractService implements Reservation {
 			if (reservation.isFinalized()) {
 				return null;
 			}
-			portalEventBus.post(messageFactory.reservationMadeEvent(empty(), reservation.getSerializedKey()));
+			portalEventBus.post(messageFactory.reservationMadeEvent(empty(), reservation.getSerializedKey(), true));
+			portalEventBus.post(messageFactory.reservationMadeEvent(empty(), reservation.getSerializedKey(), false));
 			if (reservation.getCancelled() != null && reservation.getCancelled()
 					.isBefore(reservation.getInterval().getStart())) {
 				// Reservation is cancelled before start
@@ -457,7 +460,13 @@ public class ReservationImpl extends AbstractService implements Reservation {
 			}
 			portalEventBus.post(messageFactory.reservationStartedEvent(
 					of(reservation.getInterval().getStartMillis()),
-					reservation.getSerializedKey()
+					reservation.getSerializedKey(),
+					true
+			));
+			portalEventBus.post(messageFactory.reservationStartedEvent(
+					of(reservation.getInterval().getStartMillis()),
+					reservation.getSerializedKey(),
+					false
 			));
 			if (reservation.getCancelled() != null && reservation.getCancelled()
 					.isBefore(reservation.getInterval().getEnd())) {
@@ -481,7 +490,13 @@ public class ReservationImpl extends AbstractService implements Reservation {
 			assert reservation.getCancelled() != null;
 			portalEventBus.post(messageFactory.reservationCancelledEvent(
 					of(reservation.getCancelled().getMillis()),
-					reservation.getSerializedKey()
+					reservation.getSerializedKey(),
+					true
+			));
+			portalEventBus.post(messageFactory.reservationCancelledEvent(
+					of(reservation.getCancelled().getMillis()),
+					reservation.getSerializedKey(),
+					false
 			));
 			if (!reservation.isRunning()) {
 				scheduleEvent(new ReservationFinalizeCallable(), now());
@@ -503,7 +518,13 @@ public class ReservationImpl extends AbstractService implements Reservation {
 			}
 			portalEventBus.post(messageFactory.reservationEndedEvent(
 					of(reservation.getInterval().getEndMillis()),
-					reservation.getSerializedKey()
+					reservation.getSerializedKey(),
+					true
+			));
+			portalEventBus.post(messageFactory.reservationEndedEvent(
+					of(reservation.getInterval().getEndMillis()),
+					reservation.getSerializedKey(),
+					false
 			));
 			rescheduleFinalization();
 			return null;
@@ -530,7 +551,13 @@ public class ReservationImpl extends AbstractService implements Reservation {
 				assert reservation.getFinalized() != null;
 				portalEventBus.post(messageFactory.reservationFinalizedEvent(
 						of(reservation.getFinalized().getMillis()),
-						reservation.getSerializedKey()
+						reservation.getSerializedKey(),
+						true
+				));
+				portalEventBus.post(messageFactory.reservationFinalizedEvent(
+						of(reservation.getFinalized().getMillis()),
+						reservation.getSerializedKey(),
+						false
 				));
 			}
 			if (reservation.isRunning()) {

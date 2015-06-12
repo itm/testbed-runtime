@@ -123,8 +123,6 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 						new ProtobufVarint32LengthFieldPrepender(),
 						new ProtobufEncoder(),
 						new KeepAliveHandler(),
-						new MessageWrapper(),
-						new MessageUnwrapper(),
 						gatewayChannelHandler
 				);
 			};
@@ -180,6 +178,7 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 		log.trace("GatewayEventBusImpl.doStart()");
 
 		try {
+			gatewayChannelHandler.start();
 			lock.lock();
 			try {
 				RECONNECT_DELAY_SECONDS = 30;
@@ -203,25 +202,21 @@ class GatewayEventBusImpl extends AbstractService implements GatewayEventBus {
 
 		lock.lock();
 		try {
-
 			shuttingDown = true;
-
 			if (connectSchedule != null) {
 				connectSchedule.cancel(true);
 				connectSchedule = null;
 			}
-
 		} finally {
 			lock.unlock();
 		}
 
 		try {
-
+			gatewayChannelHandler.stop();
 			if (nettyClient != null && nettyClient.isRunning()) {
 				nettyClient.stopAsync().awaitTerminated();
 			}
 			notifyStopped();
-
 		} catch (Exception e) {
 			notifyFailed(e);
 		}

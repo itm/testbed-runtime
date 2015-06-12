@@ -516,7 +516,7 @@ class SingleDeviceAdapter extends SingleDeviceAdapterBase {
 									}
 
 									flashOperationRunningOrEnqueued = false;
-									future.setException(new RuntimeException(msg));
+									future.setException(e);
 								}
 							}
 						}

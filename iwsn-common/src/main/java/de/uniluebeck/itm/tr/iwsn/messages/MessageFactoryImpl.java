@@ -262,63 +262,63 @@ public class MessageFactoryImpl implements MessageFactory {
 	}
 
 	@Override
-	public ReservationStartedEvent reservationStartedEvent(Optional<Long> timestamp, String serializedReservationKey) {
+	public ReservationStartedEvent reservationStartedEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream) {
 
-		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_STARTED, empty(), true, true)
+		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_STARTED, empty(), upstream, !upstream)
 				.setBroadcast(true);
 
 		return ReservationStartedEvent.newBuilder().setHeader(header).build();
 	}
 
 	@Override
-	public ReservationEndedEvent reservationEndedEvent(Optional<Long> timestamp, String serializedReservationKey) {
+	public ReservationEndedEvent reservationEndedEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream) {
 
-		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_ENDED, empty(), true, true)
+		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_ENDED, empty(), upstream, !upstream)
 				.setBroadcast(true);
 
 		return ReservationEndedEvent.newBuilder().setHeader(header).build();
 	}
 
 	@Override
-	public ReservationMadeEvent reservationMadeEvent(Optional<Long> timestamp, String serializedReservationKey) {
+	public ReservationMadeEvent reservationMadeEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream) {
 
-		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_MADE, empty(), true, true)
+		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_MADE, empty(), upstream, !upstream)
 				.setBroadcast(true);
 
 		return ReservationMadeEvent.newBuilder().setHeader(header).build();
 	}
 
 	@Override
-	public ReservationCancelledEvent reservationCancelledEvent(Optional<Long> timestamp, String serializedReservationKey) {
+	public ReservationCancelledEvent reservationCancelledEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream) {
 
-		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_CANCELLED, empty(), true, true)
+		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_CANCELLED, empty(), upstream, !upstream)
 				.setBroadcast(true);
 
 		return ReservationCancelledEvent.newBuilder().setHeader(header).build();
 	}
 
 	@Override
-	public ReservationOpenedEvent reservationOpenedEvent(Optional<Long> timestamp, String serializedReservationKey) {
+	public ReservationOpenedEvent reservationOpenedEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream) {
 
-		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_OPENED, empty(), true, true)
+		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_OPENED, empty(), upstream, !upstream)
 				.setBroadcast(true);
 
 		return ReservationOpenedEvent.newBuilder().setHeader(header).build();
 	}
 
 	@Override
-	public ReservationClosedEvent reservationClosedEvent(Optional<Long> timestamp, String serializedReservationKey) {
+	public ReservationClosedEvent reservationClosedEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream) {
 
-		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_CLOSED, empty(), true, true)
+		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_CLOSED, empty(), upstream, !upstream)
 				.setBroadcast(true);
 
 		return ReservationClosedEvent.newBuilder().setHeader(header).build();
 	}
 
 	@Override
-	public ReservationFinalizedEvent reservationFinalizedEvent(Optional<Long> timestamp, String serializedReservationKey) {
+	public ReservationFinalizedEvent reservationFinalizedEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream) {
 
-		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_FINALIZED, empty(), true, true)
+		final Header.Builder header = header(of(serializedReservationKey), empty(), timestamp, EVENT_RESERVATION_FINALIZED, empty(), upstream, !upstream)
 				.setBroadcast(true);
 
 		return ReservationFinalizedEvent.newBuilder().setHeader(header).build();

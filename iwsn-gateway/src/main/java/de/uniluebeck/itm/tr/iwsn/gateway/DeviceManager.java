@@ -43,7 +43,7 @@ public interface DeviceManager extends Service {
 	 *
 	 * @return a mapping between node URNs and the device driver interfaces
 	 */
-	Multimap<DeviceAdapter, NodeUrn> getConnectedSubset(Iterable<NodeUrn> nodeUrns);
+	Multimap<DeviceAdapter, NodeUrn> getConnectedSubset(Set<NodeUrn> nodeUrns);
 
 	/**
 	 * Returns the subset of nodes from {@code nodeUrns} that are currently not connected.
@@ -53,6 +53,6 @@ public interface DeviceManager extends Service {
 	 *
 	 * @return a subset of currently not connected nodes
 	 */
-	Iterable<NodeUrn> getUnconnectedSubset(Iterable<NodeUrn> nodeUrns);
+	Set<NodeUrn> getUnconnectedSubset(Set<NodeUrn> nodeUrns);
 
 }

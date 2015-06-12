@@ -32,14 +32,6 @@ public class PortalEventStoreImplTest {
 
 	private static final String SERIALIZED_KEY = "BLABLABLA";
 
-	private static final ReservationEndedEvent RESERVATION_ENDED_EVENT = MESSAGE_FACTORY.reservationEndedEvent(
-			Optional.empty(), SERIALIZED_KEY
-	);
-
-	private static final ReservationStartedEvent RESERVATION_STARTED_EVENT = MESSAGE_FACTORY.reservationStartedEvent(
-			Optional.empty(), SERIALIZED_KEY
-	);
-
 	@Mock
 	private ReservationEventStoreFactory reservationEventStoreFactory;
 

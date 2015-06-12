@@ -124,7 +124,7 @@ public class MessageWrapper extends OneToOneEncoder {
 				.build());
 
 		MAP.put(DevicesDetachedEvent.class, event -> Message.newBuilder()
-				.setType(MessageType.EVENT_DEVICES_ATTACHED)
+				.setType(MessageType.EVENT_DEVICES_DETACHED)
 				.setDevicesDetachedEvent((DevicesDetachedEvent) event)
 				.build());
 

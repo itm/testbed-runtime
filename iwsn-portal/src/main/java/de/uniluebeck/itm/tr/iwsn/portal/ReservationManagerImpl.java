@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.AbstractService;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import de.uniluebeck.itm.tr.common.ReservationHelper;
 import de.uniluebeck.itm.tr.common.config.CommonConfig;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistence;
 import de.uniluebeck.itm.tr.rs.persistence.RSPersistenceListener;

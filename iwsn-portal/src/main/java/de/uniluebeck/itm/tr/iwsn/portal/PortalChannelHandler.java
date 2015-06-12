@@ -126,12 +126,9 @@ public class PortalChannelHandler extends SimpleChannelHandler {
 	}
 
 	private Set<NodeUrn> getUnconnectedNodeUrns(final Set<NodeUrn> nodeUrns) {
-
 		final Set<NodeUrn> connectedNodeUrns = newHashSet();
 		synchronized (contextToNodeUrnsMap) {
-			for (ChannelHandlerContext key : contextToNodeUrnsMap.keys()) {
-				connectedNodeUrns.addAll(contextToNodeUrnsMap.get(key));
-			}
+			connectedNodeUrns.addAll(contextToNodeUrnsMap.values());
 		}
 		return Sets.difference(nodeUrns, connectedNodeUrns);
 	}

@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.common;
 
+import com.google.common.base.Joiner;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
@@ -63,20 +64,31 @@ class ResponseTrackerImpl implements ResponseTracker {
 	}
 
 	@Subscribe
-	public void onResponse(final Response response) {
+	public void onResponse(final Response responseMsg) {
 
-		log.trace("ResponseTrackerImpl.onResponse({})", response);
+		Header request = requestHeader;
+		Header response = responseMsg.getHeader();
 
-		final boolean reservationIdEquals = ((requestHeader.hasSerializedReservationKey() && response.getHeader().hasSerializedReservationKey()) ||
-				(!requestHeader.hasSerializedReservationKey() && !response.getHeader().hasSerializedReservationKey())) &&
-				requestHeader.getSerializedReservationKey().equals(response.getHeader().getSerializedReservationKey());
+		boolean bothDoNotHave = (!request.hasSerializedReservationKey() || "".equals(request.getSerializedReservationKey())) && (!response.hasSerializedReservationKey() || "".equals(response.getSerializedReservationKey()));
+		boolean bothHave = request.hasSerializedReservationKey() && response.hasSerializedReservationKey();
+		boolean sameReservation = bothDoNotHave || (bothHave && request.getSerializedReservationKey().equals(response.getSerializedReservationKey()));
+		boolean sameCorrelationId = requestHeader.getCorrelationId() == response.getCorrelationId();
+		boolean match = sameReservation && sameCorrelationId;
 
-		final boolean requestIdEquals = requestHeader.getCorrelationId() == response.getHeader().getCorrelationId();
-		final boolean forMe = reservationIdEquals && requestIdEquals;
+		if (log.isTraceEnabled()) {
+			log.trace("ResponseTracker[\"{}\",{}].onResponse(\"{}\",{}) => match={} for node URNs {}",
+					requestHeader.getSerializedReservationKey(),
+					requestHeader.getCorrelationId(),
+					response.getSerializedReservationKey(),
+					response.getCorrelationId(),
+					match,
+					"[" + Joiner.on(",").join(response.getNodeUrnsList()) + "]"
+			);
+		}
 
-		if (forMe) {
+		if (match) {
 
-			response.getHeader().getNodeUrnsList().stream().map(NodeUrn::new).forEach(responseNodeUrn -> {
+			response.getNodeUrnsList().stream().map(NodeUrn::new).forEach(responseNodeUrn -> {
 
 				final ProgressSettableFuture<Response> future =
 						(ProgressSettableFuture<Response>) futureMap.get(responseNodeUrn);
@@ -87,7 +99,8 @@ class ResponseTrackerImpl implements ResponseTracker {
 							responseNodeUrn, requestHeader.getSerializedReservationKey(), requestHeader.getCorrelationId()
 					);
 				} else {
-					future.set(response);
+					log.trace("ResponseTrackerImpl.onResponse() setting response for {}", responseNodeUrn);
+					future.set(responseMsg);
 					if (futureMap.isDone()) {
 						eventBusService.unregister(this);
 					}
@@ -99,7 +112,7 @@ class ResponseTrackerImpl implements ResponseTracker {
 	@Subscribe
 	public void onSingleNodeProgress(final Progress progress) {
 
-		log.trace("ResponseTrackerImpl.onSingleNodeProgress({})", progress);
+		log.trace("ResponseTracker[\"{}\",{}].onSingleNodeProgress({})", requestHeader.getSerializedReservationKey(), requestHeader.getCorrelationId(), progress);
 
 		final boolean reservationIdEquals =
 				((requestHeader.hasSerializedReservationKey() && progress.getHeader().hasSerializedReservationKey()) ||

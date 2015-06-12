@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public class ReservationEventBusImpl extends AbstractService implements ReservationEventBus {
@@ -28,11 +29,18 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 
 	protected final String serializedReservationKey;
 
+	protected final PortalEventBus portalEventBus;
+
 	@Inject
-	public ReservationEventBusImpl(final EventBusFactory eventBusFactory, @Assisted final Reservation reservation) {
-		this.eventBus = eventBusFactory.create("ReservationEventBus[" + reservation.getSerializedKey() + "]");
-		this.reservation = reservation;
-		this.serializedReservationKey = reservation.getSerializedKey();
+	public ReservationEventBusImpl(final PortalEventBus portalEventBus,
+								   final EventBusFactory eventBusFactory,
+								   @Assisted final Reservation reservation) {
+
+		this.portalEventBus = checkNotNull(portalEventBus);
+		this.reservation = checkNotNull(reservation);
+		this.serializedReservationKey = checkNotNull(reservation.getSerializedKey());
+
+		this.eventBus = eventBusFactory.create("ReservationEventBus[" + checkNotNull(reservation.getSerializedKey()) + "]");
 	}
 
 	@Override
@@ -81,9 +89,23 @@ public class ReservationEventBusImpl extends AbstractService implements Reservat
 		if (MessageHeaderPair.isUnwrappedMessageEvent(event)) {
 			Header header = MessageHeaderPair.fromUnwrapped(event).header;
 			assertNodesArePartOfReservation(Lists.transform(header.getNodeUrnsList(), NodeUrn::new));
+
+			boolean upstream = (header.getUpstream() && header.getBroadcast()) || header.getUpstream();
+			boolean downstream = header.getDownstream();
+
+			if (header.getDownstream() && header.getBroadcast()) {
+				throw new IllegalArgumentException("It is not possible to post a downstream broadcast to the ReservationEventBus: " + event);
+			}
+
+			if (upstream) {
+				eventBus.post(event);
+			} else if (downstream) {
+				portalEventBus.post(event);
+			} else {
+				throw new IllegalArgumentException("This should not be possible");
+			}
 		}
 
-		eventBus.post(event);
 	}
 
 	@Override

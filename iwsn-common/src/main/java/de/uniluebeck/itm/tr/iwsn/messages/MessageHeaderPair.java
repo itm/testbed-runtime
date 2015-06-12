@@ -21,6 +21,8 @@ public class MessageHeaderPair {
 
 	public static final Set<MessageType> RESPONSE_TYPES = new HashSet<>();
 
+	public static final Set<MessageType> RESERVATION_EVENT_TYPES = new HashSet<>();
+
 	static {
 
 		// REQUESTS
@@ -106,6 +108,15 @@ public class MessageHeaderPair {
 		RESPONSE_TYPES.add(MessageType.RESPONSE);
 		RESPONSE_TYPES.add(MessageType.RESPONSE_GET_CHANNELPIPELINES);
 
+		// RESERVATION EVENT TYPES
+		RESERVATION_EVENT_TYPES.add(MessageType.EVENT_RESERVATION_CANCELLED);
+		RESERVATION_EVENT_TYPES.add(MessageType.EVENT_RESERVATION_CLOSED);
+		RESERVATION_EVENT_TYPES.add(MessageType.EVENT_RESERVATION_ENDED);
+		RESERVATION_EVENT_TYPES.add(MessageType.EVENT_RESERVATION_FINALIZED);
+		RESERVATION_EVENT_TYPES.add(MessageType.EVENT_RESERVATION_MADE);
+		RESERVATION_EVENT_TYPES.add(MessageType.EVENT_RESERVATION_OPENED);
+		RESERVATION_EVENT_TYPES.add(MessageType.EVENT_RESERVATION_STARTED);
+
 		// ALL MESSAGE TYPES
 		MESSAGE_TYPES.addAll(EVENT_TYPES);
 		MESSAGE_TYPES.addAll(REQUEST_TYPES);
@@ -143,6 +154,10 @@ public class MessageHeaderPair {
 
 	public static boolean isResponse(MessageType type) {
 		return RESPONSE_TYPES.contains(type);
+	}
+
+	public static boolean isReservationEvent(MessageType type) {
+		return RESERVATION_EVENT_TYPES.contains(type);
 	}
 
 	public static MessageHeaderPair fromUnwrapped(Object obj) {

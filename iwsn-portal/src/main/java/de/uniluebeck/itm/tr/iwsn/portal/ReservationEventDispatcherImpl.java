@@ -62,17 +62,17 @@ public class ReservationEventDispatcherImpl extends AbstractService implements R
 
 			if (pair.header.getUpstream()) {
 
+				DateTime timestamp = new DateTime(pair.header.getTimestamp());
+
 				if (pair.header.getBroadcast()) {
 
-					reservationManager.getReservations(new DateTime(pair.header.getTimestamp())).forEach(res -> {
-						res.getEventBus().post(pair.message);
-					});
+					reservationManager.getReservations(timestamp).forEach(res -> res.getEventBus().post(pair.message));
 
 				} else {
 
 					Multimap<Reservation, NodeUrn> mapping = reservationManager.getReservationMapping(
 							newHashSet(transform(pair.header.getNodeUrnsList(), NodeUrn::new)),
-							new DateTime(pair.header.getTimestamp())
+							timestamp
 					);
 
 					mapping.keySet().forEach(res -> {

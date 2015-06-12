@@ -67,19 +67,19 @@ public interface MessageFactory {
 					  Optional<String> errorMessage,
 					  Optional<byte[]> response);
 
-	ReservationStartedEvent reservationStartedEvent(Optional<Long> timestamp, String serializedReservationKey);
+	ReservationStartedEvent reservationStartedEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream);
 
-	ReservationEndedEvent reservationEndedEvent(Optional<Long> timestamp, String serializedReservationKey);
+	ReservationEndedEvent reservationEndedEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream);
 
-	ReservationMadeEvent reservationMadeEvent(Optional<Long> timestamp, String serializedReservationKey);
+	ReservationMadeEvent reservationMadeEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream);
 
-	ReservationCancelledEvent reservationCancelledEvent(Optional<Long> millis, String serializedReservationKey);
+	ReservationCancelledEvent reservationCancelledEvent(Optional<Long> millis, String serializedReservationKey, boolean upstream);
 
-	ReservationOpenedEvent reservationOpenedEvent(Optional<Long> timestamp, String serializedReservationKey);
+	ReservationOpenedEvent reservationOpenedEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream);
 
-	ReservationClosedEvent reservationClosedEvent(Optional<Long> timestamp, String serializedReservationKey);
+	ReservationClosedEvent reservationClosedEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream);
 
-	ReservationFinalizedEvent reservationFinalizedEvent(Optional<Long> timestamp, String serializedReservationKey);
+	ReservationFinalizedEvent reservationFinalizedEvent(Optional<Long> timestamp, String serializedReservationKey, boolean upstream);
 
 	EventAck eventAck(Header eventHeader, Optional<Long> timestamp);
 

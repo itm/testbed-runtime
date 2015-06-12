@@ -83,7 +83,7 @@ public class ReservationEventBusImplTest {
 		when(reservation.getNodeUrns()).thenReturn(RESERVED_NODES);
 		when(reservation.getSerializedKey()).thenReturn(RESERVATION_ID);
 		when(eventBusFactory.create(anyString())).thenReturn(eventBus);
-		reservationEventBus = new ReservationEventBusImpl(eventBusFactory, reservation);
+		reservationEventBus = new ReservationEventBusImpl(portalEventBus, eventBusFactory, reservation);
 		reservationEventBus.startAsync().awaitRunning();
 	}
 

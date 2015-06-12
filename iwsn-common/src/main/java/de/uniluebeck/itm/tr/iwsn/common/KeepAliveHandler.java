@@ -31,7 +31,7 @@ public class KeepAliveHandler extends IdleStateAwareChannelHandler {
 
 			Message keepAlive = Message
 					.newBuilder()
-					.setType(MessageType.KEEP_ALIVE_ACK)
+					.setType(MessageType.KEEP_ALIVE)
 					.build();
 
 			ctx.sendDownstream(new DownstreamMessageEvent(
