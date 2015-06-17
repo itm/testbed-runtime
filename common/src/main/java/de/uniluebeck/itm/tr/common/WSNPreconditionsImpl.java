@@ -63,7 +63,7 @@ class WSNPreconditionsImpl implements WSNPreconditions {
 		// check if there's at least on node to flash
 		checkArgument(flashProgramsConfigurations.size() > 0);
 
-		Set<String> nodeUrns = newHashSet();
+		Set<NodeUrn> nodeUrns = newHashSet();
 
 		for (FlashProgramsConfiguration flashProgramsConfiguration : flashProgramsConfigurations) {
 
@@ -76,7 +76,7 @@ class WSNPreconditionsImpl implements WSNPreconditions {
 					"Node URN sets of flashProgram configurations must be distinct!"
 			);
 
-			configNodeUrns.addAll(configNodeUrns);
+			nodeUrns.addAll(configNodeUrns);
 
 			checkNotNull(
 					flashProgramsConfiguration.getProgram(),

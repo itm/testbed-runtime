@@ -72,7 +72,7 @@ public abstract class ReservationHelper {
 		return encode(toJSON(secretReservationKeyList));
 	}
 
-	public static boolean equals(final String one, final String another) {
+	public static boolean equalsDeserialized(final String one, final String another) {
 		return deserialize(one).equals(deserialize(another));
 	}
 }

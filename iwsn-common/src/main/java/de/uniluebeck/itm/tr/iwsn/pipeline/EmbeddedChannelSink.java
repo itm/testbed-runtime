@@ -19,8 +19,8 @@ public class EmbeddedChannelSink implements ChannelSink {
 		try {
 			task.run();
 			return Channels.succeededFuture(pipeline.getChannel());
-		} catch (Throwable t) {
-			return Channels.failedFuture(pipeline.getChannel(), t);
+		} catch (Exception e) {
+			return Channels.failedFuture(pipeline.getChannel(), e);
 		}
 	}
 }

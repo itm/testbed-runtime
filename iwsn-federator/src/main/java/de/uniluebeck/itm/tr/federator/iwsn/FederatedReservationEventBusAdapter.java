@@ -72,7 +72,7 @@ public class FederatedReservationEventBusAdapter extends AbstractService {
 			MessageLite message = pair.message;
 
 			if (!header.hasSerializedReservationKey() ||
-					!ReservationHelper.equals(reservation.getSerializedKey(), header.getSerializedReservationKey())) {
+					!ReservationHelper.equalsDeserialized(reservation.getSerializedKey(), header.getSerializedReservationKey())) {
 				return;
 			}
 
