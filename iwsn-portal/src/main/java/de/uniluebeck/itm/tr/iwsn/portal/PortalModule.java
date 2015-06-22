@@ -41,8 +41,6 @@ import de.uniluebeck.itm.tr.snaa.SNAAServiceModule;
 import de.uniluebeck.itm.util.scheduler.SchedulerService;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceFactory;
 import de.uniluebeck.itm.util.scheduler.SchedulerServiceModule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -52,8 +50,6 @@ import static com.google.inject.util.Providers.of;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 
 public class PortalModule extends AbstractModule {
-
-	private static final Logger log = LoggerFactory.getLogger(PortalModule.class);
 
 	private final DeviceDBConfig deviceDBConfig;
 
@@ -117,7 +113,7 @@ public class PortalModule extends AbstractModule {
 		bind(NodeStatusTracker.class).to(NodeStatusTrackerImpl.class).in(Singleton.class);
 		bind(EndpointManager.class).to(EndpointManagerImpl.class).in(Singleton.class);
 
-        bind(ReservationEventDispatcher.class).to(ReservationEventDispatcherImpl.class).in(Singleton.class);
+		bind(ReservationEventDispatcher.class).to(ReservationEventDispatcherImpl.class).in(Singleton.class);
 
 		bind(MessageFactory.class).to(MessageFactoryImpl.class).in(Singleton.class);
 
