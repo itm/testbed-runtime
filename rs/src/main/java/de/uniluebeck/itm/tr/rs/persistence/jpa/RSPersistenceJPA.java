@@ -356,6 +356,7 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
     @Override
+	@Transactional
     public List<ConfidentialReservationData> getNonFinalizedReservations() throws RSFault_Exception {
         @SuppressWarnings("unchecked")
         final List<ReservationDataInternal> resultList = (List<ReservationDataInternal>) em.get()
@@ -369,6 +370,7 @@ public class RSPersistenceJPA implements RSPersistence {
     }
 
     @Override
+	@Transactional
 	public List<ConfidentialReservationData> getActiveReservations() throws RSFault_Exception {
 
 		@SuppressWarnings("unchecked")
@@ -385,6 +387,7 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
 	@Override
+	@Transactional
 	public List<ConfidentialReservationData> getFutureReservations() throws RSFault_Exception {
 
 		@SuppressWarnings("unchecked")
@@ -401,6 +404,7 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
 	@Override
+	@Transactional
 	public List<ConfidentialReservationData> getActiveAndFutureReservations() throws RSFault_Exception {
 
 		@SuppressWarnings("unchecked")
@@ -417,6 +421,7 @@ public class RSPersistenceJPA implements RSPersistence {
 	}
 
 	@Override
+	@Transactional
 	public Optional<ConfidentialReservationData> getReservation(final NodeUrn nodeUrn, final DateTime timestamp)
 			throws RSFault_Exception {
 
