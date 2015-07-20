@@ -8,6 +8,7 @@ import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationUnknownException;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.DtoHelper;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.DtoHelperFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.eventstore.ReservationEventStore;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -22,7 +23,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.Iterator;
 
 import static de.uniluebeck.itm.tr.common.json.JSONHelper.toJSON;
 
@@ -34,7 +37,8 @@ public class EventStoreResourceImpl implements EventStoreResource {
 	private final ReservationManager reservationManager;
 
 	private final PortalServerConfig portalServerConfig;
-	private final DtoHelper dtoHelper;
+
+	private final DtoHelperFactory dtoHelperFactory;
 
 	@Context
 	private ServletContext ctx;
@@ -45,10 +49,10 @@ public class EventStoreResourceImpl implements EventStoreResource {
 	@Inject
 	private EventStoreResourceImpl(final ReservationManager reservationManager,
 								   final PortalServerConfig portalServerConfig,
-								   final DtoHelper dtoHelper) {
+								   final DtoHelperFactory dtoHelperFactory) {
 		this.reservationManager = reservationManager;
 		this.portalServerConfig = portalServerConfig;
-		this.dtoHelper = dtoHelper;
+		this.dtoHelperFactory = dtoHelperFactory;
 	}
 
 	@Override
@@ -85,29 +89,55 @@ public class EventStoreResourceImpl implements EventStoreResource {
 
 		try {
 
-			final CloseableIterator<MessageHeaderPair> iterator =
+			final CloseableIterator<MessageHeaderPair> eventsIterator =
 					createIterator(secretReservationKeyBase64, fromTimestamp, toTimestamp);
 
 			final String filename = secretReservationKeyBase64 + "_" + DateTime.now().toString() + ".json";
 
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+			final DtoHelper dtoHelper = dtoHelperFactory.create(secretReservationKeyBase64);
 
-			final StreamingOutput stream = output -> {
+			final StreamingOutput stream = new StreamingOutput() {
+				@Override
+				public void write(OutputStream output) throws IOException, WebApplicationException {
 
-				final BufferedWriter out = new BufferedWriter(new OutputStreamWriter(output));
-				out.write("[");
-				while (iterator.hasNext()) {
-					out.write(toJSON(dtoHelper.encodeToJsonPojo(iterator.next())));
-					if (iterator.hasNext()) {
-						out.write(",");
-						out.write("\n");
+					final BufferedWriter out = new BufferedWriter(new OutputStreamWriter(output));
+					out.write("[");
+
+					while (eventsIterator.hasNext()) {
+						MessageHeaderPair next = null;
+						try {
+							next = eventsIterator.next();
+							log.trace("Deserialized {} event", next.header.getType());
+						} catch (Exception e) {
+							log.error("Exception while deserializing persisted event: ", e);
+						}
+						Iterable<Object> eventObjects;
+						try {
+							eventObjects = dtoHelper.encodeToJsonPojo(next);
+						} catch (Exception e) {
+							log.error("Exception while serializing persisted event {}: {}", next, e);
+							continue;
+						}
+						Iterator<Object> eventObjectsIterator = eventObjects.iterator();
+						while (eventObjectsIterator.hasNext()) {
+							out.write(toJSON(eventObjectsIterator.next()));
+							if (eventObjectsIterator.hasNext()) {
+								out.write(",");
+								out.write("\n");
+							}
+						}
+						if (eventsIterator.hasNext()) {
+							out.write(",");
+							out.write("\n");
+						}
 					}
+					out.write("]");
+					out.write("\n");
+					out.flush();
+					out.close();
+					eventsIterator.close();
 				}
-				out.write("]");
-				out.write("\n");
-				out.flush();
-				out.close();
-				iterator.close();
 			};
 
 			return Response.ok(stream).build();

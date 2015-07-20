@@ -4,6 +4,6 @@ import de.uniluebeck.itm.tr.iwsn.messages.MessageHeaderPair;
 
 public interface DtoHelper {
 
-	Object encodeToJsonPojo(MessageHeaderPair pair);
+	Iterable<Object> encodeToJsonPojo(MessageHeaderPair pair);
 
 }

@@ -1,5 +1,6 @@
 package de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto;
 
+import com.google.inject.assistedinject.Assisted;
 import com.google.protobuf.MessageLite;
 import de.uniluebeck.itm.tr.iwsn.messages.*;
 import de.uniluebeck.itm.tr.iwsn.portal.Reservation;
@@ -17,7 +18,8 @@ public class DtoHelperImpl implements DtoHelper {
 	public final Map<Class<? extends MessageLite>, Function<MessageHeaderPair, Iterable<? extends Object>>> encoders = new HashMap<>();
 
 	@Inject
-	public DtoHelperImpl(final ReservationManager reservationManager) {
+	public DtoHelperImpl(final ReservationManager reservationManager,
+						 @Assisted final String secretReservationKeysBase64) {
 
 		// REQUESTS
 		encoders.put(AreNodesAliveRequest.class, RequestMessage.CONVERT.andThen(SingleItemIterable::new));
@@ -48,7 +50,7 @@ public class DtoHelperImpl implements DtoHelper {
 		encoders.put(NotificationEvent.class, WebSocketNotificationMessage.CONVERT.andThen(SingleItemIterable::new));
 
 		Function<MessageHeaderPair, Reservation> getReservation = (pair) ->
-				reservationManager.getReservation(pair.header.getSerializedReservationKey());
+				reservationManager.getReservation(secretReservationKeysBase64);
 
 		encoders.put(ReservationStartedEvent.class, getReservation.andThen(ReservationStartedMessage::new).andThen(SingleItemIterable::new));
 		encoders.put(ReservationEndedEvent.class, getReservation.andThen(ReservationEndedMessage::new).andThen(SingleItemIterable::new));
@@ -68,8 +70,9 @@ public class DtoHelperImpl implements DtoHelper {
 	}
 
 	@Override
-	public Object encodeToJsonPojo(MessageHeaderPair pair) {
-		return encoders.get(pair.message.getClass()).apply(pair);
+	public Iterable<Object> encodeToJsonPojo(MessageHeaderPair pair) {
+		//noinspection unchecked
+		return (Iterable<Object>) encoders.get(pair.message.getClass()).apply(pair);
 	}
 
 	private static class SingleItemIterable implements Iterable<Object> {

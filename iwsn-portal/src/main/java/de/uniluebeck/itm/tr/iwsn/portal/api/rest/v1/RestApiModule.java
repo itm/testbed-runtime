@@ -10,6 +10,7 @@ import de.uniluebeck.itm.tr.iwsn.common.ResponseTrackerFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.PortalEventBus;
 import de.uniluebeck.itm.tr.iwsn.portal.ReservationManager;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.DtoHelper;
+import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.DtoHelperFactory;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.dto.DtoHelperImpl;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.resources.*;
 import de.uniluebeck.itm.tr.iwsn.portal.api.rest.v1.ws.EventWebSocketFactory;
@@ -49,12 +50,14 @@ public class RestApiModule extends AbstractModule {
 		bind(RestApiService.class).to(RestApiServiceImpl.class);
 		bind(ExperimentResource.class).to(ExperimentResourceImpl.class);
 		bind(CookieResource.class).to(CookieResourceImpl.class);
-		bind(DtoHelper.class).to(DtoHelperImpl.class);
+
 		bind(RemoteExperimentConfigurationResource.class).to(RemoteExperimentConfigurationResourceImpl.class);
 		bind(RsResource.class).to(RsResourceImpl.class);
 		bind(SnaaResource.class).to(SnaaResourceImpl.class);
 		bind(RootResource.class).to(RootResourceImpl.class);
 		bind(UserRegistrationResource.class).to(UserRegistrationResourceImpl.class);
+
+		install(new FactoryModuleBuilder().implement(DtoHelper.class, DtoHelperImpl.class).build(DtoHelperFactory.class));
 
 		if (federator) {
 			bind(NodeStatusTrackerResource.class).to(NotImplementedNodeStatusTrackerResource.class);
