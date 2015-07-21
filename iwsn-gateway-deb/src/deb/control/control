@@ -3,6 +3,6 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-Depends: openjdk-7-jre | oracle-java7-jdk | sun-java6-jre, adduser
+Depends: oracle-java8-installer | openjdk-8-jre | oracle-java8-jdk, adduser
 Description: [[description]]
 Maintainer: bimschas@itm.uni-luebeck.de
